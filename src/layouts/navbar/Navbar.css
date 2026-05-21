@@ -1,0 +1,78 @@
+/* NAVBAR */
+.navbar {
+  background: #efefef;
+  padding: 0.75rem 1.5rem !important;
+  margin-top: 60px;
+  position: fixed;
+  top: 0;
+ left: 0;
+right: 0;
+width: 100%;
+  height: 65px; /* slightly taller to fit scrollbar */
+  z-index: 900;
+
+  overflow: hidden;
+}
+
+/* SCROLLABLE LINKS */
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 6px 0; /* space for scrollbar */
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+/* allow overflow */
+.nav-links li {
+  flex-shrink: 0;
+}
+
+/* LINKS */
+.nav-links a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #6c757d;
+  font-size: large;
+  transition: color 0.2s ease;
+}
+
+/* hover */
+.nav-links a:hover {
+  color: #000;
+}
+
+/* active */
+.nav-links a.active {
+  color: #000;
+  border-bottom: 2px solid #000;
+}
+
+/* 🔥 VISIBLE SCROLLBAR STYLING */
+.nav-links::-webkit-scrollbar {
+  height: 8px;
+}
+
+.nav-links::-webkit-scrollbar-track {
+  background: #ddd;
+}
+
+.nav-links::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.nav-links::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Firefox */
+.nav-links {
+  scrollbar-color: #888 #ddd;
+  scrollbar-width: thin;
+}
