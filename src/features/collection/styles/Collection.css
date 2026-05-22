@@ -1,0 +1,331 @@
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+body {
+  background: #f4f4f4;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+.container-fluid.modern-form {
+  max-width: 1400px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.card.modern-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card.modern-card > .card-body {
+  overflow: visible;
+}
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.card-header.modern-header {
+  background: #ff2336;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 14px 18px;
+  border-bottom: none;
+}
+
+/* =========================================================
+   CARD BODY
+========================================================= */
+
+.card-body {
+  padding: 18px;
+}
+
+/* =========================================================
+   LABELS
+========================================================= */
+
+.form-label {
+  display: block;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.form-control.modern-input,
+.form-select.modern-input {
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  font-size: 14px;
+  padding: 6px 10px;
+  background: #fff;
+}
+
+.form-control.modern-input:focus,
+.form-select.modern-input:focus {
+  border-color: #ff2336;
+  box-shadow: 0 0 0 0.15rem rgba(255, 35, 54, 0.2);
+}
+
+/* textarea */
+textarea.form-control.modern-input {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn.modern-btn,
+.btn.btn-primary.btn-sm {
+  background: #ff2336 !important;
+  border-color: #ff2336 !important;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+.btn.modern-btn:hover,
+.btn.btn-primary.btn-sm:hover {
+  background: #e11d2e !important;
+  border-color: #e11d2e !important;
+}
+
+/* =========================================================
+   FOOTER ACTIONS
+========================================================= */
+
+.footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+/* =========================================================
+   SERVICE BAR
+========================================================= */
+
+.service-bar {
+  background: #e9ecef;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1px solid #ff2336;
+  border-radius: 6px;
+}
+
+/* =========================================================
+   PATTERN HEADER
+========================================================= */
+
+.pattern-header {
+  background: #e9ecef;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1px solid #ff2336;
+  border-radius: 6px;
+}
+
+.pattern-header small {
+  font-weight: 400;
+  color: #666;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+}
+
+.table thead th {
+  background: #ff2336 !important;
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 600;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 8px 10px !important;
+  border-color: #ff2336 !important;
+}
+
+.table tbody td {
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.table-footer {
+  background: #f5f5f5;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  padding: 8px 10px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* =========================================================
+   CUSTOM DROPDOWN
+========================================================= */
+
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-input {
+  height: 36px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-arrow {
+  font-size: 11px;
+}
+
+.dropdown-menu-custom {
+  position: absolute;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  margin-top: 4px;
+  z-index: 9999;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-search {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #eee;
+  padding: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.dropdown-list {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown-item:hover {
+  background: #f1f1f1;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-header.custom-header {
+  background: #ff2336;
+  color: #fff;
+}
+
+.modal-header.custom-header .btn-close {
+  filter: invert(1);
+}
+
+/* =========================================================
+   SPACING
+========================================================= */
+
+.row.g-4 {
+  --bs-gutter-x: 1rem;
+}
+
+.row.g-3 {
+  --bs-gutter-x: 1rem;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+  .card-body {
+    padding: 14px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table thead th,
+  .table tbody td {
+    font-size: 12px;
+    padding: 6px !important;
+  }
+
+  .table-footer {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .footer-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-actions button {
+    width: 100%;
+  }
+
+  .modal-container {
+    width: 90%;
+    max-width: 900px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+  }
+}
