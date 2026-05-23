@@ -35,8 +35,6 @@ import type {
 } from "../types/collection.types";
 
 const CollectionPage = () => {
-
-  
   // =========================================================
   // CUSTOMER
   // =========================================================
@@ -65,22 +63,6 @@ const CollectionPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   const [category, setCategory] = useState<Category | null>(null);
-
-  // =========================================================
-  // RIM SIZE
-  // =========================================================
-
-  // const [rimSizes, setRimSizes] = useState<RimSize[]>([]);
-
-  // const [selectedRimSize, setSelectedRimSize] = useState<string>("");
-
-  // =========================================================
-  // TYRE SIZE
-  // =========================================================
-
-  // const [tyreSizes, setTyreSizes] = useState<TyreSize[]>([]);
-
-  // const [tyreSize, setTyreSize] = useState<string>("");
 
   const [selectedTyreName, setSelectedTyreName] = useState<string>("");
 
@@ -136,23 +118,6 @@ const CollectionPage = () => {
 
   const [override, setOverride] = useState<boolean>(false);
 
-  // const [patterns, setPatterns] = useState<Pattern[]>([]);
-  // const [widths, setWidths] = useState<number[]>([]);
-
-  // const [selectedPattern, setSelectedPattern] = useState<string>("");
-
-  // const [selectedPatternObj, setSelectedPatternObj] = useState<Pattern | null>(
-  //   null,
-  // );
-
-  // const [selectedWidth, setSelectedWidth] = useState<string>("");
-
-  // const [selectedVariantId, setSelectedVariantId] = useState<number>(0);
-
-  // const [brand, setBrand] = useState<string>("");
-
-  // const [patternClass, setPatternClass] = useState<string>("");
-
   // =========================================================
   // REPAIR
   // =========================================================
@@ -192,44 +157,42 @@ const CollectionPage = () => {
   const [showTyreHistory, setShowTyreHistory] = useState<boolean>(false);
 
   const {
-  rimSizes,
-  selectedRimSize,
-  setSelectedRimSize,
+    rimSizes,
+    selectedRimSize,
+    setSelectedRimSize,
 
-  tyreSizes,
-  tyreSize,
-  setTyreSize,
+    tyreSizes,
+    tyreSize,
+    setTyreSize,
 
-  loadRimSizes,
-} = useTyreSizes(
-  category?.categoryId
-);
+    loadRimSizes,
+  } = useTyreSizes(category?.categoryId);
 
-const {
-  patterns,
-  widths,
+  const {
+    patterns,
+    widths,
 
-  selectedPattern,
-  setSelectedPattern,
+    selectedPattern,
+    setSelectedPattern,
 
-  selectedPatternObj,
+    selectedPatternObj,
 
-  selectedWidth,
-  setSelectedWidth,
+    selectedWidth,
+    setSelectedWidth,
 
-  selectedVariantId,
-  setSelectedVariantId,
+    selectedVariantId,
+    setSelectedVariantId,
 
-  brand,
-  patternClass,
+    brand,
+    patternClass,
 
-  handlePatternChange,
-} = usePatterns(
-  category?.categoryId,
-  tyreClassificationId,
-  isRetreaded,
-  override
-);
+    handlePatternChange,
+  } = usePatterns(
+    category?.categoryId,
+    tyreClassificationId,
+    isRetreaded,
+    override,
+  );
   const tyreHistoryList = [
     {
       invoiceDate: "01/12/2024",
@@ -311,13 +274,6 @@ const {
   // LOADERS
   // =========================================================
 
-  // const loadCustomers = async () => {
-  //   const res =
-  //     await customerService.getAllCustomers();
-  //   console.log("res",res)
-  //   setCustomers(res.data.data || []);
-  // };
-
   const loadServiceTypes = async () => {
     const res = await masterService.getServiceTypes();
 
@@ -329,45 +285,6 @@ const {
 
     setMake(res.data.data || []);
   };
-
-  // const loadPatterns = async (
-  //   categoryId: number,
-  //   tyreClassificationId: number,
-  //   isRetreaded: boolean,
-  //   override: boolean,
-  // ) => {
-  //   try {
-  //     // reset old data
-  //     setPatterns([]);
-  //     setWidths([]);
-
-  //     const res = await masterService.getPattern(
-  //       categoryId,
-  //       tyreClassificationId,
-  //       isRetreaded,
-  //       override,
-  //     );
-
-  //     const data = res.data.data || [];
-
-  //     setPatterns(data);
-
-  //     // collect widths
-  //     let allWidths: number[] = [];
-
-  //     data.forEach((pattern: Pattern) => {
-  //       pattern.variants.forEach((v) => {
-  //         allWidths.push(v.width);
-  //       });
-  //     });
-
-  //     const uniqueWidths = [...new Set(allWidths)];
-
-  //     setWidths(uniqueWidths);
-  //   } catch (err) {
-  //     console.error("Pattern API Error:", err);
-  //   }
-  // };
 
   // =========================================================
   // SERVICE TYPE CHANGE
@@ -418,38 +335,8 @@ const {
 
     // setRimSizes(rimResponse.data.data || []);
 
-   await loadRimSizes(selected.categoryId);
+    await loadRimSizes(selected.categoryId);
   };
-
-  // =========================================================
-  // RIM SIZE
-  // =========================================================
-
-  // useEffect(() => {
-  //   if (!category?.categoryId || !selectedRimSize) return;
-
-  //   // loadTyreSizes();
-  // }, [selectedRimSize]);
-
-  // useEffect(() => {
-  //   if (category?.categoryId && tyreClassificationId) {
-  //     loadPatterns(
-  //       category.categoryId,
-  //       tyreClassificationId,
-  //       isRetreaded,
-  //       override,
-  //     );
-  //   }
-  // }, [category?.categoryId, tyreClassificationId, isRetreaded, override]);
-
-  // const loadTyreSizes = async () => {
-  //   const res = await masterService.getTyreSizes(
-  //     category!.categoryId,
-  //     selectedRimSize,
-  //   );
-
-  //   setTyreSizes(res.data.data || []);
-  // };
 
   // =========================================================
   // FILTERED MAKE
@@ -488,35 +375,6 @@ const {
     // setWidths([]);
   };
 
-  // const handlePatternChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const value = e.target.value;
-
-  //   setSelectedPattern(value);
-
-  //   setSelectedWidth("");
-
-  //   const selected = patterns.find((p) => p.patternName === value);
-
-  //   if (selected) {
-  //     setSelectedPatternObj(selected);
-
-  //     setBrand(selected.brand);
-
-  //     setPatternClass(selected.tyreClassificationName);
-
-  //     const patternWidths = selected.variants.map((v) => v.width);
-
-  //     setWidths(patternWidths);
-  //   } else {
-  //     setSelectedPatternObj(null);
-
-  //     setBrand("");
-
-  //     setPatternClass("");
-
-  //     setWidths([]);
-  //   }
-  // };
   // =========================================================
   // SELECTED SERVICE NAME
   // =========================================================
