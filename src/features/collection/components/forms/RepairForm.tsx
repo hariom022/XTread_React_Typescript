@@ -280,11 +280,15 @@ const RepairForm = ({
             value={tyreSize || ""}
             onChange={(e) => {
               const selected = tyreSizes.find(
-                (t) => t.casingSize === e.target.value,
+                (t) => String(t.id) === String(e.target.value),
               );
 
-              setTyreSize(e.target.value);
+              console.log("Selected Tyre Object:", selected);
 
+              // STORE ID
+              setTyreSize(String(selected?.id || ""));
+
+              // STORE DISPLAY NAME
               setSelectedTyreName(selected?.casingSize || "");
             }}
             disabled={!selectedRimSize}
@@ -292,7 +296,7 @@ const RepairForm = ({
             <option value="">-- Select Tyre Size --</option>
 
             {tyreSizes.map((t) => (
-              <option key={t.tyreSizeId} value={t.casingSize}>
+              <option key={t.id} value={t.id}>
                 {t.casingSize}
               </option>
             ))}
@@ -460,7 +464,7 @@ const RepairForm = ({
 
       {/* TYRE HISTORY */}
       <div className="row g-2 mt-2 align-items-end">
-        <div className="col-md-4">
+        <div className="col-md-1">
           <button
             type="button"
             className="btn btn-primary btn-sm"
@@ -543,14 +547,14 @@ const RepairForm = ({
       {/* IS RETREADED */}
       <div className="row g-2 mt-2 align-items-end">
         {/* CHECKBOX */}
-        <div className="col-md-3">
-          <label className="form-label d-block">Is Retreaded</label>
-
+        <div className="col-md-3 d-flex">
           <input
             type="checkbox"
             checked={isRetreaded}
             onChange={(e) => handleIsRetreadedChange(e.target.checked)}
+            className="me-2"
           />
+          <label className="form-label d-block mt-2">Is Retreaded</label>
         </div>
 
         {/* NO OF RETREADS */}

@@ -3,7 +3,7 @@ export interface RimSize {
 }
 
 export interface TyreSize {
-  tyreSizeId: number;
+  id: number;
   casingSize: string;
 }
 

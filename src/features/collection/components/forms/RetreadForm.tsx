@@ -259,42 +259,28 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
           <label className="form-label">Tyre Size</label>
 
           <select
-  className="form-select modern-input"
-  value={tyreSize || ""}
-  onChange={(e) => {
-    const value = e.target.value;
+            className="form-select modern-input"
+            value={tyreSize}
+            onChange={(e) => {
+              const selected = tyreSizes.find(
+                (t) => String(t.id) === e.target.value,
+              );
 
-    const selected = tyreSizes.find(
-      (t) => t.casingSize === value,
-    );
+              console.log("Selected Tyre Object:", selected);
 
-    console.log("value", value);
+              setTyreSize(e.target.value);
 
-    console.log("tyreSizes", tyreSizes);
+              setSelectedTyreName(selected?.casingSize || "");
+            }}
+          >
+            <option value="">-- Select Tyre Size --</option>
 
-    console.log("Selected Tyre:", selected);
-
-    setTyreSize(value);
-
-    setSelectedTyreName(
-      selected?.casingSize || "",
-    );
-  }}
-  disabled={!selectedRimSize}
->
-  <option value="">
-    -- Select Tyre Size --
-  </option>
-
-  {tyreSizes.map((t) => (
-    <option
-      key={t.tyreSizeId}
-      value={t.casingSize}
-    >
-      {t.casingSize}
-    </option>
-  ))}
-</select>
+            {tyreSizes.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.casingSize}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* MAKE */}

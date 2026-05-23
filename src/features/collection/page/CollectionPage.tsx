@@ -178,6 +178,7 @@ const CollectionPage = () => {
 
   const [showRejectMessage, setShowRejectMessage] = useState<boolean>(false);
 
+  const [orderNumber, setOrderNumber] = useState<string>("");
   // =========================
   // ADD THESE STATES
   // =========================
@@ -496,6 +497,7 @@ const CollectionPage = () => {
       category: category?.categoryName || "",
 
       tyreSize: selectedTyreName,
+      tyreSizeId: tyreSize,
 
       serial,
 
@@ -511,8 +513,6 @@ const CollectionPage = () => {
       serviceTypeId: serviceTypeId,
 
       categoryId: category?.categoryId,
-
-      tyreSizeId: tyreSize,
 
       tyreMakeId,
 
@@ -717,12 +717,198 @@ const CollectionPage = () => {
 
     setRejectedPatternNo("");
   };
+
+  // =========================================================
+  // BUILD API PAYLOAD
+  // =========================================================
+
+  const buildApiPayload = () => {
+    return {
+      customerNumber: selectedCustomer?.customerNumber,
+
+      casings: orderItems.map((item) => ({
+        serviceTypeId: item.serviceTypeId?.toString(),
+
+        categoryId: item.categoryId?.toString(),
+
+        tyreSizeId: item.tyreSizeId?.toString(),
+
+        rimSize: item.rimSize,
+
+        tyreMakeId: item.tyreMakeId?.toString(),
+
+        model: item.model,
+
+        tyreClassificationId: item.tyreClassificationId?.toString(),
+
+        tyreReferenceNumber: item.serial,
+
+        dotNumber: item.dot,
+
+        otherNumber: item.otherNumber,
+
+        vehicleRegistrationNumber: item.vehicleReg,
+
+        existingRepairsCount: item.noOfRepairs || "0",
+
+        // RETREAD
+        isRetreaded: !!item.isRetreaded,
+
+        noOfRetread: item.isRetreaded ? item.noOfRetreads?.toString() : null,
+
+        previousPattern: item.isRetreaded ? item.previousPattern : null,
+
+        previousRetreader: item.isRetreaded ? item.retreadRef : null,
+
+        // RETREAD DETAIL
+        retreadDetail:
+          item.serviceType === "Retread"
+            ? {
+                treadPatternVariantId: item.treadPatternVariantId?.toString(),
+
+                isPatternOverride: !!item.override,
+              }
+            : null,
+
+        // REPAIR DETAIL
+        repairDetail:
+          item.serviceType === "Repair"
+            ? {
+                percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
+
+                remarks: item.remarks || "",
+
+                operations:
+                  item.repairs?.map((r: any) => ({
+                    repairType: r.repairType,
+
+                    repairLocation: r.repairLocation,
+
+                    quantity: r.repairQty,
+                  })) || [],
+              }
+            : null,
+      })),
+    };
+  };
   // =========================================================
   // SAVE ORDER
   // =========================================================
 
   const handleSaveOrder = async () => {
-    console.log(orderItems);
+    try {
+      if (orderItems.length === 0) {
+        alert("Please add casing first");
+
+        return;
+      }
+
+      // ==================================
+      // ADD CASING TO EXISTING ORDER
+      // ==================================
+
+      if (orderNumber && orderNumber.trim() !== "") {
+        const lastItem = orderItems[orderItems.length - 1];
+
+        const casingPayload = {
+          serviceTypeId: lastItem.serviceTypeId?.toString(),
+
+          categoryId: lastItem.categoryId?.toString(),
+
+          tyreSizeId: lastItem.tyreSizeId?.toString(),
+
+          rimSize: lastItem.rimSize,
+
+          tyreMakeId: lastItem.tyreMakeId?.toString(),
+
+          model: lastItem.model,
+
+          tyreClassificationId: lastItem.tyreClassificationId?.toString(),
+
+          tyreReferenceNumber: lastItem.serial,
+
+          dotNumber: lastItem.dot,
+
+          otherNumber: lastItem.otherNumber,
+
+          vehicleRegistrationNumber: lastItem.vehicleReg,
+
+          existingRepairsCount: lastItem.noOfRepairs || "0",
+
+          isRetreaded: !!lastItem.isRetreaded,
+
+          noOfRetread: lastItem.isRetreaded
+            ? lastItem.noOfRetreads?.toString()
+            : null,
+
+          previousPattern: lastItem.isRetreaded
+            ? lastItem.previousPattern
+            : null,
+
+          previousRetreader: lastItem.isRetreaded ? lastItem.retreadRef : null,
+
+          // RETREAD
+          retreadDetail:
+            lastItem.serviceType === "Retread"
+              ? {
+                  treadPatternVariantId:
+                    lastItem.treadPatternVariantId?.toString(),
+
+                  isPatternOverride: !!lastItem.override,
+                }
+              : null,
+
+          // REPAIR
+          repairDetail:
+            lastItem.serviceType === "Repair"
+              ? {
+                  percentageRemainingTreadDepth:
+                    lastItem.remainingTreadDepth || "0",
+
+                  remarks: lastItem.remarks || "",
+
+                  operations:
+                    lastItem.repairs?.map((r: any) => ({
+                      repairType: r.repairType,
+
+                      repairLocation: r.repairLocation,
+
+                      quantity: r.repairQty,
+                    })) || [],
+                }
+              : null,
+        };
+
+        console.log("ADD CASING API", casingPayload);
+
+        await masterService.addCasingToOrder(orderNumber, casingPayload);
+
+        alert("Casing added successfully ✅");
+
+        setOrderItems([]);
+      }
+
+      // ==================================
+      // CREATE NEW ORDER
+      // ==================================
+      else {
+        const payload = buildApiPayload();
+
+        console.log("CREATE ORDER API", payload);
+
+        await masterService.postSaveOrder(payload);
+
+        alert("Order created successfully ✅");
+
+        setOrderItems([]);
+
+        resetFormFields();
+      }
+    } catch (err) {
+      console.error("SAVE ORDER ERROR", err);
+
+      alert("Error saving order ❌");
+    }
   };
 
   return (
@@ -748,6 +934,8 @@ const CollectionPage = () => {
             categories={categories}
             category={category?.categoryId || 0}
             handleCategoryChange={handleCategoryChange}
+            orderNumber={orderNumber}
+            setOrderNumber={setOrderNumber}
           />
         </div>
       </div>
@@ -980,6 +1168,13 @@ const CollectionPage = () => {
           setOrderItems={setOrderItems}
           handleSaveOrder={handleSaveOrder}
         />
+      </div>
+      {/* <!-- Footer Buttons --> */}
+      <div className="footer-actions">
+        <button className="btn btn-secondary">Reset</button>
+        <button className="btn btn-primary btn-sm" onClick={handleSaveOrder}>
+          Save Customer Order
+        </button>
       </div>
     </div>
   );

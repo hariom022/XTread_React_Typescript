@@ -1,17 +1,13 @@
 // src/features/collection/components/CustomerSelection.tsx
-import "../styles/Collection.css"
-import type {
-  Customer,
-} from "../types/collection.types";
+import "../styles/Collection.css";
+import type { Customer } from "../types/collection.types";
 
 type Props = {
   customers: Customer[];
 
   selectedCustomer: Customer | null;
 
-  setSelectedCustomer: (
-    customer: Customer | null,
-  ) => void;
+  setSelectedCustomer: (customer: Customer | null) => void;
 
   orderItemsLength?: number;
 };
@@ -25,39 +21,26 @@ const CustomerSelection = ({
   return (
     <div className="card modern-card">
       {/* CARD HEADER */}
-      <div className="card-header modern-header">
-        Customer Selection
-      </div>
+      <div className="card-header modern-header">Customer Selection</div>
 
       {/* CARD BODY */}
       <div className="card-body">
         {/* CUSTOMER NAME */}
-        <label className="form-label">
-          Customer Name
-        </label>
+        <label className="form-label">Customer Name</label>
 
         <select
           className="form-select modern-input mb-3"
-          value={
-            selectedCustomer?.customerNumber ||
-            ""
-          }
+          value={selectedCustomer?.customerNumber || ""}
           onChange={(e) => {
             const customer = customers.find(
-              (c) =>
-                c.customerNumber ===
-                e.target.value,
+              (c) => c.customerNumber === e.target.value,
             );
 
-            setSelectedCustomer(
-              customer || null,
-            );
+            setSelectedCustomer(customer || null);
           }}
           disabled={orderItemsLength > 0}
         >
-          <option value="">
-            Select Customer
-          </option>
+          <option value="">Select Customer</option>
 
           {customers.map((customer) => (
             <option
@@ -73,10 +56,7 @@ const CustomerSelection = ({
         <input
           className="form-control modern-input mt-2"
           placeholder="Contact Person"
-          value={
-            selectedCustomer?.customerName ||
-            ""
-          }
+          value={selectedCustomer?.customerName || ""}
           readOnly
         />
 
@@ -84,10 +64,7 @@ const CustomerSelection = ({
         <input
           className="form-control modern-input mt-2"
           placeholder="Mobile"
-          value={
-            selectedCustomer?.mobileNumber ||
-            ""
-          }
+          value={selectedCustomer?.mobileNumber || ""}
           readOnly
         />
 
@@ -106,10 +83,7 @@ const CustomerSelection = ({
             <input
               className="form-control modern-input"
               placeholder="Account Manager"
-              value={
-                selectedCustomer?.salesGroupDescription ||
-                ""
-              }
+              value={selectedCustomer?.salesGroupDescription || ""}
               readOnly
             />
           </div>
@@ -119,74 +93,51 @@ const CustomerSelection = ({
             <input
               className="form-control modern-input"
               placeholder="Zone"
-              
               readOnly
             />
           </div>
         </div>
 
         {/* CUSTOMER DETAILS */}
-        {selectedCustomer && (
+        {/* {selectedCustomer && (
           <div className="mt-3">
             <div className="table-responsive">
               <table className="table table-bordered table-sm">
                 <tbody>
                   <tr>
-                    <th >
-                      Customer No
-                    </th>
+                    <th>Customer No</th>
 
-                    <td>
-                      {
-                        selectedCustomer.customerNumber
-                      }
-                    </td>
+                    <td>{selectedCustomer.customerNumber}</td>
                   </tr>
 
                   <tr>
                     <th>Customer Name</th>
 
-                    <td>
-                      {
-                        selectedCustomer.customerName
-                      }
-                    </td>
+                    <td>{selectedCustomer.customerName}</td>
                   </tr>
 
                   <tr>
                     <th>Mobile</th>
 
-                    <td>
-                      {
-                        selectedCustomer.mobileNumber
-                      }
-                    </td>
+                    <td>{selectedCustomer.mobileNumber}</td>
                   </tr>
 
                   <tr>
                     <th>Email</th>
 
-                    <td>
-                      {selectedCustomer.email}
-                    </td>
+                    <td>{selectedCustomer.email}</td>
                   </tr>
 
                   <tr>
-                    <th>
-                      Account Manager
-                    </th>
+                    <th>Account Manager</th>
 
-                    <td>
-                      {
-                        selectedCustomer.salesGroupDescription
-                      }
-                    </td>
+                    <td>{selectedCustomer.salesGroupDescription}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
