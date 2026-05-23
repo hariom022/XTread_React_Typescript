@@ -20,6 +20,9 @@ import ClaimForm from "../components/forms/ClaimForm";
 import useCustomers from "../hooks/useCustomers";
 
 import masterService from "../services/masterService";
+import { useTyreSizes } from "../hooks/useTyreSizes";
+
+import { usePatterns } from "../hooks/usePatterns";
 
 import type {
   Category,
@@ -32,6 +35,8 @@ import type {
 } from "../types/collection.types";
 
 const CollectionPage = () => {
+
+  
   // =========================================================
   // CUSTOMER
   // =========================================================
@@ -65,17 +70,17 @@ const CollectionPage = () => {
   // RIM SIZE
   // =========================================================
 
-  const [rimSizes, setRimSizes] = useState<RimSize[]>([]);
+  // const [rimSizes, setRimSizes] = useState<RimSize[]>([]);
 
-  const [selectedRimSize, setSelectedRimSize] = useState<string>("");
+  // const [selectedRimSize, setSelectedRimSize] = useState<string>("");
 
   // =========================================================
   // TYRE SIZE
   // =========================================================
 
-  const [tyreSizes, setTyreSizes] = useState<TyreSize[]>([]);
+  // const [tyreSizes, setTyreSizes] = useState<TyreSize[]>([]);
 
-  const [tyreSize, setTyreSize] = useState<string>("");
+  // const [tyreSize, setTyreSize] = useState<string>("");
 
   const [selectedTyreName, setSelectedTyreName] = useState<string>("");
 
@@ -131,22 +136,22 @@ const CollectionPage = () => {
 
   const [override, setOverride] = useState<boolean>(false);
 
-  const [patterns, setPatterns] = useState<Pattern[]>([]);
-  const [widths, setWidths] = useState<number[]>([]);
+  // const [patterns, setPatterns] = useState<Pattern[]>([]);
+  // const [widths, setWidths] = useState<number[]>([]);
 
-  const [selectedPattern, setSelectedPattern] = useState<string>("");
+  // const [selectedPattern, setSelectedPattern] = useState<string>("");
 
-  const [selectedPatternObj, setSelectedPatternObj] = useState<Pattern | null>(
-    null,
-  );
+  // const [selectedPatternObj, setSelectedPatternObj] = useState<Pattern | null>(
+  //   null,
+  // );
 
-  const [selectedWidth, setSelectedWidth] = useState<string>("");
+  // const [selectedWidth, setSelectedWidth] = useState<string>("");
 
-  const [selectedVariantId, setSelectedVariantId] = useState<number>(0);
+  // const [selectedVariantId, setSelectedVariantId] = useState<number>(0);
 
-  const [brand, setBrand] = useState<string>("");
+  // const [brand, setBrand] = useState<string>("");
 
-  const [patternClass, setPatternClass] = useState<string>("");
+  // const [patternClass, setPatternClass] = useState<string>("");
 
   // =========================================================
   // REPAIR
@@ -186,6 +191,45 @@ const CollectionPage = () => {
   // TYRE HISTORY
   const [showTyreHistory, setShowTyreHistory] = useState<boolean>(false);
 
+  const {
+  rimSizes,
+  selectedRimSize,
+  setSelectedRimSize,
+
+  tyreSizes,
+  tyreSize,
+  setTyreSize,
+
+  loadRimSizes,
+} = useTyreSizes(
+  category?.categoryId
+);
+
+const {
+  patterns,
+  widths,
+
+  selectedPattern,
+  setSelectedPattern,
+
+  selectedPatternObj,
+
+  selectedWidth,
+  setSelectedWidth,
+
+  selectedVariantId,
+  setSelectedVariantId,
+
+  brand,
+  patternClass,
+
+  handlePatternChange,
+} = usePatterns(
+  category?.categoryId,
+  tyreClassificationId,
+  isRetreaded,
+  override
+);
   const tyreHistoryList = [
     {
       invoiceDate: "01/12/2024",
@@ -286,44 +330,44 @@ const CollectionPage = () => {
     setMake(res.data.data || []);
   };
 
-  const loadPatterns = async (
-    categoryId: number,
-    tyreClassificationId: number,
-    isRetreaded: boolean,
-    override: boolean,
-  ) => {
-    try {
-      // reset old data
-      setPatterns([]);
-      setWidths([]);
+  // const loadPatterns = async (
+  //   categoryId: number,
+  //   tyreClassificationId: number,
+  //   isRetreaded: boolean,
+  //   override: boolean,
+  // ) => {
+  //   try {
+  //     // reset old data
+  //     setPatterns([]);
+  //     setWidths([]);
 
-      const res = await masterService.getPattern(
-        categoryId,
-        tyreClassificationId,
-        isRetreaded,
-        override,
-      );
+  //     const res = await masterService.getPattern(
+  //       categoryId,
+  //       tyreClassificationId,
+  //       isRetreaded,
+  //       override,
+  //     );
 
-      const data = res.data.data || [];
+  //     const data = res.data.data || [];
 
-      setPatterns(data);
+  //     setPatterns(data);
 
-      // collect widths
-      let allWidths: number[] = [];
+  //     // collect widths
+  //     let allWidths: number[] = [];
 
-      data.forEach((pattern: Pattern) => {
-        pattern.variants.forEach((v) => {
-          allWidths.push(v.width);
-        });
-      });
+  //     data.forEach((pattern: Pattern) => {
+  //       pattern.variants.forEach((v) => {
+  //         allWidths.push(v.width);
+  //       });
+  //     });
 
-      const uniqueWidths = [...new Set(allWidths)];
+  //     const uniqueWidths = [...new Set(allWidths)];
 
-      setWidths(uniqueWidths);
-    } catch (err) {
-      console.error("Pattern API Error:", err);
-    }
-  };
+  //     setWidths(uniqueWidths);
+  //   } catch (err) {
+  //     console.error("Pattern API Error:", err);
+  //   }
+  // };
 
   // =========================================================
   // SERVICE TYPE CHANGE
@@ -370,40 +414,42 @@ const CollectionPage = () => {
 
     if (!selected) return;
 
-    const rimResponse = await masterService.getRimSizes(selected.categoryId);
+    // const rimResponse = await masterService.getRimSizes(selected.categoryId);
 
-    setRimSizes(rimResponse.data.data || []);
+    // setRimSizes(rimResponse.data.data || []);
+
+   await loadRimSizes(selected.categoryId);
   };
 
   // =========================================================
   // RIM SIZE
   // =========================================================
 
-  useEffect(() => {
-    if (!category?.categoryId || !selectedRimSize) return;
+  // useEffect(() => {
+  //   if (!category?.categoryId || !selectedRimSize) return;
 
-    loadTyreSizes();
-  }, [selectedRimSize]);
+  //   // loadTyreSizes();
+  // }, [selectedRimSize]);
 
-  useEffect(() => {
-    if (category?.categoryId && tyreClassificationId) {
-      loadPatterns(
-        category.categoryId,
-        tyreClassificationId,
-        isRetreaded,
-        override,
-      );
-    }
-  }, [category?.categoryId, tyreClassificationId, isRetreaded, override]);
+  // useEffect(() => {
+  //   if (category?.categoryId && tyreClassificationId) {
+  //     loadPatterns(
+  //       category.categoryId,
+  //       tyreClassificationId,
+  //       isRetreaded,
+  //       override,
+  //     );
+  //   }
+  // }, [category?.categoryId, tyreClassificationId, isRetreaded, override]);
 
-  const loadTyreSizes = async () => {
-    const res = await masterService.getTyreSizes(
-      category!.categoryId,
-      selectedRimSize,
-    );
+  // const loadTyreSizes = async () => {
+  //   const res = await masterService.getTyreSizes(
+  //     category!.categoryId,
+  //     selectedRimSize,
+  //   );
 
-    setTyreSizes(res.data.data || []);
-  };
+  //   setTyreSizes(res.data.data || []);
+  // };
 
   // =========================================================
   // FILTERED MAKE
@@ -431,46 +477,46 @@ const CollectionPage = () => {
     // reset pattern fields
     setSelectedPattern("");
 
-    setSelectedPatternObj(null);
+    // setSelectedPatternObj(null);
 
     setSelectedWidth("");
 
-    setBrand("");
+    // setBrand("");
 
-    setPatternClass("");
+    // setPatternClass("");
 
-    setWidths([]);
+    // setWidths([]);
   };
 
-  const handlePatternChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  // const handlePatternChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const value = e.target.value;
 
-    setSelectedPattern(value);
+  //   setSelectedPattern(value);
 
-    setSelectedWidth("");
+  //   setSelectedWidth("");
 
-    const selected = patterns.find((p) => p.patternName === value);
+  //   const selected = patterns.find((p) => p.patternName === value);
 
-    if (selected) {
-      setSelectedPatternObj(selected);
+  //   if (selected) {
+  //     setSelectedPatternObj(selected);
 
-      setBrand(selected.brand);
+  //     setBrand(selected.brand);
 
-      setPatternClass(selected.tyreClassificationName);
+  //     setPatternClass(selected.tyreClassificationName);
 
-      const patternWidths = selected.variants.map((v) => v.width);
+  //     const patternWidths = selected.variants.map((v) => v.width);
 
-      setWidths(patternWidths);
-    } else {
-      setSelectedPatternObj(null);
+  //     setWidths(patternWidths);
+  //   } else {
+  //     setSelectedPatternObj(null);
 
-      setBrand("");
+  //     setBrand("");
 
-      setPatternClass("");
+  //     setPatternClass("");
 
-      setWidths([]);
-    }
-  };
+  //     setWidths([]);
+  //   }
+  // };
   // =========================================================
   // SELECTED SERVICE NAME
   // =========================================================
@@ -654,13 +700,13 @@ const CollectionPage = () => {
 
     setSelectedPattern("");
 
-    setSelectedPatternObj(null);
+    // setSelectedPatternObj(null);
 
     setSelectedWidth("");
 
-    setBrand("");
+    // setBrand("");
 
-    setPatternClass("");
+    // setPatternClass("");
 
     setRemainingTreadDepth("");
 
