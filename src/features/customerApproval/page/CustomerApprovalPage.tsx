@@ -6,6 +6,10 @@ import CustomerOrderTable from "../components/CustomerOrderTable";
 
 import { useCustomerApproval } from "../hooks/useCustomerApproval";
 import Select from "react-select";
+// import CollectionPage from "../../collection/page/CollectionPage";
+import CollectionPage from "../../collection/page/CollectionPage";
+import type { Casing } from "../types/customerApprovalList.type";
+import EditCasing from "../../collection/components/forms/EditCasing";
 
 const CustomerApprovalPage = () => {
   const {
@@ -22,6 +26,23 @@ const CustomerApprovalPage = () => {
   const [expandedCollection, setExpandedCollection] = useState<string | null>(
     null,
   );
+
+  const [selectedCasing, setSelectedCasing] = useState<Casing | null>(null);
+
+  const [showEditModal, setShowEditModal] = useState(false);
+
+ const handleOpenEdit = (casing: any) => {
+  console.log("EDIT CASING", casing);
+  console.log("ORDER NUMBER", casing.orderNumber);
+
+  setSelectedCasing(casing);
+  setShowEditModal(true);
+};
+
+  const handleCloseEdit = () => {
+    setShowEditModal(false);
+    setSelectedCasing(null);
+  };
 
   const [showModal, setShowModal] = useState(false);
 
@@ -70,22 +91,22 @@ const CustomerApprovalPage = () => {
   };
 
   // UNIQUE CUSTOMER LIST
-const customerNames = [
-  "all",
+  const customerNames = [
+    "all",
 
-  ...new Set(
-    approvalList
-      .map(
-        (x) => x.customer?.customerName,
-      )
-      .filter(
-        (
-          name,
-        ): name is string => !!name,
-      ),
-  ),
-];
+    ...new Set(
+      approvalList
+        .map((x) => x.customer?.customerName)
+        .filter((name): name is string => !!name),
+    ),
+  ];
 
+  const handleSaveEdit = async () => {
+  await loadOrderList();
+
+  setShowEditModal(false);
+  setSelectedCasing(null);
+};
   return (
     <div className="container-fluid mt-3">
       {/* FILTER SECTION */}
@@ -128,6 +149,7 @@ const customerNames = [
         expandedCollection={expandedCollection}
         toggleCollection={toggleCollection}
         handleOpenApproval={handleOpenApproval}
+        handleOpenEdit={handleOpenEdit}
       />
 
       {/* MODAL */}
@@ -137,6 +159,37 @@ const customerNames = [
           onClose={() => setShowModal(false)}
           onSuccess={loadOrderList}
         />
+      )}
+
+      {showEditModal && selectedCasing && (
+        <div
+          className="modal fade show"
+          style={{
+            display: "block",
+            background: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <div className="modal-dialog modal-xl modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header bg-danger text-white">
+                <h5 className="modal-title">Edit Casing</h5>
+
+                <button
+                  className="btn-close btn-close-white"
+                  onClick={handleCloseEdit}
+                />
+              </div>
+
+              <div className="modal-body">
+                <EditCasing
+                  casing={selectedCasing}
+                  onClose={handleCloseEdit}
+                  onSave={handleSaveEdit}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import type { OrderItem } from "../types/customerApprovalList.type";
+import type { Casing, OrderItem } from "../types/customerApprovalList.type";
 
 type Props = {
   groupedCollections: Record<string, OrderItem[]>;
@@ -8,6 +8,7 @@ type Props = {
   toggleCollection: (orderNo: string) => void;
 
   handleOpenApproval: (orderNo: string, items: OrderItem[]) => void;
+  handleOpenEdit: (casing: Casing) => void;
 };
 
 const CustomerOrderTable = ({
@@ -15,6 +16,7 @@ const CustomerOrderTable = ({
   expandedCollection,
   toggleCollection,
   handleOpenApproval,
+  handleOpenEdit,
 }: Props) => {
   return (
     <div className="card shadow-sm border-0">
@@ -137,7 +139,17 @@ const CustomerOrderTable = ({
 
                               <td>
                                 <div className="d-flex gap-2 justify-content-center">
-                                  <button className="btn btn-sm btn-primary">
+                                  <button
+                                    className="btn btn-sm btn-primary"
+                                    onClick={(e) => {
+                                    e.stopPropagation();
+
+                                    handleOpenEdit({
+                                      ...casing,
+                                      orderNumber: orderNo,
+                                    });
+                                  }}
+                                  >
                                     <i className="bi bi-pencil-square"></i>
                                   </button>
 

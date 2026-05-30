@@ -34,7 +34,21 @@ import type {
   TyreSize,
 } from "../types/collection.types";
 
-const CollectionPage = () => {
+type Props = {
+  editMode?: boolean;
+  casing?: any;
+  onClose?: () => void;
+  onSuccess?: () => void;
+  hideLayout?: boolean;
+};
+
+const CollectionPage = ({
+  editMode = false,
+  casing,
+  onClose,
+  onSuccess,
+  hideLayout = false,
+}: Props) => {
   // =========================================================
   // CUSTOMER
   // =========================================================
@@ -176,6 +190,7 @@ const CollectionPage = () => {
     setSelectedPattern,
 
     selectedPatternObj,
+    setSelectedPatternObj,
 
     selectedWidth,
     setSelectedWidth,
@@ -184,7 +199,10 @@ const CollectionPage = () => {
     setSelectedVariantId,
 
     brand,
+    setBrand,
+
     patternClass,
+    setPatternClass,
 
     handlePatternChange,
   } = usePatterns(
@@ -286,6 +304,153 @@ const CollectionPage = () => {
     setMake(res.data.data || []);
   };
 
+  //======================= EDIT ============================
+
+  useEffect(() => {
+    const loadEditData = async () => {
+      if (!editMode || !casing) return;
+
+      console.log("EDIT CASING", casing);
+
+      // SERVICE TYPE
+      if (casing.serviceType?.id) {
+        const serviceId = casing.serviceType.id.toString();
+
+        setServiceTypeId(serviceId);
+
+        const catRes = await masterService.getCategories(serviceId);
+
+        const categories = catRes.data.data || [];
+
+        setCategories(categories);
+
+        const selectedCategory = categories.find(
+          (x: any) => x.categoryId === casing.category?.categoryId,
+        );
+
+        setCategory(selectedCategory || null);
+
+        if (selectedCategory) {
+          await loadRimSizes(selectedCategory.categoryId);
+        }
+      }
+      if (casing.orderNumber) {
+        setOrderNumber(casing.orderNumber);
+      }
+      if (casing.retreadDetail) {
+  setSelectedPattern(
+    casing.retreadDetail.patternName || ""
+  );
+
+  setSelectedWidth(
+    casing.retreadDetail.width?.toString() || ""
+  );
+
+  setOverride(
+    casing.retreadDetail.isPatternOverride || false
+  );
+
+  setSelectedVariantId(
+    casing.retreadDetail.treadPatternVariantId || 0
+  );
+}
+      // COMMON
+      setSerial(casing.tyreReferenceNumber || "");
+      setDot(casing.dotNumber || "");
+      setOtherNumber(casing.otherNumber || "");
+      setVehicleReg(casing.vehicleRegistrationNumber || "");
+      setModel(casing.model || "");
+
+      setNoOfRepairs(casing.existingRepairsCount?.toString() || "");
+
+      // RETREAD
+      setIsRetreaded(Boolean(casing.isRetreaded));
+
+      setNoOfRetreads(casing.noOfRetread?.toString() || "");
+
+      setPreviousPattern(casing.previousPattern || "");
+
+      setRetreadRef(casing.previousRetreader || "");
+
+      // MAKE
+      if (casing.tyreMake) {
+        setSelectedMake(casing.tyreMake.name);
+
+        setTyreMakeId(casing.tyreMake.id);
+
+        setTyreClassificationId(casing.tyreClassification?.id || 0);
+
+        setTyreClass(casing.tyreClassification?.name || "");
+      }
+
+      // RIM
+      setSelectedRimSize(casing.rimSize?.toString() || "");
+
+      // TYRE SIZE
+      setTyreSize(casing.tyreSize?.tyreSizeId?.toString() || "");
+
+      setSelectedTyreName(casing.tyreSize?.casingSize || "");
+
+      // PATTERN
+      if (casing.retreadDetail) {
+        setSelectedPattern(casing.retreadDetail.patternName || "");
+
+        setSelectedWidth(casing.retreadDetail.width?.toString() || "");
+
+        setOverride(casing.retreadDetail.isPatternOverride || false);
+      }
+      if (casing.repairDetail) {
+        setRemainingTreadDepth(
+          casing.repairDetail.percentageRemainingTreadDepth?.toString() || "",
+        );
+
+        setRemarks(casing.repairDetail.remarks || "");
+
+        setRepairs(
+          (casing.repairDetail.operations || []).map(
+            (x: any, index: number) => ({
+              id: index + 1,
+              repairType: x.repairType,
+              repairLocation: x.repairLocation,
+              repairQty: x.quantity?.toString() || "",
+            }),
+          ),
+        );
+      }
+      if (casing.retreadDetail) {
+        setSelectedPattern(casing.retreadDetail.patternName || "");
+
+        setSelectedWidth(casing.retreadDetail.width?.toString() || "");
+      }
+    };
+
+    loadEditData();
+  }, [editMode, casing]);
+
+  useEffect(() => {
+    if (!selectedPattern || patterns.length === 0) return;
+
+    const pattern = patterns.find((p) => p.patternName === selectedPattern);
+
+    if (!pattern) return;
+
+    setSelectedPatternObj(pattern);
+    setBrand(pattern.brand);
+    setPatternClass(pattern.tyreClassificationName);
+
+    if (selectedWidth) {
+  const variant = pattern.variants?.find(
+    (v) => String(v.width) === String(selectedWidth)
+  );
+
+  if (variant) {
+    setSelectedVariantId(
+      variant.treadPatternVariantId
+    );
+  }
+}
+  }, [patterns, selectedPattern]);
+  // ==========================================================
   // =========================================================
   // SERVICE TYPE CHANGE
   // =========================================================
@@ -815,34 +980,115 @@ const CollectionPage = () => {
     }
   };
 
+  //===================SAVE EDIT FORM =======================================
+  const handleUpdateCasing = async () => {
+    console.log("CASING DATA", casing);
+    console.log("ORDER NUMBER", casing?.orderNumber);
+    console.log("ORDER CASING ID", casing?.orderCasingId);
+    console.log(
+  "SELECTED VARIANT ID",
+  selectedVariantId
+);
+    try {
+      const payload = {
+        serviceTypeId: serviceTypeId,
+        categoryId: category?.categoryId,
+
+        tyreSizeId: tyreSize,
+
+        rimSize: selectedRimSize,
+
+        tyreMakeId: tyreMakeId,
+
+        model,
+
+        tyreClassificationId,
+
+        tyreReferenceNumber: serial,
+
+        dotNumber: dot,
+
+        otherNumber: otherNumber,
+
+        vehicleRegistrationNumber: vehicleReg,
+
+        existingRepairsCount: noOfRepairs,
+
+        isRetreaded,
+
+        noOfRetread: noOfRetreads,
+
+        previousPattern,
+
+        previousRetreader: retreadRef,
+
+        retreadDetail:
+          selectedService === "Retread"
+            ? {
+                treadPatternVariantId: selectedVariantId,
+                isPatternOverride: override,
+              }
+            : null,
+
+        repairDetail:
+          selectedService === "Repair"
+            ? {
+                percentageRemainingTreadDepth: remainingTreadDepth,
+
+                remarks,
+
+                operations: repairs.map((r) => ({
+                  repairType: r.repairType,
+                  repairLocation: r.repairLocation,
+                  quantity: Number(r.repairQty),
+                })),
+              }
+            : null,
+      };
+
+      await masterService.updateOrderCasing(
+        casing.orderNumber,
+        casing.orderCasingId,
+        payload,
+      );
+
+      alert("Casing updated successfully");
+
+      onSuccess?.();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update casing");
+    }
+  };
+  //========================================================================
   return (
     <div className="container-fluid modern-form p-3">
       {/* TOP SECTION */}
-      <div className="row g-4">
-        {/* CUSTOMER */}
-        <div className="col-lg-6">
-          <CustomerSelection
-            customers={customers}
-            selectedCustomer={selectedCustomer}
-            setSelectedCustomer={setSelectedCustomer}
-            orderItemsLength={orderItems.length}
-          />
-        </div>
+      {!hideLayout && (
+        <div className="row g-4">
+          <div className="col-lg-6">
+            <CustomerSelection
+              customers={customers}
+              selectedCustomer={selectedCustomer}
+              setSelectedCustomer={setSelectedCustomer}
+              orderItemsLength={orderItems.length}
+            />
+          </div>
 
-        {/* ORDER DETAILS */}
-        <div className="col-lg-6">
-          <OrderDetails
-            serviceTypes={serviceTypes}
-            selectedServiceType={serviceTypeId}
-            handleServiceTypeChange={handleServiceTypeChange}
-            categories={categories}
-            category={category?.categoryId || 0}
-            handleCategoryChange={handleCategoryChange}
-            orderNumber={orderNumber}
-            setOrderNumber={setOrderNumber}
-          />
+          <div className="col-lg-6">
+            <OrderDetails
+              serviceTypes={serviceTypes}
+              selectedServiceType={serviceTypeId}
+              handleServiceTypeChange={handleServiceTypeChange}
+              categories={categories}
+              category={category?.categoryId || 0}
+              handleCategoryChange={handleCategoryChange}
+              orderNumber={orderNumber}
+              setOrderNumber={setOrderNumber}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* RETREAD */}
       {selectedService === "Retread" && category && (
@@ -918,6 +1164,9 @@ const CollectionPage = () => {
               tyreHistoryList={tyreHistoryList}
               handleIsRetreadedChange={setIsRetreaded}
               handleOverrideChange={setOverride}
+              isEditMode={editMode}
+              onSave={handleUpdateCasing}
+              onClose={onClose}
             />
           </div>
         </div>
@@ -994,6 +1243,9 @@ const CollectionPage = () => {
               setShowTyreHistory={setShowTyreHistory}
               tyreHistoryList={tyreHistoryList}
               handleIsRetreadedChange={setIsRetreaded}
+              isEditMode={editMode}
+              onSave={handleUpdateCasing}
+              onClose={onClose}
             />
           </div>
         </div>
@@ -1060,26 +1312,34 @@ const CollectionPage = () => {
               setShowRejectMessage={setShowRejectMessage}
               category={category}
               handleAddCasing={handleAddCasing}
+              isEditMode={editMode}
+              onSave={handleUpdateCasing}
+              onClose={onClose}
             />
           </div>
         </div>
       )}
 
       {/* ORDER TABLE */}
-      <div className="mt-4">
-        <OrderTable
-          orderItems={orderItems}
-          setOrderItems={setOrderItems}
-          handleSaveOrder={handleSaveOrder}
-        />
-      </div>
+      {!hideLayout && (
+        <div className="mt-4">
+          <OrderTable
+            orderItems={orderItems}
+            setOrderItems={setOrderItems}
+            handleSaveOrder={handleSaveOrder}
+          />
+        </div>
+      )}
       {/* <!-- Footer Buttons --> */}
-      <div className="footer-actions">
-        <button className="btn btn-secondary">Reset</button>
-        <button className="btn btn-primary btn-sm" onClick={handleSaveOrder}>
-          Save Customer Order
-        </button>
-      </div>
+      {!hideLayout && (
+        <div className="footer-actions">
+          <button className="btn btn-secondary">Reset</button>
+
+          <button className="btn btn-primary btn-sm" onClick={handleSaveOrder}>
+            Save Customer Order
+          </button>
+        </div>
+      )}
     </div>
   );
 };

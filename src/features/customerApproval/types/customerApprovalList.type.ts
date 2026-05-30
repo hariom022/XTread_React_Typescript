@@ -46,6 +46,7 @@ export interface Casing {
   serviceType?: ServiceType;
 
   retreadDetail?: RetreadDetail;
+  orderNumber?: string;
 }
 
 export interface OrderItem {

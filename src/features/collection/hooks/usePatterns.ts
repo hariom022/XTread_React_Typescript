@@ -104,23 +104,27 @@ export const usePatterns = (
   };
 
   return {
-    patterns,
-    widths,
+  patterns,
+  widths,
 
-    selectedPattern,
-    setSelectedPattern,
+  selectedPattern,
+  setSelectedPattern,
 
-    selectedPatternObj,
+  selectedPatternObj,
+  setSelectedPatternObj,
 
-    selectedWidth,
-    setSelectedWidth,
+  selectedWidth,
+  setSelectedWidth,
 
-    selectedVariantId,
-    setSelectedVariantId,
+  selectedVariantId,
+  setSelectedVariantId,
 
-    brand,
-    patternClass,
+  brand,
+  setBrand,
 
-    handlePatternChange,
-  };
+  patternClass,
+  setPatternClass,
+
+  handlePatternChange,
+};
 };

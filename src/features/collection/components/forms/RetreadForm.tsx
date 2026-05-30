@@ -131,9 +131,13 @@ interface RetreadFormProps {
   handleAddCasing: () => void;
 
   isEditMode?: boolean;
+  onSave?: () => void;
+onClose?: () => void;
 }
 
 const RetreadForm: React.FC<RetreadFormProps> = ({
+  onSave,
+  onClose,
   handleMakeSelect,
   selectedRimSize,
   setSelectedRimSize,
@@ -626,6 +630,15 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
               const selectedVariant = selectedPatternObj?.variants.find(
                 (v: PatternVariant) => v.width === Number(width),
               );
+              console.log(
+                "Selected Variant",
+                selectedVariant
+              );
+
+              console.log(
+                "Variant Id",
+                selectedVariant?.treadPatternVariantId
+              );
 
               setSelectedWidth(width);
 
@@ -672,15 +685,35 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
 
       {/* ACTION BUTTONS */}
       <div className="footer-actions">
-        <div></div>
+  {isEditMode ? (
+    <>
+      <button
+        type="button"
+        className="btn btn-secondary me-2"
+        onClick={onClose}
+      >
+        Cancel
+      </button>
 
-        {!isEditMode && (
-          <button className="btn btn-primary btn-sm" onClick={handleAddCasing}>
-            Add Casing to Order
-          </button>
-        )}
-      </div>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={onSave}
+      >
+        Save Changes
+      </button>
+    </>
+  ) : (
+    <button
+      className="btn btn-primary btn-sm"
+      onClick={handleAddCasing}
+    >
+      Add Casing to Order
+    </button>
+  )}
+</div>
     </div>
+    
   );
 };
 

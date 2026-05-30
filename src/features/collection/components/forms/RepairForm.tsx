@@ -141,9 +141,13 @@ type Props = {
   handleAddCasing: () => void;
 
   isEditMode?: boolean;
+  onSave?: () => void;
+  onClose?: () => void;
 };
 
 const RepairForm = ({
+  onSave,
+  onClose,
   // ================= DATA =================
   selectedRimSize,
   setSelectedRimSize,
@@ -760,9 +764,21 @@ const RepairForm = ({
 
       {/* FOOTER */}
       <div className="footer-actions">
-        <div></div>
+        {isEditMode ? (
+          <>
+            <button
+              type="button"
+              className="btn btn-secondary me-2"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
 
-        {!isEditMode && (
+            <button type="button" className="btn btn-primary" onClick={onSave}>
+              Save Changes
+            </button>
+          </>
+        ) : (
           <button className="btn btn-primary btn-sm" onClick={handleAddCasing}>
             Add Casing to Order
           </button>
