@@ -1,0 +1,235 @@
+/* PAGE BACKGROUND */
+body {
+  background: #ffffff;
+}
+
+/* SEARCH BOX */
+.search-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-box i {
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-box input {
+  padding-left: 45px;
+  height: 55px;
+}
+
+/* FORM FOCUS */
+.form-control:focus {
+  border-color: #ced4da;
+  outline: none;
+  box-shadow: none;
+}
+
+/* TABLE */
+.table-responsive {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+table td {
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* TABLE HEADER */
+table thead th {
+  background-color: oklch(63.7% 0.237 25.331) !important;
+  color: #fff !important;
+  vertical-align: middle;
+}
+
+/* BADGES */
+.bg-warning,
+.bg-primary {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+/* MODAL INFO */
+.modal-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  justify-content: space-between;
+}
+
+/* FLOATING SELECT */
+.floating-select {
+  position: relative;
+  border: 1px solid #5a5a5a;
+  border-radius: 8px;
+}
+
+.floating-select select {
+  height: 52px;
+  padding-top: 22px;
+  outline: none;
+  box-shadow: none;
+}
+
+.form-select:focus {
+  border-color: #ced4da;
+  box-shadow: none;
+  outline: none;
+}
+
+.lable-con {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #777;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+/* FLOAT LABEL UP */
+.floating-select.has-value .lable-con,
+.floating-select select:focus + .lable-con {
+  top: 8px;
+  font-size: 12px;
+  color: #464545;
+}
+
+/* COMMON BUTTON EFFECT */
+.btn-approve,
+.btn-reject,
+.btn-cancel {
+  border-radius: 14px;
+  font-weight: 800;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18);
+}
+
+/* HOVER EFFECT */
+.btn-approve:hover,
+.btn-reject:hover,
+.btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* ACTIVE */
+.btn-approve:active,
+.btn-reject:active,
+.btn-cancel:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* APPROVE */
+.btn-approve {
+  background: linear-gradient(135deg, #28a745, #26a369, #28a745);
+  color: #fff !important;
+  font-weight: 800 !important;
+  padding: 35px !important;
+  font-size: larger !important;
+}
+
+/* REJECT */
+.btn-reject {
+  background: linear-gradient(
+    135deg,
+    oklch(63.7% 0.237 25.331),
+    #f54f5f,
+    oklch(63.7% 0.237 25.331)
+  );
+  color: #fff !important;
+  font-weight: 800 !important;
+  padding: 35px !important;
+  font-size: larger !important;
+}
+
+/* CANCEL */
+.btn-cancel {
+  background: linear-gradient(135deg, #f7f7f7, #e2e2e2);
+  color: #615e5e;
+  /* color: #fff !important; */
+  font-weight: 800 !important;
+}
+
+/* BUTTON SIZES */
+.btn-lg-action {
+  padding-top: 1.6rem;
+  padding-bottom: 1.6rem;
+  font-size: 1.2rem;
+}
+
+.btn-sm-action {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  font-size: 1rem;
+}
+.btn.btn-danger.btn-sm {
+  background-color: oklch(63.7% 0.237 25.331) !important; /*#dc3545; */
+  border-color: oklch(63.7% 0.237 25.331) !important; /*#dc3545; */
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+/* ICON BOX */
+.icon-box {
+  background: rgba(255, 255, 255, 0.35);
+  padding: 8px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-lg-action .icon-box {
+  padding: 10px 14px;
+}
+
+.btn-sm-action .icon-box {
+  padding: 6px 10px;
+}
+
+.table thead th {
+  background-color: oklch(63.7% 0.237 25.331) !important;
+  color: white !important;
+}
+
+.btn-primary {
+  background-color: oklch(63.7% 0.237 25.331) !important;
+  border-color: oklch(63.7% 0.237 25.331) !important;
+}
+
+.btn-outline-primary {
+  color: oklch(63.7% 0.237 25.331) !important;
+  border-color: oklch(63.7% 0.237 25.331) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: oklch(63.7% 0.237 25.331) !important;
+  color: white !important;
+}
+
+.btn-red-color {
+  background-color: oklch(63.7% 0.237 25.331) !important;
+  border-color: oklch(63.7% 0.237 25.331) !important;
+  color: white !important;
+}

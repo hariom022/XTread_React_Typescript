@@ -6,6 +6,7 @@ import Navbar from './layouts/navbar/Navbar'
 import Dashboard from './features/dashboard/pages/Dashboard'
 import CollectionPage from './features/collection/page/CollectionPage'
 import CustomerApprovalPage from './features/customerApproval/page/CustomerApprovalPage'
+import ReceivingPage from './features/receiving/page/ReceivingPage'
 
 const App=() =>{
  
@@ -19,6 +20,7 @@ const App=() =>{
           <Route path="/" element={<Dashboard />}/>
           <Route path="/collection" element={<CollectionPage />}/>
            <Route path="/customerApproval" element={<CustomerApprovalPage />}/>
+           <Route path='/receiving' element={<ReceivingPage/>}/>
         </Routes>
       </div>
     </BrowserRouter>
