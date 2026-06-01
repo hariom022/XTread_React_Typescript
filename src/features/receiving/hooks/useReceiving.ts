@@ -5,6 +5,11 @@ import receiveService from "../services/receiveService";
 import type { Order, ReceivingRow } from "../types/receiving.types";
 
 export const useReceiving = () => {
+  const [collectionLoading, setCollectionLoading] = useState(false);
+  const [batchLoading, setBatchLoading] = useState(false);
+  const [barcodeLoading, setBarcodeLoading] = useState(false);
+  const [notReceivedLoading, setNotReceivedLoading] = useState(false);
+
   const [activeTab, setActiveTab] = useState("collection");
 
   const [selectedDate, setSelectedDate] = useState("");
@@ -39,7 +44,7 @@ export const useReceiving = () => {
         list.push({
           id: casing.orderCasingId,
 
-           originalCasing: {
+          originalCasing: {
             ...casing,
             orderNumber: order.orderNumber,
           },
@@ -125,6 +130,8 @@ export const useReceiving = () => {
   // ==========================
   const loadCollectionOrders = async () => {
     try {
+      setCollectionLoading(true);
+
       const res = await receiveService.getCollectionOrders();
 
       const transformed = transformApiData(res.data?.data || []);
@@ -132,6 +139,8 @@ export const useReceiving = () => {
       setInspections(transformed);
     } catch (err) {
       console.error("Collection Error", err);
+    } finally {
+      setCollectionLoading(false);
     }
   };
 
@@ -140,6 +149,8 @@ export const useReceiving = () => {
   // ==========================
   const loadBatchOrders = async () => {
     try {
+      setBatchLoading(true);
+
       const res = await receiveService.getBatchOrders();
 
       const transformed = transformApiData(res.data?.data || []);
@@ -147,6 +158,8 @@ export const useReceiving = () => {
       setBatchList(transformed);
     } catch (err) {
       console.error("Batch Error", err);
+    } finally {
+      setBatchLoading(false);
     }
   };
 
@@ -155,6 +168,8 @@ export const useReceiving = () => {
   // ==========================
   const loadBarcodeOrders = async () => {
     try {
+      setBarcodeLoading(true);
+
       const res = await receiveService.getBarcodeOrders();
 
       const transformed = transformApiData(res.data?.data || []);
@@ -162,6 +177,8 @@ export const useReceiving = () => {
       setCasingList(transformed);
     } catch (err) {
       console.error("Barcode Error", err);
+    } finally {
+      setBarcodeLoading(false);
     }
   };
 
@@ -170,15 +187,19 @@ export const useReceiving = () => {
   // ==========================
   const loadNotReceivedOrders = async () => {
     try {
+      setNotReceivedLoading(true);
+
       const res = await receiveService.getCollectionOrders({
         isReceived: false,
       });
 
       const transformed = transformApiData(res.data?.data || []);
 
-      setNotReceivedList(transformed);
+      // setNotReceivedList(transformed);
     } catch (err) {
       console.error("Not Received Error", err);
+    } finally {
+      setNotReceivedLoading(false);
     }
   };
 
@@ -251,6 +272,10 @@ export const useReceiving = () => {
   }, []);
 
   return {
+    collectionLoading,
+    batchLoading,
+    barcodeLoading,
+    notReceivedLoading,
     activeTab,
     setActiveTab,
 

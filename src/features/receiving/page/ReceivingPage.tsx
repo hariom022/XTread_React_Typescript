@@ -19,12 +19,16 @@ import type { ReceivingRow } from "../types/receiving.types";
 import EditCasing from "../../collection/components/forms/EditCasing";
 
 import "../style/Receiving.css";
+import { RingLoader } from "react-spinners";
 
 const ReceivingPage = () => {
   const {
     activeTab,
     setActiveTab,
-
+    collectionLoading,
+    batchLoading,
+    barcodeLoading,
+    notReceivedLoading,
     selectedDate,
     setSelectedDate,
 
@@ -314,17 +318,25 @@ const ReceivingPage = () => {
       </div>
 
       {/* COLLECTION TAB */}
-      {activeTab === "collection" && (
-        <CollectionTable
-          groupedByCustomer={groupedByCustomer}
-          selectedRows={selectedRows}
-          setSelectedRows={setSelectedRows}
-          onReceive={handleReceive}
-          onReject={handleReject}
-          onView={handleView}
-          onEdit={handleOpenEdit}
-        />
-      )}
+      {activeTab === "collection" &&
+        (collectionLoading ? (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ minHeight: "400px" }}
+          >
+            <RingLoader color="#dc3545" size={80} />
+          </div>
+        ) : (
+          <CollectionTable
+            groupedByCustomer={groupedByCustomer}
+            selectedRows={selectedRows}
+            setSelectedRows={setSelectedRows}
+            onReceive={handleReceive}
+            onReject={handleReject}
+            onView={handleView}
+            onEdit={handleOpenEdit}
+          />
+        ))}
 
       {/* BATCH TAB */}
       {activeTab === "batch" && (

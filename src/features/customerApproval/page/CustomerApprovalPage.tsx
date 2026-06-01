@@ -11,11 +11,13 @@ import CollectionPage from "../../collection/page/CollectionPage";
 import type { Casing } from "../types/customerApprovalList.type";
 import EditCasing from "../../collection/components/forms/EditCasing";
 
+import { RingLoader } from "react-spinners";
+
 const CustomerApprovalPage = () => {
   const {
     approvalList,
     loadOrderList,
-
+    loading,
     selectedCustomer,
     setSelectedCustomer,
 
@@ -31,13 +33,18 @@ const CustomerApprovalPage = () => {
 
   const [showEditModal, setShowEditModal] = useState(false);
 
- const handleOpenEdit = (casing: any) => {
-  console.log("EDIT CASING", casing);
-  console.log("ORDER NUMBER", casing.orderNumber);
+  const [editLoading, setEditLoading] = useState(false);
+  const handleOpenEdit = async (casing: any) => {
+    setEditLoading(true);
 
-  setSelectedCasing(casing);
-  setShowEditModal(true);
-};
+    setSelectedCasing(casing);
+    setShowEditModal(true);
+
+    // Optional: only for testing loader visibility
+    setTimeout(() => {
+      setEditLoading(false);
+    }, 1000);
+  };
 
   const handleCloseEdit = () => {
     setShowEditModal(false);
@@ -102,11 +109,11 @@ const CustomerApprovalPage = () => {
   ];
 
   const handleSaveEdit = async () => {
-  await loadOrderList();
+    await loadOrderList();
 
-  setShowEditModal(false);
-  setSelectedCasing(null);
-};
+    setShowEditModal(false);
+    setSelectedCasing(null);
+  };
   return (
     <div className="container-fluid mt-3">
       {/* FILTER SECTION */}
@@ -144,13 +151,24 @@ const CustomerApprovalPage = () => {
       </div>
 
       {/* TABLE */}
-      <CustomerOrderTable
-        groupedCollections={groupedCollections}
-        expandedCollection={expandedCollection}
-        toggleCollection={toggleCollection}
-        handleOpenApproval={handleOpenApproval}
-        handleOpenEdit={handleOpenEdit}
-      />
+      {loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{
+            minHeight: "400px",
+          }}
+        >
+          <RingLoader color="#b30815" size={80} loading={loading} />
+        </div>
+      ) : (
+        <CustomerOrderTable
+          groupedCollections={groupedCollections}
+          expandedCollection={expandedCollection}
+          toggleCollection={toggleCollection}
+          handleOpenApproval={handleOpenApproval}
+          handleOpenEdit={handleOpenEdit}
+        />
+      )}
 
       {/* MODAL */}
       {showModal && (
@@ -181,11 +199,20 @@ const CustomerApprovalPage = () => {
               </div>
 
               <div className="modal-body">
-                <EditCasing
-                  casing={selectedCasing}
-                  onClose={handleCloseEdit}
-                  onSave={handleSaveEdit}
-                />
+                {editLoading ? (
+                  <div
+                    className="d-flex justify-content-center align-items-center"
+                    style={{ minHeight: "400px" }}
+                  >
+                    <RingLoader color="#b30815" size={80} loading={true} />
+                  </div>
+                ) : (
+                  <EditCasing
+                    casing={selectedCasing}
+                    onClose={handleCloseEdit}
+                    onSave={handleSaveEdit}
+                  />
+                )}
               </div>
             </div>
           </div>
