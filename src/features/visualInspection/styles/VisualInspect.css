@@ -1,0 +1,38 @@
+.modal-info {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.nail-header {
+  background: oklch(63.7% 0.237 25.331);
+  color: #fff;
+}
+
+.checklist-table td {
+  text-align: center;
+  padding: 12px;
+}
+
+.open-checklist-btn {
+  background: #0d6efd !important;
+  color: #fff !important;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.visual-checklist-backdrop {
+  background: rgba(13, 110, 253, 0.35) !important;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.blur-background {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}

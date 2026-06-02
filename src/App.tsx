@@ -7,6 +7,7 @@ import Dashboard from './features/dashboard/pages/Dashboard'
 import CollectionPage from './features/collection/page/CollectionPage'
 import CustomerApprovalPage from './features/customerApproval/page/CustomerApprovalPage'
 import ReceivingPage from './features/receiving/page/ReceivingPage'
+import VisualInspectionPage from './features/visualInspection/page/VisualInspectionPage'
 
 const App=() =>{
  
@@ -21,6 +22,7 @@ const App=() =>{
           <Route path="/collection" element={<CollectionPage />}/>
            <Route path="/customerApproval" element={<CustomerApprovalPage />}/>
            <Route path='/receiving' element={<ReceivingPage/>}/>
+           <Route path='/visualinspection' element={<VisualInspectionPage/>}/>
         </Routes>
       </div>
     </BrowserRouter>
