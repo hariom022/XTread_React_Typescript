@@ -11,6 +11,7 @@ const VisualInspectionTable = ({
     <CommonTable
       columns={indexPageColumns(onInspect)}
       data={data}
+      groupBy="batchNo"
     />
   );
 };
