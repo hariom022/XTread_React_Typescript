@@ -11,7 +11,10 @@ export const indexPageColumns = (onInspect: any) => [
     header: "Date",
     accessor: "date",
   },
-
+  {
+    header:"Customer Name",
+    accessor:"customerName"
+  },
   {
     header: "Tyre Ref No",
     accessor: "serial",
@@ -19,7 +22,7 @@ export const indexPageColumns = (onInspect: any) => [
 
   {
     header: "Pattern",
-    accessor: "pattern",
+    accessor: "patternName",
   },
 
   {
@@ -42,10 +45,10 @@ export const indexPageColumns = (onInspect: any) => [
     ),
   },
 
-  {
-    header: "Batch No",
-    accessor: "batchNo",
-  },
+  // {
+  //   header: "Batch No",
+  //   accessor: "batchNo",
+  // },
 
   {
     header: "Action",

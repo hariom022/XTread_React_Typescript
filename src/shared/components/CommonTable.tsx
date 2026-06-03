@@ -101,25 +101,22 @@ const CommonTable = <T extends Record<string, any>>({
           {Object.entries(groupedData).map(([groupName, rows]) => {
             const isCollapsed = collapsedGroups[groupName];
 
-            const approved = rows.filter(
-              (x: any) => x.currentStageStatus === 2,
-            ).length;
+            const firstRow: any = rows[0];
 
-            const rejected = rows.filter(
-              (x: any) => x.currentStageStatus === 3,
-            ).length;
+            const approved = firstRow.approved || 0;
 
-            const pending = rows.filter(
-              (x: any) => x.currentStageStatus === 1,
-            ).length;
+            const rejected = firstRow.rejected || 0;
 
-            const previousStage = 0;
+            const pending = firstRow.pending || 0;
+
+            const previousStage = firstRow.previousStage || 0;
+
+            const expectedTotal = firstRow.expectedTotal || rows.length;
 
             const processed = approved + rejected;
 
             const progress =
-              rows.length > 0 ? (processed / rows.length) * 100 : 0;
-
+              expectedTotal > 0 ? (processed / expectedTotal) * 100 : 0;
             return (
               <React.Fragment key={groupName}>
                 {/* BATCH HEADER */}
@@ -165,7 +162,7 @@ const CommonTable = <T extends Record<string, any>>({
                         </div>
 
                         <span className="processed-text">
-                          {processed}/{rows.length} processed
+                         {processed}/{expectedTotal} processed
                         </span>
                       </div>
 
