@@ -9,6 +9,8 @@ type Props = {
 
   handleOpenApproval: (orderNo: string, items: OrderItem[]) => void;
   handleOpenEdit: (casing: Casing) => void;
+
+  handleDeleteCasing: (orderNumber: string, orderCasingId: number) => void;
 };
 
 const CustomerOrderTable = ({
@@ -17,6 +19,7 @@ const CustomerOrderTable = ({
   toggleCollection,
   handleOpenApproval,
   handleOpenEdit,
+  handleDeleteCasing,
 }: Props) => {
   return (
     <div className="card shadow-sm border-0">
@@ -142,18 +145,28 @@ const CustomerOrderTable = ({
                                   <button
                                     className="btn btn-sm btn-primary"
                                     onClick={(e) => {
-                                    e.stopPropagation();
+                                      e.stopPropagation();
 
-                                    handleOpenEdit({
-                                      ...casing,
-                                      orderNumber: orderNo,
-                                    });
-                                  }}
+                                      handleOpenEdit({
+                                        ...casing,
+                                        orderNumber: orderNo,
+                                      });
+                                    }}
                                   >
                                     <i className="bi bi-pencil-square"></i>
                                   </button>
 
-                                  <button className="btn btn-sm btn-danger">
+                                  <button
+                                    className="btn btn-sm btn-danger"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+
+                                      handleDeleteCasing(
+                                        orderNo,
+                                        casing.orderCasingId,
+                                      );
+                                    }}
+                                  >
                                     <i className="bi bi-trash"></i>
                                   </button>
                                 </div>

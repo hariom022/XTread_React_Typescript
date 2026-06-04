@@ -10,6 +10,7 @@ import Select from "react-select";
 import CollectionPage from "../../collection/page/CollectionPage";
 import type { Casing } from "../types/customerApprovalList.type";
 import EditCasing from "../../collection/components/forms/EditCasing";
+import customerApprovalService from "../services/customerApprovalService";
 
 import { RingLoader } from "react-spinners";
 
@@ -28,12 +29,41 @@ const CustomerApprovalPage = () => {
   const [expandedCollection, setExpandedCollection] = useState<string | null>(
     null,
   );
-
+  const [saveEditLoading, setSaveEditLoading] = useState(false);
   const [selectedCasing, setSelectedCasing] = useState<Casing | null>(null);
 
   const [showEditModal, setShowEditModal] = useState(false);
 
   const [editLoading, setEditLoading] = useState(false);
+
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDeleteCasing = async (
+    orderNumber: string,
+    orderCasingId: number,
+  ) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this casing?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeleteLoading(true);
+
+      await customerApprovalService.deleteCasing(orderNumber, orderCasingId);
+
+      alert("Casing deleted successfully");
+
+      await loadOrderList();
+    } catch (error) {
+      console.error(error);
+
+      alert("Failed to delete casing");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
   const handleOpenEdit = async (casing: any) => {
     setEditLoading(true);
 
@@ -114,6 +144,8 @@ const CustomerApprovalPage = () => {
     setShowEditModal(false);
     setSelectedCasing(null);
   };
+
+
   return (
     <div className="container-fluid mt-3">
       {/* FILTER SECTION */}
@@ -167,6 +199,7 @@ const CustomerApprovalPage = () => {
           toggleCollection={toggleCollection}
           handleOpenApproval={handleOpenApproval}
           handleOpenEdit={handleOpenEdit}
+          handleDeleteCasing={handleDeleteCasing}
         />
       )}
 
@@ -211,6 +244,7 @@ const CustomerApprovalPage = () => {
                     casing={selectedCasing}
                     onClose={handleCloseEdit}
                     onSave={handleSaveEdit}
+                    setSaveEditLoading={setSaveEditLoading}
                   />
                 )}
               </div>
@@ -218,6 +252,31 @@ const CustomerApprovalPage = () => {
           </div>
         </div>
       )}
+      {deleteLoading && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      )}
+      {saveEditLoading && (
+  <div
+    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+    style={{
+      background: "rgba(0,0,0,0.45)",
+      zIndex: 99999,
+    }}
+  >
+    <RingLoader
+      color="#b30815"
+      size={80}
+    />
+  </div>
+)}
     </div>
   );
 };

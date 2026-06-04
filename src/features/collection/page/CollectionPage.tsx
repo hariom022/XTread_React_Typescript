@@ -33,6 +33,7 @@ import type {
   TyreMake,
   TyreSize,
 } from "../types/collection.types";
+import { RingLoader } from "react-spinners";
 
 type Props = {
   editMode?: boolean;
@@ -40,6 +41,7 @@ type Props = {
   onClose?: () => void;
   onSuccess?: () => void;
   hideLayout?: boolean;
+  setSaveEditLoading?: (loading: boolean) => void;
 };
 
 const CollectionPage = ({
@@ -48,6 +50,7 @@ const CollectionPage = ({
   onClose,
   onSuccess,
   hideLayout = false,
+  setSaveEditLoading,
 }: Props) => {
   // =========================================================
   // CUSTOMER
@@ -338,22 +341,14 @@ const CollectionPage = ({
         setOrderNumber(casing.orderNumber);
       }
       if (casing.retreadDetail) {
-  setSelectedPattern(
-    casing.retreadDetail.patternName || ""
-  );
+        setSelectedPattern(casing.retreadDetail.patternName || "");
 
-  setSelectedWidth(
-    casing.retreadDetail.width?.toString() || ""
-  );
+        setSelectedWidth(casing.retreadDetail.width?.toString() || "");
 
-  setOverride(
-    casing.retreadDetail.isPatternOverride || false
-  );
+        setOverride(casing.retreadDetail.isPatternOverride || false);
 
-  setSelectedVariantId(
-    casing.retreadDetail.treadPatternVariantId || 0
-  );
-}
+        setSelectedVariantId(casing.retreadDetail.treadPatternVariantId || 0);
+      }
       // COMMON
       setSerial(casing.tyreReferenceNumber || "");
       setDot(casing.dotNumber || "");
@@ -439,16 +434,14 @@ const CollectionPage = ({
     setPatternClass(pattern.tyreClassificationName);
 
     if (selectedWidth) {
-  const variant = pattern.variants?.find(
-    (v) => String(v.width) === String(selectedWidth)
-  );
+      const variant = pattern.variants?.find(
+        (v) => String(v.width) === String(selectedWidth),
+      );
 
-  if (variant) {
-    setSelectedVariantId(
-      variant.treadPatternVariantId
-    );
-  }
-}
+      if (variant) {
+        setSelectedVariantId(variant.treadPatternVariantId);
+      }
+    }
   }, [patterns, selectedPattern]);
   // ==========================================================
   // =========================================================
@@ -863,7 +856,7 @@ const CollectionPage = ({
   // =========================================================
   // SAVE ORDER
   // =========================================================
-
+  const [saveOrderLoading, setSaveOrderLoading] = useState(false);
   const handleSaveOrder = async () => {
     try {
       if (orderItems.length === 0) {
@@ -871,7 +864,7 @@ const CollectionPage = ({
 
         return;
       }
-
+      setSaveOrderLoading(true);
       // ==================================
       // ADD CASING TO EXISTING ORDER
       // ==================================
@@ -977,19 +970,15 @@ const CollectionPage = ({
       console.error("SAVE ORDER ERROR", err);
 
       alert("Error saving order ❌");
+    } finally {
+      setSaveOrderLoading(false);
     }
   };
 
   //===================SAVE EDIT FORM =======================================
   const handleUpdateCasing = async () => {
-    console.log("CASING DATA", casing);
-    console.log("ORDER NUMBER", casing?.orderNumber);
-    console.log("ORDER CASING ID", casing?.orderCasingId);
-    console.log(
-  "SELECTED VARIANT ID",
-  selectedVariantId
-);
     try {
+      setSaveEditLoading?.(true);
       const payload = {
         serviceTypeId: serviceTypeId,
         categoryId: category?.categoryId,
@@ -1016,11 +1005,11 @@ const CollectionPage = ({
 
         isRetreaded,
 
-        noOfRetread: noOfRetreads,
+        noOfRetread: isRetreaded ? noOfRetreads : null,
 
-        previousPattern,
+        previousPattern: isRetreaded ? previousPattern : null,
 
-        previousRetreader: retreadRef,
+        previousRetreader: isRetreaded ? retreadRef : null,
 
         retreadDetail:
           selectedService === "Retread"
@@ -1045,7 +1034,7 @@ const CollectionPage = ({
               }
             : null,
       };
-
+      console.log("UPDATE PAYLOAD ON EDITING ", payload);
       await masterService.updateOrderCasing(
         casing.orderNumber,
         casing.orderCasingId,
@@ -1058,8 +1047,11 @@ const CollectionPage = ({
     } catch (error) {
       console.error(error);
       alert("Failed to update casing");
+    } finally {
+      setSaveEditLoading?.(false);
     }
   };
+
   //========================================================================
   return (
     <div className="container-fluid modern-form p-3">
@@ -1335,9 +1327,25 @@ const CollectionPage = ({
         <div className="footer-actions">
           <button className="btn btn-secondary">Reset</button>
 
-          <button className="btn btn-primary btn-sm" onClick={handleSaveOrder}>
-            Save Customer Order
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleSaveOrder}
+            disabled={saveOrderLoading}
+          >
+            {saveOrderLoading ? "Saving..." : "Save Customer Order"}
           </button>
+        </div>
+      )}
+
+      {saveOrderLoading && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
         </div>
       )}
     </div>

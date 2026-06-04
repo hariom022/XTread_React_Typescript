@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { RingLoader } from "react-spinners";
 import visualInspectionService from "../service/visualInspectionService";
 import VisualChecklistModal from "./VisualChecklistModal";
 
@@ -6,7 +7,7 @@ type Props = {
   item: any;
   rejectionReasons: any[];
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => Promise<void> | void;
 };
 
 const VisualInspectionModal = ({
@@ -20,6 +21,8 @@ const VisualInspectionModal = ({
   const [checkedChecklist, setCheckedChecklist] = useState<string[]>([]);
 
   const [reason, setReason] = useState<any>(null);
+
+  const [saving, setSaving] = useState(false);
 
   const [retreadBackup, setRetreadBackup] = useState<any>(null);
 
@@ -49,7 +52,8 @@ const VisualInspectionModal = ({
 
       noOfRetread: item.noOfRetread || "",
 
-      noOfExistingRepairs: item.noOfExistingRepairs || "",
+      noOfExistingRepairs:
+        item.existingRepairsCount || item.noOfExistingRepairs || "",
     };
 
     setRetreadBackup(prefill);
@@ -87,43 +91,59 @@ const VisualInspectionModal = ({
         return;
       }
 
+      setSaving(true);
+
       const payload = {
-        orderCasingIds: [String(item?.id)],
+        orderCasingIds: [String(item?.orderCasingId || item?.id)],
 
         isApproved,
 
         rejectionReasonCode: isApproved ? null : reason?.code,
       };
 
+      console.log("Approval Payload", payload);
+
       await visualInspectionService.handleApprovalRejection(payload);
 
-      alert(isApproved ? "Approved Successfully" : "Rejected Successfully");
+      await onSuccess();
 
-      onSuccess();
+      alert(isApproved ? "Approved Successfully" : "Rejected Successfully");
 
       onClose();
     } catch (err) {
       console.error(err);
 
       alert("Failed to process request");
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <>
+      {/* SAVE LOADER */}
+      {saving && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      )}
+
       <div
-  className={`modal fade show ${
-    showChecklist ? "blur-background" : ""
-  }`}
-  style={{
-    display: "block",
-    background: "rgba(0,0,0,0.5)",
-  }}
->
+        className={`modal fade show ${showChecklist ? "blur-background" : ""}`}
+        style={{
+          display: "block",
+          background: "rgba(0,0,0,0.5)",
+        }}
+      >
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content nail-modal">
             {/* HEADER */}
-
             <div className="modal-header nail-header">
               <h4 className="modal-title fw-bold">
                 VISUAL INSPECTION – APPROVAL
@@ -131,49 +151,49 @@ const VisualInspectionModal = ({
 
               <div className="ms-auto me-3 text-white fw-bold">John</div>
 
-              <button className="btn-close btn-close-white" onClick={onClose} />
+              <button
+                className="btn-close btn-close-white"
+                onClick={onClose}
+                disabled={saving}
+              />
             </div>
 
             {/* BODY */}
-
             <div className="modal-body">
               {/* TOP INFO */}
-
               <div className="modal-info">
                 <div>
                   <strong>Production No</strong>
-
-                  <div>{item?.casing}</div>
+                  <div>{item?.productionNumber || item?.casing}</div>
                 </div>
 
                 <div>
                   <strong>Tyre Ref No</strong>
-
-                  <div>{item?.serial}</div>
+                  <div>{item?.tyreReferenceNumber || item?.serial}</div>
                 </div>
 
                 <div>
-                  <strong>Customer Name</strong>
-
-                  <div>{item?.customerName}</div>
+                  <strong>Model</strong>
+                  <div>{item?.model || "-"}</div>
                 </div>
 
                 <div>
                   <strong>Tyre Size</strong>
-
-                  <div>{item?.tyreSize}</div>
+                  <div>
+                    {item?.tyreSize?.casingSize || item?.tyreSize || "-"}
+                  </div>
                 </div>
 
                 <div>
-                  <strong>Requested Pattern</strong>
-
-                  <div>{item?.requestedPattern || item?.pattern}</div>
+                  <strong>Service</strong>
+                  <div>{item?.serviceType?.name || item?.service}</div>
                 </div>
               </div>
 
-              {/* RETREAD SECTION */}
-
-              {(item?.service === "Retread" || item?.service === "Repair") && (
+              {(item?.serviceType?.name === "Retread" ||
+                item?.serviceType?.name === "Repair" ||
+                item?.service === "Retread" ||
+                item?.service === "Repair") && (
                 <div className="mt-3">
                   <div className="row align-items-center">
                     <div className="col-md-6">
@@ -199,11 +219,8 @@ const VisualInspectionModal = ({
 
                             if (!checked) {
                               setPreviousPattern("");
-
                               setPreviousRetreader("");
-
                               setNoOfRetread("");
-
                               setNoOfExistingRepairs("");
                             } else if (retreadBackup) {
                               setPreviousPattern(retreadBackup.previousPattern);
@@ -233,7 +250,7 @@ const VisualInspectionModal = ({
                           <input
                             className="form-control"
                             value={previousPattern}
-                            onChange={(e) => setPreviousPattern(e.target.value)}
+                            readOnly
                           />
                         </div>
 
@@ -243,9 +260,7 @@ const VisualInspectionModal = ({
                           <input
                             className="form-control"
                             value={previousRetreader}
-                            onChange={(e) =>
-                              setPreviousRetreader(e.target.value)
-                            }
+                            readOnly
                           />
                         </div>
                       </div>
@@ -255,23 +270,19 @@ const VisualInspectionModal = ({
                           <label>No Of Retreads</label>
 
                           <input
-                            type="number"
                             className="form-control"
                             value={noOfRetread}
-                            onChange={(e) => setNoOfRetread(e.target.value)}
+                            readOnly
                           />
                         </div>
 
                         <div className="col-md-6">
-                          <label>No Of Existing Repairs</label>
+                          <label>Existing Repairs</label>
 
                           <input
-                            type="number"
                             className="form-control"
                             value={noOfExistingRepairs}
-                            onChange={(e) =>
-                              setNoOfExistingRepairs(e.target.value)
-                            }
+                            readOnly
                           />
                         </div>
                       </div>
@@ -280,14 +291,14 @@ const VisualInspectionModal = ({
                 </div>
               )}
 
-              {/* REJECTION REASON */}
-
+              {/* REJECTION */}
               <div className="mt-3">
                 <label className="fw-semibold">Rejection Reason</label>
 
                 <select
                   className="form-select"
                   onChange={handleRejectionReasonChange}
+                  disabled={saving}
                 >
                   <option value="">--- Select Reason ---</option>
 
@@ -302,11 +313,11 @@ const VisualInspectionModal = ({
                 </select>
               </div>
 
-              {/* APPROVE / REJECT */}
-
+              {/* BUTTONS */}
               <div className="row mt-4">
                 <div className="col-md-6">
                   <button
+                    disabled={saving}
                     className="btn-approve w-100 border-0"
                     onClick={() => handleApproveReject(true)}
                   >
@@ -316,6 +327,7 @@ const VisualInspectionModal = ({
 
                 <div className="col-md-6">
                   <button
+                    disabled={saving}
                     className="btn-reject w-100 border-0"
                     onClick={() => handleApproveReject(false)}
                   >

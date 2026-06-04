@@ -12,6 +12,14 @@ const customerApprovalService = {
 
   confirmCustomerOrder: (data: CustomerApprovalPayload) =>
     api.post("/orders/customer-approval", data),
+
+  deleteCasing: (
+    orderNumber: string,
+    orderCasingId: number
+  ) =>
+    api.delete(
+      `/orders/${orderNumber}/casings/${orderCasingId}`
+    ),
 };
 
 export default customerApprovalService;
