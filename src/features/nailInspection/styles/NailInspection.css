@@ -1,0 +1,348 @@
+/* ========================= PAGE ========================= */
+
+.modern-form {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* ========================= SEARCH ========================= */
+
+.search-box {
+  position: relative;
+}
+
+.search-box i {
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  color: #8c8c8c;
+  font-size: 18px;
+  z-index: 1;
+}
+
+.search-box input {
+  height: 56px;
+  border-radius: 14px;
+  border: 2px solid #d8d8d8;
+  padding-left: 48px;
+  font-size: 17px;
+  background: white;
+}
+
+.search-box input:focus {
+  box-shadow: none;
+  border-color: #0d6efd;
+}
+
+/* ========================= INCIDENT BUTTON ========================= */
+
+.incident-btn {
+  height: 56px;
+  border-radius: 10px;
+  background: #ef3340;
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.incident-btn:hover {
+  background: #db2734;
+}
+
+/* ========================= TABLE WRAPPER ========================= */
+
+.main-table-wrapper {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* ========================= TABLE HEADER ========================= */
+
+.main-table-wrapper thead th {
+  background: #ff3040 !important;
+  color: white !important;
+  border-color: #ff3040 !important;
+  text-align: center;
+  font-weight: 600;
+  padding: 16px;
+}
+
+/* ========================= TABLE BODY ========================= */
+
+.main-table-wrapper tbody td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 16px;
+}
+
+.main-table-wrapper tbody tr {
+  background: #f8f8f8;
+}
+
+.main-table-wrapper tbody tr:hover {
+  background: #f2f2f2;
+}
+
+/* ========================= BATCH HEADER ========================= */
+
+.batch-separator-row td {
+  background: #f7efef !important;
+  padding: 0 !important;
+  border-top: 8px solid #f5f5f5;
+}
+
+.main-colSpan {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.batch-info-wrapper {
+  min-height: 58px;
+  padding: 0 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.batch-left-section {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.batch-no {
+  color: #e53935;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.processed-text {
+  font-size: 16px;
+  color: #555;
+}
+
+/* ========================= PROGRESS ========================= */
+
+.custom-progress {
+  width: 140px;
+  height: 20px;
+  border-radius: 50px;
+  overflow: hidden;
+  background: #d9d9d9;
+}
+
+.custom-progress .progress-bar {
+  transition: width 0.3s ease;
+}
+
+/* ========================= STATUS TEXT ========================= */
+
+.batch-right-section {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.approved-text {
+  color: #008000;
+}
+
+.rejected-text {
+  color: #ff0000;
+}
+
+.pending-text {
+  color: #ff9800;
+}
+
+.previous-stage-text {
+  color: #7a7a7a;
+}
+
+/* ========================= BADGES ========================= */
+
+.service-badge {
+  background: #0d6efd;
+  color: white;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.claim-badge {
+  background: #ffc107;
+  color: #212529;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ========================= INSPECT BUTTON ========================= */
+
+.inspect-btn {
+  background: #ff3040;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  padding: 7px 20px;
+  font-weight: 600;
+}
+
+.inspect-btn:hover {
+  background: #e32937;
+  color: white;
+}
+
+/* ========================= MODAL INFO ========================= */
+
+.modal-info {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.nail-header {
+  background: #dc3545;
+  color: white;
+}
+
+/* ========================= CHECKLIST ========================= */
+
+.checklist-table td {
+  text-align: left;
+  padding: 12px;
+}
+
+.open-checklist-btn {
+  background: #0d6efd !important;
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.visual-checklist-backdrop {
+  background: rgba(13, 110, 253, 0.35) !important;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.blur-background {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ================= INCIDENT MODAL ================= */
+
+.incident-header {
+  background: #dc3545;
+  color: white;
+}
+
+.incident-header .modal-title {
+  font-weight: 600;
+}
+
+.incident-header .btn-close {
+  filter: invert(1);
+}
+
+.modal-content {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-body label {
+  font-weight: 600;
+  color: #444;
+}
+
+.modal-body .form-select,
+.modal-body .form-control {
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  min-height: 46px;
+}
+
+.modal-body .form-select:focus,
+.modal-body .form-control:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.15);
+}
+
+.modal-body textarea {
+  resize: none;
+}
+
+.modal-footer {
+  border-top: 1px solid #eee;
+  padding: 15px 24px;
+}
+
+.modal-footer .btn {
+  min-width: 120px;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.modal-footer .btn-danger {
+  background: #dc3545;
+  border: none;
+}
+
+.modal-footer .btn-danger:hover {
+  background: #c82333;
+}
+
+.modal-footer .btn-secondary {
+  border: none;
+}
+/* ========================= RESPONSIVE ========================= */
+
+@media (max-width: 992px) {
+  .batch-info-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .batch-right-section {
+    gap: 12px;
+  }
+
+  .modal-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .modal-info {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-left-section {
+    flex-wrap: wrap;
+  }
+
+  .custom-progress {
+    width: 100%;
+  }
+}
