@@ -7,108 +7,91 @@ export const useVisualInspection = () => {
 
   const [inspections, setInspections] = useState<any[]>([]);
 
-  const [rejectionReasons, setRejectionReasons] =
-    useState([]);
+  const [rejectionReasons, setRejectionReasons] = useState([]);
 
   const loadVisualInspection = async () => {
     try {
       setLoading(true);
 
-     const res =
-  await indexPageApiService.getIndexPageOrders(3,1);
+      const res = await indexPageApiService.getBatchProgress(3, 1);
 
-console.log("VISUAL API", res.data);
+      console.log("VISUAL BATCH API", res.data);
 
-const transformed: any[] = [];
+      const transformed: any[] = [];
 
-(res.data?.data || []).forEach((order: any) => {
+      (res.data?.data || []).forEach((stage: any) => {
+        stage.batches?.forEach((batch: any) => {
+          batch.casings?.forEach((casing: any) => {
+            transformed.push({
+              id: casing.orderCasingId,
 
-  order.casings
-    ?.filter(
-      (casing: any) =>
-        casing.currentStage === 3 &&
-        casing.currentStageStatus === 1
-    )
-    .forEach((casing: any) => {
+              casing: casing.productionNumber || "-",
 
-    transformed.push({
-      id: casing.orderCasingId,
+              serial: casing.tyreReferenceNumber || "-",
 
-      casing:
-        casing.productionNumber ||
-        casing.tyreReferenceNumber ||
-        "-",
+              dot: casing.dotNumber || "-",
 
-      date:
-        order.createdAtUtc?.split("T")[0] || "-",
+              tyreSize: casing.tyreSizeLabel || "-",
 
-      serial:
-        casing.tyreReferenceNumber || "-",
+              patternName:casing?.patternName || "-",
 
-      dot:
-        casing.dotNumber || "-",
+              requestedPattern: "-",
 
-      pattern:
-        casing.retreadDetail?.patternName || "-",
+              date:casing.orderDate ||  "-",
 
-      requestedPattern:
-        casing.retreadDetail?.patternName || "-",
+              customerName:casing.customerName ||  "-",
 
-      tyreSize:
-        casing.tyreSize?.casingSize || "-",
+              service: batch.batchNumber?.startsWith("RT")
+                ? "Retread"
+                : "Repair",
 
-      customerName:
-        order.customer?.customerName || "-",
+              batchNo: batch.batchNumber,
 
-      service:
-        casing.serviceType?.name || "-",
+              currentStageStatus: casing.currentStageStatus,
 
-      batchNo:
-        casing.batchNumber || "-",
+              // batch summary
+              approved: batch.stageSummary?.approved || 0,
 
-      isRetreaded:
-        casing.isRetreaded || false,
+              rejected: batch.stageSummary?.rejected || 0,
 
-      previousPattern:
-        casing.previousPattern || "-",
+              pending: batch.stageSummary?.pending || 0,
 
-      previousRetreader:
-        casing.previousRetreader || "-",
+              previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
 
-      noOfRetread:
-        casing.noOfRetread || 0,
+              expectedTotal:
+                batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
-      noOfExistingRepairs:
-        casing.existingRepairsCount || 0,
+              arrived: batch.stageSummary?.arrived || 0,
 
-      tyresPerBatch: 0,
+              // modal fields
+              isRetreaded: false,
 
-      qtyAtStation: 0,
+              previousPattern: "",
 
-      collectorZone: "",
+              previousRetreader: "",
 
-      originalOrder: order,
-      originalCasing: casing,
-    });
+              noOfRetread: 0,
 
-  });
+              noOfExistingRepairs: 0,
 
-});
+              originalBatch: batch,
 
-console.log(
-  "TRANSFORMED VISUAL",
-  transformed
-);
+              originalCasing: casing,
+            });
+          });
+        });
+      });
 
-setInspections(transformed);
+      console.log("TRANSFORMED VISUAL", transformed);
+
+      setInspections(transformed);
     } finally {
       setLoading(false);
     }
   };
 
   const loadRejectionReasons = async () => {
-    const res =
-      await visualInspectionService.getRejectionReason();
+    const res = await visualInspectionService.getRejectionReason();
 
     setRejectionReasons(res.data.data);
   };

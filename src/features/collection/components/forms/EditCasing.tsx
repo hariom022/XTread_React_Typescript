@@ -7,12 +7,14 @@ type Props = {
   casing: any;
   onClose: () => void;
   onSave: () => void;
+  setSaveEditLoading: (loading: boolean) => void;
 };
 
 const EditCasing = ({
   casing,
   onClose,
   onSave,
+  setSaveEditLoading,
 }: Props) => {
   return (
     <CollectionPage
@@ -21,6 +23,7 @@ const EditCasing = ({
       onClose={onClose}
       onSuccess={onSave}
       hideLayout={true}
+      setSaveEditLoading={setSaveEditLoading}
     />
   );
 };

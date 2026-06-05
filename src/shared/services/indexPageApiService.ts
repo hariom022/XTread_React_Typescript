@@ -1,18 +1,16 @@
 import api from "./api";
 
 const indexPageApiService = {
-  getIndexPageOrders: (
-    casingStage: number,
-    status: number,
-    params: Record<string, any> = {}
-  ) =>
-    api.get("/orders", {
+  getBatchProgress: (currentStage: number, currentStageStatus: number) =>
+    api.get("/batches/progress", {
       params: {
-        ...params,
-        casingStage,
-        status,
+        currentStage,
+        currentStageStatus,
       },
     }),
+
+  getOrderCasingDetails: (orderCasingId: number) =>
+    api.get(`/orders/casings/${orderCasingId}`),
 };
 
 export default indexPageApiService;

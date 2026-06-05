@@ -26,7 +26,7 @@ const CommonTable = <T extends Record<string, any>>({
   >({});
 
   const renderRow = (row: T, rowIndex: number) => (
-    <tr key={row.id ?? rowIndex}>
+    <tr key={row.orderCasingId ?? row.id ?? rowIndex}>
       {columns.map((column, colIndex) => (
         <td key={colIndex} className={column.className || ""}>
           {column.render
@@ -101,28 +101,53 @@ const CommonTable = <T extends Record<string, any>>({
           {Object.entries(groupedData).map(([groupName, rows]) => {
             const isCollapsed = collapsedGroups[groupName];
 
-            const approved = rows.filter(
-              (x: any) => x.currentStageStatus === 2,
-            ).length;
+            const firstRow: any = rows[0];
 
-            const rejected = rows.filter(
-              (x: any) => x.currentStageStatus === 3,
-            ).length;
+            const summary =
+              firstRow.originalBatch?.stageSummary ||
+              firstRow.stageSummary ||
+              {};
 
-            const pending = rows.filter(
-              (x: any) => x.currentStageStatus === 1,
-            ).length;
+            const approved = firstRow.approved ?? summary.approved ?? 0;
 
-            const previousStage = 0;
+            const rejected = firstRow.rejected ?? summary.rejected ?? 0;
+
+            const pending = firstRow.pending ?? summary.pending ?? 0;
+
+            const expectedTotal =
+              firstRow.expectedTotal ?? summary.expectedTotal ?? rows.length;
+
+            const stillAtPreviousStage =
+              firstRow.stillAtPreviousStage ??
+              summary.stillAtPreviousStage ??
+              0;
+
+            const rejectedAtPreviousStages =
+              firstRow.rejectedAtPreviousStages ??
+              summary.rejectedAtPreviousStages ??
+              0;
+
+            const isBatchFullyArrived = summary.isBatchFullyArrived ?? false;
+
+            const isCompleteAtPreviousStage =
+              summary.isCompleteAtPreviousStage ?? false;
+
+            const isBatchCompleteAtStage =
+              summary.isBatchCompleteAtStage ?? false;
 
             const processed = approved + rejected;
 
-            const progress =
-              rows.length > 0 ? (processed / rows.length) * 100 : 0;
+            const approvedWidth =
+              expectedTotal > 0 ? (approved / expectedTotal) * 100 : 0;
+
+            const rejectedWidth =
+              expectedTotal > 0 ? (rejected / expectedTotal) * 100 : 0;
+
+            const pendingWidth =
+              expectedTotal > 0 ? (pending / expectedTotal) * 100 : 0;
 
             return (
               <React.Fragment key={groupName}>
-                {/* BATCH HEADER */}
                 <tr className="batch-separator-row">
                   <td colSpan={columns.length} className="main-colSpan">
                     <div className="batch-info-wrapper">
@@ -152,20 +177,27 @@ const CommonTable = <T extends Record<string, any>>({
                           <div
                             className="progress-bar bg-success"
                             style={{
-                              width: `${progress}%`,
+                              width: `${approvedWidth}%`,
                             }}
                           />
 
                           <div
                             className="progress-bar bg-danger"
                             style={{
-                              width: rejected > 0 ? "15%" : "0%",
+                              width: `${rejectedWidth}%`,
+                            }}
+                          />
+
+                          <div
+                            className="progress-bar bg-warning"
+                            style={{
+                              width: `${pendingWidth}%`,
                             }}
                           />
                         </div>
 
                         <span className="processed-text">
-                          {processed}/{rows.length} processed
+                          {processed}/{expectedTotal} processed
                         </span>
                       </div>
 
@@ -182,15 +214,40 @@ const CommonTable = <T extends Record<string, any>>({
                           ● {pending} Pending
                         </span>
 
-                        <span className="previous-stage-text">
-                          ● {previousStage} still at Previous Stage
-                        </span>
+                        {stillAtPreviousStage > 0 && (
+                          <span className="previous-stage-text">
+                            ● {stillAtPreviousStage} Still At Previous Stage
+                          </span>
+                        )}
+
+                        {rejectedAtPreviousStages > 0 && (
+                          <span className="text-danger fw-semibold">
+                            ● {rejectedAtPreviousStages} Rejected Upstream
+                          </span>
+                        )}
+
+                        {isBatchFullyArrived && (
+                          <span className="text-success fw-semibold">
+                            ✅ Fully Arrived
+                          </span>
+                        )}
+
+                        {isCompleteAtPreviousStage && (
+                          <span className="text-success fw-semibold">
+                            ✅ Previous Stage Complete
+                          </span>
+                        )}
+
+                        {isBatchCompleteAtStage && (
+                          <span className="text-primary fw-semibold">
+                            ✅ Batch Complete At This Stage
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>
                 </tr>
 
-                {/* ROWS */}
                 {!isCollapsed &&
                   rows.map((row, rowIndex) => renderRow(row, rowIndex))}
               </React.Fragment>
