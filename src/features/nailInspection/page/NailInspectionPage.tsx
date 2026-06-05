@@ -8,6 +8,7 @@ import ChecklistModal from "../components/NeilChecklistModel";
 import IncidentReportModal from "../components/IncidentReportModal";
 import "../styles/NailInspection.css";
 import { useNailInspection } from "../hooks/useNailInspection";
+import { useNailInspectionModal } from "../hooks/useNailInspectionModel";
 import { RingLoader } from "react-spinners";
 
 import { NAIL_VISUAL_CHECKLIST } from "../constants/nailCheckList";
@@ -21,7 +22,7 @@ const NailInspectionPage = () => {
 
     filteredInspections,
 
-    selectedItem,
+    // selectedItem,
     setSelectedItem,
 
     rejectionReasons,
@@ -54,7 +55,13 @@ const NailInspectionPage = () => {
     openInspection,
     loadOrders,
   } = useNailInspection();
-
+  const {
+  showModal,
+  selectedItem,
+  loadingModal,
+  openModal,
+  closeModal,
+} = useNailInspectionModal();
   const [showChecklist, setShowChecklist] = useState(false);
 
   const [showIncidentModal, setShowIncidentModal] = useState(false);
@@ -269,14 +276,15 @@ const handleHold = () => {
       ) : (
         <NailInspectionTable
           data={filteredInspections}
-          onInspect={openInspection}
+          onInspect={openModal}
         />
       )}
 
       {/* APPROVAL MODAL */}
       {selectedItem && (
         <NailInspectionModal
-          onClose={() => setSelectedItem(null)}
+          // onClose={() => setSelectedItem(null)}
+          onClose={closeModal}
           selectedItem={selectedItem}
           patchesRemoved={patchesRemoved}
           setPatchesRemoved={setPatchesRemoved}

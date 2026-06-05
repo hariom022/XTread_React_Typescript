@@ -45,64 +45,152 @@ const [puncturesFound, setPuncturesFound] = useState<number>(0);
     }
   };
 
-  const transformApiData = (orders: any[]) => {
-    const list: any[] = [];
+  // const transformApiData = (orders: any[]) => {
+  //   const list: any[] = [];
 
-    orders.forEach((order) => {
-      order.casings
-        ?.filter(
-          (casing: any) =>
-            casing.currentStage === 4 &&
-            casing.currentStageStatus === 1
-        )
-        .forEach((casing: any) => {
-          list.push({
-            id: casing.orderCasingId,
+  //   orders.forEach((order) => {
+  //     order.casings
+  //       ?.filter(
+  //         (casing: any) =>
+  //           casing.currentStage === 4 &&
+  //           casing.currentStageStatus === 1
+  //       )
+  //       .forEach((casing: any) => {
+  //         list.push({
+  //           id: casing.orderCasingId,
 
-            casing:
-              casing.productionNumber ||
-              casing.barcodeNumber ||
-              "-",
+  //           casing:
+  //             casing.productionNumber ||
+  //             casing.barcodeNumber ||
+  //             "-",
 
-            date: order.createdAtUtc
-              ? new Date(order.createdAtUtc)
-                  .toISOString()
-                  .split("T")[0]
-              : "-",
+  //           date: order.createdAtUtc
+  //             ? new Date(order.createdAtUtc)
+  //                 .toISOString()
+  //                 .split("T")[0]
+  //             : "-",
 
-            serial:
-              casing.tyreReferenceNumber || "-",
+  //           serial:
+  //             casing.tyreReferenceNumber || "-",
 
-            dot: casing.dotNumber || "-",
+  //           dot: casing.dotNumber || "-",
 
-            pattern:
-              casing.retreadDetail?.patternName ||
-              "-",
+  //           pattern:
+  //             casing.retreadDetail?.patternName ||
+  //             "-",
 
-            tyreSize:
-              casing.tyreSize?.casingSize || "-",
+  //           tyreSize:
+  //             casing.tyreSize?.casingSize || "-",
 
-            customerName:
-              order.customer?.customerName || "-",
+  //           customerName:
+  //             order.customer?.customerName || "-",
 
-            service:
-              casing.serviceType?.name || "-",
+  //           service:
+  //             casing.serviceType?.name || "-",
 
-            batchNo:
-              casing.batchNumber || "-",
+  //           batchNo:
+  //             casing.batchNumber || "-",
 
-            currentStage:
-              casing.currentStage,
+  //           currentStage:
+  //             casing.currentStage,
 
-            currentStageStatus:
-              casing.currentStageStatus,
-          });
+  //           currentStageStatus:
+  //             casing.currentStageStatus,
+  //         });
+  //       });
+  //   });
+
+  //   return list;
+  // };
+const transformApiData = (stages: any[]) => {
+  const transformed: any[] = [];
+
+  (stages || []).forEach((stage: any) => {
+    stage.batches?.forEach((batch: any) => {
+      batch.casings?.forEach((casing: any) => {
+        transformed.push({
+          id: casing.orderCasingId,
+
+          casing:
+            casing.productionNumber ||
+            casing.barcodeNumber ||
+            "-",
+
+          date:
+            casing.orderDate || "-",
+
+          serial:
+            casing.tyreReferenceNumber || "-",
+
+          dot:
+            casing.dotNumber || "-",
+
+          pattern:
+            casing.patternName || "-",
+
+          tyreSize:
+            casing.tyreSizeLabel || "-",
+
+          customerName:
+            casing.customerName || "-",
+
+          service:
+            batch.batchNumber?.startsWith("RT")
+              ? "Retread"
+              : "Repair",
+
+          batchNo:
+            batch.batchNumber || "-",
+
+          currentStageStatus:
+            casing.currentStageStatus,
+
+          // modal data
+          requestedPattern:
+            casing.patternName || "-",
+
+          isRetreaded: false,
+
+          previousPattern: "",
+
+          previousRetreader: "",
+
+          noOfRetread: 0,
+
+          noOfExistingRepairs: 0,
+
+          originalBatch: batch,
+
+          originalCasing: casing,
+
+          // batch summary
+          approved:
+            batch.stageSummary?.approved || 0,
+
+          rejected:
+            batch.stageSummary?.rejected || 0,
+
+          pending:
+            batch.stageSummary?.pending || 0,
+
+          previousStage:
+            batch.stageSummary
+              ?.stillAtPreviousStage || 0,
+
+          expectedTotal:
+            batch.stageSummary
+              ?.expectedTotal ||
+            batch.originalBatchSize,
+
+          arrived:
+            batch.stageSummary?.arrived || 0,
         });
+      });
     });
+  });
 
-    return list;
-  };
-
+  return transformed;
+};
   // const loadOrders = async () => {
   //   try {
   //     const result =
@@ -125,14 +213,18 @@ const [puncturesFound, setPuncturesFound] = useState<number>(0);
     setLoading(true);
 
     const result =
-      await indexPageApiService.getIndexPageOrders(
+      await indexPageApiService.getBatchProgress(
         4,
         1
       );
 
+    console.log("API Result:", result);
+
     const transformed = transformApiData(
       result.data.data
     );
+
+    console.log("Transformed:", transformed);
 
     setInspectionsData(transformed);
   } catch (error) {
@@ -141,7 +233,6 @@ const [puncturesFound, setPuncturesFound] = useState<number>(0);
     setLoading(false);
   }
 };
-
   useEffect(() => {
     loadOrders();
     loadRejectionReasons();
