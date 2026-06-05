@@ -8,6 +8,7 @@ import CollectionPage from './features/collection/page/CollectionPage'
 import CustomerApprovalPage from './features/customerApproval/page/CustomerApprovalPage'
 import ReceivingPage from './features/receiving/page/ReceivingPage'
 import VisualInspectionPage from './features/visualInspection/page/VisualInspectionPage'
+import NailInspectionPage from './features/nailInspection/page/NailInspectionPage'
 
 const App=() =>{
  
@@ -23,6 +24,7 @@ const App=() =>{
            <Route path="/customerApproval" element={<CustomerApprovalPage />}/>
            <Route path='/receiving' element={<ReceivingPage/>}/>
            <Route path='/visualinspection' element={<VisualInspectionPage/>}/>
+           <Route path='/nailInspection' element={<NailInspectionPage/>}/>
         </Routes>
       </div>
     </BrowserRouter>
