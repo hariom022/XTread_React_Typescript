@@ -6,8 +6,9 @@ import { useVisualInspectionModal } from "../hooks/useVisualInspectionModal";
 
 import VisualInspectionTable from "../components/VisualInspectionTable";
 import VisualInspectionModal from "../components/VisualInspectionModal";
-import IncidentReportModal from "../components/IncidentReportModal";
+// import IncidentReportModal from "../components/IncidentReportModal";
 
+import IncidentReportModal from "../../../shared/components/IncidentReportModal";
 import "../styles/VisualInspect.css";
 
 const VisualInspectionPage = () => {

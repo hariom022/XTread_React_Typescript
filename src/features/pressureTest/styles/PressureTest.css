@@ -1,0 +1,29 @@
+
+/* SEARCH BOX */
+.search-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-box i {
+  position: absolute;
+  top: 50%;
+  left: 40px;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-box input {
+  padding-left: 45px;
+  height: 55px;
+}
+
+/* FORM FOCUS */
+.form-control:focus {
+  border-color: #ced4da;
+  outline: none;
+  box-shadow: none;
+}
