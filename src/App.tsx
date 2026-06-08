@@ -9,6 +9,7 @@ import CustomerApprovalPage from './features/customerApproval/page/CustomerAppro
 import ReceivingPage from './features/receiving/page/ReceivingPage'
 import VisualInspectionPage from './features/visualInspection/page/VisualInspectionPage'
 import NailInspectionPage from './features/nailInspection/page/NailInspectionPage'
+import ShearographyPage from './features/shearography/page/ShearographyPage'
 
 const App=() =>{
  
@@ -25,6 +26,7 @@ const App=() =>{
            <Route path='/receiving' element={<ReceivingPage/>}/>
            <Route path='/visualinspection' element={<VisualInspectionPage/>}/>
            <Route path='/nailInspection' element={<NailInspectionPage/>}/>
+           <Route path='/shearography' element={<ShearographyPage/>}/>
         </Routes>
       </div>
     </BrowserRouter>

@@ -108,6 +108,7 @@ const transformApiData = (stages: any[]) => {
   (stages || []).forEach((stage: any) => {
     stage.batches?.forEach((batch: any) => {
       batch.casings?.forEach((casing: any) => {
+        console.log("CASING", casing);
         transformed.push({
           id: casing.orderCasingId,
 
@@ -125,8 +126,8 @@ const transformApiData = (stages: any[]) => {
           dot:
             casing.dotNumber || "-",
 
-          pattern:
-            casing.patternName || "-",
+          patternName:
+            casing?.patternName || "-",
 
           tyreSize:
             casing.tyreSizeLabel || "-",

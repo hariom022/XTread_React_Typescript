@@ -78,7 +78,7 @@ const NailInspectionModal = ({
               <h5 className="modal-title">NAIL INSPECTION – APPROVAL</h5>
               {/* STAFF NAME */}
               <div className="me-3 text-white text-end"
-              style={{ marginLeft: "46rem !important"}}>
+              style={{ marginLeft: "46rem"}}>
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
                 <b>John</b>
               </div>
@@ -116,7 +116,7 @@ const NailInspectionModal = ({
 
                 <div className="col">
                   <strong>Requested Pattern</strong>
-                  <div>{selectedItem.pattern || "-"}</div>
+                  <div>{selectedItem.requestedPattern || "-"}</div>
                 </div>
               </div>
 

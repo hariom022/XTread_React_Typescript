@@ -1,7 +1,8 @@
 import { useState } from "react";
+
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
-export const useNailInspectionModal = () => {
+export const useShearographyModal = () => {
   const [showModal, setShowModal] =
     useState(false);
 
@@ -21,65 +22,54 @@ export const useNailInspectionModal = () => {
         );
 
       console.log(
-        "NAIL CASING DETAILS",
+        "SHEAROGRAPHY CASING DETAILS",
         res.data
       );
 
       const casing = res.data;
-      console.log("CASING DETAILS", casing);
 
       const modalData = {
         ...item,
 
-        // Basic Info
-        service:
-          casing.serviceType?.name || "-",
+        // Header Details
+        casing:
+          casing.productionNumber ||
+          casing.barcodeNumber ||
+          item.casing,
+
+        serial:
+          casing.tyreReferenceNumber ||
+          item.serial,
+
+        customerName:
+          casing.customer?.customerName ||
+          item.customerName ||
+          "-",
 
         tyreSize:
-          casing.tyreSize?.casingSize || "-",
+          casing.tyreSize?.casingSize ||
+          item.tyreSize ||
+          "-",
+
+        requestedPattern:
+          casing.retreadDetail?.patternName ||
+          item.requestedPattern ||
+          "-",
+
+        // Additional Info
+        service:
+          casing.serviceType?.name || "-",
 
         tyreMake:
           casing.tyreMake?.name || "-",
 
-        model:
-          casing.model || "-",
-
-        requestedPattern:
-          casing.retreadDetail?.patternName ||
-          "-",
-
-        // Retread Info
-        isRetreaded:
-          casing.isRetreaded || false,
-
-        previousPattern:
-          casing.previousPattern || "-",
-
-        previousRetreader:
-          casing.previousRetreader || "-",
-
-        noOfRetread:
-          casing.noOfRetread || 0,
-
-        noOfExistingRepairs:
-          casing.existingRepairsCount || 0,
-
-        // Nail Inspection Specific
-        repairDetail:
-          casing.repairDetail || [],
-
-        punctureCount:
-          casing.punctureCount || 0,
-
-        patchesRemoved:
-          casing.patchesRemoved || 0,
-
-        puncturesFound:
-          casing.puncturesFound || 0,
-
-        // Raw Data
         originalCasing: casing,
       };
+
+      console.log(
+        "SHEAROGRAPHY MODAL DATA",
+        modalData
+      );
 
       setSelectedItem(modalData);
 
