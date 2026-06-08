@@ -10,6 +10,7 @@ import ReceivingPage from './features/receiving/page/ReceivingPage'
 import VisualInspectionPage from './features/visualInspection/page/VisualInspectionPage'
 import NailInspectionPage from './features/nailInspection/page/NailInspectionPage'
 import PressureTestPage from './features/pressureTest/page/PressureTestPage'
+import ShearographyPage from './features/shearography/page/ShearographyPage'
 
 const App=() =>{
  
@@ -27,6 +28,7 @@ const App=() =>{
            <Route path='/visualinspection' element={<VisualInspectionPage/>}/>
            <Route path='/nailInspection' element={<NailInspectionPage/>}/>
            <Route path='/pressuretest' element={<PressureTestPage/>}/>
+           <Route path='/shearography' element={<ShearographyPage/>}/>
         </Routes>
       </div>
     </BrowserRouter>
