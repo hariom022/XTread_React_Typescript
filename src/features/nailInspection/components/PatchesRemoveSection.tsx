@@ -1,48 +1,54 @@
 import React from "react";
 
-type Repair = {
-  location: string;
-  type: string;
-};
-
 type Props = {
-  newRepair: Repair;
-  setNewRepair: React.Dispatch<React.SetStateAction<Repair>>;
-  addRepair: () => void;
-
-  damageType: any[];
+  resonForRemoval: any[];
   location: any[];
+
+  newPatchRemoval: {
+    reasonForRemoval: string;
+    location: string;
+  };
+
+  setNewPatchRemoval: React.Dispatch<
+    React.SetStateAction<{
+      reasonForRemoval: string;
+      location: string;
+    }>
+  >;
+
+  addRemove: () => void;
 };
 
-const RepairSection = ({
-  newRepair,
-  setNewRepair,
-  addRepair,
-  damageType,
+const PatchesRemoveSection = ({
+  resonForRemoval,
   location,
+  newPatchRemoval,
+  setNewPatchRemoval,
+  addRemove,
 }: Props) => {
   return (
     <div className="row g-2 mt-1 mb-0">
-      {/* Damage Type */}
+    
+
       <div className="col-md-4">
         <select
           className="form-select"
-          value={newRepair.type}
+          value={newPatchRemoval.reasonForRemoval}
           onChange={(e) =>
-            setNewRepair({
-              ...newRepair,
-              type: e.target.value,
-            })
+            setNewPatchRemoval((prev) => ({
+              ...prev,
+              reasonForRemoval: e.target.value,
+            }))
           }
         >
           <option value="">
-            Damage Type
+            Select Reason For Removal
           </option>
 
-          {damageType.map((item: any) => (
+          {resonForRemoval.map((item: any) => (
             <option
               key={item.id}
-              value={item.name}
+              value={item.id}
             >
               {item.name}
             </option>
@@ -50,26 +56,25 @@ const RepairSection = ({
         </select>
       </div>
 
-      {/* Repair Location */}
       <div className="col-md-4">
         <select
           className="form-select"
-          value={newRepair.location}
+          value={newPatchRemoval.location}
           onChange={(e) =>
-            setNewRepair({
-              ...newRepair,
+            setNewPatchRemoval((prev) => ({
+              ...prev,
               location: e.target.value,
-            })
+            }))
           }
         >
           <option value="">
-            Repair Location
+            Select Location
           </option>
 
           {location.map((item: any) => (
             <option
               key={item.id}
-              value={item.name}
+              value={item.id}
             >
               {item.name}
             </option>
@@ -80,13 +85,13 @@ const RepairSection = ({
       <div className="col-md-4 d-grid">
         <button
           className="btn btn-danger"
-          onClick={addRepair}
+          onClick={addRemove}
         >
-          + Add Repair
+          + Add Remove
         </button>
       </div>
     </div>
   );
 };
 
-export default RepairSection;
+export default PatchesRemoveSection;

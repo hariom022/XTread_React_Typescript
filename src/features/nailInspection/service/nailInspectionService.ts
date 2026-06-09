@@ -1,6 +1,5 @@
 import api from "../../../shared/services/api";
 const nailInspectionService = {
-
   // getNailInspectionOrders: (params = {}) =>
   //   api.get(`/orders`, {
   //     params: {
@@ -11,15 +10,20 @@ const nailInspectionService = {
   //   }),
 
   // 🔹 Create Nail Inspection
-  createNailInspection: (data:any) =>
+  createNailInspection: (data: any) =>
     api.post(`/nail-inspection/casings`, data),
 
   // 🔹 Rejection Reasons
-  getRejectionReason: () =>
-    api.get(`/rejection-reasons?currentStage=${4}`),
+  getRejectionReason: () => api.get(`/rejection-reasons?currentStage=${4}`),
 
   // 🔹 Approve / Reject
-  handleApprovalRejection: (data:any) =>
+  handleApprovalRejection: (data: any) =>
     api.post(`/nail-inspection/approve-reject`, data),
+
+  // api for Location and Repair location both 
+  getLocation: () => api.get("/repair-locations"),
+  
+  getDamageType: () => api.get("/damage-types"),
+  getReasonForRemoval:()=>api.get("/reasons-for-removal"),
 };
-export default nailInspectionService
+export default nailInspectionService;
