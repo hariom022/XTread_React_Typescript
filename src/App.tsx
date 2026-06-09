@@ -1,4 +1,4 @@
-import { useState } from 'react'
+
 import './App.css'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Header from './layouts/header/Header'
@@ -10,6 +10,7 @@ import ReceivingPage from './features/receiving/page/ReceivingPage'
 import VisualInspectionPage from './features/visualInspection/page/VisualInspectionPage'
 import NailInspectionPage from './features/nailInspection/page/NailInspectionPage'
 import PressureTestPage from './features/pressureTest/page/PressureTestPage'
+import CementingPage from './features/cementing/page/CementingPage'
 
 const App=() =>{
  
@@ -27,6 +28,7 @@ const App=() =>{
            <Route path='/visualinspection' element={<VisualInspectionPage/>}/>
            <Route path='/nailInspection' element={<NailInspectionPage/>}/>
            <Route path='/pressuretest' element={<PressureTestPage/>}/>
+           <Route path="/cementing" element={<CementingPage />} />
         </Routes>
       </div>
     </BrowserRouter>

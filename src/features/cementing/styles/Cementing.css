@@ -1,0 +1,101 @@
+.modal-info{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:20px;
+padding:20px;
+background:#f8f9fa;
+border-radius:10px;
+}
+
+.nail-header{
+background:#d71920;
+color:white;
+}
+
+.modal-content{
+border-radius:12px;
+overflow:hidden;
+}
+
+.form-select{
+height:48px;
+}
+
+.btn-success{
+height:48px;
+font-weight:700;
+border-radius:8px;
+}
+
+.modal-body{
+padding:30px;
+}
+.stock-modal{
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.stock-header{
+    background:#dc3545;
+    color:#fff;
+    padding:20px;
+}
+
+.stock-header h3{
+    font-size:20px;
+}
+
+.stock-header .btn-close{
+    filter:invert(1);
+}
+
+.stock-modal .modal-body{
+    padding:30px 25px;
+}
+
+.stock-modal label{
+    font-size:16px;
+    font-weight:600;
+    color:#333;
+}
+
+.stock-modal .form-control{
+    height:42px;
+    border-radius:6px;
+}
+
+.stock-modal .modal-footer{
+    border-top:1px solid #ddd;
+    justify-content:flex-end;
+    padding:16px;
+}
+
+.stock-save-btn{
+    min-width:95px;
+    height:40px;
+    font-weight:700;
+    border-radius:6px;
+}
+.stock-label{
+    font-size:16px;
+    font-weight:600;
+    color:#333;
+}
+
+.stock-input{
+    height:42px;
+    border-radius:6px;
+    font-size:18px;
+}
+
+.stock-input:focus{
+    box-shadow:none;
+    border-color:#86b7fe;
+}
+
+.stock-save-btn{
+    width:90px;
+    height:40px;
+    font-size:22px;
+    font-weight:700;
+}
