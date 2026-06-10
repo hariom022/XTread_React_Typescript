@@ -6,7 +6,7 @@ const Navbar = () => {
     <nav className="navbar" style={{ position: "fixed" }}>
       <ul className="nav-links">
         <li>
-          <NavLink to="/" end>
+          <NavLink to="/dashboard" end>
             <i className="bi bi-bar-chart-line-fill"></i> Dashboard
           </NavLink>
         </li>

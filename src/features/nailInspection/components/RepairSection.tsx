@@ -23,6 +23,9 @@ const RepairSection = ({
 }: Props) => {
   return (
     <div className="row g-2 mt-1 mb-0">
+        <div className="text-start bg-warning">
+<h6 className="text-light m-1">Patches Found</h6>
+    </div>
       {/* Damage Type */}
       <div className="col-md-4">
         <select

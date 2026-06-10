@@ -173,7 +173,7 @@ const NailInspectionModal = ({
                     setPatchRemovals={setPatchRemovals}
                   />
                   {/* PATCHES & PUNCTURES */}
-                  <div className="row g-3">
+                  {/* <div className="row g-3">
                     <div className="col-md-6">
                       <label>Patches Removed</label>
 
@@ -209,7 +209,7 @@ const NailInspectionModal = ({
                         ))}
                       </select>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* REPAIR SECTION */}
                   <RepairSection
