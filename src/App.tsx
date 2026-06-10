@@ -11,6 +11,8 @@ import VisualInspectionPage from './features/visualInspection/page/VisualInspect
 import NailInspectionPage from './features/nailInspection/page/NailInspectionPage'
 import PressureTestPage from './features/pressureTest/page/PressureTestPage'
 import ShearographyPage from './features/shearography/page/ShearographyPage'
+import BuffingStage from './features/buffing/page/BuffingStage'
+import SkivingStage from './features/skiving/page/SkivingStage'
 
 const App=() =>{
  
@@ -29,6 +31,8 @@ const App=() =>{
            <Route path='/nailInspection' element={<NailInspectionPage/>}/>
            <Route path='/pressuretest' element={<PressureTestPage/>}/>
            <Route path='/shearography' element={<ShearographyPage/>}/>
+           <Route path='/buffing' element={<BuffingStage/>}/>
+           <Route path='/skiving' element={<SkivingStage/>}/>
         </Routes>
       </div>
     </BrowserRouter>
