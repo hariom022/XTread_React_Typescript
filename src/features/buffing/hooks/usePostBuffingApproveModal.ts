@@ -1,329 +1,321 @@
 import { useEffect, useState } from "react";
 import buffingStageServiceApi from "../service/buffingStageServiceApi";
+import { POST_BUFFING_CHECKLIST } from "../constants/postBuffingCheckList";
 
 interface SelectedItem {
-    id: number;
-    treadPatternId?: number;
+  id: number;
+  treadPatternId?: number;
 }
 
 interface RejectionReason {
-    rejectionReasonId: number;
-    code: string;
-    reason: string;
+  rejectionReasonId: number;
+  code: string;
+  reason: string;
 }
 
 interface Machine {
-    machineId: number;
-    machineName: string;
+  machineId: number;
+  machineName: string;
 }
 
 interface DamageLevel {
-    damageLevelId: number;
-    name: string;
+  damageLevelId: number;
+  name: string;
 }
 
 interface PatternVariant {
-    treadPatternVariantId: number;
-    width: string;
+  treadPatternVariantId: number;
+  width: string;
 }
 
 interface Props {
-    selectedItem: SelectedItem | null;
-    refreshTable: () => void;
+  selectedItem: SelectedItem | null;
+  refreshTable: () => void;
 }
 
-const usePostBuffingApproveModal = ({
-    selectedItem,
-    refreshTable,
-}: Props) => {
-    const [postRejectReason, setPostRejectReason] =
-        useState("");
+const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
+  const [postRejectReason, setPostRejectReason] = useState("");
 
-    const [machines, setMachines] =
-        useState<Machine[]>([]);
+  const [machines, setMachines] = useState<Machine[]>([]);
 
-    const [damageLevels, setDamageLevels] =
-        useState<DamageLevel[]>([]);
+  const [damageLevels, setDamageLevels] = useState<DamageLevel[]>([]);
 
-    const [patternVariants, setPatternVariants] =
-        useState<PatternVariant[]>([]);
+  const [patternVariants, setPatternVariants] = useState<PatternVariant[]>([]);
 
-    const [machineId, setMachineId] =
-        useState<number | "">("");
+  const [machineId, setMachineId] = useState<number | "">("");
 
-    const [damageLevelId, setDamageLevelId] =
-        useState<number | "">("");
+  const [damageLevelId, setDamageLevelId] = useState<number | "">("");
 
-    const [selectedPostVariantId, setSelectedPostVariantId] =
-        useState<number | "">("");
+  const [selectedPostVariantId, setSelectedPostVariantId] = useState<
+    number | ""
+  >("");
 
-    const [circumference, setCircumference] =
-        useState("");
+  const [circumference, setCircumference] = useState("");
 
-    const [override, setOverride] =
-        useState(false);
+  const [override, setOverride] = useState(false);
 
-    const [postChecklistSaved, setPostChecklistSaved] =
-        useState(false);
+  const [postChecklistSaved, setPostChecklistSaved] = useState(false);
 
-    const [postBuffingReasons, setPostBuffingReasons] =
-        useState<RejectionReason[]>([]);
+  const [postBuffingReasons, setPostBuffingReasons] = useState<
+    RejectionReason[]
+  >([]);
 
-    const resetModal = () => {
-        setPostRejectReason("");
+  const [showPostChecklist, setShowPostChecklist] = useState(false);
 
-        setMachineId("");
+  const [checkedPostChecklist, setCheckedPostChecklist] = useState<string[]>(
+    [],
+  );
 
-        setDamageLevelId("");
+  const togglePostChecklist = (id: string) => {
+    setCheckedPostChecklist((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
 
-        setSelectedPostVariantId("");
+  const allPostChecklistIds = POST_BUFFING_CHECKLIST.map((x) => x.id);
 
-        setCircumference("");
+  const selectAllPostChecklist =
+    checkedPostChecklist.length === allPostChecklistIds.length;
 
-        setOverride(false);
+  const handleSelectAllPostChecklist = () => {
+    if (selectAllPostChecklist) {
+      setCheckedPostChecklist([]);
+    } else {
+      setCheckedPostChecklist(allPostChecklistIds);
+    }
+  };
 
-        setPatternVariants([]);
+  const isPostChecklistComplete =
+    checkedPostChecklist.length === POST_BUFFING_CHECKLIST.length;
 
-        setPostChecklistSaved(false);
-    };
+  const resetModal = () => {
+    setPostRejectReason("");
 
-    /* ===========================
+    setMachineId("");
+
+    setDamageLevelId("");
+
+    setSelectedPostVariantId("");
+
+    setCircumference("");
+
+    setOverride(false);
+
+    setPatternVariants([]);
+
+    setPostChecklistSaved(false);
+  };
+
+  /* ===========================
         REJECTION REASONS
     ============================ */
 
-    const fetchPostBuffingRejectionReasons =
-        async () => {
-            try {
-                const response =
-                    await buffingStageServiceApi.getPostBuffingRejectionReason();
+  const fetchPostBuffingRejectionReasons = async () => {
+    try {
+      const response =
+        await buffingStageServiceApi.getPostBuffingRejectionReason();
 
-                setPostBuffingReasons(
-                    response.data.data || []
-                );
-            } catch (error) {
-                console.error(error);
-            }
-        };
+      setPostBuffingReasons(response.data.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    /* ===========================
+  /* ===========================
         MACHINES
     ============================ */
 
-    const fetchMachines = async () => {
-        try {
-            const response =
-                await buffingStageServiceApi.getMachines();
+  const fetchMachines = async () => {
+    try {
+      const response = await buffingStageServiceApi.getMachines();
 
-            setMachines(
-                response.data.data || []
-            );
-        } catch (error) {
-            console.error(error);
-        }
-    };
+      setMachines(response.data.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    /* ===========================
+  /* ===========================
         DAMAGE LEVELS
     ============================ */
 
-    const fetchDamageLevels = async () => {
-        try {
-            const response =
-                await buffingStageServiceApi.getDamageLevels();
+  const fetchDamageLevels = async () => {
+    try {
+      const response = await buffingStageServiceApi.getDamageLevels();
 
-            setDamageLevels(
-                response.data.data || []
-            );
-        } catch (error) {
-            console.error(error);
-        }
-    };
+      setDamageLevels(response.data.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    /* ===========================
+  /* ===========================
         PATTERN VARIANTS
     ============================ */
 
-    const fetchPatternVariants =
-        async (treadPatternId: number) => {
-            try {
-                const response =
-                    await buffingStageServiceApi.getPatternVariants(
-                        treadPatternId
-                    );
+  const fetchPatternVariants = async (treadPatternId: number) => {
+    try {
+      const response =
+        await buffingStageServiceApi.getPatternVariants(treadPatternId);
 
-                const variants =
-                    response.data?.data?.[0]?.variants || [];
+      const variants = response.data?.data?.[0]?.variants || [];
 
-                setPatternVariants(variants);
-            } catch (error) {
-                console.error(error);
-            }
-        };
+      setPatternVariants(variants);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    useEffect(() => {
-        fetchMachines();
-        fetchDamageLevels();
-        fetchPostBuffingRejectionReasons();
-    }, []);
+  useEffect(() => {
+    fetchMachines();
+    fetchDamageLevels();
+    fetchPostBuffingRejectionReasons();
+  }, []);
 
-    /* ===========================
+  /* ===========================
         APPROVE
     ============================ */
 
-    const handleApprove = async () => {
-        try {
-            if (!selectedItem) return;
+  const handleApprove = async () => {
+    try {
+      if (!selectedItem) return;
 
-            if (!postChecklistSaved) {
-                alert(
-                    "Please complete all Post Buffing checklist items before Approval"
-                );
-                return;
-            }
+      if (!postChecklistSaved) {
+        alert(
+          "Please complete all Post Buffing checklist items before Approval",
+        );
+        return;
+      }
 
-            const payload = {
-                orderCasingIds: [selectedItem.id],
+      const payload = {
+        orderCasingIds: [selectedItem.id],
 
-                isApproved: true,
+        isApproved: true,
 
-                machineId:
-                    machineId || null,
+        machineId: machineId || null,
 
-                suggestedTreadPatternVariantId:
-                    selectedPostVariantId || null,
+        suggestedTreadPatternVariantId: selectedPostVariantId || null,
 
-                circumference:
-                    circumference === ""
-                        ? null
-                        : Number(circumference),
+        circumference: circumference === "" ? null : Number(circumference),
 
-                damageLevelId:
-                    damageLevelId || null,
+        damageLevelId: damageLevelId || null,
 
-                skipCircumferenceValidation:
-                    override,
+        skipCircumferenceValidation: override,
 
-                rejectionReasonCode: null,
-            };
+        rejectionReasonCode: null,
+      };
 
-            await buffingStageServiceApi.approveRejectPostBuffing(
-                payload
-            );
+      await buffingStageServiceApi.approveRejectPostBuffing(payload);
 
-            alert(
-                "Approved Successfully"
-            );
+      alert("Approved Successfully");
 
-            refreshTable();
+      refreshTable();
 
-            resetModal();
-        } catch (error) {
-            console.error(error);
+      resetModal();
+    } catch (error) {
+      console.error(error);
 
-            alert("Approval Failed");
-        }
-    };
+      alert("Approval Failed");
+    }
+  };
 
-    /* ===========================
+  /* ===========================
         REJECT
     ============================ */
 
-    const handleReject = async () => {
-        try {
-            if (!selectedItem) return;
+  const handleReject = async () => {
+    try {
+      if (!selectedItem) return;
 
-            if (!postChecklistSaved) {
-                alert(
-                    "Please complete all Post Buffing checklist items before Rejection"
-                );
-                return;
-            }
+      if (!postChecklistSaved) {
+        alert(
+          "Please complete all Post Buffing checklist items before Rejection",
+        );
+        return;
+      }
 
-            if (!postRejectReason) {
-                alert(
-                    "Please select rejection reason"
-                );
-                return;
-            }
+      if (!postRejectReason) {
+        alert("Please select rejection reason");
+        return;
+      }
 
-            const payload = {
-                orderCasingIds: [selectedItem.id],
+      const payload = {
+        orderCasingIds: [selectedItem.id],
 
-                isApproved: false,
+        isApproved: false,
 
-                machineId:
-                    machineId || null,
+        machineId: machineId || null,
 
-                suggestedTreadPatternVariantId:
-                    selectedPostVariantId || null,
+        suggestedTreadPatternVariantId: selectedPostVariantId || null,
 
-                circumference:
-                    circumference === ""
-                        ? null
-                        : Number(circumference),
+        circumference: circumference === "" ? null : Number(circumference),
 
-                damageLevelId:
-                    damageLevelId || null,
+        damageLevelId: damageLevelId || null,
 
-                skipCircumferenceValidation:
-                    override,
+        skipCircumferenceValidation: override,
 
-                rejectionReasonCode:
-                    postRejectReason,
-            };
+        rejectionReasonCode: postRejectReason,
+      };
 
-            await buffingStageServiceApi.approveRejectPostBuffing(
-                payload
-            );
+      await buffingStageServiceApi.approveRejectPostBuffing(payload);
 
-            alert(
-                "Rejected Successfully"
-            );
+      alert("Rejected Successfully");
 
-            refreshTable();
+      refreshTable();
 
-            resetModal();
-        } catch (error) {
-            console.error(error);
+      resetModal();
+    } catch (error) {
+      console.error(error);
 
-            alert("Reject Failed");
-        }
-    };
+      alert("Reject Failed");
+    }
+  };
 
-    return {
-        machines,
-        damageLevels,
-        patternVariants,
-        postBuffingReasons,
+  return {
+    machines,
+    damageLevels,
+    patternVariants,
+    postBuffingReasons,
 
-        machineId,
-        setMachineId,
+    machineId,
+    setMachineId,
 
-        damageLevelId,
-        setDamageLevelId,
+    damageLevelId,
+    setDamageLevelId,
 
-        selectedPostVariantId,
-        setSelectedPostVariantId,
+    selectedPostVariantId,
+    setSelectedPostVariantId,
 
-        circumference,
-        setCircumference,
+    circumference,
+    setCircumference,
 
-        override,
-        setOverride,
+    override,
+    setOverride,
 
-        postRejectReason,
-        setPostRejectReason,
+    postRejectReason,
+    setPostRejectReason,
 
-        postChecklistSaved,
-        setPostChecklistSaved,
+    postChecklistSaved,
+    setPostChecklistSaved,
 
-        fetchPatternVariants,
+    fetchPatternVariants,
 
-        handleApprove,
-        handleReject,
+    handleApprove,
+    handleReject,
 
-        resetModal,
-    };
+    resetModal,
+
+    showPostChecklist,
+    setShowPostChecklist,
+
+    checkedPostChecklist,
+    togglePostChecklist,
+
+    selectAllPostChecklist,
+    handleSelectAllPostChecklist,
+
+    isPostChecklistComplete,
+  };
 };
 
 export default usePostBuffingApproveModal;

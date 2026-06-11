@@ -9,64 +9,81 @@ const ACTIVE_STATUS = 1;
 const usePostBuffingIndexTable = () => {
   const [search, setSearch] = useState("");
 
-  const [postBuffingData, setPostBuffingData] =
-    useState<PostBuffingRow[]>([]);
+  const [postBuffingData, setPostBuffingData] = useState<PostBuffingRow[]>([]);
 
-  const transformData = (
-    stages: any[]
-  ): PostBuffingRow[] => {
+  const transformData = (stages: any[]): PostBuffingRow[] => {
     const list: PostBuffingRow[] = [];
 
     stages.forEach((stage) => {
       stage.batches?.forEach((batch: any) => {
         batch.casings?.forEach((casing: any) => {
           if (
-            casing.currentStage ===
-            POST_BUFFING_STAGE &&
-            casing.currentSubstage ===
-            POST_BUFFING_SUBSTAGE &&
-            casing.currentStageStatus ===
-            ACTIVE_STATUS
+            casing.currentStage === POST_BUFFING_STAGE &&
+            casing.currentSubstage === POST_BUFFING_SUBSTAGE &&
+            casing.currentStageStatus === ACTIVE_STATUS
           ) {
             list.push({
               id: casing.orderCasingId,
 
-              casing:
-                casing.productionNumber ||
-                casing.barcodeNumber ||
-                "-",
+              batchNo: batch.batchNumber || "-",
 
-              serial:
-                casing.tyreReferenceNumber || "-",
+              casing: casing.productionNumber || "-",
 
-              customerName:
-                casing.customerName || "-",
+              serial: casing.tyreReferenceNumber || "-",
 
-              tyreSize:
-                casing.tyreSizeLabel || "-",
+              dot: casing.dotNumber || "-",
+
+              customerName: casing.customerName || "-",
+
+              tyreSize: casing.tyreSizeLabel || "-",
+
+              patternName: casing.patternName || "-",
+
+              requestedPattern: casing.patternName || "-",
+
+              date: casing.orderDate || "",
+
+              service: batch.batchNumber?.startsWith("RT")
+                ? "Retread"
+                : "Repair",
+
+              approved: batch.stageSummary?.approved || 0,
+
+              rejected: batch.stageSummary?.rejected || 0,
+
+              pending: batch.stageSummary?.pending || 0,
+
+              previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
+
+              expectedTotal: batch.stageSummary?.expectedTotal || 0,
+
+              arrived: batch.stageSummary?.arrived || 0,
+
+              currentStage: casing.currentStage,
+
+              currentSubstage: casing.currentSubstage,
+
+              currentStageStatus: casing.currentStageStatus,
+
+              // modal defaults
 
               tyreMake: "-",
 
               model: "-",
 
-              pattern:
-                casing.patternName || "-",
-
-              requestedPattern:
-                casing.patternName || "-",
-
               brand: "-",
 
               width: "-",
 
-              currentStage:
-                casing.currentStage,
+              isRetreaded: false,
 
-              currentSubstage:
-                casing.currentSubstage,
+              previousPattern: "-",
 
-              currentStageStatus:
-                casing.currentStageStatus,
+              previousRetreader: "-",
+
+              noOfRetread: 0,
+
+              noOfExistingRepairs: 0,
             });
           }
         });
@@ -76,34 +93,23 @@ const usePostBuffingIndexTable = () => {
     return list;
   };
 
-  const fetchPostBuffingOrders =
-    async () => {
-      try {
-        const response =
-          await indexPageApiService.getBatchProgress(
-            POST_BUFFING_STAGE,
-            POST_BUFFING_SUBSTAGE,
-            ACTIVE_STATUS
-          );
+  const fetchPostBuffingOrders = async () => {
+    try {
+      const response = await indexPageApiService.getBatchProgress(
+        POST_BUFFING_STAGE,
+        POST_BUFFING_SUBSTAGE,
+        ACTIVE_STATUS,
+      );
 
-        console.log(
-          "POST BUFFING RESPONSE",
-          response.data
-        );
+      console.log("POST BUFFING RESPONSE", response.data);
 
-        const transformed =
-          transformData(
-            response.data.data || []
-          );
+      const transformed = transformData(response.data.data || []);
 
-        setPostBuffingData(transformed);
-      } catch (error) {
-        console.error(
-          "Post Buffing Error",
-          error
-        );
-      }
-    };
+      setPostBuffingData(transformed);
+    } catch (error) {
+      console.error("Post Buffing Error", error);
+    }
+  };
 
   useEffect(() => {
     fetchPostBuffingOrders();
@@ -112,10 +118,12 @@ const usePostBuffingIndexTable = () => {
   const filteredData = useMemo(() => {
     return postBuffingData.filter((item) =>
       `${item.casing}
-       ${item.serial}
-       ${item.pattern}`
+     ${item.serial}
+     ${item.patternName}
+     ${item.customerName}
+     ${item.batchNo}`
         .toLowerCase()
-        .includes(search.toLowerCase())
+        .includes(search.toLowerCase()),
     );
   }, [search, postBuffingData]);
 

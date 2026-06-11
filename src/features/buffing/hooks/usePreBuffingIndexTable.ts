@@ -15,7 +15,7 @@ const usePreBuffingIndexTable = () => {
   const transformApiData = (
     stages: any[]
   ): PreBuffingRow[] => {
-    const list: PreBuffingRow[] = [];
+    const transformed: PreBuffingRow[] = [];
 
     stages.forEach((stage) => {
       stage.batches?.forEach((batch: any) => {
@@ -25,52 +25,68 @@ const usePreBuffingIndexTable = () => {
             casing.currentSubstage === PRE_BUFFING_SUBSTAGE &&
             casing.currentStageStatus === ACTIVE_STATUS
           ) {
-            list.push({
+           transformed.push({
               id: casing.orderCasingId,
 
-              casing:
-                casing.productionNumber ||
-                casing.barcodeNumber ||
-                "-",
+              casing: casing.productionNumber || "-",
 
-              serial:
-                casing.tyreReferenceNumber || "-",
+              serial: casing.tyreReferenceNumber || "-",
 
-              customerName:
-                casing.customerName || "-",
+              dot: casing.dotNumber || "-",
 
-              tyreSize:
-                casing.tyreSizeLabel || "-",
+              tyreSize: casing.tyreSizeLabel || "-",
 
-              tyreMake: "-",
+              patternName:casing?.patternName || "-",
 
-              model: "-",
+              requestedPattern: "-",
 
-              pattern:
-                casing.patternName || "-",
+              date:casing.orderDate ||  "-",
 
-              requestedPattern:
-                casing.patternName || "-",
+              customerName:casing.customerName ||  "-",
 
-              brand: "-",
+              service: batch.batchNumber?.startsWith("RT")
+                ? "Retread"
+                : "Repair",
 
-              width: "-",
+              batchNo: batch.batchNumber,
 
-              currentStage:
-                casing.currentStage,
+              currentStageStatus: casing.currentStageStatus,
 
-              currentSubstage:
-                casing.currentSubstage,
+              // batch summary
+              approved: batch.stageSummary?.approved || 0,
 
-              currentStageStatus:
-                casing.currentStageStatus,
+              rejected: batch.stageSummary?.rejected || 0,
+
+              pending: batch.stageSummary?.pending || 0,
+
+              previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
+
+              expectedTotal:
+                batch.stageSummary?.expectedTotal || batch.originalBatchSize,
+
+              arrived: batch.stageSummary?.arrived || 0,
+
+              // modal fields
+              isRetreaded: false,
+
+              previousPattern: "",
+
+              previousRetreader: "",
+
+              noOfRetread: 0,
+
+              noOfExistingRepairs: 0,
+
+              originalBatch: batch,
+
+              originalCasing: casing,
             });
           }
         });
       });
     });
 
-    return list;
+    return transformed;
   };
 
   const fetchPreBuffingOrders = async () => {
@@ -106,15 +122,17 @@ const usePreBuffingIndexTable = () => {
     fetchPreBuffingOrders();
   }, []);
 
-  const filteredData = useMemo(() => {
-    return preBuffingData.filter((item) =>
-      `${item.casing}
-       ${item.serial}
-       ${item.pattern}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [search, preBuffingData]);
+ const filteredData = useMemo(() => {
+  return preBuffingData.filter((item) =>
+    `${item.casing}
+     ${item.serial}
+     ${item.patternName}
+     ${item.customerName}
+     ${item.batchNo}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+}, [search, preBuffingData]);
 
   return {
     search,

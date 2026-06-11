@@ -1,149 +1,134 @@
 import { createPortal } from "react-dom";
 import { PRE_BUFFING_CHECKLIST } from "../constants/preBuffingCheckList";
-import buffingStageServiceApi from "../service/buffingStageServiceApi";
 
 interface Props {
-    show: boolean;
+  show: boolean;
 
-    checkedChecklist: string[];
+  checkedChecklist: string[];
 
-    toggleChecklist: (id: string) => void;
+  toggleChecklist: (id: string) => void;
 
-    selectAllChecklist: boolean;
+  selectAllChecklist: boolean;
 
-    handleSelectAllChecklist: () => void;
+  handleSelectAllChecklist: () => void;
 
-    onSave: () => void;
+  onSave: () => void;
 
-    onClose: () => void;
+  onClose: () => void;
 }
 
 const PreBuffingChecklist = ({
-    show,
-    checkedChecklist,
-    toggleChecklist,
-    selectAllChecklist,
-    handleSelectAllChecklist,
-    onSave,
-    onClose,
+  show,
+  checkedChecklist,
+  toggleChecklist,
+  selectAllChecklist,
+  handleSelectAllChecklist,
+  onSave,
+  onClose,
 }: Props) => {
-    if (!show) return null;
+  if (!show) return null;
 
-    return createPortal(
-        <div
-            className="modal d-block"
-            tabIndex={-1}
-            style={{
-                backgroundColor:
-                    "rgba(0,0,0,0.5)",
-            }}
-        >
-            <div className="modal-dialog modal-md modal-dialog-centered">
-                <div className="modal-content">
+  return createPortal(
+    <>
+      <div className="modal-backdrop fade show"></div>
 
-                    <div className="modal-header nail-header">
-                        <h5 className="modal-title">
-                            Pre Buffing Checklist
-                        </h5>
+      <div
+        className="modal d-block"
+        tabIndex={-1}
+        style={{ zIndex: 1060 }}
+      >
+        <div className="modal-dialog modal-lg modal-dialog-centered">
+          <div className="modal-content">
 
-                        <button
-                            type="button"
-                            className="btn-close btn-close-white"
-                            onClick={onClose}
-                        />
-                    </div>
+            {/* Header */}
 
-                    <div className="modal-body">
+            <div className="modal-header nail-header">
+              <h5 className="modal-title">
+                Pre Buffing Checklist
+              </h5>
 
-                        <table className="table table-bordered align-middle">
-
-                            <tbody>
-
-                                <tr>
-                                    <td>
-
-                                        <div className="form-check">
-
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                checked={
-                                                    selectAllChecklist
-                                                }
-                                                onChange={
-                                                    handleSelectAllChecklist
-                                                }
-                                            />
-
-                                            <label className="form-check-label fw-bold">
-                                                Select All
-                                            </label>
-
-                                        </div>
-
-                                    </td>
-                                </tr>
-
-                                {PRE_BUFFING_CHECKLIST.map(
-                                    (item) => (
-                                        <tr key={item.id}>
-                                            <td>
-
-                                                <div className="form-check">
-
-                                                    <input
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        checked={checkedChecklist.includes(
-                                                            item.id
-                                                        )}
-                                                        onChange={() =>
-                                                            toggleChecklist(
-                                                                item.id
-                                                            )
-                                                        }
-                                                    />
-
-                                                    <label className="form-check-label">
-                                                        {item.label}
-                                                    </label>
-
-                                                </div>
-
-                                            </td>
-                                        </tr>
-                                    )
-                                )}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div className="modal-footer">
-
-                        <button
-                            className="btn btn-secondary"
-                            onClick={onClose}
-                        >
-                            Close
-                        </button>
-
-                        <button
-                            className="btn btn-primary"
-                            onClick={onSave}
-                        >
-                            Save Checklist
-                        </button>
-
-                    </div>
-
-                </div>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={onClose}
+              />
             </div>
-        </div>,
-        document.body
-    );
+
+            {/* Body */}
+
+            <div className="modal-body">
+
+              <table className="table table-bordered align-middle text-center">
+
+                <tbody>
+
+                  <tr>
+                    <td className="fw-bold">
+
+                      <input
+                        type="checkbox"
+                        className="form-check-input me-2"
+                        checked={selectAllChecklist}
+                        onChange={
+                          handleSelectAllChecklist
+                        }
+                      />
+
+                      Select All
+
+                    </td>
+                  </tr>
+
+                  {PRE_BUFFING_CHECKLIST.map(
+                    (item) => (
+                      <tr key={item.id}>
+                        <td>
+
+                          <input
+                            type="checkbox"
+                            className="form-check-input me-2"
+                            checked={checkedChecklist.includes(
+                              item.id
+                            )}
+                            onChange={() =>
+                              toggleChecklist(
+                                item.id
+                              )
+                            }
+                          />
+
+                          {item.label}
+
+                        </td>
+                      </tr>
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+            {/* Footer */}
+
+            <div className="modal-footer">
+
+              <button
+                className="btn btn-primary w-100"
+                onClick={onSave}
+              >
+                Save Checklist
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body
+  );
 };
 
 export default PreBuffingChecklist;
