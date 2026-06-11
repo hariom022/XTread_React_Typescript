@@ -2,228 +2,191 @@ import { useEffect, useMemo, useState } from "react";
 
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
-import type{
-    skivingApprovalRow,
-    RepairOperation,
+import type {
+  SkivingApprovalRow,
+  RepairOperation,
 } from "../types/skivingApproval.types";
 
-const SKIVING_APPROVAL_STAGE = 8;
+const SKIVING_STAGE = 8;
 const SKIVING_APPROVAL_SUBSTAGE = 82;
 const ACTIVE_STATUS = 1;
 
-interface ApiOperation {
-    repairType: string;
-    repairLocation: string;
-}
+const useSkivingApprovalTable = () => {
+  const [search, setSearch] = useState("");
 
-interface ApiCasing {
-    orderCasingId: number;
+  const [skivingApprovalData,
+    setSkivingApprovalData] =
+    useState<
+      SkivingApprovalRow[]
+    >([]);
 
-    productionNumber?: string;
-    barcodeNumber?: string;
+  const transformData = (
+    stages: any[],
+  ): SkivingApprovalRow[] => {
+    const list: SkivingApprovalRow[] = [];
 
-    tyreReferenceNumber?: string;
+    stages.forEach((stage) => {
+      stage.batches?.forEach((batch: any) => {
+        batch.casings?.forEach((casing: any) => {
+          if (
+            casing.currentStage === SKIVING_STAGE &&
+            casing.currentSubstage === SKIVING_APPROVAL_SUBSTAGE &&
+            casing.currentStageStatus === ACTIVE_STATUS
+          ) {
+            list.push({
+              id: casing.orderCasingId,
 
-    dotNumber?: string;
+              casing:
+                casing.productionNumber ||
+                casing.barcodeNumber ||
+                "-",
 
-    tyreSizeLabel?: string;
+              date: casing.orderDate
+                ? casing.orderDate.split("T")[0]
+                : "-",
 
-    patternName?: string;
+              serial:
+                casing.tyreReferenceNumber || "-",
 
-    orderDate?: string;
+              patternName:
+                casing.patternName || "-",
 
-    customerName?: string;
+              requestedPattern:
+                casing.patternName || "-",
 
-    damageLevelId?: number;
+              tyreSize:
+                casing.tyreSizeLabel || "-",
 
-    currentStage: number;
-    currentSubstage: number;
-    currentStageStatus: number;
+              tyreMake: "-",
 
-    repairDetail?: {
-        operations?: ApiOperation[];
-    };
-}
+              model: "-",
 
-interface ApiBatch {
-    batchNumber?: string;
-    casings?: ApiCasing[];
-}
+              brand: "-",
 
-interface ApiStage {
-    batches?: ApiBatch[];
-}
+              width: "-",
 
-export const useSkivingApprovalIndexTable = (
-    search: string
-) => {
-    const [loading, setLoading] =
-        useState<boolean>(false);
+              customerName:
+                casing.customerName || "-",
 
-    const [
-        skivingApprovalData,
-        setSkivingApprovalData,
-    ] = useState<skivingApprovalRow[]>([]);
+              service: "-",
 
-    const transformSkivingApprovalData = (
-        stages: ApiStage[]
-    ): skivingApprovalRow[] => {
-        const transformed: skivingApprovalRow[] = [];
+              batchNo:
+                batch.batchNumber || "-",
 
-        (stages || []).forEach((stage) => {
-            stage.batches?.forEach((batch) => {
-                batch.casings?.forEach((casing) => {
-                    const repairOperations: RepairOperation[] =
-                        casing.repairDetail?.operations?.map(
-                            (op) => ({
-                                repairType:
-                                    op.repairType,
-                                repairLocation:
-                                    op.repairLocation,
-                            })
-                        ) || [];
+              tyresCollected: 1,
 
-                    transformed.push({
-                        id:
-                            casing.orderCasingId,
+              tyresAvailable: 1,
 
-                        casing:
-                            casing.productionNumber ||
-                            casing.barcodeNumber ||
-                            "-",
+              collectorZone: "-",
 
-                        serial:
-                            casing.tyreReferenceNumber ||
-                            "-",
+              damageLevel: "-",
 
-                        pattern:
-                            casing.patternName ||
-                            "-",
+              repairOperations: [],
 
-                        requestedPattern:
-                            casing.patternName ||
-                            "-",
+              currentStage:
+                casing.currentStage,
 
-                        date:
-                            casing.orderDate ||
-                            "-",
+              currentSubstage:
+                casing.currentSubstage,
 
-                        customerName:
-                            casing.customerName ||
-                            "-",
+              currentStageStatus:
+                casing.currentStageStatus,
 
-                        service:
-                            batch.batchNumber?.startsWith(
-                                "RT"
-                            )
-                                ? "Retread"
-                                : "Repair",
+              approved:
+                batch.stageSummary?.approved || 0,
 
-                        batchNo:
-                            batch.batchNumber ||
-                            "-",
+              rejected:
+                batch.stageSummary?.rejected || 0,
 
-                        damageLevel:
-                            casing.damageLevelId === 1
-                                ? "Normal"
-                                : casing.damageLevelId === 2
-                                    ? "Heavy"
-                                    : "-",
+              pending:
+                batch.stageSummary?.pending || 0,
 
-                        repairOperations,
+              previousStage:
+                batch.stageSummary?.stillAtPreviousStage || 0,
 
-                        tyreSize:
-                            casing.tyreSizeLabel ||
-                            "-",
+              expectedTotal:
+                batch.stageSummary?.expectedTotal ||
+                batch.originalBatchSize,
 
-                        tyreMake: "-",
+              arrived:
+                batch.stageSummary?.arrived || 0,
 
-                        model: "-",
+              isRetreaded: false,
 
-                        brand: "-",
+              previousPattern: "",
 
-                        width: "-",
+              previousRetreader: "",
 
-                        tyresCollected: 1,
+              noOfRetread: 0,
 
-                        tyresAvailable: 1,
+              noOfExistingRepairs: 0,
 
-                        collectorZone: "-",
+              originalBatch: batch,
 
-                        currentStage:
-                            casing.currentStage,
-
-                        currentSubstage:
-                            casing.currentSubstage,
-
-                        currentStageStatus:
-                            casing.currentStageStatus,
-                    });
-                });
+              originalCasing: casing,
             });
+          }
         });
+      });
+    });
 
-        return transformed;
+    return list;
+  };
+
+  const fetchSkivingApprovalOrders =
+    async () => {
+      try {
+        const response =
+          await indexPageApiService.getBatchProgress(
+            SKIVING_STAGE,
+            SKIVING_APPROVAL_SUBSTAGE,
+            ACTIVE_STATUS,
+          );
+        console.log("SKIVING APPROVAL RESPONSE", JSON.stringify(response.data.data, null, 2));
+
+        const transformed =
+          transformData(
+            response.data.data || [],
+          );
+
+        setSkivingApprovalData(
+          transformed,
+        );
+      } catch (error) {
+        console.error(
+          "Skiving Approval Error",
+          error,
+        );
+      }
     };
 
-    const loadSkivingApproval =
-        async (): Promise<void> => {
-            try {
-                setLoading(true);
+  useEffect(() => {
+    fetchSkivingApprovalOrders();
+  }, []);
 
-                const res =
-                    await indexPageApiService.getBatchProgress(
-                        SKIVING_APPROVAL_STAGE,
-                        SKIVING_APPROVAL_SUBSTAGE,
-                        ACTIVE_STATUS
-                    );
+  const filteredData = useMemo(() => {
+    return skivingApprovalData.filter(
+      (item) =>
+        `${item.casing}
+         ${item.serial}
+         ${item.patternName}`
+          .toLowerCase()
+          .includes(
+            search.toLowerCase(),
+          ),
+    );
+  }, [search, skivingApprovalData]);
 
-                const transformed =
-                    transformSkivingApprovalData(
-                        res.data?.data || []
-                    );
+  return {
+    search,
+    setSearch,
 
-                setSkivingApprovalData(
-                    transformed
-                );
-            } catch (error) {
-                console.error(
-                    "Skiving Approval Error",
-                    error
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
+    skivingApprovalData,
 
-    useEffect(() => {
-        loadSkivingApproval();
-    }, []);
+    filteredData,
 
-    const filteredApproval =
-        useMemo(() => {
-            return skivingApprovalData.filter(
-                (item) =>
-                    `${item.casing}
-           ${item.serial}
-           ${item.pattern}`
-                        .toLowerCase()
-                        .includes(
-                            search.toLowerCase()
-                        )
-            );
-        }, [
-            search,
-            skivingApprovalData,
-        ]);
-
-    return {
-        loading,
-
-        skivingApprovalData,
-
-        filteredApproval,
-
-        loadSkivingApproval,
-    };
+    fetchSkivingApprovalOrders,
+  };
 };
+
+export default useSkivingApprovalTable;

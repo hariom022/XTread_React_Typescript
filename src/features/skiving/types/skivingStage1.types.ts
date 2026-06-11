@@ -25,7 +25,7 @@ export interface SkivingStage1Row {
   brand: string;
   width: string;
 
-  pattern: string;
+  patternName: string;
   requestedPattern: string;
   reApprovedPattern?: string;
 
@@ -44,4 +44,24 @@ export interface SkivingStage1Row {
   currentStage?: number;
   currentSubstage?: number;
   currentStageStatus?: number;
+  // Batch Summary
+  approved?: number;
+  rejected?: number;
+  pending?: number;
+  previousStage?: number;
+  expectedTotal?: number;
+  arrived?: number;
+
+   // Modal Fields
+  isRetreaded?: boolean;
+
+  previousPattern?: string;
+  previousRetreader?: string;
+
+  noOfRetread?: number;
+  noOfExistingRepairs?: number;
+
+  originalBatch?: any;
+  originalCasing?: any;
+
 }

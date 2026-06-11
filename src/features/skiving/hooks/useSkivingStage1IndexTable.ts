@@ -2,231 +2,190 @@ import { useEffect, useMemo, useState } from "react";
 
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
-import type{
-  skivingStage1Row,
+import type {
+  SkivingStage1Row,
   InspectionRepair,
 } from "../types/skivingStage1.types";
 
-const SKIVING_STAGE_1_STAGE = 8;
-const SKIVING_STAGE_1_SUBSTAGE = 81;
+const SKIVING_STAGE = 8;
+const SKIVING_STAGE1_SUBSTAGE = 81;
 const ACTIVE_STATUS = 1;
 
-interface ApiOperation {
-  repairLocation: string;
-  repairType: string;
-}
+const useSkivingStage1Table = () => {
+  const [search, setSearch] = useState("");
 
-interface ApiCasing {
-  orderCasingId: number;
+  const [skivingStage1Data, setSkivingStage1Data] =
+    useState<SkivingStage1Row[]>([]);
 
-  productionNumber?: string;
-  barcodeNumber?: string;
+  const transformData = (
+    stages: any[],
+  ): SkivingStage1Row[] => {
+    const list: SkivingStage1Row[] = [];
 
-  tyreReferenceNumber?: string;
+    stages.forEach((stage) => {
+      stage.batches?.forEach((batch: any) => {
+        batch.casings?.forEach((casing: any) => {
+          if (
+            casing.currentStage === SKIVING_STAGE &&
+            casing.currentSubstage === SKIVING_STAGE1_SUBSTAGE &&
+            casing.currentStageStatus === ACTIVE_STATUS
+          ) {
+            console.log("CASING stage 1", casing);
+            console.log("PATTERN VALUE:", casing.patternName);
+            list.push({
+              id: casing.orderCasingId,
 
-  dotNumber?: string;
+              casing:
+                casing.productionNumber ||
+                casing.barcodeNumber ||
+                "-",
 
-  tyreSizeLabel?: string;
+              date: casing.orderDate
+                ? casing.orderDate.split("T")[0]
+                : "-",
 
-  patternName?: string;
+              serial:
+                casing.tyreReferenceNumber || "-",
 
-  orderDate?: string;
+              patternName:
+                casing.patternName || "-",
 
-  customerName?: string;
+              requestedPattern:
+                casing?.patternName || "-",
 
-  damageLevelId?: number;
+              tyreSize:
+                casing.tyreSizeLabel || "-",
 
-  currentStage: number;
-  currentSubstage: number;
-  currentStageStatus: number;
+              tyreMake: "-",
 
-  repairDetail?: {
-    operations?: ApiOperation[];
-  };
-}
+              model: "-",
 
-interface ApiBatch {
-  batchNumber?: string;
+              brand: "-",
 
-  casings?: ApiCasing[];
-}
+              width: "-",
 
-interface ApiStage {
-  batches?: ApiBatch[];
-}
+              customerName:
+                casing.customerName || "-",
 
-export const useSkivingStage1IndexTable = (
-  search: string
-) => {
-  const [loading, setLoading] =
-    useState<boolean>(false);
+              service: "-",
 
-  const [
-    skivingStage1Data,
-    setSkivingStage1Data,
-  ] = useState<skivingStage1Row[]>([]);
+              batchNo:
+                batch.batchNumber || "-",
 
-  const transformSkivingStage1Data = (
-    stages: ApiStage[]
-  ): skivingStage1Row[] => {
-    const transformed: skivingStage1Row[] = [];
+              tyresCollected: 1,
 
-    (stages || []).forEach((stage) => {
-      stage.batches?.forEach((batch) => {
-        batch.casings?.forEach((casing) => {
-          const inspectionRepairs: InspectionRepair[] =
-            casing.repairDetail?.operations?.map(
-              (op) => ({
-                location:
-                  op.repairLocation,
-                type:
-                  op.repairType,
-                foundAt:
-                  "Nail Inspection",
-              })
-            ) || [];
+              tyresAvailable: 1,
 
-          transformed.push({
-            id:
-              casing.orderCasingId,
+              collectorZone: "-",
 
-            casing:
-              casing.productionNumber ||
-              casing.barcodeNumber ||
-              "-",
+              damageLevel: "-",
 
-            serial:
-              casing.tyreReferenceNumber ||
-              "-",
+              inspectionRepairs: [],
 
-            pattern:
-              casing.patternName ||
-              "-",
+              currentStage:
+                casing.currentStage,
 
-            requestedPattern:
-              casing.patternName ||
-              "-",
+              currentSubstage:
+                casing.currentSubstage,
 
-            date:
-              casing.orderDate ||
-              "-",
+              currentStageStatus:
+                casing.currentStageStatus,
 
-            customerName:
-              casing.customerName ||
-              "-",
+              approved:
+                batch.stageSummary?.approved || 0,
 
-            service:
-              batch.batchNumber?.startsWith(
-                "RT"
-              )
-                ? "Retread"
-                : "Repair",
+              rejected:
+                batch.stageSummary?.rejected || 0,
 
-            batchNo:
-              batch.batchNumber ||
-              "-",
+              pending:
+                batch.stageSummary?.pending || 0,
 
-            damageLevel:
-              casing.damageLevelId === 1
-                ? "Normal"
-                : casing.damageLevelId === 2
-                  ? "Heavy"
-                  : "-",
+              previousStage:
+                batch.stageSummary?.stillAtPreviousStage || 0,
 
-            inspectionRepairs,
+              expectedTotal:
+                batch.stageSummary?.expectedTotal ||
+                batch.originalBatchSize,
 
-            tyreSize:
-              casing.tyreSizeLabel ||
-              "-",
+              arrived:
+                batch.stageSummary?.arrived || 0,
 
-            tyreMake: "-",
+              isRetreaded: false,
 
-            model: "-",
+              previousPattern: "",
 
-            brand: "-",
+              previousRetreader: "",
 
-            width: "-",
+              noOfRetread: 0,
 
-            tyresCollected: 1,
+              noOfExistingRepairs: 0,
 
-            tyresAvailable: 1,
+              originalBatch: batch,
 
-            collectorZone: "-",
-
-            currentStage:
-              casing.currentStage,
-
-            currentSubstage:
-              casing.currentSubstage,
-
-            currentStageStatus:
-              casing.currentStageStatus,
-          });
+              originalCasing: casing,
+            });
+          }
         });
       });
     });
 
-    return transformed;
+    return list;
   };
 
-  const loadSkivingStage1 =
-    async (): Promise<void> => {
+  const fetchSkivingStage1Orders =
+    async () => {
       try {
-        setLoading(true);
-
-        const res =
+        const response =
           await indexPageApiService.getBatchProgress(
-            SKIVING_STAGE_1_STAGE,
-            SKIVING_STAGE_1_SUBSTAGE,
-            ACTIVE_STATUS
+            SKIVING_STAGE,
+            SKIVING_STAGE1_SUBSTAGE,
+            ACTIVE_STATUS,
           );
+        console.log("SKIVING STAGE 1 RESPONSE", JSON.stringify(response.data.data, null, 2));
 
         const transformed =
-          transformSkivingStage1Data(
-            res.data?.data || []
+          transformData(
+            response.data.data || [],
           );
-
+        console.log("TRANSFORMED", transformed);
         setSkivingStage1Data(
-          transformed
+          transformed,
         );
       } catch (error) {
         console.error(
           "Skiving Stage 1 Error",
-          error
+          error,
         );
-      } finally {
-        setLoading(false);
       }
     };
 
   useEffect(() => {
-    loadSkivingStage1();
+    fetchSkivingStage1Orders();
   }, []);
 
-  const filteredSkiving =
-    useMemo(() => {
-      return skivingStage1Data.filter(
-        (item) =>
-          `${item.casing}
-           ${item.serial}
-           ${item.pattern}`
-            .toLowerCase()
-            .includes(
-              search.toLowerCase()
-            )
-      );
-    }, [
-      search,
-      skivingStage1Data,
-    ]);
+  const filteredData = useMemo(() => {
+    return skivingStage1Data.filter(
+      (item) =>
+        `${item.casing}
+         ${item.serial}
+         ${item.patternName}`
+          .toLowerCase()
+          .includes(
+            search.toLowerCase(),
+          ),
+    );
+  }, [search, skivingStage1Data]);
 
   return {
-    loading,
+    search,
+    setSearch,
 
     skivingStage1Data,
 
-    filteredSkiving,
+    filteredData,
 
-    loadSkivingStage1,
+    fetchSkivingStage1Orders,
   };
 };
+
+export default useSkivingStage1Table;
