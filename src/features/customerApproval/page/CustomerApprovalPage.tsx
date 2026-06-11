@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-
+import "../style/CustomerApproval.css"
 import CustomerApprovalModal from "../components/CustomerApprovalModal";
 
 import CustomerOrderTable from "../components/CustomerOrderTable";
