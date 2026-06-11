@@ -1,5 +1,5 @@
 import "./Header.css";
-
+import { Link } from "react-router-dom";
 type HeaderProps = {
   toggleSidebar?: () => void;
 };
@@ -20,7 +20,10 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       </div>
 
       <div className="right">
-        <span className="person">👤</span>
+        <Link to="/" >
+         <span className="person">👤</span>
+        </Link>
+       
       </div>
     </div>
   );

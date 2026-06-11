@@ -188,9 +188,9 @@ const CustomerApprovalModal = ({
                         disabled={saving}
                         onChange={(e) => setCountryCode(e.target.value)}
                       >
-                        <option value="+91">+91</option>
+                        <option value="+91">+254</option>
 
-                        <option value="+1">+1</option>
+                        <option value="+1">+91</option>
                       </select>
 
                       <input
@@ -258,10 +258,10 @@ const CustomerApprovalModal = ({
                     </label>
 
                     <div
-                      className="border rounded bg-white"
+                      className="border rounded bg-white overflow-hidden"
                       style={{
                         width: "100%",
-                        height: "110px",
+                        height: "150px",
                       }}
                     >
                       <SignatureCanvas
@@ -269,8 +269,8 @@ const CustomerApprovalModal = ({
                         penColor="black"
                         canvasProps={{
                           width: 1000,
-                          height: 220,
-                          className: "signatureCanvas w-100",
+                          height: 150,
+                          className: "w-100 h-100",
                         }}
                       />
                     </div>

@@ -1,6 +1,8 @@
 import { MdOutlineMargin } from "react-icons/md";
 import RepairSection from "./RepairSection";
 import RepairTable from "./RepairTable";
+import PatchesRemoveSection from "./PatchesRemoveSection";
+import PatchRemovalTable from "./PatchRemovalTable";
 
 type Props = {
   selectedItem: any;
@@ -31,6 +33,28 @@ type Props = {
   handleReject: () => void;
   handleHold: () => void;
   handleApproveWithPressureTest: () => void;
+
+  resonForRemoval: any[];
+  location: any[];
+  damageType: any[];
+
+  patchRemovals: any[];
+
+  setPatchRemovals: React.Dispatch<React.SetStateAction<any[]>>;
+
+  newPatchRemoval: {
+    reasonForRemoval: string;
+    location: string;
+  };
+
+  setNewPatchRemoval: React.Dispatch<
+    React.SetStateAction<{
+      reasonForRemoval: string;
+      location: string;
+    }>
+  >;
+
+  addRemove: () => void;
 };
 
 const NailInspectionModal = ({
@@ -63,6 +87,17 @@ const NailInspectionModal = ({
   handleReject,
   handleHold,
   handleApproveWithPressureTest,
+  resonForRemoval,
+  location,
+  damageType,
+
+  patchRemovals,
+  setPatchRemovals,
+
+  newPatchRemoval,
+  setNewPatchRemoval,
+
+  addRemove,
 }: Props) => {
   if (!selectedItem) return null;
 
@@ -77,8 +112,10 @@ const NailInspectionModal = ({
             <div className="modal-header nail-header">
               <h5 className="modal-title">NAIL INSPECTION – APPROVAL</h5>
               {/* STAFF NAME */}
-              <div className="me-3 text-white text-end"
-              style={{ marginLeft: "46rem"}}>
+              <div
+                className="me-3 text-white text-end"
+                style={{ marginLeft: "46rem" }}
+              >
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
                 <b>John</b>
               </div>
@@ -123,8 +160,20 @@ const NailInspectionModal = ({
               <div className="row mt-2">
                 {/* LEFT SIDE */}
                 <div className="col-md-8 border-end">
+                  <PatchesRemoveSection
+                    resonForRemoval={resonForRemoval}
+                    location={location}
+                    newPatchRemoval={newPatchRemoval}
+                    setNewPatchRemoval={setNewPatchRemoval}
+                    addRemove={addRemove}
+                  />
+
+                  <PatchRemovalTable
+                    patchRemovals={patchRemovals}
+                    setPatchRemovals={setPatchRemovals}
+                  />
                   {/* PATCHES & PUNCTURES */}
-                  <div className="row g-3">
+                  {/* <div className="row g-3">
                     <div className="col-md-6">
                       <label>Patches Removed</label>
 
@@ -160,13 +209,15 @@ const NailInspectionModal = ({
                         ))}
                       </select>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* REPAIR SECTION */}
                   <RepairSection
                     newRepair={newRepair}
                     setNewRepair={setNewRepair}
                     addRepair={addRepair}
+                    damageType={damageType}
+                    location={location}
                   />
 
                   {/* REPAIR TABLE */}
@@ -198,8 +249,7 @@ const NailInspectionModal = ({
 
                 {/* RIGHT SIDE */}
                 <div className="col-md-4">
-                  <div className="mb-6"
-                  style={{marginBottom:"2.5rem"}}>
+                  <div className="mb-6" style={{ marginBottom: "2.5rem" }}>
                     <label className="fw-semibold">Rejection Reason</label>
 
                     <select
