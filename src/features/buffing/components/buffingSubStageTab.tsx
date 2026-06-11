@@ -1,47 +1,42 @@
-
 type Props = {
-    activeTab: "skiving" | "approval";
+    activeTab: "pre" | "post";
 
     setActiveTab: (
-        tab: "skiving" | "approval"
+        tab: "pre" | "post",
     ) => void;
 };
 
-const SkivingSubStageTab = ({
+const BuffingSubStageTab = ({
     activeTab,
     setActiveTab,
 }: Props) => {
     return (
         <div className="d-flex gap-2 mb-3">
-
             <button
-                type="button"
-                className={`btn ${activeTab === "skiving"
+                className={`btn ${activeTab === "pre"
                         ? "btn-danger"
                         : "btn-outline-danger"
                     }`}
                 onClick={() =>
-                    setActiveTab("skiving")
+                    setActiveTab("pre")
                 }
             >
-                Skiving Stage 1
+                Pre Buffing
             </button>
 
             <button
-                type="button"
-                className={`btn ${activeTab === "approval"
+                className={`btn ${activeTab === "post"
                         ? "btn-danger"
                         : "btn-outline-danger"
                     }`}
                 onClick={() =>
-                    setActiveTab("approval")
+                    setActiveTab("post")
                 }
             >
-                Skiving Approval
+                Post Buffing
             </button>
-
         </div>
     );
 };
 
-export default SkivingSubStageTab;
+export default BuffingSubStageTab;
