@@ -12,10 +12,10 @@ import IncidentReportModal from "../../../shared/components/IncidentReportModal"
 const PressureTestPage = () => {
 
   const {
-  loading,
-  pressureTestList,
-  loadPressureTestOrders,
-} = usePressureTest();
+    loading,
+    pressureTestList,
+    loadPressureTestOrders,
+  } = usePressureTest();
 
   // const { pressureTestList, loadPressureTestOrders } = usePressureTest();
 
@@ -38,17 +38,35 @@ const PressureTestPage = () => {
   }, [search, pressureTestList]);
 
   const handleInspect = async (item: any) => {
-    try {
-      const result = await indexPageApiService.getOrderCasingDetails(item.id);
+    console.log("INSPECT CLICKED", item);
 
-      // API response structure
+    try {
+      const result =
+        await indexPageApiService.getOrderCasingDetails(
+          item.id
+        );
+
+      console.log("DETAIL API RESPONSE", result);
+
       setSelectedItem(result.data);
+
+      console.log("SETTING SHOW MODAL TRUE");
 
       setShowModal(true);
     } catch (error) {
-      console.error("Failed to load casing details", error);
+      console.error(
+        "Failed to load casing details",
+        error
+      );
     }
   };
+
+  console.log(
+    "SHOW MODAL:",
+    showModal,
+    "SELECTED:",
+    selectedItem
+  );
 
   return (
     <div className="container-fluid mt-3">
@@ -74,19 +92,19 @@ const PressureTestPage = () => {
       </div>
 
       {/* TABLE */}
-     {loading ? (
-  <div
-    className="d-flex justify-content-center align-items-center"
-    style={{ minHeight: "400px" }}
-  >
-    <RingLoader color="#b30815" size={80} />
-  </div>
-) : (
-  <PressureTestTable
-    data={filteredData}
-    onInspect={handleInspect}
-  />
-)}
+      {loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "400px" }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      ) : (
+        <PressureTestTable
+          data={filteredData}
+          onInspect={handleInspect}
+        />
+      )}
 
       {/* MODAL */}
       {showModal && selectedItem && (
