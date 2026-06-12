@@ -17,6 +17,7 @@ import Login from "./features/auth/pages/Login";
 import ProtectedRoute from "./shared/components/ProtectedRoute";
 import BuffingStage from "./features/buffing/page/BuffingStage";
 import SkivingStage from "./features/skiving/page/SkivingStage";
+import { CementingPage } from "./features/cementing/page/CementingPage";
 
 const Layout = () => {
   return (
@@ -54,8 +55,9 @@ function App() {
           <Route path="/nailinspection" element={<NailInspectionPage />} />
           <Route path="/pressuretest" element={<PressureTestPage />} />
           <Route path="/shearography" element={<ShearographyPage />} />
-           <Route path='/buffing' element={<BuffingStage/>}/>
-           <Route path='/skiving' element={<SkivingStage/>}/>
+          <Route path="/buffing" element={<BuffingStage />} />
+          <Route path="/skiving" element={<SkivingStage />} />
+          <Route path="/cementing" element={<CementingPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
