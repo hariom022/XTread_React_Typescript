@@ -26,15 +26,15 @@ export const useTyreSizes = (
 
   // LOAD RIM SIZES
   const loadRimSizes = async (
-  selectedCategoryId: number
-) => {
-  const res =
-    await masterService.getRimSizes(
-      selectedCategoryId
-    );
+    selectedCategoryId: number
+  ) => {
+    const res =
+      await masterService.getRimSizes(
+        selectedCategoryId
+      );
 
-  setRimSizes(res.data.data || []);
-};
+    setRimSizes(res.data.data || []);
+  };
 
   // LOAD TYRE SIZES
   const loadTyreSizes = async () => {
@@ -42,13 +42,32 @@ export const useTyreSizes = (
       return;
 
     const res =
-      await masterService.getTyreSizes(
+      await masterService.getCasingSizes(
         categoryId,
         selectedRimSize
       );
 
-    setTyreSizes(res.data.data || []);
+    console.log(
+      "CASING SIZE RESPONSE",
+      res.data
+    );
+
+    const transformed =
+      (res.data.data || []).map(
+        (item: any) => ({
+          id: item.tyreSizeId,
+          casingSize: item.casingSize,
+        })
+      );
+
+    console.log(
+      "TRANSFORMED TYRE SIZES",
+      transformed
+    );
+
+    setTyreSizes(transformed);
   };
+
 
   useEffect(() => {
     loadTyreSizes();

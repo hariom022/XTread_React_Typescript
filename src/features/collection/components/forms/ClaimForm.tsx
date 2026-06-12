@@ -108,7 +108,7 @@ type Props = {
 
   isEditMode?: boolean;
   onSave?: () => void;
-onClose?: () => void;
+  onClose?: () => void;
 };
 
 const ClaimForm = ({
@@ -869,33 +869,36 @@ const ClaimForm = ({
 
           {/* FOOTER */}
           <div className="footer-actions">
-  {isEditMode ? (
-    <>
-      <button
-        type="button"
-        className="btn btn-secondary me-2"
-        onClick={onClose}
-      >
-        Cancel
-      </button>
+            {isEditMode ? (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary me-2"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
 
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={onSave}
-      >
-        Save Changes
-      </button>
-    </>
-  ) : (
-    <button
-      className="btn btn-primary btn-sm"
-      onClick={handleAddCasing}
-    >
-      Add Casing to Order
-    </button>
-  )}
-</div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={onSave}
+                >
+                  Save Changes
+                </button>
+              </>
+            ) : (
+              <div className="mx-10 d-flex justify-content-end"
+                style={{ marginLeft: "70.3rem" }}>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={handleAddCasing}
+                >
+                  Add Casing to Order
+                </button>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

@@ -788,9 +788,15 @@ const RepairForm = ({
             </button>
           </>
         ) : (
-          <button className="btn btn-primary btn-sm" onClick={handleAddCasing}>
-            Add Casing to Order
-          </button>
+          <div className="mx-10 d-flex justify-content-end"
+            style={{ marginLeft: "70.3rem" }}>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={handleAddCasing}
+            >
+              Add Casing to Order
+            </button>
+          </div>
         )}
       </div>
     </div>
