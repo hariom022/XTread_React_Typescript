@@ -145,11 +145,17 @@ const VisualInspectionModal = ({
           <div className="modal-content nail-modal">
             {/* HEADER */}
             <div className="modal-header nail-header">
-              <h4 className="modal-title fw-bold">
+              <h4 className="modal-title flex-grow-1 text-white text-start">
                 VISUAL INSPECTION – APPROVAL
               </h4>
 
-              <div className="ms-auto me-3 text-white fw-bold">John</div>
+              <div
+                className="text-white text-end"
+              // style={{ marginLeft: "50rem" }}
+              >
+                {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
+                <b>John</b>
+              </div>
 
               <button
                 className="btn-close btn-close-white"

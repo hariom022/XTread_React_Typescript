@@ -2,28 +2,19 @@ import { useState } from "react";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
 export const useNailInspectionModal = () => {
-  const [showModal, setShowModal] =
-    useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const [selectedItem, setSelectedItem] =
-    useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const [loadingModal, setLoadingModal] =
-    useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
 
   const openModal = async (item: any) => {
     try {
       setLoadingModal(true);
 
-      const res =
-        await indexPageApiService.getOrderCasingDetails(
-          item.id
-        );
+      const res = await indexPageApiService.getOrderCasingDetails(item.id);
 
-      console.log(
-        "NAIL CASING DETAILS",
-        res.data
-      );
+      console.log("NAIL CASING DETAILS", res.data);
 
       const casing = res.data;
       console.log("CASING DETAILS", casing);
@@ -31,53 +22,39 @@ export const useNailInspectionModal = () => {
       const modalData = {
         ...item,
 
-        // Basic Info
-        service:
-          casing.serviceType?.name || "-",
+        // From orders/casings/:orderCasingId API
+        productionNumber: casing.productionNumber,
+        tyreReferenceNumber: casing.tyreReferenceNumber,
+        customerName: casing.customerName,
 
-        tyreSize:
-          casing.tyreSize?.casingSize || "-",
+        service: casing.serviceType?.name || "-",
 
-        tyreMake:
-          casing.tyreMake?.name || "-",
+        tyreSize: casing.tyreSize?.casingSize || "-",
 
-        model:
-          casing.model || "-",
+        tyreMake: casing.tyreMake?.name || "-",
 
-        requestedPattern:
-          casing.retreadDetail?.patternName ||
-          "-",
+        model: casing.model || "-",
 
-        // Retread Info
-        isRetreaded:
-          casing.isRetreaded || false,
+        requestedPattern: casing.retreadDetail?.patternName || "-",
 
-        previousPattern:
-          casing.previousPattern || "-",
+        isRetreaded: casing.isRetreaded || false,
 
-        previousRetreader:
-          casing.previousRetreader || "-",
+        previousPattern: casing.previousPattern || "-",
 
-        noOfRetread:
-          casing.noOfRetread || 0,
+        previousRetreader: casing.previousRetreader || "-",
 
-        noOfExistingRepairs:
-          casing.existingRepairsCount || 0,
+        noOfRetread: casing.noOfRetread || 0,
 
-        // Nail Inspection Specific
-        repairDetail:
-          casing.repairDetail || [],
+        noOfExistingRepairs: casing.existingRepairsCount || 0,
 
-        punctureCount:
-          casing.punctureCount || 0,
+        repairDetail: casing.repairDetail || [],
 
-        patchesRemoved:
-          casing.patchesRemoved || 0,
+        punctureCount: casing.punctureCount || 0,
 
-        puncturesFound:
-          casing.puncturesFound || 0,
+        patchesRemoved: casing.patchesRemoved || 0,
 
-        // Raw Data
+        puncturesFound: casing.puncturesFound || 0,
+
         originalCasing: casing,
       };
 
@@ -87,9 +64,7 @@ export const useNailInspectionModal = () => {
     } catch (error) {
       console.error(error);
 
-      alert(
-        "Failed to load casing details"
-      );
+      alert("Failed to load casing details");
     } finally {
       setLoadingModal(false);
     }

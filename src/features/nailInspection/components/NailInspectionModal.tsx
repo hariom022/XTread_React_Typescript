@@ -136,17 +136,17 @@ const NailInspectionModal = ({
                 <div className="modal-info m-0  building-top row text-nowrap">
                   <div className="col">
                     <strong>Production No</strong>
-                    <div>{selectedItem?.casing}</div>
+                   <div>{selectedItem?.productionNumber}</div>
                   </div>
 
                   <div className="col">
                     <strong>Tyre Ref No</strong>
-                    <div>{selectedItem?.serial}</div>
+                    <div>{selectedItem?.tyreReferenceNumber}</div>
                   </div>
 
                   <div className="col">
                     <strong>Customer Name</strong>
-                    <div>{selectedItem?.customerName}</div>
+                  <div>{selectedItem?.customerName}</div>
                   </div>
 
                   <div className="col">

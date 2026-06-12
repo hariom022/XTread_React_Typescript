@@ -2,67 +2,44 @@ import { useState } from "react";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
 export const useVisualInspectionModal = () => {
-  const [showModal, setShowModal] =
-    useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const [selectedItem, setSelectedItem] =
-    useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const [loadingModal, setLoadingModal] =
-    useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
 
-  const openModal = async (
-    item: any
-  ) => {
+  const openModal = async (item: any) => {
     try {
       setLoadingModal(true);
 
-      const res =
-        await indexPageApiService.getOrderCasingDetails(
-          item.id
-        );
+      const res = await indexPageApiService.getOrderCasingDetails(item.id);
 
       const casing = res.data;
 
       const modalData = {
         ...item,
 
-        service:
-          casing.serviceType?.name ||
-          "-",
+        service: casing.serviceType?.name || "-",
 
-        tyreSize:
-          casing.tyreSize
-            ?.casingSize || "-",
+        tyreSize: casing.tyreSize?.casingSize || "-",
 
-        tyreMake:
-          casing.tyreMake?.name ||
-          "-",
+        tyreMake: casing.tyreMake?.name || "-",
 
-        model:
-          casing.model || "-",
+        model: casing.model || "-",
 
-        requestedPattern:
-          casing.retreadDetail
-            ?.patternName || "-",
+        requestedPattern: casing.retreadDetail?.patternName || "-",
 
-        isRetreaded:
-          casing.isRetreaded,
+        isRetreaded: casing.isRetreaded,
 
-        previousPattern:
-          casing.previousPattern,
+        previousPattern: casing.previousPattern,
 
-        previousRetreader:
-          casing.previousRetreader,
+        previousRetreader: casing.previousRetreader,
 
-        noOfRetread:
-          casing.noOfRetread,
+        noOfRetread: casing.noOfRetread,
 
-        noOfExistingRepairs:
-          casing.existingRepairsCount,
+        noOfExistingRepairs: casing.existingRepairsCount,
 
-        repairDetail:
-          casing.repairDetail,
+        repairDetail: casing.repairDetail,
       };
 
       setSelectedItem(modalData);
@@ -71,9 +48,7 @@ export const useVisualInspectionModal = () => {
     } catch (err) {
       console.error(err);
 
-      alert(
-        "Failed to load casing details"
-      );
+      alert("Failed to load casing details");
     } finally {
       setLoadingModal(false);
     }

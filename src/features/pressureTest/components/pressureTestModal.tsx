@@ -180,7 +180,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
                     <div className="col">
                       <strong>Customer Name</strong>
-                      <div>{selectedItem?.customerName}</div>
+                     <div>{details?.customerName}</div>
                     </div>
 
                     <div className="col">
