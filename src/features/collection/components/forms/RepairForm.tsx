@@ -109,6 +109,9 @@ type Props = {
   tyreHistoryList: TyreHistory[];
 
   // ================= REPAIR =================
+  damageTypes: any[];
+
+  repairLocations: any[];
   repairType: string;
 
   setRepairType: (value: string) => void;
@@ -221,7 +224,9 @@ const RepairForm = ({
   // ================= REPAIR =================
   repairType,
   setRepairType,
+  damageTypes = [],
 
+  repairLocations = [],
   repairLocation,
   setRepairLocation,
 
@@ -626,15 +631,16 @@ const RepairForm = ({
             value={repairType}
             onChange={(e) => setRepairType(e.target.value)}
           >
-            <option value="">-- Select Repair --</option>
+            <option value="" selected disabled>-- Select Repair --</option>
 
-            <option>Puncture</option>
-
-            <option>Side Wall Cut</option>
-
-            <option>Bead Damage</option>
-
-            <option>Tread Cut</option>
+            {damageTypes.map((item) => (
+              <option
+                key={item.id}
+                value={item.name}
+              >
+                {item.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -647,13 +653,16 @@ const RepairForm = ({
             value={repairLocation}
             onChange={(e) => setRepairLocation(e.target.value)}
           >
-            <option value="">-- Select Location --</option>
+            <option value="" selected disabled>-- Select Location --</option>
 
-            <option>Side Wall</option>
-
-            <option>Tread</option>
-
-            <option>Shoulder</option>
+            {repairLocations.map((item) => (
+              <option
+                key={item.id}
+                value={item.name}
+              >
+                {item.name}
+              </option>
+            ))}
           </select>
         </div>
 

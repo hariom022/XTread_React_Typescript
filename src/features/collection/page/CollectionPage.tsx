@@ -151,6 +151,9 @@ const CollectionPage = ({
 
   const [repairs, setRepairs] = useState<any[]>([]);
 
+  const [damageTypes, setDamageTypes] = useState<any[]>([]);
+
+  const [repairLocations, setRepairLocations] = useState<any[]>([]);
   // =========================================================
   // CLAIM
   // =========================================================
@@ -289,6 +292,8 @@ const CollectionPage = ({
     loadServiceTypes();
 
     loadTyreMakes();
+    loadDamageTypes();
+    loadRepairLocations();
   }, []);
 
   // =========================================================
@@ -305,6 +310,31 @@ const CollectionPage = ({
     const res = await masterService.getTyreMakes();
 
     setMake(res.data.data || []);
+  };
+  const loadDamageTypes = async () => {
+    try {
+      const res =
+        await masterService.getDamageTypes();
+
+      setDamageTypes(
+        res.data.data || []
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadRepairLocations = async () => {
+    try {
+      const res =
+        await masterService.getRepairLocations();
+
+      setRepairLocations(
+        res.data.data || []
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   //======================= EDIT ============================
@@ -826,29 +856,29 @@ const CollectionPage = ({
         retreadDetail:
           item.serviceType === "Retread"
             ? {
-                treadPatternVariantId: item.treadPatternVariantId?.toString(),
+              treadPatternVariantId: item.treadPatternVariantId?.toString(),
 
-                isPatternOverride: !!item.override,
-              }
+              isPatternOverride: !!item.override,
+            }
             : null,
 
         // REPAIR DETAIL
         repairDetail:
           item.serviceType === "Repair"
             ? {
-                percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
+              percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
 
-                remarks: item.remarks || "",
+              remarks: item.remarks || "",
 
-                operations:
-                  item.repairs?.map((r: any) => ({
-                    repairType: r.repairType,
+              operations:
+                item.repairs?.map((r: any) => ({
+                  repairType: r.repairType,
 
-                    repairLocation: r.repairLocation,
+                  repairLocation: r.repairLocation,
 
-                    quantity: r.repairQty,
-                  })) || [],
-              }
+                  quantity: r.repairQty,
+                })) || [],
+            }
             : null,
       })),
     };
@@ -913,31 +943,31 @@ const CollectionPage = ({
           retreadDetail:
             lastItem.serviceType === "Retread"
               ? {
-                  treadPatternVariantId:
-                    lastItem.treadPatternVariantId?.toString(),
+                treadPatternVariantId:
+                  lastItem.treadPatternVariantId?.toString(),
 
-                  isPatternOverride: !!lastItem.override,
-                }
+                isPatternOverride: !!lastItem.override,
+              }
               : null,
 
           // REPAIR
           repairDetail:
             lastItem.serviceType === "Repair"
               ? {
-                  percentageRemainingTreadDepth:
-                    lastItem.remainingTreadDepth || "0",
+                percentageRemainingTreadDepth:
+                  lastItem.remainingTreadDepth || "0",
 
-                  remarks: lastItem.remarks || "",
+                remarks: lastItem.remarks || "",
 
-                  operations:
-                    lastItem.repairs?.map((r: any) => ({
-                      repairType: r.repairType,
+                operations:
+                  lastItem.repairs?.map((r: any) => ({
+                    repairType: r.repairType,
 
-                      repairLocation: r.repairLocation,
+                    repairLocation: r.repairLocation,
 
-                      quantity: r.repairQty,
-                    })) || [],
-                }
+                    quantity: r.repairQty,
+                  })) || [],
+              }
               : null,
         };
 
@@ -1014,24 +1044,24 @@ const CollectionPage = ({
         retreadDetail:
           selectedService === "Retread"
             ? {
-                treadPatternVariantId: selectedVariantId,
-                isPatternOverride: override,
-              }
+              treadPatternVariantId: selectedVariantId,
+              isPatternOverride: override,
+            }
             : null,
 
         repairDetail:
           selectedService === "Repair"
             ? {
-                percentageRemainingTreadDepth: remainingTreadDepth,
+              percentageRemainingTreadDepth: remainingTreadDepth,
 
-                remarks,
+              remarks,
 
-                operations: repairs.map((r) => ({
-                  repairType: r.repairType,
-                  repairLocation: r.repairLocation,
-                  quantity: Number(r.repairQty),
-                })),
-              }
+              operations: repairs.map((r) => ({
+                repairType: r.repairType,
+                repairLocation: r.repairLocation,
+                quantity: Number(r.repairQty),
+              })),
+            }
             : null,
       };
       console.log("UPDATE PAYLOAD ON EDITING ", payload);
@@ -1238,6 +1268,8 @@ const CollectionPage = ({
               isEditMode={editMode}
               onSave={handleUpdateCasing}
               onClose={onClose}
+              damageTypes={damageTypes}
+              repairLocations={repairLocations}
             />
           </div>
         </div>
