@@ -191,7 +191,7 @@ const NailInspectionPage = () => {
 
         isApproved: true,
 
-        isPressureTestRequired: false,
+        isPressureTestRequired: true,
 
         patchesRemoved,
 
