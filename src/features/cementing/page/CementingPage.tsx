@@ -68,18 +68,23 @@ export const CementingPage = () => {
           />
         </div>
 
-        <div className="col-md-2">
+        <div className="col-md-2 d-flex justify-content-end">
           <button
-            className="btn btn-primary w-100"
+            className="btn btn-success w-100"
+            style={{height : "44px",
+              backgroundColor: "blue",
+              borderColor: "blue",
+            }}
             onClick={() => setShowStockModal(true)}
           >
             Stock Management
           </button>
         </div>
 
-        <div className="col-md-2">
+        <div className="col-md-2 d-flex justify-content-end">
           <button
             className="btn btn-danger w-100"
+            style={{height : "44px"}}
             onClick={() => setShowIncidentModal(true)}
           >
             Incident Report

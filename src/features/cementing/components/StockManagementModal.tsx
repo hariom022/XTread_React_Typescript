@@ -88,15 +88,15 @@ const StockManagementModal: React.FC<
             </div>
 
             <div className="modal-footer">
-              <button
+              {/* <button
                 className="btn btn-secondary"
                 onClick={onClose}
               >
                 Close
-              </button>
+              </button> */}
 
               <button
-                className="btn btn-danger"
+                className="btn btn-success"
                 onClick={handleSave}
               >
                 Save
