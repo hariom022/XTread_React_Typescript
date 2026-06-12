@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/authService";
+import { login ,isAuthenticated} from "../services/authService";
 import "../styles/Login.css";
 
 const Login = () => {
-  const navigate = useNavigate();
+   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,11 +22,14 @@ const Login = () => {
     const isValid = login(username, password);
 
     if (isValid) {
-      navigate("/dashboard");
+      navigate("/dashboard", {
+        replace: true,
+      });
     } else {
       setError("Invalid Username or Password");
     }
   };
+
 
   return (
     <div className="login-container">

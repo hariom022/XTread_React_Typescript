@@ -1,18 +1,18 @@
 import { Navigate } from "react-router-dom";
-
-interface Props {
+// import { isAuthenticated } from "../services/authService";
+import { isAuthenticated } from "../../features/auth/services/authService";
+type Props = {
   children: React.ReactNode;
-}
+};
 
 const ProtectedRoute = ({ children }: Props) => {
-  const isLoggedIn =
-    localStorage.getItem("isLoggedIn") === "true";
+  const authenticated = isAuthenticated();
 
-  return isLoggedIn ? (
-    <>{children}</>
-  ) : (
-    <Navigate to="/" />
-  );
+  if (!authenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

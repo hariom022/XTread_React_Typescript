@@ -1,10 +1,19 @@
 import "./Header.css";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../features/auth/services/authService";
+
 type HeaderProps = {
   toggleSidebar?: () => void;
 };
 
 const Header = ({ toggleSidebar }: HeaderProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <div className="header">
       <div
@@ -20,10 +29,12 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       </div>
 
       <div className="right">
-        <Link to="/" >
-         <span className="person">👤</span>
-        </Link>
-       
+        <button
+          className="btn btn-danger"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
       </div>
     </div>
   );
