@@ -271,7 +271,7 @@ const NailInspectionPage = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Search by Casing No, Serial No, or Pattern..."
+            placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
