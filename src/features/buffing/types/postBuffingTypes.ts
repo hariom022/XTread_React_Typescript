@@ -1,9 +1,9 @@
 export interface PostBuffingRow {
- id: number;
-
+  id: number;
 
   treadPatternId?: number;
-
+  treadPatternVariantId?: number;
+  reApprovedPattern?: string;
 
   // Table Fields
   casing: string;
@@ -14,11 +14,11 @@ export interface PostBuffingRow {
 
   tyreSize: string;
 
-  tyreMake: string;     // ADD
-  model: string;        // ADD
-  brand: string;        // ADD
-  width: string;        // ADD
-  
+  tyreMake: string; // ADD
+  model: string; // ADD
+  brand: string; // ADD
+  width: string; // ADD
+
   patternName: string;
   requestedPattern: string;
 

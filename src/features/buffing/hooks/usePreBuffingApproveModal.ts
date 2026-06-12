@@ -30,6 +30,8 @@ interface Props {
 }
 
 const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
+  const [loading, setLoading] = useState(false);
+
   const [reason, setReason] = useState("");
   const [holdReason, setHoldReason] = useState("");
 
@@ -128,6 +130,8 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
 
   const handleReject = async () => {
     try {
+      setLoading(true);
+
       if (!selectedItem) return;
 
       if (!checklistSaved) {
@@ -158,11 +162,14 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       console.error(error);
 
       alert("Reject Failed");
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   const handleApprove = async () => {
     try {
+      setLoading(true);
       if (!selectedItem) return;
 
       if (!checklistSaved) {
@@ -201,11 +208,14 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       console.error(error);
 
       alert("Approve Failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleHold = async () => {
     try {
+       setLoading(true);
       if (!selectedItem) return;
 
       if (!checklistSaved) {
@@ -244,7 +254,9 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       console.error(error);
 
       alert("Hold Failed");
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   return {
@@ -295,6 +307,7 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
     handleSelectAllChecklist,
 
     isChecklistComplete,
+    loading
   };
 };
 

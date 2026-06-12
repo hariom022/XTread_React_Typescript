@@ -34,6 +34,7 @@ interface Props {
 }
 
 const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
+  const [loading, setLoading] = useState(false);
   const [postRejectReason, setPostRejectReason] = useState("");
 
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -178,6 +179,7 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
 
   const handleApprove = async () => {
     try {
+       setLoading(true);
       if (!selectedItem) return;
 
       if (!postChecklistSaved) {
@@ -216,7 +218,9 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       console.error(error);
 
       alert("Approval Failed");
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   /* ===========================
@@ -225,6 +229,7 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
 
   const handleReject = async () => {
     try {
+       setLoading(true);
       if (!selectedItem) return;
 
       if (!postChecklistSaved) {
@@ -268,10 +273,13 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       console.error(error);
 
       alert("Reject Failed");
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   return {
+      loading,
     machines,
     damageLevels,
     patternVariants,

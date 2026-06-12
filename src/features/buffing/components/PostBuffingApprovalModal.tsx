@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import buffingStageServiceApi from "../service/buffingStageServiceApi";
 import PostBuffingChecklist from "./PostBuffingChecklist";
+import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
+import { RingLoader } from "react-spinners";
 
 interface Machine {
   machineId: number;
@@ -91,9 +93,13 @@ interface Props {
   postChecklistSaved: boolean;
 
   setPostChecklistSaved: React.Dispatch<React.SetStateAction<boolean>>;
+
+  casingDetails: OrderCasingDetails | null;
+  loading: boolean;
 }
 
 const PostBuffingApprovalModal = ({
+  loading,
   postBuffingModalRef,
 
   selectedItem,
@@ -140,6 +146,7 @@ const PostBuffingApprovalModal = ({
 
   postChecklistSaved,
   setPostChecklistSaved,
+  casingDetails,
 }: Props) => {
   return (
     <div
@@ -171,32 +178,32 @@ const PostBuffingApprovalModal = ({
             <div className="modal-info m-0 p-1 mb-1 postbuff-top row text-nowrap">
               <div className="col">
                 <strong>Production No</strong>
-                <div>{selectedItem?.casing}</div>
+                <div>{casingDetails?.productionNumber}</div>
               </div>
 
               <div className="col">
-                <strong>Serial No</strong>
-                <div>{selectedItem?.serial}</div>
+                <strong>Tyre Ref No</strong>
+                <div>{casingDetails?.tyreReferenceNumber}</div>
               </div>
 
               <div className="col">
                 <strong>Customer Name</strong>
-                <div>{selectedItem?.customerName}</div>
+                <div>-</div>
               </div>
 
               <div className="col">
                 <strong>Tyre Size</strong>
-                <div>{selectedItem?.tyreSize}</div>
+                <div>{casingDetails?.tyreSize?.casingSize}</div>
               </div>
 
               <div className="col">
                 <strong>Requested Pattern</strong>
-                <div>{selectedItem?.requestedPattern}</div>
+                <div>{casingDetails?.retreadDetail?.patternName}</div>
               </div>
 
               <div className="col">
                 <strong>ReApproved Pattern</strong>
-                <div>{selectedItem?.reApprovedPattern}</div>
+                <div>- {/* {casingDetails?.retreadDetail?.patternName} */}</div>
               </div>
             </div>
 
@@ -245,27 +252,27 @@ const PostBuffingApprovalModal = ({
 
               <div className="d-flex justify-content-between small">
                 <div>
-                  <b>Tyre Size:</b> {selectedItem?.tyreSize}
+                  <b>Tyre Size:</b> {casingDetails?.tyreSize.casingSize}
                 </div>
 
                 <div>
-                  <b>Make:</b> {selectedItem?.tyreMake}
+                  <b>Make:</b> {casingDetails?.tyreMake.name}
                 </div>
 
                 <div>
-                  <b>Model:</b> {selectedItem?.model}
+                  <b>Model:</b> {casingDetails?.model}
                 </div>
 
                 <div>
-                  <b>Brand:</b> {selectedItem?.brand}
+                  <b>Brand:</b> {casingDetails?.retreadDetail.brand}
                 </div>
 
                 <div>
-                  <b>Pattern:</b> {selectedItem?.requestedPattern}
+                  <b>Pattern:</b> {casingDetails?.retreadDetail.patternName}
                 </div>
 
                 <div>
-                  <b>Width:</b> {selectedItem?.width}
+                  <b>Width:</b> {casingDetails?.retreadDetail.width}
                 </div>
               </div>
             </div>
@@ -275,16 +282,13 @@ const PostBuffingApprovalModal = ({
             <div className="row">
               <div className="col-md-8">
                 <div className="box p-2">
-                  <div className="mb-2">
-                    <label className="form-label">Override</label>
-
-                    <br />
-
+                  <div className="mb-2 d-flex">
                     <input
                       type="checkbox"
                       checked={override}
                       onChange={(e) => setOverride(e.target.checked)}
                     />
+                    <label className="form-label mt-2 ms-1">Override</label>
                   </div>
 
                   <div className="row">
@@ -397,15 +401,17 @@ const PostBuffingApprovalModal = ({
                 <button
                   className="btn btn-reject w-100 mb-3"
                   onClick={handleReject}
+                  disabled={loading}
                 >
-                  REJECTED
+                  {loading ? "Processing..." : "REJECTED"}
                 </button>
 
                 <button
                   className="btn btn-approve w-100"
                   onClick={handleApprove}
+                  disabled={loading}
                 >
-                  APPROVED
+                  {loading ? "Processing..." : "APPROVED"}
                 </button>
               </div>
             </div>
@@ -429,6 +435,21 @@ const PostBuffingApprovalModal = ({
           setShowPostChecklist(false);
         }}
       />
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(255,255,255,0.7)",
+            zIndex: 99999,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <RingLoader size={80} color="#b30815" />
+        </div>
+      )}
     </div>
   );
 };

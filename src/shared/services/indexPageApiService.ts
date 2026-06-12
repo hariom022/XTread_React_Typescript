@@ -63,6 +63,7 @@ const indexPageApiService = {
     api.get(
       `/orders/casings/${orderCasingId}`
     ),
+    
 };
 
 export default indexPageApiService;

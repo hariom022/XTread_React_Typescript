@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { PRE_BUFFING_CHECKLIST } from "../constants/preBuffingCheckList";
 import PreBuffingChecklist from "../components/PreBuffingCheckList";
+import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
+import { RingLoader } from "react-spinners";
 
 interface Variant {
   treadPatternVariantId: number;
@@ -101,6 +103,8 @@ interface Props {
   handleHold: () => void;
 
   resetModal: () => void;
+  casingDetails: OrderCasingDetails | null;
+   loading: boolean;
 }
 
 const PreBuffingApprovalModal = ({
@@ -157,10 +161,11 @@ const PreBuffingApprovalModal = ({
   handleSelectAllChecklist,
 
   isChecklistComplete,
+  casingDetails,
+  loading
 }: Props) => {
-  console.log("showChecklist", showChecklist);
-  console.log("setShowChecklist", setShowChecklist);
-  console.log("typeof setShowChecklist", typeof setShowChecklist);
+  console.log("showChecklist", casingDetails);
+
   return (
     <>
       <div
@@ -192,27 +197,27 @@ const PreBuffingApprovalModal = ({
               <div className="modal-info m-0 p-2 prebuffer-top row text-nowrap">
                 <div className="col">
                   <strong>Production No</strong>
-                  <div>{selected?.casing}</div>
+                  <div>{casingDetails?.productionNumber}</div>
                 </div>
 
                 <div className="col">
-                  <strong>Serial No</strong>
-                  <div>{selected?.serial}</div>
+                  <strong>Tyre Ref No</strong>
+                  <div>{casingDetails?.tyreReferenceNumber}</div>
                 </div>
 
                 <div className="col">
                   <strong>Customer Name</strong>
-                  <div>{selected?.customerName}</div>
+                  <div>-</div>
                 </div>
 
                 <div className="col">
                   <strong>Tyre Size</strong>
-                  <div>{selected?.tyreSize}</div>
+                  <div>{casingDetails?.tyreSize.casingSize}</div>
                 </div>
 
                 <div className="col">
                   <strong>Requested Pattern</strong>
-                  <div>{selected?.requestedPattern}</div>
+                  <div>{casingDetails?.retreadDetail.patternName}</div>
                 </div>
               </div>
 
@@ -267,24 +272,27 @@ const PreBuffingApprovalModal = ({
 
                           <div className="row gx-5 gy-1 small">
                             <div className="col-4 record-item">
-                              <b>Tyre Size:</b> {selected?.tyreSize}
+                              <b>Tyre Size:</b>{" "}
+                              {casingDetails?.tyreSize.casingSize}
                             </div>
                             <div className="col-4 record-item">
-                              <b>Make:</b> {selected?.tyreMake}
-                            </div>
-
-                            <div className="col-4 record-item">
-                              <b>Model:</b> {selected?.model}
-                            </div>
-                            <div className="col-4 record-item">
-                              <b>Brand:</b> {selected?.brand}
+                              <b>Make:</b> {casingDetails?.tyreMake.name}
                             </div>
 
                             <div className="col-4 record-item">
-                              <b>Pattern:</b> {selected?.requestedPattern}
+                              <b>Model:</b> {casingDetails?.model}
                             </div>
                             <div className="col-4 record-item">
-                              <b>Width:</b> {selected?.width}
+                              <b>Brand:</b> {casingDetails?.retreadDetail.brand}
+                            </div>
+
+                            <div className="col-4 record-item">
+                              <b>Pattern:</b>{" "}
+                              {casingDetails?.retreadDetail.patternName}
+                            </div>
+                            <div className="col-4 record-item">
+                              <b>Width:</b>{" "}
+                              {casingDetails?.retreadDetail?.width}
                             </div>
                           </div>
                         </div>
@@ -430,7 +438,7 @@ const PreBuffingApprovalModal = ({
 
               <div className="row g-2 mt-3">
                 <div className="col-md-3">
-                  <button
+                  <button style={{    height: "100%"}}
                     className="btn btn-primary w-100"
                     onClick={() => {
                       console.log("Checklist Button Clicked");
@@ -444,6 +452,7 @@ const PreBuffingApprovalModal = ({
                 <div className="col-md-3">
                   <button
                     className="btn btn-reject w-100"
+                     disabled={loading}
                     onClick={() => {
                       if (!isChecklistComplete) {
                         alert(
@@ -455,12 +464,13 @@ const PreBuffingApprovalModal = ({
                       handleReject();
                     }}
                   >
-                    REJECTED
+                    {loading ? "Processing..." : "REJECTED"}
                   </button>
                 </div>
 
                 <div className="col-md-3">
-                  <button
+                  <button style={{    height: "100%"}}
+                   disabled={loading}
                     className="btn btn-warning w-100"
                     onClick={() => {
                       if (!isChecklistComplete) {
@@ -473,13 +483,14 @@ const PreBuffingApprovalModal = ({
                       handleHold();
                     }}
                   >
-                    HOLD
+                      {loading ? "Processing..." : "HOLD"}
                   </button>
                 </div>
 
                 <div className="col-md-3">
                   <button
                     className="btn btn-approve w-100"
+                     disabled={loading}
                     onClick={() => {
                       if (!isChecklistComplete) {
                         alert(
@@ -491,7 +502,7 @@ const PreBuffingApprovalModal = ({
                       handleApprove();
                     }}
                   >
-                    APPROVED
+                     {loading ? "Processing..." : "APPROVED"}
                   </button>
                 </div>
               </div>
@@ -520,6 +531,25 @@ const PreBuffingApprovalModal = ({
           setShowChecklist(false);
         }}
       />
+
+      {loading && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(255,255,255,0.6)",
+      zIndex: 99999,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <RingLoader
+      size={80}
+      color="#b30815"
+    />
+  </div>
+)}
     </>
   );
 };
