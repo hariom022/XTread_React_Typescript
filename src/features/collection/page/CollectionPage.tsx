@@ -1107,6 +1107,7 @@ const CollectionPage = ({
               handleCategoryChange={handleCategoryChange}
               orderNumber={orderNumber}
               setOrderNumber={setOrderNumber}
+              isServiceLocked={orderItems.length > 0}
             />
           </div>
         </div>
