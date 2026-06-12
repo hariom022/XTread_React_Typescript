@@ -126,10 +126,10 @@ const BatchTable = ({
 
       <div className="d-flex justify-content-end">
         <button
-          className="btn btn-danger btn-sm m-2"
+          className="btn btn-danger btn m-2"
           onClick={onCreateBatch}
         >
-          Create Production Batch
+          <b>Create Production Batch</b>
         </button>
       </div>
     </div>

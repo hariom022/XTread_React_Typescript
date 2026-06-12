@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { Modal } from "bootstrap";
 
 import PreBuffingTable from "../components/PreBuffingTable";
@@ -21,9 +21,15 @@ import buffingStageServiceApi from "../service/buffingStageServiceApi";
 import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
 import { RingLoader } from "react-spinners";
 
+import IncidentReportModal from "../../../shared/components/IncidentReportModal";
+
 const BuffingStage = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"pre" | "post">("pre");
+
+  const [search, setSearch] = useState("");
+
+  const [showIncidentModal, setShowIncidentModal] = useState(false);
 
   const [selectedPreItem, setSelectedPreItem] = useState<PreBuffingRow | null>(
     null,
@@ -44,16 +50,13 @@ const BuffingStage = () => {
   /* ==================================
           PRE BUFFING TABLE
     =================================== */
-
-  const { filteredData: preBuffingRows, fetchPreBuffingOrders } =
-    usePreBuffingIndexTable();
+  const { preBuffingData, fetchPreBuffingOrders, } = usePreBuffingIndexTable();
 
   /* ==================================
           POST BUFFING TABLE
     =================================== */
 
-  const { filteredData: postBuffingRows, fetchPostBuffingOrders } =
-    usePostBuffingIndexTable();
+  const { postBuffingData, fetchPostBuffingOrders, } = usePostBuffingIndexTable();
 
   /* ==================================
           PRE APPROVAL HOOK
@@ -157,24 +160,79 @@ const BuffingStage = () => {
 
     loadData();
   }, []);
+
+  const filteredPreBuffingRows =
+    useMemo(() => {
+      return preBuffingData.filter(
+        (item) =>
+          `${item.casing}
+         ${item.serial}
+         ${item.patternName}
+         ${item.customerName}
+         ${item.batchNo}`
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+      );
+    }, [search, preBuffingData]);
+
+  const filteredPostBuffingRows =
+    useMemo(() => {
+      return postBuffingData.filter(
+        (item) =>
+          `${item.casing}
+         ${item.serial}
+         ${item.patternName}
+         ${item.customerName}
+         ${item.batchNo}`
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+      );
+    }, [search, postBuffingData]);
   return (
     <div className="container-fluid">
+      <div className="row mb-3">
+
+        <div className="col-md-10">
+
+          <input
+            className="form-control"
+            placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+          />
+
+        </div>
+
+        <div className="col-md-2 d-flex justify-content-end">
+
+          <button
+            className="btn btn-danger w-100"
+            onClick={() =>
+              setShowIncidentModal(true)
+            }
+          >
+            Incident Report
+          </button>
+
+        </div>
+
+      </div>
       {/* TABS */}
 
       <div className="d-flex gap-2 mb-3">
         <button
-          className={`btn ${
-            activeTab === "pre" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn ${activeTab === "pre" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={() => setActiveTab("pre")}
         >
           PRE BUFFING
         </button>
 
         <button
-          className={`btn ${
-            activeTab === "post" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn ${activeTab === "post" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={() => setActiveTab("post")}
         >
           POST BUFFING
@@ -185,14 +243,14 @@ const BuffingStage = () => {
 
       {activeTab === "pre" && (
         <PreBuffingTable
-          data={preBuffingRows}
+          data={filteredPreBuffingRows}
           onApprove={openPreApprovalModal}
         />
       )}
 
       {activeTab === "post" && (
         <PostBuffingTable
-          data={postBuffingRows}
+          data={filteredPostBuffingRows}
           onApprove={openPostApprovalModal}
         />
       )}
@@ -222,6 +280,14 @@ const BuffingStage = () => {
           {...postApproval}
         />
       )}
+      {showIncidentModal && (
+        <IncidentReportModal
+          onClose={() =>
+            setShowIncidentModal(false)
+          }
+        />
+      )}
+
       {loading && (
         <div
           style={{

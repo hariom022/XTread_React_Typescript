@@ -152,13 +152,13 @@ const CollectionTable = ({
           </tbody>
         </table>
       </div>
-      <div className="mb-3 d-flex gap-2 mt-2 justify-content-end">
-        <button className="btn btn-success " onClick={onReceive}>
-          Receive Selected
+      <div className="mb-3 d-flex gap-2 mt-2 p-1 justify-content-end">
+        <button className="btn btn-success" onClick={onReceive}>
+          <b>Received Casing </b>
         </button>
 
         <button className="btn btn-danger" onClick={onReject}>
-          Reject Selected
+         <b> Not Received Casing</b>
         </button>
       </div>
     </>
