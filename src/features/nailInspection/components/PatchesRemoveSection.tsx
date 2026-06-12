@@ -27,14 +27,16 @@ const PatchesRemoveSection = ({
   addRemove,
 }: Props) => {
   return (
-    <div className="row g-2 mt-1 mb-0">
-      <div className="text-start bg-warning">
-        <h6 className="text-light m-1">Patches Removed</h6>
+    <div className="row g-1 mt-1 mb-0 h-33">
+
+      <div className="text-start">
+        <label> <b>Patches Removed</b></label>
       </div>
 
       <div className="col-md-4">
         <select
           className="form-select"
+          style={{ minHeight: "20px" }}
           value={newPatchRemoval.reasonForRemoval}
           onChange={(e) =>
             setNewPatchRemoval((prev) => ({
@@ -56,6 +58,7 @@ const PatchesRemoveSection = ({
       <div className="col-md-4">
         <select
           className="form-select"
+          style={{ minHeight: "20px" }}
           value={newPatchRemoval.location}
           onChange={(e) =>
             setNewPatchRemoval((prev) => ({
@@ -75,9 +78,12 @@ const PatchesRemoveSection = ({
       </div>
 
       <div className="col-md-4 d-grid">
-        <button className="btn btn-danger" onClick={addRemove}>
+        <button className="btn btn-danger"
+          style={{ minHeight: "20px" }}
+          onClick={addRemove}>
           + Add Remove
         </button>
+
       </div>
     </div>
   );

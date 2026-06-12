@@ -1,211 +1,239 @@
 import { useEffect, useState } from "react";
+import { Modal } from "bootstrap";
 
 import skivingStageServiceApi from "../service/skivingStageServiceApi";
+import type { SkivingApprovalRow } from "../types/skivingApproval.types";
 
-import type{
-  RejectionReason,
-  skivingApprovalRow,
-  SaveSkivingApprovalPayload,
-} from "../types/skivingApprovalTypes";
+interface RejectionReason {
+  rejectionReasonId: number;
+  code: string;
+  reason: string;
+}
 
-export const useSkivingApprovalModal = (
-  reloadGrid: () => void
-) => {
+interface Props {
+  selectedItem: SkivingApprovalRow | null;
+  refreshTable: () => void;
+}
+
+const useSkivingApprovalModal = ({
+  selectedItem,
+  refreshTable,
+}: Props) => {
   const [
-    selectedApprovalItem,
-    setSelectedApprovalItem,
-  ] = useState<skivingApprovalRow | null>(
-    null
-  );
+    repeatSkiving,
+    setRepeatSkiving,
+  ] =
+    useState(false);
 
-  const [repeatSkiving, setRepeatSkiving] =
-    useState<boolean>(false);
-
-  const [skipRepair, setSkipRepair] =
-    useState<boolean>(false);
+  const [
+    skipRepair,
+    setSkipRepair,
+  ] =
+    useState(false);
 
   const [
     rejectionReason,
     setRejectionReason,
-  ] = useState<string>("");
+  ] =
+    useState("");
 
   const [
     rejectionReasons,
     setRejectionReasons,
-  ] = useState<RejectionReason[]>([]);
+  ] =
+    useState<
+      RejectionReason[]
+    >([]);
 
-  const openModal = (
-    item: skivingApprovalRow
-  ) => {
-    setSelectedApprovalItem(item);
-  };
+  /* =====================
+      FETCH REASONS
+  ====================== */
 
-  const loadRejectionReasons =
-    async (): Promise<void> => {
+  const fetchRejectionReasons =
+    async () => {
       try {
         const response =
           await skivingStageServiceApi.getSkivingRejectionReasons();
 
         setRejectionReasons(
-          response.data?.data || []
+          response.data.data ||
+          [],
         );
       } catch (error) {
         console.error(
-          "Rejection Reasons Error",
-          error
+          error,
         );
       }
     };
 
   useEffect(() => {
-    loadRejectionReasons();
+    fetchRejectionReasons();
   }, []);
 
-  const hasRepairs =
-    (selectedApprovalItem?.repairOperations
-      ?.length ?? 0) > 0;
+  /* =====================
+      AUTO SKIP
+  ====================== */
 
   useEffect(() => {
-    if (hasRepairs) {
-      setSkipRepair(false);
-    }
-  }, [selectedApprovalItem, hasRepairs]);
+    const hasRepairs =
+      (selectedItem?.repairOperations?.length || 0) > 0;
 
-  const resetForm = () => {
-    setSelectedApprovalItem(null);
+    setSkipRepair(!hasRepairs);
+  }, [selectedItem]);
+  /* =====================
+      RESET
+  ====================== */
 
-    setRepeatSkiving(false);
+  const resetModal =
+    () => {
+      setRepeatSkiving(
+        false,
+      );
 
-    setSkipRepair(false);
+      setSkipRepair(
+        false,
+      );
 
-    setRejectionReason("");
-  };
+      setRejectionReason(
+        "",
+      );
+    };
+
+  /* =====================
+      APPROVE
+  ====================== */
 
   const handleApprove =
-    async (): Promise<boolean> => {
-      if (!selectedApprovalItem)
-        return false;
-
-      if (!repeatSkiving) {
-        const confirmed =
-          window.confirm(
-            "This casing will proceed to the next stage.\n\nDo you want to continue without Repeat Skiving?"
-          );
-
-        if (!confirmed)
-          return false;
-      }
-
+    async () => {
       try {
-        const payload: SaveSkivingApprovalPayload =
-          {
-            orderCasingIds: [
-              selectedApprovalItem.id,
+        if (
+          !selectedItem
+        )
+          return;
+
+        const payload =
+        {
+          orderCasingIds:
+            [
+              selectedItem.id,
             ],
 
-            isApproved: true,
+          isApproved:
+            true,
 
-            isRepeatSkiving:
-              repeatSkiving,
+          isRepeatSkiving:
+            repeatSkiving,
 
-            rejectionReasonCode:
-              null,
+          rejectionReasonCode:
+            null,
 
+          skipRepair:
             skipRepair,
-          };
-
+        };
+        console.log("SKIVING APPROVAL STAGE 2 REPONSE", JSON.stringify(payload, null, 2),);
         await skivingStageServiceApi.saveSkivingApproval(
-          payload
+          payload,
         );
 
         alert(
-          "Skiving Approval completed successfully"
+          "Approved Successfully",
         );
 
-        reloadGrid();
+        refreshTable();
+        const modalElement =
+          document.querySelector(".modal.show");
 
-        resetForm();
+        if (modalElement) {
+          Modal.getInstance(
+            modalElement as Element,
+          )?.hide();
+        }
 
-        return true;
+        resetModal();
       } catch (error) {
-        console.error(error);
-
-        alert(
-          "Failed to approve casing"
+        console.error(
+          error,
         );
 
-        return false;
+        alert(
+          "Approval Failed",
+        );
       }
     };
 
+  /* =====================
+      REJECT
+  ====================== */
+
   const handleReject =
-    async (): Promise<boolean> => {
-      if (!selectedApprovalItem)
-        return false;
-
-      if (!rejectionReason) {
-        alert(
-          "Please select Rejection Reason"
-        );
-
-        return false;
-      }
-
-      const confirmed =
-        window.confirm(
-          "Are you sure you want to reject this casing?"
-        );
-
-      if (!confirmed)
-        return false;
-
+    async () => {
       try {
-        const payload: SaveSkivingApprovalPayload =
-          {
-            orderCasingIds: [
-              selectedApprovalItem.id,
+        if (
+          !selectedItem
+        )
+          return;
+
+        if (
+          !rejectionReason
+        ) {
+          alert(
+            "Please Select Rejection Reason",
+          );
+
+          return;
+        }
+
+        const payload =
+        {
+          orderCasingIds:
+            [
+              selectedItem.id,
             ],
 
-            isApproved: false,
+          isApproved:
+            false,
 
-            isRepeatSkiving:
-              repeatSkiving,
+          isRepeatSkiving:
+            repeatSkiving,
 
-            rejectionReasonCode:
-              rejectionReason,
+          rejectionReasonCode:
+            rejectionReason,
 
+          skipRepair:
             skipRepair,
-          };
+        };
 
         await skivingStageServiceApi.saveSkivingApproval(
-          payload
+          payload,
         );
 
         alert(
-          "Casing rejected successfully"
+          "Rejected Successfully",
         );
 
-        reloadGrid();
+        refreshTable();
+        const modalElement =
+          document.querySelector(".modal.show");
 
-        resetForm();
+        if (modalElement) {
+          Modal.getInstance(
+            modalElement as Element,
+          )?.hide();
+        }
 
-        return true;
+        resetModal();
       } catch (error) {
-        console.error(error);
-
-        alert(
-          "Failed to reject casing"
+        console.error(
+          error,
         );
 
-        return false;
+        alert(
+          "Reject Failed",
+        );
       }
     };
 
   return {
-    selectedApprovalItem,
-
-    openModal,
-
     repeatSkiving,
     setRepeatSkiving,
 
@@ -217,12 +245,12 @@ export const useSkivingApprovalModal = (
 
     rejectionReasons,
 
-    hasRepairs,
-
-    resetForm,
-
     handleApprove,
 
     handleReject,
+
+    resetModal,
   };
 };
+
+export default useSkivingApprovalModal;

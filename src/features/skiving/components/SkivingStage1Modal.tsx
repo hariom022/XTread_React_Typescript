@@ -1,530 +1,442 @@
-import React from "react";
+import type { RefObject } from "react";
 
+import "../style/skivingStage.css";
 import type {
-    Machine,
-    SkivingRepair,
-    InspectionRepair,
-    skivingStage1Row,
-} from "../types/skivingStage1Types";
+  InspectionRepair,
+  SkivingRepair,
+  SkivingStage1Row,
+} from "../types/skivingStage1.types";
 
-type Props = {
-    selectedItem: skivingStage1Row | null;
+interface Machine {
+  machineId: number;
+  machineName: string;
+}
+interface DamageType {
+  id: number;
+  name: string;
+}
+interface RepairLocation {
+  id: number;
+  name: string;
+}
+type Repair = SkivingRepair;
 
-    machines: Machine[];
+interface Props {
+  modalRef: RefObject<HTMLDivElement | null>;
 
-    inspectionData: InspectionRepair[];
+  selectedItem: SkivingStage1Row | null;
 
-    skivingStation: string;
-    setSkivingStation: React.Dispatch<
-        React.SetStateAction<string>
-    >;
+  machines: Machine[];
+  damageTypes: DamageType[];
+  repairLocations: RepairLocation[];
+  skivingStation: string;
+  setSkivingStation: React.Dispatch<
+    React.SetStateAction<string>
+  >;
 
-    remarks: string;
-    setRemarks: React.Dispatch<
-        React.SetStateAction<string>
-    >;
+  remarks: string;
+  setRemarks: React.Dispatch<
+    React.SetStateAction<string>
+  >;
 
-    skivingRepairs: SkivingRepair[];
+  inspectionData: InspectionRepair[];
 
-    newRepair: SkivingRepair;
+  skivingRepairs: Repair[];
 
-    setNewRepair: React.Dispatch<
-        React.SetStateAction<SkivingRepair>
-    >;
+  newRepair: Repair;
 
-    addRepair: () => void;
+  setNewRepair: React.Dispatch<
+    React.SetStateAction<Repair>
+  >;
+  setSkivingRepairs: React.Dispatch<
+    React.SetStateAction<Repair[]>
+  >;
+  addRepair: () => void;
 
-    deleteRepair: (
-        index: number
-    ) => void;
+  removeRepair: (index: number) => void;
 
-    handleSave: () => Promise<boolean>;
+  handleSave: () => void;
 
-    onClose: () => void;
-};
+  resetModal: () => void;
+}
 
 const SkivingStage1Modal = ({
-    selectedItem,
-    machines,
-    inspectionData,
-    skivingStation,
-    setSkivingStation,
-    remarks,
-    setRemarks,
-    skivingRepairs,
-    newRepair,
-    setNewRepair,
-    addRepair,
-    deleteRepair,
-    handleSave,
-    onClose,
+  modalRef,
+  selectedItem,
+
+  machines,
+  damageTypes,
+  repairLocations,
+  skivingStation,
+  setSkivingStation,
+
+  remarks,
+  setRemarks,
+
+  inspectionData,
+
+  skivingRepairs,
+
+  newRepair,
+  setNewRepair,
+
+  addRepair,
+  removeRepair,
+
+  handleSave,
+  resetModal,
 }: Props) => {
-    return (
-        <div
-            className="modal show d-block"
-            tabIndex={-1}
-            style={{
-                backgroundColor:
-                    "rgba(0,0,0,0.5)",
-            }}
-        >
-            <div className="modal-dialog modal-xl modal-dialog-centered">
-                <div className="modal-content skiving-modal">
-                    {/* HEADER */}
-                    <div className="modal-header skiving-header d-flex align-items-center">
-                        <h5 className="modal-title flex-grow-1 text-white">
-                            SKIVING STAGE 1 - APPROVAL
-                        </h5>
+  return (
+    <div
+      className="modal fade"
+      ref={modalRef}
+      tabIndex={-1}
+    >
+      <div className="modal-dialog modal-xl modal-dialog-centered">
+        <div className="modal-content">
 
-                        <div className="me-3 text-white text-end">
-                            <div>John</div>
-                        </div>
+          <div className="modal-header bg-danger text-white">
+            <h5 className="modal-title">
+              SKIVING STAGE 1 - APPROVAL
+            </h5>
 
-                        <button
-                            type="button"
-                            className="btn-close btn-close-white"
-                            onClick={() => {
-                                onClose();
-                            }}
-                        />
-                    </div>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              onClick={resetModal}
+            />
+          </div>
 
-                    {/* BODY */}
-                    <div
-                        className="modal-body"
-                        style={{
-                            overflowX: "hidden",
-                        }}
-                    >
-                        {/* TOP BAR */}
-                        <div className="mb-3">
-                            <div className="modal-info m-0 p-1 mb-1 postbuff-top row text-nowrap">
-                                <div className="col">
-                                    <strong>
-                                        Production No
-                                    </strong>
-                                    <div>
-                                        {
-                                            selectedItem?.casing
-                                        }
-                                    </div>
-                                </div>
+          <div className="modal-body">
 
-                                <div className="col">
-                                    <strong>
-                                        Serial No
-                                    </strong>
-                                    <div>
-                                        {
-                                            selectedItem?.serial
-                                        }
-                                    </div>
-                                </div>
+            <div className="mb-3">
+              <div className="modal-info m-0 p-2 row text-nowrap">
 
-                                <div className="col">
-                                    <strong>
-                                        Customer Name
-                                    </strong>
-                                    <div>
-                                        {
-                                            selectedItem?.customerName
-                                        }
-                                    </div>
-                                </div>
-
-                                <div className="col">
-                                    <strong>
-                                        Tyre Size
-                                    </strong>
-                                    <div>
-                                        {
-                                            selectedItem?.tyreSize
-                                        }
-                                    </div>
-                                </div>
-
-                                <div className="col">
-                                    <strong>
-                                        Requested Pattern
-                                    </strong>
-                                    <div>
-                                        {
-                                            selectedItem?.requestedPattern
-                                        }
-                                    </div>
-                                </div>
-
-                                <div className="col">
-                                    <strong>
-                                        ReApproved Pattern
-                                    </strong>
-                                    <div>
-                                        {
-                                            selectedItem?.reApprovedPattern
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* DAMAGE / STATION / REMARK */}
-                        <div className="col box p-1 mb-1">
-                            <div className="row">
-                                <div className="col-md-3">
-                                    <label className="fw-semibold mb-1 d-block">
-                                        Damage Level
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={
-                                            selectedItem?.damageLevel ||
-                                            ""
-                                        }
-                                        readOnly
-                                    />
-                                </div>
-
-                                <div className="col-md-3">
-                                    <label className="fw-semibold mb-1 d-block">
-                                        Skiving Station
-                                    </label>
-
-                                    <select
-                                        className="form-select"
-                                        value={
-                                            skivingStation
-                                        }
-                                        onChange={(
-                                            e
-                                        ) =>
-                                            setSkivingStation(
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-                                        <option value="">
-                                            Select Station
-                                        </option>
-
-                                        {machines.map(
-                                            (
-                                                machine
-                                            ) => (
-                                                <option
-                                                    key={
-                                                        machine.machineId
-                                                    }
-                                                    value={
-                                                        machine.machineId
-                                                    }
-                                                >
-                                                    {
-                                                        machine.machineName
-                                                    }
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
-                                </div>
-
-                                <div className="col-md-6">
-                                    <label className="fw-semibold mb-1 d-block">
-                                        Remark
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={remarks}
-                                        onChange={(
-                                            e
-                                        ) =>
-                                            setRemarks(
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* MAIN SECTION */}
-                        <div className="row gx-3">
-                            {/* LEFT */}
-                            <div className="col-md-6">
-                                <div className="box h-100">
-                                    <h5 className="text-center mb-3">
-                                        Inspection Stage -
-                                        Patches
-                                    </h5>
-
-                                    <div className="mb-2 px-2">
-                                        <div className="table-responsive">
-                                            <table className="table table-bordered align-middle">
-                                                <thead className="table-danger">
-                                                    <tr>
-                                                        <th>
-                                                            Location
-                                                        </th>
-                                                        <th>
-                                                            Type
-                                                        </th>
-                                                        <th>
-                                                            Found At
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-
-                                                <tbody>
-                                                    {inspectionData.length ===
-                                                        0 ? (
-                                                        <tr>
-                                                            <td
-                                                                colSpan={
-                                                                    3
-                                                                }
-                                                                className="text-center text-muted"
-                                                            >
-                                                                No
-                                                                inspection
-                                                                data
-                                                            </td>
-                                                        </tr>
-                                                    ) : (
-                                                        inspectionData.map(
-                                                            (
-                                                                item,
-                                                                index
-                                                            ) => (
-                                                                <tr
-                                                                    key={
-                                                                        index
-                                                                    }
-                                                                >
-                                                                    <td>
-                                                                        {
-                                                                            item.location
-                                                                        }
-                                                                    </td>
-                                                                    <td>
-                                                                        {
-                                                                            item.type
-                                                                        }
-                                                                    </td>
-                                                                    <td>
-                                                                        {
-                                                                            item.foundAt
-                                                                        }
-                                                                    </td>
-                                                                </tr>
-                                                            )
-                                                        )
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* RIGHT */}
-                            <div className="col-md-6">
-                                <div className="box h-100">
-                                    <h5 className="text-center mb-3">
-                                        SKIVING STAGE DATA
-                                    </h5>
-
-                                    {/* ADD REPAIR */}
-                                    <div className="row g-1 mb-3 p-2 align-items-end">
-                                        <div className="col-md-4">
-                                            <select
-                                                className="form-select"
-                                                value={
-                                                    newRepair.type
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
-                                                    setNewRepair(
-                                                        (
-                                                            prev
-                                                        ) => ({
-                                                            ...prev,
-                                                            type: e
-                                                                .target
-                                                                .value,
-                                                        })
-                                                    )
-                                                }
-                                            >
-                                                <option value="">
-                                                    Damage Type
-                                                </option>
-
-                                                <option value="Puncture">
-                                                    Puncture
-                                                </option>
-
-                                                <option value="Side Wall Cut">
-                                                    Side Wall
-                                                    Cut
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div className="col-md-4">
-                                            <select
-                                                className="form-select"
-                                                value={
-                                                    newRepair.location
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
-                                                    setNewRepair(
-                                                        (
-                                                            prev
-                                                        ) => ({
-                                                            ...prev,
-                                                            location:
-                                                                e
-                                                                    .target
-                                                                    .value,
-                                                        })
-                                                    )
-                                                }
-                                            >
-                                                <option value="">
-                                                    Repair
-                                                    Location
-                                                </option>
-
-                                                <option value="Side Wall">
-                                                    Side Wall
-                                                </option>
-
-                                                <option value="Crown">
-                                                    Crown
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div className="col-md-3">
-                                            <button
-                                                className="btn btn-danger w-100"
-                                                onClick={
-                                                    addRepair
-                                                }
-                                            >
-                                                + Add
-                                                Repair
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* REPAIR TABLE */}
-                                    <div className="mb-2 px-2">
-                                        <div className="table-responsive">
-                                            <table className="table table-bordered align-middle">
-                                                <thead className="table-danger">
-                                                    <tr>
-                                                        <th>
-                                                            Type
-                                                        </th>
-                                                        <th>
-                                                            Location
-                                                        </th>
-                                                        <th>
-                                                            Action
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-
-                                                <tbody>
-                                                    {skivingRepairs.length ===
-                                                        0 ? (
-                                                        <tr>
-                                                            <td
-                                                                colSpan={
-                                                                    3
-                                                                }
-                                                                className="text-center text-muted"
-                                                            >
-                                                                No
-                                                                repairs
-                                                                added
-                                                            </td>
-                                                        </tr>
-                                                    ) : (
-                                                        skivingRepairs.map(
-                                                            (
-                                                                item,
-                                                                index
-                                                            ) => (
-                                                                <tr
-                                                                    key={
-                                                                        index
-                                                                    }
-                                                                >
-                                                                    <td>
-                                                                        {
-                                                                            item.type
-                                                                        }
-                                                                    </td>
-
-                                                                    <td>
-                                                                        {
-                                                                            item.location
-                                                                        }
-                                                                    </td>
-
-                                                                    <td>
-                                                                        <button
-                                                                            className="btn btn-danger btn-sm"
-                                                                            onClick={() =>
-                                                                                deleteRepair(
-                                                                                    index
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            )
-                                                        )
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* SAVE */}
-                        <div className="text-end mt-3">
-                            <button
-                                className="btn save-btn px-5"
-                                onClick={async () => {
-                                    const success =
-                                        await handleSave();
-
-                                    if (success) {
-                                        onClose();
-                                    }
-                                }}
-                            >
-                                SAVE
-                            </button>
-                        </div>
-                    </div>
+                <div className="col">
+                  <strong>Production No</strong>
+                  <div>{selectedItem?.casing}</div>
                 </div>
+
+                <div className="col">
+                  <strong>Tyre Ref No</strong>
+                  <div>{selectedItem?.serial}</div>
+                </div>
+
+                <div className="col">
+                  <strong>Customer Name</strong>
+                  <div>{selectedItem?.customerName}</div>
+                </div>
+
+                <div className="col">
+                  <strong>Tyre Size</strong>
+                  <div>{selectedItem?.tyreSize}</div>
+                </div>
+
+                <div className="col">
+                  <strong>Requested Pattern</strong>
+                  <div>
+                    {selectedItem?.requestedPattern}
+                  </div>
+                </div>
+
+                <div className="col">
+                  <strong>ReApproved Pattern</strong>
+                  <div>
+                    {selectedItem?.reApprovedPattern || "-"}
+                  </div>
+                </div>
+
+              </div>
             </div>
+
+            {/* Station */}
+            <div className="col box p-2 mb-3">
+              <div className="row">
+
+                <div className="col-md-3">
+
+                  <label className="fw-semibold mb-1 d-block">
+                    <b> Damage Level</b>
+                  </label>
+
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={
+                      selectedItem?.damageLevel || ""
+                    }
+                    readOnly
+                  />
+
+                </div>
+
+                <div className="col-md-3">
+
+                  <label className="fw-semibold mb-1 d-block">
+                    <b>Skiving Station</b>
+                  </label>
+
+                  <select
+                    className="form-select"
+                    value={skivingStation}
+                    onChange={(e) =>
+                      setSkivingStation(
+                        e.target.value,
+                      )
+                    }
+                  >
+                    <option value="">
+                      Select Station
+                    </option>
+
+                    {machines.map(
+                      (machine) => (
+                        <option
+                          key={
+                            machine.machineId
+                          }
+                          value={
+                            machine.machineId
+                          }
+                        >
+                          {
+                            machine.machineName
+                          }
+                        </option>
+                      ),
+                    )}
+                  </select>
+
+                </div>
+
+                <div className="col-md-6">
+
+                  <label className="fw-semibold mb-1 d-block">
+                    <b>Remark</b>
+                  </label>
+
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={remarks}
+                    onChange={(e) =>
+                      setRemarks(
+                        e.target.value,
+                      )
+                    }
+                  />
+
+                </div>
+
+              </div>
+            </div>
+
+            <div className="row">
+
+              {/* Inspection */}
+
+              <div className="col-md-6">
+                <div className="box h-100">
+                  <h5>
+                    Inspection Stage - Patches
+                  </h5>
+                  <div className="px-2">
+
+                    <div className="table-responsive">
+                      <table className="table table-bordered align-middle">
+
+                        <thead>
+                          <tr>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>FoundAtLocation</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {inspectionData.map(
+                            (
+                              item,
+                              index,
+                            ) => (
+                              <tr key={index}>
+                                <td>
+                                  {
+                                    item.type
+                                  }
+                                </td>
+                                <td>
+                                  {item.location}
+                                </td>
+                                <td>
+                                  {item.foundAt}
+                                </td>
+                              </tr>
+                            ),
+                          )}
+                        </tbody>
+
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Skiving */}
+
+              <div className="col-md-6">
+                <div className="box h-100">
+                  <h5>
+                    Skiving Stage Data
+                  </h5>
+
+                  <div className="row mb-2">
+
+                    <div className="col-md-4">
+                      <select
+                        className="form-select"
+                        value={newRepair.type}
+                        onChange={(e) =>
+                          setNewRepair(
+                            (prev) => ({
+                              ...prev,
+                              type: e.target.value,
+                            }),
+                          )
+                        }
+                      >
+                        <option value="" selected disabled>
+                          Damage Type
+                        </option>
+
+                        {damageTypes.map((item) => (
+                          <option
+                            key={item.id}
+                            value={item.name}
+                          >
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+
+                    </div>
+
+                    <div className="col-md-4">
+
+                      <select
+                        className="form-select"
+                        value={newRepair.location}
+                        onChange={(e) =>
+                          setNewRepair(
+                            (prev) => ({
+                              ...prev,
+                              location: e.target.value,
+                            }),
+                          )
+                        }
+                      >
+                        <option value="" selected disabled>
+                          Repair Location
+                        </option>
+
+                        {repairLocations.map((item) => (
+                          <option
+                            key={item.id}
+                            value={item.name}
+                          >
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="col-md-4 p-1">
+
+                      <button
+                        className="btn btn-danger"
+                        onClick={
+                          addRepair
+                        }
+                      >
+                        + Add Repair
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                  <table className="table table-bordered">
+
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      {skivingRepairs.map(
+                        (
+                          item,
+                          index,
+                        ) => (
+                          <tr key={index}>
+                            <td>
+                              {item.type}
+                            </td>
+
+                            <td>
+                              {
+                                item.location
+                              }
+                            </td>
+
+                            <td>
+
+                              <button
+                                className="btn btn-danger btn-sm"
+                                onClick={() =>
+                                  removeRepair(
+                                    index,
+                                  )
+                                }
+                              >
+                                Delete
+                              </button>
+
+                            </td>
+                          </tr>
+                        ),
+                      )}
+
+                    </tbody>
+
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            <div className="text-end mt-3">
+
+              <button
+                className="btn btn-success"
+                onClick={handleSave}
+              >
+                SAVE
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default SkivingStage1Modal;

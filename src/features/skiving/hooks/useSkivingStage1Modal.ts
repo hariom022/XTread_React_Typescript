@@ -1,244 +1,329 @@
 import { useEffect, useState } from "react";
+import { Modal } from "bootstrap";
 
 import skivingStageServiceApi from "../service/skivingStageServiceApi";
-
+import type { SkivingStage1Row } from "../types/skivingStage1.types";
+import type { DamageType, RepairLocation } from "../service/skivingStageServiceApi";
 import type {
-    Machine,
-    SkivingRepair,
-    InspectionRepair,
-    skivingStage1Row,
-    SaveSkivingStage1Payload,
-} from "../types/skivingStage1Types";
+  InspectionRepair,
+  SkivingRepair,
+} from "../types/skivingStage1.types";
 
-export const useSkivingStage1Modal = (
-    reloadGrid: () => void
-) => {
-    const [selectedItem, setSelectedItem] =
-        useState<skivingStage1Row | null>(
-            null
+interface Machine {
+  machineId: number;
+  machineName: string;
+}
+
+type Repair = SkivingRepair;
+
+interface Props {
+  selectedItem: SkivingStage1Row | null;
+
+  refreshTable: () => void;
+}
+
+const useSkivingStage1Modal = ({
+  selectedItem,
+  refreshTable,
+}: Props) => {
+  const [machines, setMachines] =
+    useState<Machine[]>([]);
+
+  const [damageTypes, setDamageTypes] =
+    useState<DamageType[]>([]);
+
+const [repairLocations, setRepairLocations] =
+    useState<RepairLocation[]>([]);
+
+  const [skivingStation,
+    setSkivingStation] =
+    useState("");
+
+  const [remarks,
+    setRemarks] =
+    useState("");
+
+  const [inspectionData, setInspectionData] = useState<InspectionRepair[]>([]);
+
+  const [skivingRepairs,
+    setSkivingRepairs] =
+    useState<Repair[]>([]);
+
+  const [newRepair,
+    setNewRepair] =
+    useState<Repair>({
+      location: "",
+      type: "",
+    });
+
+  /* ======================
+      FETCH MACHINES
+  ======================= */
+
+  const fetchMachines =
+    async () => {
+      try {
+        const response =
+          await skivingStageServiceApi.getMachines();
+
+        setMachines(
+          response.data.data || [],
         );
-
-    const [machines, setMachines] =
-        useState<Machine[]>([]);
-
-    const [inspectionData, setInspectionData] =
-        useState<InspectionRepair[]>([]);
-
-    const [skivingStation, setSkivingStation] =
-        useState<string>("");
-
-    const [remarks, setRemarks] =
-        useState<string>("");
-
-    const [skivingRepairs, setSkivingRepairs] =
-        useState<SkivingRepair[]>([]);
-
-    const [newRepair, setNewRepair] =
-        useState<SkivingRepair>({
-            location: "",
-            type: "",
-        });
-
-    const openModal = (
-        item: skivingStage1Row
-    ) => {
-        console.log(
-            "openModal called",
-            item
-        );
-
-        setSelectedItem(item);
-
-        setInspectionData(
-            item.inspectionRepairs || []
-        );
-    };
-    const closeModal = () => {
-        setSelectedItem(null);
-
-        setInspectionData([]);
-
-        setSkivingStation("");
-
-        setRemarks("");
-
-        setSkivingRepairs([]);
-
-        setNewRepair({
-            location: "",
-            type: "",
-        });
-    };
-
-    const resetForm = () => {
-        setSelectedItem(null);
-
-        setInspectionData([]);
-
-        setSkivingStation("");
-
-        setRemarks("");
-
-        setSkivingRepairs([]);
-
-        setNewRepair({
-            location: "",
-            type: "",
-        });
+      } catch (error) {
+        console.error(error);
+      }
     };
 
-    const loadMachines =
-        async (): Promise<void> => {
-            try {
-                const response =
-                    await skivingStageServiceApi.getMachines();
+  useEffect(() => {
+    fetchMachines();
+    fetchDamageTypes();
+    fetchRepairLocations();
+  }, []);
 
-                setMachines(
-                    response.data?.data || []
-                );
-            } catch (error) {
-                console.error(
-                    "Machine API Error",
-                    error
-                );
-            }
-        };
+  /*=======================
+  FETCH DAMAGE TYPE
+  ========================*/
+  const fetchDamageTypes =
+    async () => {
+      try {
+        const response =
+          await skivingStageServiceApi.getDamageTypes();
 
-    useEffect(() => {
-        loadMachines();
-    }, []);
+        setDamageTypes(
+          response.data.data || [],
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-    const addRepair = () => {
+    /*=======================
+  FETCH REPAIR LOCATIONS
+  ========================*/
+  const fetchRepairLocations =
+    async () => {
+      try {
+        const response =
+          await skivingStageServiceApi.getRepairLocations();
+
+        setRepairLocations(
+          response.data.data || [],
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    
+  /* ======================
+      INSPECTION DATA
+  ======================= */
+
+  const loadInspectionData = (
+    repairs: InspectionRepair[],
+  ) => {
+    setInspectionData(
+      repairs || [],
+    );
+  };
+
+  /* ======================
+      ADD REPAIR
+  ======================= */
+
+  const addRepair = () => {
+    if (
+      !newRepair.location ||
+      !newRepair.type
+    ) {
+      alert(
+        "Please select all repair fields",
+      );
+
+      return;
+    }
+
+    setSkivingRepairs(
+      (
+        prev,
+      ) => [
+          ...prev,
+          newRepair,
+        ],
+    );
+
+    setNewRepair({
+      location: "",
+      type: "",
+    });
+  };
+
+  /* ======================
+      DELETE REPAIR
+  ======================= */
+
+  const removeRepair = (
+    index: number,
+  ) => {
+    setSkivingRepairs(
+      (
+        prev,
+      ) =>
+        prev.filter(
+          (
+            _,
+            i,
+          ) => i !== index,
+        ),
+    );
+  };
+
+  /* ======================
+      RESET
+  ======================= */
+
+  const resetModal = () => {
+    setSkivingStation("");
+
+    setRemarks("");
+
+    setInspectionData([]);
+
+    setSkivingRepairs([]);
+
+    setNewRepair({
+      location: "",
+      type: "",
+    });
+  };
+
+  /* ======================
+      SAVE
+  ======================= */
+
+  const handleSave =
+    async () => {
+      try {
+        if (!selectedItem)
+          return;
+
         if (
-            !newRepair.location ||
-            !newRepair.type
+          !skivingStation
         ) {
-            alert(
-                "Please select all repair fields"
-            );
+          alert(
+            "Please select Skiving Station",
+          );
 
-            return;
+          return;
         }
 
-        setSkivingRepairs(
-            (prev) => [
-                ...prev,
-                newRepair,
-            ]
-        );
+        const payload =
+        {
+          orderCasingIds:
+            [
+              selectedItem.id,
+            ],
 
-        setNewRepair({
-            location: "",
-            type: "",
-        });
-    };
+          isApproved:
+            true,
 
-    const deleteRepair = (
-        index: number
-    ) => {
-        setSkivingRepairs(
-            (prev) =>
-                prev.filter(
-                    (_, i) => i !== index
-                )
-        );
-    };
+          machineId:
+            Number(
+              skivingStation,
+            ),
 
-    const handleSave =
-        async (): Promise<boolean> => {
-            if (!selectedItem)
-                return false;
+          rejectionReasonCode:
+            null,
 
-            if (!skivingStation) {
-                alert(
-                    "Please select Skiving Station"
-                );
+          repairOperations:
+            skivingRepairs.length > 0
+              ? skivingRepairs.map(
+                (
+                  repair,
+                ) => ({
+                  repairType:
+                    repair.type,
 
-                return false;
-            }
+                  repairLocation:
+                    repair.location,
 
-            try {
-                const payload: SaveSkivingStage1Payload =
-                {
-                    orderCasingIds: [
-                        selectedItem.id,
-                    ],
-
-                    isApproved: true,
-
-                    machineId:
-                        String(
-                            skivingStation
-                        ),
-
-                    rejectionReasonCode:
-                        null,
-
-                    repairOperations:
-                        skivingRepairs.map(
-                            (repair) => ({
-                                repairType:
-                                    repair.type,
-
-                                repairLocation:
-                                    repair.location,
-
-                                quantity: 1,
-                            })
-                        ),
-                };
-
-                await skivingStageServiceApi.saveSkivingStage1(
-                    payload
-                );
-
-                alert(
-                    "Skiving Stage 1 saved successfully"
-                );
-
-                reloadGrid();
-
-                resetForm();
-
-                return true;
-            } catch (error) {
-                console.error(error);
-
-                alert(
-                    "Failed to save Skiving Stage 1"
-                );
-
-                return false;
-            }
+                  quantity:
+                    1,
+                }),
+              ) : null
         };
+        console.log(
+          "SKIVING STAGE 1 PAYLOAD",
+          JSON.stringify(payload, null, 2),
+        );
+        await skivingStageServiceApi.saveSkivingStage1(
+          payload,
+        );
 
-    return {
-        selectedItem,
+        alert(
+          "Skiving Stage 1 Saved Successfully",
+        );
 
-        machines,
+        refreshTable();
+        /********* HIDE MODAL *********** */
+        const modalElement =
+          document.querySelector(".modal.show");
 
-        inspectionData,
+        if (modalElement) {
+          Modal.getInstance(
+            modalElement as Element,
+          )?.hide();
+        }
 
-        skivingStation,
-        setSkivingStation,
+        resetModal();
+      } catch (error: any) {
 
-        remarks,
-        setRemarks,
+        console.log(
+          "API ERROR:",
+          error?.response?.data,
+        );
 
-        skivingRepairs,
+        console.log(
+          "STATUS:",
+          error?.response?.status,
+        );
 
-        newRepair,
-        setNewRepair,
+        console.error(error);
 
-        openModal,
-
-        resetForm,
-
-        addRepair,
-
-        deleteRepair,
-
-        handleSave,
-        closeModal,
+        alert(
+          "Failed To Save",
+        );
+      }
     };
+
+  return {
+    machines,
+
+    damageTypes,
+    repairLocations,
+    skivingStation,
+    setSkivingStation,
+
+    remarks,
+    setRemarks,
+
+    inspectionData,
+
+    loadInspectionData,
+
+    skivingRepairs,
+    setSkivingRepairs,
+
+    newRepair,
+    setNewRepair,
+
+    addRepair,
+    removeRepair,
+
+    handleSave,
+
+    resetModal,
+  };
 };
+
+export default useSkivingStage1Modal;

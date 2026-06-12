@@ -12,7 +12,6 @@ import VisualInspectionPage from "./features/visualInspection/page/VisualInspect
 import NailInspectionPage from "./features/nailInspection/page/NailInspectionPage";
 import PressureTestPage from "./features/pressureTest/page/PressureTestPage";
 import ShearographyPage from "./features/shearography/page/ShearographyPage";
-
 import Login from "./features/auth/pages/Login";
 import ProtectedRoute from "./shared/components/ProtectedRoute";
 import BuffingStage from "./features/buffing/page/BuffingStage";

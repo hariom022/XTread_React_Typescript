@@ -1,43 +1,96 @@
 import api from "../../../shared/services/api";
 
-import type {
-  SaveSkivingStage1Payload,
-} from "../types/skivingStage1Types";
+/* =========================================
+   STAGE 1
+========================================= */
+export interface DamageType {
+  id: number;
+  name: string;
+}
+export interface RepairLocation {
+  id: number;
+  name: string;
+}
 
-import type {
-  SaveSkivingApprovalPayload,
-} from "../types/skivingApprovalTypes";
+export interface SaveSkivingStage1Payload {
+  orderCasingIds: number[];
+
+  isApproved: boolean;
+
+  machineId: string | number;
+
+  rejectionReasonCode: string | null;
+
+  repairOperations: {
+    repairType: string;
+    repairLocation: string;
+    quantity: number;
+  }[] | null;
+}
+
+/* =========================================
+   APPROVAL
+========================================= */
+
+export interface SaveSkivingApprovalPayload {
+  orderCasingIds: number[];
+
+  isApproved: boolean;
+
+  isRepeatSkiving: boolean;
+
+  rejectionReasonCode: string | null;
+
+  skipRepair: boolean;
+}
+
+/* =========================================
+   SERVICE
+========================================= */
 
 const skivingStageServiceApi = {
-  // ================= SKIVING STAGE 1 =================
+  /* ==========================
+      SKIVING STAGE 1
+  ========================== */
+
   saveSkivingStage1: (
-    payload: SaveSkivingStage1Payload
-  ) =>
-    api.post(
-      "/skiving/stage1",
-      payload
-    ),
+    payload: SaveSkivingStage1Payload,
+  ) => api.post("/skiving/stage1", payload),
 
-  // ================= MACHINES =================
+  /* ==========================
+      STATION MACHINES
+  ========================== */
+
   getMachines: () =>
-    api.get(
-      "/machines?stage=8"
-    ),
+    api.get("/machines?stage=8"),
 
-  // ================= SKIVING APPROVAL =================
+  /* ==========================
+    DAMAGE TYPES
+========================== */
+
+  getDamageTypes: () =>
+    api.get("/damage-types"),
+
+  /**=======================
+   * REPAIR LOCATION
+   ========================*/
+   getRepairLocations:()=>
+    api.get("/repair-locations"),
+
+  /* ==========================
+      SKIVING APPROVAL
+  ========================== */
+
   saveSkivingApproval: (
-    payload: SaveSkivingApprovalPayload
-  ) =>
-    api.post(
-      "/skiving/approval",
-      payload
-    ),
+    payload: SaveSkivingApprovalPayload,
+  ) => api.post("/skiving/approval", payload),
 
-  // ================= REJECTION REASONS =================
+  /* ==========================
+      REJECTION REASONS
+  ========================== */
+
   getSkivingRejectionReasons: () =>
-    api.get(
-      "/rejection-reasons?currentStage=8"
-    ),
+    api.get("/rejection-reasons?currentStage=8"),
 };
 
 export default skivingStageServiceApi;

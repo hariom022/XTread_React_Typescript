@@ -16,7 +16,12 @@ type Props = {
 };
 
 const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
-  const { details, loading } = usePressureTestDetails(selectedItem?.id);
+
+  console.log(
+    "PRESSURE TEST MODAL RENDERED",
+    selectedItem
+  );
+  const { details, loading } = usePressureTestDetails(selectedItem?.orderCasingId);
 
   const [reason, setReason] = useState("");
 
@@ -48,6 +53,19 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     setSelectedChecks((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
+  };
+  const handleSelectAll = (
+    checked: boolean,
+  ) => {
+    if (checked) {
+      setSelectedChecks(
+        PRESSURE_TEST_CHECKLIST.checklist.map(
+          (item) => item.id,
+        ),
+      );
+    } else {
+      setSelectedChecks([]);
+    }
   };
 
   const handleApprove = async () => {
@@ -115,18 +133,25 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
   return (
     <>
+      {/* Backdrop */}
+      <div className="modal-backdrop fade show"></div>
+
       <div
         className="modal fade show"
         style={{
           display: "block",
-          background: "rgba(0,0,0,0.5)",
+          zIndex: 1055,
         }}
       >
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content nail-modal">
-            <div className="modal-header nail-header">
-              <h5 className="modal-title w-100">PRESSURE TEST – APPROVAL</h5>
-
+            <div className="modal-header nail-header d-flex align-items-center">
+              <h5 className="modal-title flex-grow-1 text-white">
+                PRESSURE TEST – APPROVAL
+              </h5>
+              <div className="me-3 text-white text-end">
+                <div>John</div>
+              </div>
               <button className="btn-close btn-close-white" onClick={onClose} />
             </div>
 
@@ -154,7 +179,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                     </div>
 
                     <div className="col">
-                      <strong>Customer</strong>
+                      <strong>Customer Name</strong>
                       <div>{selectedItem?.customerName}</div>
                     </div>
 
@@ -164,7 +189,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                     </div>
 
                     <div className="col">
-                      <strong>Pattern</strong>
+                      <strong>Requested Pattern</strong>
                       <div>{details?.retreadDetail?.patternName}</div>
                     </div>
                   </div>
@@ -232,7 +257,10 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       {showChecklist &&
         createPortal(
           <>
-            <div className="modal-backdrop fade show" />
+            <div className="modal-backdrop fade show"
+              style={{
+                zIndex: 1058,
+              }} />
 
             <div
               className="modal d-block"
@@ -254,19 +282,46 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                   <div className="modal-body">
                     <table className="table table-bordered">
                       <tbody>
-                        {PRESSURE_TEST_CHECKLIST.checklist.map((item) => (
-                          <tr key={item.id}>
-                            <td>
-                              <input
-                                type="checkbox"
-                                className="me-2"
-                                checked={selectedChecks.includes(item.id)}
-                                onChange={() => toggleChecklist(item.id)}
-                              />
-                              {item.label}
-                            </td>
-                          </tr>
-                        ))}
+                        <tr>
+                          <td className="fw-bold">
+                            <input
+                              type="checkbox"
+                              className="me-2"
+                              checked={
+                                selectedChecks.length ===
+                                PRESSURE_TEST_CHECKLIST.checklist.length
+                              }
+                              onChange={(e) =>
+                                handleSelectAll(
+                                  e.target.checked,
+                                )
+                              }
+                            />
+                            Select All Checklist
+                          </td>
+                        </tr>
+
+                        {PRESSURE_TEST_CHECKLIST.checklist.map(
+                          (item) => (
+                            <tr key={item.id}>
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  className="me-2"
+                                  checked={selectedChecks.includes(
+                                    item.id,
+                                  )}
+                                  onChange={() =>
+                                    toggleChecklist(
+                                      item.id,
+                                    )
+                                  }
+                                />
+                                {item.label}
+                              </td>
+                            </tr>
+                          ),
+                        )}
                       </tbody>
                     </table>
                   </div>

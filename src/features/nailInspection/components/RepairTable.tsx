@@ -23,7 +23,7 @@ const RepairTable = ({
   };
 
   return (
-    <div className="table-responsive mt-2">
+    <div className="table-responsive mt-1">
       <table className="table table-bordered">
         <thead className="table-danger">
           <tr>

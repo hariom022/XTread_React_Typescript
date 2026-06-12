@@ -22,14 +22,15 @@ const RepairSection = ({
   location,
 }: Props) => {
   return (
-    <div className="row g-2 mt-1 mb-0">
-        <div className="text-start bg-warning">
-<h6 className="text-light m-1">Patches Found</h6>
-    </div>
+    <div className="row g-1 mt-1 mb-0">
+      <div className="text-start">
+        <label><b>Patches Found</b></label>
+      </div>
       {/* Damage Type */}
       <div className="col-md-4">
         <select
           className="form-select"
+          style={{ minHeight: "20px" }}
           value={newRepair.type}
           onChange={(e) =>
             setNewRepair({
@@ -57,6 +58,7 @@ const RepairSection = ({
       <div className="col-md-4">
         <select
           className="form-select"
+          style={{ minHeight: "20px" }}
           value={newRepair.location}
           onChange={(e) =>
             setNewRepair({
@@ -83,6 +85,7 @@ const RepairSection = ({
       <div className="col-md-4 d-grid">
         <button
           className="btn btn-danger"
+          style={{ minHeight: "20px" }}
           onClick={addRepair}
         >
           + Add Repair
