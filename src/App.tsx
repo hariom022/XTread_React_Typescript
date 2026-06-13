@@ -18,6 +18,7 @@ import BuffingStage from "./features/buffing/page/BuffingStage";
 import SkivingStage from "./features/skiving/page/SkivingStage";
 import { CementingPage } from "./features/cementing/page/CementingPage";
 import RepairPage from "./features/repair/page/RepairPage";
+import TreadBenchPage from "./features/treadBench/page/TreadBenchPage";
 
 const Layout = () => {
   return (
@@ -59,6 +60,7 @@ function App() {
           <Route path="/skiving" element={<SkivingStage />} />
           <Route path="/cementing" element={<CementingPage />} />
           <Route path="/repairs" element={<RepairPage/>}/>
+          <Route path="/treadBench" element={<TreadBenchPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
