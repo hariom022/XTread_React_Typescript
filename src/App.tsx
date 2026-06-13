@@ -17,6 +17,8 @@ import ProtectedRoute from "./shared/components/ProtectedRoute";
 import BuffingStage from "./features/buffing/page/BuffingStage";
 import SkivingStage from "./features/skiving/page/SkivingStage";
 import { CementingPage } from "./features/cementing/page/CementingPage";
+import FillUpStage from "./features/fillUp/page/FillUpStage";
+import BuildingStage from "./features/building/page/BuildingStage";
 
 const Layout = () => {
   return (
@@ -57,6 +59,8 @@ function App() {
           <Route path="/buffing" element={<BuffingStage />} />
           <Route path="/skiving" element={<SkivingStage />} />
           <Route path="/cementing" element={<CementingPage />} />
+          <Route path="/fillUp" element={<FillUpStage />} />
+          <Route path="/building" element={<BuildingStage/>} />
         </Route>
       </Routes>
     </BrowserRouter>

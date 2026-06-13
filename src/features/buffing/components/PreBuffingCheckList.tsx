@@ -30,12 +30,22 @@ const PreBuffingChecklist = ({
 
   return createPortal(
     <>
-      <div className="modal-backdrop fade show"></div>
+      <div className="modal-backdrop fade show"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 1065,
+          background: "rgba(0,0,0,0.35)",
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
+        }}
+      ></div>
 
       <div
         className="modal d-block"
         tabIndex={-1}
-        style={{ zIndex: 1060 }}
+        aria-hidden="true"
+        style={{ zIndex: 1070 }}
       >
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">

@@ -127,37 +127,34 @@ const ShearographyModal = ({
 
   return (
     <>
-      <div className="modal fade show d-block">
+      <div
+        className="modal-backdrop fade show"
+        style={{
+          backgroundColor: "rgba(0,0,0,0.45)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+          zIndex: 1040,
+        }}
+      />
+
+      <div
+        className="modal fade show d-block"
+        style={{ zIndex: 1050 }}
+      >
         <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
           <div
             className={`modal-content ${showChecklist ? "blur-approval" : ""}`}
           >
-            {/* Header
-          <div className="modal-header shearo-header">
-            <h5 className="modal-title w-100">
-              SHEAROGRAPHY - APPROVAL
-            </h5>
-
-            <div className="me-3 text-white text-end">
-              <div>John</div>
-            </div>
-
-            <button
-              type="button"
-              className="btn-close btn-close-white"
-              onClick={onClose}
-            />
-          </div> */}
             {/* HEADER */}
-            <div className="modal-header nail-header">
-              <h5 className="modal-title">SHEAROGRAPHY - APPROVAL</h5>
+            <div className="modal-header shearo-header d-flex align-items-center">
+              <h5 className="modal-title flex-grow-1 text-white text-start">
+                SHEAROGRAPHY - APPROVAL
+              </h5>
               {/* STAFF NAME */}
               <div
-                className="me-3 text-white text-end"
-                style={{ marginLeft: "46rem" }}
-              >
-                {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
-                <b>John</b>
+                className="me-3 text-white text-end" >
+                <strong>John</strong>
+                
               </div>
               {/* CLOSE (X) BUTTON */}
               <button
@@ -170,7 +167,7 @@ const ShearographyModal = ({
             {/* Body */}
             <div className="modal-body">
               {/* Top Information */}
-              <div className="modal-info m-0 p-2 building-top row text-nowrap">
+              <div className="modal-info m-0 building-top row text-nowrap">
                 <div className="col">
                   <strong>Production No</strong>
                   <div>{item?.casing}</div>
@@ -198,12 +195,12 @@ const ShearographyModal = ({
               </div>
 
               {/* Checklist + Rejection */}
-              <div className="row g-3 mt-2">
+              <div className="row g-3 mt-1">
                 <div className="col-md-6 d-flex align-items-end">
                   <button
                     type="button"
                     className="btn btn-primary w-100"
-                    style={{height: "2.75rem"}}
+                    style={{ height: "2.75rem",}}
                     onClick={() => setShowChecklist(true)}
                   >
                     Shearography Checklist
@@ -242,7 +239,7 @@ const ShearographyModal = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="row g-3 mt-4">
+              <div className="row g-1 mt-2">
                 <div className="col-md-4">
                   <button
                     className="btn btn-warning HOLD w-100 d-flex align-items-center justify-content-center gap-3"
@@ -288,244 +285,23 @@ const ShearographyModal = ({
           </div>
         </div>
       </div>
-
-      {/* Checklist Modal */}
-      {showChecklist && (
-        <ShearographyChecklistModal
-          show={showChecklist}
-          checkedChecklist={checkedChecklist}
-          selectAllChecklist={selectAllChecklist}
-          setChecklistSaved={setChecklistSaved}
-          setShow={setShowChecklist}
-          toggleChecklist={toggleChecklist}
-          handleSelectAllChecklist={handleSelectAllChecklist}
-          resetChecklist={() => setShowChecklist(false)}
-        />
-      )}
+    {/* Checklist Modal */ }
+  {
+    showChecklist && (
+      <ShearographyChecklistModal
+        show={showChecklist}
+        checkedChecklist={checkedChecklist}
+        selectAllChecklist={selectAllChecklist}
+        setChecklistSaved={setChecklistSaved}
+        setShow={setShowChecklist}
+        toggleChecklist={toggleChecklist}
+        handleSelectAllChecklist={handleSelectAllChecklist}
+        resetChecklist={() => setShowChecklist(false)}
+      />
+    )
+  }
     </>
   );
 };
 
 export default ShearographyModal;
-// import PdfUpload from "./PdfUpload";
-
-// type Props = {
-//   selected: any;
-
-//   reason: string;
-//   setReason: (value: string) => void;
-
-//   rejectionReasons: any[];
-
-//   pdfFiles: any[];
-//   previewIndex: number | null;
-//   setPreviewIndex: React.Dispatch<
-//     React.SetStateAction<number | null>
-//   >;
-
-//   handlePdfUpload: (
-//     e: React.ChangeEvent<HTMLInputElement>
-//   ) => void;
-
-//   removePdf: (index: number) => void;
-
-//   handleApprove: () => void;
-//   handleReject: () => void;
-//   handleHold: () => void;
-
-//   setShowShearoChecklist: (
-//     value: boolean
-//   ) => void;
-
-//   showShearoChecklist: boolean;
-
-//   modalRef: React.RefObject<HTMLDivElement>;
-// };
-
-// const ShearographyModal = ({
-//   selected,
-//   reason,
-//   setReason,
-//   rejectionReasons,
-//   pdfFiles,
-//   previewIndex,
-//   setPreviewIndex,
-//   handlePdfUpload,
-//   removePdf,
-//   handleApprove,
-//   handleReject,
-//   handleHold,
-//   setShowShearoChecklist,
-//   modalRef,
-// showShearoChecklist,
-// }: Props) => {
-//   return (
-//     <div
-//       className="modal fade"
-//       ref={modalRef}
-//       tabIndex={-1}
-//       aria-hidden="true"
-//     >
-//       <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-//         <div className="modal-content">
-//           {/* HEADER */}
-//           <div className="modal-header shearo-header">
-//             <h5 className="modal-title w-100">
-//               SHEAROGRAPHY - APPROVAL
-//             </h5>
-
-//             <div className="me-3 text-white text-end">
-//               <div>John</div>
-//             </div>
-
-//             <button
-//               type="button"
-//               className="btn-close btn-close-white"
-//               data-bs-dismiss="modal"
-//             />
-//           </div>
-
-//           {/* BODY */}
-//           <div className="modal-body">
-//             {/* Top Info */}
-//             <div className="modal-info m-0 p-2 building-top row text-nowrap">
-//               <div className="col">
-//                 <strong>Production No</strong>
-//                 <div>{selected?.casing}</div>
-//               </div>
-
-//               <div className="col">
-//                 <strong>Serial No</strong>
-//                 <div>{selected?.serial}</div>
-//               </div>
-
-//               <div className="col">
-//                 <strong>Customer Name</strong>
-//                 <div>
-//                   {selected?.customerName || "-"}
-//                 </div>
-//               </div>
-
-//               <div className="col">
-//                 <strong>Tyre Size</strong>
-//                 <div>
-//                   {selected?.tyreSize || "-"}
-//                 </div>
-//               </div>
-
-//               <div className="col">
-//                 <strong>Requested Pattern</strong>
-
-//                 <div>
-//                   {selected?.requestedPattern ||
-//                     selected?.pattern ||
-//                     "-"}
-//                 </div>
-//               </div>
-//             </div>
-
-//             {/* Checklist + Rejection */}
-//             <div className="row g-3 mt-2">
-//               <div className="col-md-6 d-flex align-items-end">
-//                 <button
-//                   type="button"
-//                   className="btn btn-primary w-100"
-//                   onClick={() =>
-//                     setShowShearoChecklist(true)
-//                   }
-//                 >
-//                   Shearography Checklist
-//                 </button>
-//               </div>
-
-//               <div className="col-md-6">
-//                 <select
-//                   className="form-select"
-//                   value={reason}
-//                   onChange={(e) =>
-//                     setReason(e.target.value)
-//                   }
-//                 >
-//                   <option value="" hidden>
-//                     Select Rejection Reason
-//                   </option>
-
-//                   {rejectionReasons.map(
-//                     (item: any) => (
-//                       <option
-//                         key={
-//                           item.rejectionReasonId
-//                         }
-//                         value={item.code}
-//                       >
-//                         {item.reason}
-//                       </option>
-//                     )
-//                   )}
-//                 </select>
-//               </div>
-
-//               <PdfUpload
-//                 pdfFiles={pdfFiles}
-//                 previewIndex={previewIndex}
-//                 setPreviewIndex={
-//                   setPreviewIndex
-//                 }
-//                 handlePdfUpload={
-//                   handlePdfUpload
-//                 }
-//                 removePdf={removePdf}
-//               />
-//             </div>
-
-//             {/* Footer Buttons */}
-//             <div className="row g-3 mt-4">
-//               <div className="col-md-4">
-//                 <button
-//                   className="btn btn-warning HOLD w-100 d-flex align-items-center justify-content-center gap-3"
-//                   onClick={handleHold}
-//                 >
-//                   <span>
-//                     HOLD – Awaiting Customer LPO
-//                   </span>
-
-//                   <span className="icon-box">
-//                     <i className="bi bi-pause-circle"></i>
-//                   </span>
-//                 </button>
-//               </div>
-
-//               <div className="col-md-4">
-//                 <button
-//                   className="btn btn-approve w-100 d-flex align-items-center justify-content-center gap-3"
-//                   onClick={handleApprove}
-//                 >
-//                   <span>APPROVED</span>
-
-//                   <span className="icon-box">
-//                     <i className="bi bi-check-lg"></i>
-//                   </span>
-//                 </button>
-//               </div>
-
-//               <div className="col-md-4">
-//                 <button
-//                   className="btn btn-reject w-100 d-flex align-items-center justify-content-center gap-3"
-//                   onClick={handleReject}
-//                 >
-//                   <span>REJECTED</span>
-
-//                   <span className="icon-box">
-//                     <i className="bi bi-x-lg"></i>
-//                   </span>
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ShearographyModal;

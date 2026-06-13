@@ -9,7 +9,7 @@ import VisualInspectionModal from "../components/VisualInspectionModal";
 // import IncidentReportModal from "../components/IncidentReportModal";
 
 import IncidentReportModal from "../../../shared/components/IncidentReportModal";
-import "../styles/VisualInspect.css";
+// import "../styles/VisualInspect.css";
 
 const VisualInspectionPage = () => {
   const {

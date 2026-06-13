@@ -81,22 +81,6 @@ interface Props {
   checklistSaved: boolean;
 
   setChecklistSaved: React.Dispatch<React.SetStateAction<boolean>>;
-  // showChecklist: boolean;
-  // setShowChecklist: React.Dispatch<
-  //   React.SetStateAction<boolean>
-  // >;
-
-  // checkedChecklist: string[];
-
-  // toggleChecklist: (id: string) => void;
-
-  // selectAllChecklist: boolean;
-
-  // handleSelectAllChecklist: () => void;
-
-  // setChecklistSaved: React.Dispatch<
-  //   React.SetStateAction<boolean>
-  // >;
 
   handleApprove: () => void;
   handleReject: () => void;
@@ -104,7 +88,7 @@ interface Props {
 
   resetModal: () => void;
   casingDetails: OrderCasingDetails | null;
-   loading: boolean;
+  loading: boolean;
 }
 
 const PreBuffingApprovalModal = ({
@@ -135,17 +119,6 @@ const PreBuffingApprovalModal = ({
 
   setSelectedWidth,
 
-  // showChecklist,
-  // setShowChecklist,
-
-  // checkedChecklist,
-  // toggleChecklist,
-
-  // selectAllChecklist,
-  // handleSelectAllChecklist,
-
-  // setChecklistSaved,
-
   handleApprove,
   handleReject,
   handleHold,
@@ -175,17 +148,24 @@ const PreBuffingApprovalModal = ({
         aria-hidden="true"
       >
         <div className="modal-dialog modal-xl modal-dialog-centered">
-          <div className="modal-content prebuffer-modal">
+          <div
+            className={`modal-content prebuffer-modal ${showChecklist
+              ? "blur-approval-modal"
+              : ""
+              }`}
+          >
             {/* HEADER */}
 
             <div className="modal-header">
-              <h5 className="modal-title mb-0">PRE BUFFING - APPROVAL</h5>
+              <h5 className="modal-title">PRE BUFFING - APPROVAL</h5>
 
               <button
                 type="button"
                 className="btn-close btn-close-white"
                 data-bs-dismiss="modal"
-                onClick={resetModal}
+                onClick={() => {
+                  resetModal();
+                }}
               />
             </div>
 
@@ -194,7 +174,7 @@ const PreBuffingApprovalModal = ({
             <div className="modal-body">
               {/* TOP INFO */}
 
-              <div className="modal-info m-0 p-2 prebuffer-top row text-nowrap">
+              <div className="modal-info me-1 mb-1 ms-1 prebuffer-top row text-nowrap">
                 <div className="col">
                   <strong>Production No</strong>
                   <div>{casingDetails?.productionNumber}</div>
@@ -221,18 +201,17 @@ const PreBuffingApprovalModal = ({
                 </div>
               </div>
 
-              {/* Suggest New Pattern */}
-              <div className="container">
-                <div className="row g-2">
+              <div className="container p-1">
+                <div className="row g-1">
                   {/* LEFT PANEL */}
-                  <div className="col-md-6">
-                    <div className="panel-box p-2">
-                      <div className="panel-header py-1 small fw-bold">
+                  <div className="col-md-6 ">
+                    <div className="panel-box">
+                      <div className="panel-header small fw-bold">
                         MATERIAL AVAILABILITY
                       </div>
 
-                      <div className="panel-body p-2">
-                        <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                      <div className="panel-body p-1">
+                        <div className="d-flex align-items-center justify-content-between gap-1 flex-wrap">
                           {/* Available KGs */}
                           <div className="d-flex align-items-center gap-1">
                             <small className="fw-bold">Available KGs</small>
@@ -263,14 +242,14 @@ const PreBuffingApprovalModal = ({
 
                   {/* Right PANEL */}
                   <div className="col-md-6">
-                    <div className="panel-box h-80 p-0">
-                      <div className="panel-body p-3">
-                        <div className="record-box p-13">
-                          <div className="record-header small fw-bold mb-2">
+                    <div className="panel-box ">
+                      <div className="panel-body mb-3">
+                        <div className="record-box text-start">
+                          <div className="record-header small fw-bold">
                             Record [1 of 1]
                           </div>
 
-                          <div className="row gx-5 gy-1 small">
+                          <div className="row gx-2 gy-1 small">
                             <div className="col-4 record-item">
                               <b>Tyre Size:</b>{" "}
                               {casingDetails?.tyreSize.casingSize}
@@ -300,127 +279,132 @@ const PreBuffingApprovalModal = ({
                     </div>
                   </div>
                 </div>
-                <div className="row g-3 align-items-end mt-2">
-                  <div className="col">
-                    <label className="form-label">Holding Reason</label>
+                {/* NEW SUGGESTED PATTERN */}
+                <div className="panel-box mt-1 p-1">
+                  <div className="row g-1 align-items-end">
+                    <div className="row g-1 ">
+                      <div className="suggest text-danger text-start">
+                        <i className="bi bi-plus-square"></i> Suggest NEW
+                        pattern
+                      </div>
+                      <div className="col">
+                        <label className="form-label">Holding Reason</label>
 
-                    <select
-                      className="form-select"
-                      value={holdReason}
-                      onChange={(e) => setHoldReason(e.target.value)}
-                    >
-                      <option value="">Select Hold Reason</option>
-
-                      {holdReasons.map((item) => (
-                        <option key={item.rejectionReasonId} value={item.code}>
-                          {item.reason}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Pattern */}
-
-                  <div className="col">
-                    <label className="form-label">Pattern</label>
-
-                    <select
-                      className="form-select"
-                      value={selectedPatternId}
-                      onChange={(e) => {
-                        const patternId = e.target.value;
-
-                        setSelectedPatternId(patternId);
-
-                        const pattern = patterns.find(
-                          (x) => String(x.treadPatternId) === patternId,
-                        );
-
-                        if (pattern) {
-                          setSelectedBrand(pattern.brand);
-
-                          setSelectedVariantId("");
-
-                          setSelectedWidth("");
-                        }
-                      }}
-                    >
-                      <option value="">Select Pattern</option>
-
-                      {patterns.map((item) => (
-                        <option
-                          key={item.treadPatternId}
-                          value={item.treadPatternId}
+                        <select
+                          className="form-select"
+                          value={holdReason}
+                          onChange={(e) => setHoldReason(e.target.value)}
                         >
-                          {item.patternName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                          <option value="" disabled>Select Hold Reason</option>
 
-                  {/* Width */}
+                          {holdReasons.map((item) => (
+                            <option key={item.rejectionReasonId} value={item.code}>
+                              {item.reason}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {/* Pattern */}
+                      <div className="col">
+                        <label className="form-label">Pattern</label>
 
-                  <div className="col">
-                    <label className="form-label">Width</label>
+                        <select
+                          className="form-select"
+                          value={selectedPatternId}
+                          onChange={(e) => {
+                            const patternId = e.target.value;
 
-                    <select
-                      className="form-select"
-                      value={selectedVariantId}
-                      onChange={(e) => {
-                        const variantId = Number(e.target.value);
+                            setSelectedPatternId(patternId);
 
-                        setSelectedVariantId(variantId);
+                            const pattern = patterns.find(
+                              (x) => String(x.treadPatternId) === patternId,
+                            );
 
-                        const pattern = patterns.find(
-                          (p) => String(p.treadPatternId) === selectedPatternId,
-                        );
+                            if (pattern) {
+                              setSelectedBrand(pattern.brand);
 
-                        const variant = pattern?.variants?.find(
-                          (v) => v.treadPatternVariantId === variantId,
-                        );
+                              setSelectedVariantId("");
 
-                        if (variant) {
-                          setSelectedWidth(variant.width);
-                        }
-                      }}
-                    >
-                      <option value="">Select Width</option>
+                              setSelectedWidth("");
+                            }
+                          }}
+                        >
+                          <option value="" disabled>Select Pattern</option>
 
-                      {patterns
-                        .find(
-                          (p) => String(p.treadPatternId) === selectedPatternId,
-                        )
-                        ?.variants?.map((variant) => (
-                          <option
-                            key={variant.treadPatternVariantId}
-                            value={variant.treadPatternVariantId}
-                          >
-                            {variant.width}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                          {patterns.map((item) => (
+                            <option
+                              key={item.treadPatternId}
+                              value={item.treadPatternId}
+                            >
+                              {item.patternName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {/* Width */}
+                      <div className="col">
+                        <label className="form-label">Width</label>
 
-                  {/* Brand */}
+                        <select
+                          className="form-select"
+                          value={selectedVariantId}
+                          onChange={(e) => {
+                            const variantId = Number(e.target.value);
 
-                  <div className="col">
-                    <label className="form-label">Brand</label>
+                            setSelectedVariantId(variantId);
 
-                    <input
-                      className="form-control"
-                      value={selectedBrand}
-                      readOnly
-                    />
+                            const pattern = patterns.find(
+                              (p) => String(p.treadPatternId) === selectedPatternId,
+                            );
+
+                            const variant = pattern?.variants?.find(
+                              (v) => v.treadPatternVariantId === variantId,
+                            );
+
+                            if (variant) {
+                              setSelectedWidth(variant.width);
+                            }
+                          }}
+                        >
+                          <option value="" disabled>Select Width</option>
+
+                          {patterns
+                            .find(
+                              (p) => String(p.treadPatternId) === selectedPatternId,
+                            )
+                            ?.variants?.map((variant) => (
+                              <option
+                                key={variant.treadPatternVariantId}
+                                value={variant.treadPatternVariantId}
+                              >
+                                {variant.width}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                      {/* Brand */}
+                      <div className="col">
+                        <label className="form-label">Brand</label>
+
+                        <input
+                          className="form-control"
+                          placeholder="auto-filled"
+                          value={selectedBrand}
+                          readOnly
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               {/* Rejection Reason */}
 
-              <div className="mt-3">
-                <label className="form-label">Rejection Reason</label>
+              <div className=" row g-1 p-1 ">
+                <label className="form-label m-0">Rejection Reason</label>
 
                 <select
                   className="form-select"
+                  style={{ minHeight: "20px" }}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                 >
@@ -436,9 +420,9 @@ const PreBuffingApprovalModal = ({
 
               {/* ACTION BUTTONS */}
 
-              <div className="row g-2 mt-3">
+              <div className="row g-2 p-1">
                 <div className="col-md-3">
-                  <button style={{    height: "100%"}}
+                  <button style={{ height: "100%" }}
                     className="btn btn-primary w-100"
                     onClick={() => {
                       console.log("Checklist Button Clicked");
@@ -451,8 +435,9 @@ const PreBuffingApprovalModal = ({
 
                 <div className="col-md-3">
                   <button
+                    style={{ height: "100%" }}
                     className="btn btn-reject w-100"
-                     disabled={loading}
+                    disabled={loading}
                     onClick={() => {
                       if (!isChecklistComplete) {
                         alert(
@@ -469,8 +454,8 @@ const PreBuffingApprovalModal = ({
                 </div>
 
                 <div className="col-md-3">
-                  <button style={{    height: "100%"}}
-                   disabled={loading}
+                  <button style={{ height: "100%" }}
+                    disabled={loading}
                     className="btn btn-warning w-100"
                     onClick={() => {
                       if (!isChecklistComplete) {
@@ -483,14 +468,14 @@ const PreBuffingApprovalModal = ({
                       handleHold();
                     }}
                   >
-                      {loading ? "Processing..." : "HOLD"}
+                    {loading ? "Processing..." : "HOLD"}
                   </button>
                 </div>
 
                 <div className="col-md-3">
-                  <button
+                  <button style={{ height: "100%" }}
                     className="btn btn-approve w-100"
-                     disabled={loading}
+                    disabled={loading}
                     onClick={() => {
                       if (!isChecklistComplete) {
                         alert(
@@ -502,7 +487,7 @@ const PreBuffingApprovalModal = ({
                       handleApprove();
                     }}
                   >
-                     {loading ? "Processing..." : "APPROVED"}
+                    {loading ? "Processing..." : "APPROVED"}
                   </button>
                 </div>
               </div>
@@ -533,23 +518,23 @@ const PreBuffingApprovalModal = ({
       />
 
       {loading && (
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(255,255,255,0.6)",
-      zIndex: 99999,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-    }}
-  >
-    <RingLoader
-      size={80}
-      color="#b30815"
-    />
-  </div>
-)}
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(255,255,255,0.6)",
+            zIndex: 99999,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <RingLoader
+            size={80}
+            color="#b30815"
+          />
+        </div>
+      )}
     </>
   );
 };

@@ -26,12 +26,22 @@ const ShearographyChecklistModal = ({
 
   return createPortal(
     <>
-      <div className="modal-backdrop fade show"></div>
+      <div
+        className="modal-backdrop fade show"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 1060,
+          background: "rgba(21, 17, 17, 0.45)",
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
+        }}
+      ></div>
 
       <div
         className="modal d-block"
         tabIndex={-1}
-        style={{ zIndex: 1060 }}
+        style={{ zIndex: 1070 }}
       >
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">

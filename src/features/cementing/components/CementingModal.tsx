@@ -2,15 +2,23 @@ import React, { useEffect, useState } from "react";
 
 interface CementingModalProps {
   selectedItem: {
-    id: number;
-    casing: string;
-    serial: string;
-    pattern: string;
-    tyreSize: string;
-    service: string;
-    skipRepair: boolean;
-    casingDry: boolean;
-  } | null;
+  id: number;
+  casing: string;
+  serial: string;
+
+  customerName?: string;
+
+  requestedPattern?: string;
+
+  reApprovedPattern?: string;
+
+  pattern: string;
+  tyreSize: string;
+  service: string;
+
+  skipRepair: boolean;
+  casingDry: boolean;
+} | null;
 
   staffName: string;
 
@@ -93,16 +101,10 @@ const CementingModal: React.FC<CementingModalProps> = ({
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header bg-danger text-white">
-              <h5 className="modal-title">CEMENTING – INSPECTION</h5>
-              {/* STAFF NAME */}
-              <div
-                className="me-3 text-white text-end"
-                style={{ marginLeft: "47rem" }}
-              >
-                {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
-                <b>{staffName}</b>
+              <h5 className="modal-title flex-grow-1 text-white text-start">CEMENTING – INSPECTION</h5>
+              <div className="me-3 text-white text-end">
+                <div>John</div>
               </div>
-              {/* <span>{staffName}</span> */}
 
               <button
                 type="button"
@@ -111,94 +113,158 @@ const CementingModal: React.FC<CementingModalProps> = ({
               />
             </div>
             <div className="modal-body">
-              <div className="row text-center mb-4">
-                <div className="col">
-                  <small>Casing No</small>
-                  <div>{selectedItem.casing}</div>
-                </div>
+              <div className="mb-3">
+                <div className="modal-info m-0 p-2 row text-nowrap">
 
-                <div className="col">
-                  <small>Serial No</small>
-                  <div>{selectedItem.serial}</div>
-                </div>
+                  <div className="col">
+                    <strong>Production No</strong>
+                    <div>{selectedItem?.casing}</div>
+                  </div>
 
-                <div className="col">
-                  <small>Pattern</small>
-                  <div>{selectedItem.pattern}</div>
-                </div>
+                  <div className="col">
+                    <strong>Tyre Ref No</strong>
+                    <div>{selectedItem?.serial}</div>
+                  </div>
 
-                <div className="col">
-                  <small>Tyre Size</small>
-                  <div>{selectedItem.tyreSize}</div>
-                </div>
+                  <div className="col">
+                    <strong>Customer Name</strong>
+                    <div>{selectedItem?.customerName || "-"}</div>
+                  </div>
 
-                <div className="col">
-                  <small>Service</small>
-                  <div>{selectedItem.service}</div>
+                  <div className="col">
+                    <strong>Tyre Size</strong>
+                    <div>{selectedItem?.tyreSize}</div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Requested Pattern</strong>
+                    <div>
+                      {selectedItem?.requestedPattern || "-"}
+                    </div>
+                  </div>
+
+                  <div className="col">
+                    <strong>ReApproved Pattern</strong>
+                    <div>
+                      {selectedItem?.reApprovedPattern || "-"}
+                    </div>
+                  </div>
+
                 </div>
               </div>
-                <hr
-                  style={{
-                    border: 0,
-                    borderTop: "1px solid #dee2e6",
-                    margin: "20px 0",
-                    opacity: 1,
-                  }}
-                />
-              <div className="d-flex justify-content-center align-items-end gap-4 flex-wrap">
-                {/* Skip Repair */}
-                <div className="form-check mb-2">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={skipRepair}
-                    disabled
-                  />
-                  <label className="form-check-label">Skip Repair</label>
-                </div>
 
-                {/* Casing Dry */}
-                <div className="form-check mb-2">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={casingDry}
-                    onChange={(e) => setCasingDry(e.target.checked)}
-                  />
-                  <label className="form-check-label">Casing Dry</label>
-                </div>
+              <div className="d-flex flex-column align-items-center ">
 
-                {/* Cement Type */}
-                <div style={{ minWidth: "450px" }}>
-                  <label className="form-label">Cement Type</label>
-
-                  <select
-                    className="form-select"
-                    value={cementType}
-                    disabled={skipRepair}
-                    onChange={(e) => setCementType(e.target.value)}
-                  >
-                    <option value="">Select Cement Type</option>
-
-                    {cementTypes.map((item: any) => (
-                      <option key={item.cementTypeId} value={item.cementTypeId}>
-                        {item.displayName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <button className="btn btn-primary mb-1" onClick={onSave}>
-                  Save
-                </button>
-
-                <button
-                  className="btn btn-success mb-1"
-                  onClick={onApprove}
-                  disabled={!casingDry}
+                {/* TOP ROW */}
+                <div
+                  className="d-flex justify-content-center align-items-center gap-5 mb-4"
+                  style={{ width: "100%" }}
                 >
-                  Approve
-                </button>
+
+                  {/* Skip Repair */}
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={skipRepair}
+                      disabled
+                    />
+
+                    <label className="form-check-label ms-2">
+                      Skip Repair
+                    </label>
+                  </div>
+
+                  {/* Casing Dry */}
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={casingDry}
+                      onChange={(e) =>
+                        setCasingDry(e.target.checked)
+                      }
+                    />
+
+                    <label className="form-check-label ms-2">
+                      Casing Dry
+                    </label>
+                  </div>
+
+                </div>
+
+                {/* MIDDLE ROW */}
+                <div
+                  className="d-flex justify-content-center align-items-end gap-3 mb-5"
+                  style={{ width: "100%" }}
+                >
+
+                  <div style={{ minWidth: "350px" }}>
+
+                    <label className="form-label">
+                      Cement Type
+                    </label>
+
+                    <select
+                      className="form-select"
+                      value={cementType}
+                      onChange={(e) =>
+                        setCementType(e.target.value)
+                      }
+                    >
+                      <option value="">
+                        Select Cement Type
+                      </option>
+
+                      {cementTypes.map((item: any) => (
+                        <option
+                          key={item.cementTypeId}
+                          value={item.cementTypeId}
+                        >
+                          {item.displayName}
+                        </option>
+                      ))}
+                    </select>
+
+                  </div>
+
+                  <button
+                    className="btn btn-primary"
+                    onClick={onSave}
+                    style={{
+                      minWidth: "140px",
+                      height: "38px",
+                    }}
+                  >
+                    Save
+                  </button>
+
+                </div>
+
+                {/* APPROVE BUTTON */}
+                <div
+                  className="d-flex justify-content-center"
+                  style={{ width: "100%" }}
+                >
+
+                  <div style={{ width: "300px" }}>
+
+                    <button
+                      className="btn btn-approve w-100 d-flex align-items-center justify-content-center"
+                      onClick={onApprove}
+                      disabled={!casingDry}
+                    >
+                      <span>APPROVED</span>
+
+                      <span className="icon-box">
+                        <i className="bi bi-check-lg"></i>
+                      </span>
+                    </button>
+
+                  </div>
+
+                </div>
+
               </div>
             </div>
           </div>
