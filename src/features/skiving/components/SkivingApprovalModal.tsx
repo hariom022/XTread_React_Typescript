@@ -67,7 +67,7 @@ const SkivingApprovalModal = ({
 
           <div className="modal-header skiving-header d-flex align-items-center">
 
-            <h5 className="modal-title flex-grow-1 text-white">
+            <h5 className="modal-title flex-grow-1 text-white text-start">
               SKIVING APPROVAL
             </h5>
 

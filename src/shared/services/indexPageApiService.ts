@@ -18,6 +18,7 @@
 import api from "./api";
 
 const indexPageApiService = {
+  //For Index Page to show orders when approved from previous stage//
   getBatchProgress: (
     currentStage: number,
     currentStageStatusOrSubstage?: number,
@@ -57,6 +58,7 @@ const indexPageApiService = {
     });
   },
 
+  // this api used for INSPECT BUTTON then pop up is opening //
   getOrderCasingDetails: (
     orderCasingId: number
   ) =>

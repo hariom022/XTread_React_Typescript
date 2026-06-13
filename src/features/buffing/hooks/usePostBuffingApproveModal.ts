@@ -30,10 +30,13 @@ interface PatternVariant {
 
 interface Props {
   selectedItem: SelectedItem | null;
+
   refreshTable: () => void;
+
+  onClose: () => void;
 }
 
-const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
+const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Props) => {
   const [loading, setLoading] = useState(false);
   const [postRejectReason, setPostRejectReason] = useState("");
 
@@ -105,6 +108,10 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
     setPatternVariants([]);
 
     setPostChecklistSaved(false);
+
+    setShowPostChecklist(false);
+
+    setCheckedPostChecklist([]);
   };
 
   /* ===========================
@@ -179,7 +186,7 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
 
   const handleApprove = async () => {
     try {
-       setLoading(true);
+      setLoading(true);
       if (!selectedItem) return;
 
       if (!postChecklistSaved) {
@@ -214,13 +221,14 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       refreshTable();
 
       resetModal();
+      onClose();
     } catch (error) {
       console.error(error);
 
       alert("Approval Failed");
-    }finally {
-    setLoading(false);
-  }
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ===========================
@@ -229,7 +237,7 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
 
   const handleReject = async () => {
     try {
-       setLoading(true);
+      setLoading(true);
       if (!selectedItem) return;
 
       if (!postChecklistSaved) {
@@ -269,17 +277,18 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       refreshTable();
 
       resetModal();
+      onClose();
     } catch (error) {
       console.error(error);
 
       alert("Reject Failed");
-    }finally {
-    setLoading(false);
-  }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
-      loading,
+    loading,
     machines,
     damageLevels,
     patternVariants,

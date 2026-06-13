@@ -27,9 +27,10 @@ interface SelectedItem {
 interface Props {
   selectedItem: SelectedItem | null;
   refreshTable: () => void;
+  onClose:()=>void;
 }
 
-const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
+const usePreBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const [reason, setReason] = useState("");
@@ -74,22 +75,24 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
   const isChecklistComplete =
     checkedChecklist.length === PRE_BUFFING_CHECKLIST.length;
 
-  const resetModal = () => {
-    setReason("");
-    setHoldReason("");
+ const resetModal = () => {
+  setReason("");
+  setHoldReason("");
 
-    setPatterns([]);
+  setPatterns([]);
 
-    setSelectedPatternId("");
+  setSelectedPatternId("");
+  setSelectedVariantId("");
 
-    setSelectedVariantId("");
+  setSelectedWidth("");
+  setSelectedBrand("");
 
-    setSelectedWidth("");
+  setChecklistSaved(false);
 
-    setSelectedBrand("");
+  setShowChecklist(false);
 
-    setChecklistSaved(false);
-  };
+  setCheckedChecklist([]);
+};
 
   const fetchRejectionReasons = async () => {
     try {
@@ -156,15 +159,15 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       alert("Casing Rejected Successfully");
 
       refreshTable();
-
       resetModal();
+      onClose();
     } catch (error) {
       console.error(error);
 
       alert("Reject Failed");
-    }finally {
-    setLoading(false);
-  }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleApprove = async () => {
@@ -202,8 +205,9 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
       alert("Approved Successfully");
 
       refreshTable();
-
       resetModal();
+      onClose();
+     
     } catch (error) {
       console.error(error);
 
@@ -214,49 +218,49 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable }: Props) => {
   };
 
   const handleHold = async () => {
-    try {
-       setLoading(true);
-      if (!selectedItem) return;
+    // try {
+    //   setLoading(true);
+    //   if (!selectedItem) return;
 
-      if (!checklistSaved) {
-        alert("Please complete all checklist items");
-        return;
-      }
+    //   if (!checklistSaved) {
+    //     alert("Please complete all checklist items");
+    //     return;
+    //   }
 
-      if (!holdReason) {
-        alert("Please select hold reason");
-        return;
-      }
+    //   if (!holdReason) {
+    //     alert("Please select hold reason");
+    //     return;
+    //   }
 
-      if (!selectedVariantId) {
-        alert("Please select width");
-        return;
-      }
+    //   if (!selectedVariantId) {
+    //     alert("Please select width");
+    //     return;
+    //   }
 
-      const payload = {
-        orderCasingIds: [selectedItem.id],
+    //   const payload = {
+    //     orderCasingIds: [selectedItem.id],
 
-        action: 3,
+    //     action: 3,
 
-        reasonCode: holdReason,
+    //     reasonCode: holdReason,
 
-        suggestedTreadPatternVariantId: selectedVariantId,
-      };
+    //     suggestedTreadPatternVariantId: selectedVariantId,
+    //   };
 
-      await buffingStageServiceApi.approveRejectPreBuffing(payload);
+    //   await buffingStageServiceApi.approveRejectPreBuffing(payload);
 
-      alert("Hold Successfully");
+    //   alert("Hold Successfully");
 
-      refreshTable();
+    //   refreshTable();
 
-      resetModal();
-    } catch (error) {
-      console.error(error);
+    //   resetModal();
+    // } catch (error) {
+    //   console.error(error);
 
-      alert("Hold Failed");
-    }finally {
-    setLoading(false);
-  }
+    //   alert("Hold Failed");
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return {

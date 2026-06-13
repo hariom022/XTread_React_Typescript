@@ -160,13 +160,17 @@ const PostBuffingApprovalModal = ({
           {/* HEADER */}
 
           <div className="modal-header">
-            <h5 className="modal-title w-100">POST BUFFING - APPROVAL</h5>
-
+            <h5 className="modal-title flex-grow-1 text-white text-start">POST BUFFING - APPROVAL</h5>
+            <div className="me-3 text-white text-end">
+              <div>John</div>
+            </div>
             <button
               type="button"
               className="btn-close btn-close-white"
               data-bs-dismiss="modal"
-              onClick={resetModal}
+              onClick={() => {
+                resetModal();
+              }}
             />
           </div>
 
@@ -209,7 +213,7 @@ const PostBuffingApprovalModal = ({
 
             {/* MATERIAL */}
 
-            <div className="box material-box mb-2">
+            <div className="panel-box mb-1">
               <div className="box-title">MATERIAL AVAILABILITY</div>
 
               <div className="panel-body p-1">
@@ -246,42 +250,46 @@ const PostBuffingApprovalModal = ({
             </div>
 
             {/* RECORD */}
+            <div className="panel-box mb-1">
+              <div className="panel-body">
+                <div className="record-box text-start">
+                  <div className="record-header">
+                    <strong>Record [1 of 1]</strong>
+                  </div>
 
-            <div className="record-box mb-2">
-              <div className="record-header">Record [1 of 1]</div>
+                  <div className="d-flex justify-content-between small">
+                    <div>
+                      <b>Tyre Size:</b> {casingDetails?.tyreSize.casingSize}
+                    </div>
 
-              <div className="d-flex justify-content-between small">
-                <div>
-                  <b>Tyre Size:</b> {casingDetails?.tyreSize.casingSize}
-                </div>
+                    <div>
+                      <b>Make:</b> {casingDetails?.tyreMake.name}
+                    </div>
 
-                <div>
-                  <b>Make:</b> {casingDetails?.tyreMake.name}
-                </div>
+                    <div>
+                      <b>Model:</b> {casingDetails?.model}
+                    </div>
 
-                <div>
-                  <b>Model:</b> {casingDetails?.model}
-                </div>
+                    <div>
+                      <b>Brand:</b> {casingDetails?.retreadDetail.brand}
+                    </div>
 
-                <div>
-                  <b>Brand:</b> {casingDetails?.retreadDetail.brand}
-                </div>
+                    <div>
+                      <b>Pattern:</b> {casingDetails?.retreadDetail.patternName}
+                    </div>
 
-                <div>
-                  <b>Pattern:</b> {casingDetails?.retreadDetail.patternName}
-                </div>
-
-                <div>
-                  <b>Width:</b> {casingDetails?.retreadDetail.width}
+                    <div>
+                      <b>Width:</b> {casingDetails?.retreadDetail.width}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
             {/* FORM */}
 
-            <div className="row">
+            <div className="row g-1">
               <div className="col-md-8">
-                <div className="box p-2">
+                <div className="box p-1">
                   <div className="mb-2 d-flex">
                     <input
                       type="checkbox"
@@ -360,36 +368,57 @@ const PostBuffingApprovalModal = ({
                     </div>
                   </div>
 
-                  <div className="row mt-2">
-                    <div className="col-md-8">
-                      <label>Remarks</label>
+                  <div className="row mt-1 align-items-stretch">
 
-                      <textarea rows={3} className="form-control" />
+                    {/* REMARKS */}
+                    <div className="col-md-8">
+
+                      <label className="form-label fw-semibold">
+                        Remarks
+                      </label>
+
+                      <textarea
+                        className="form-control"
+                        rows={4}
+                        placeholder="Enter remarks..."
+                        style={{
+                          minHeight: "100px",
+                          resize: "none",
+                        }}
+                      />
+
                     </div>
 
-                    <div className="col-md-4">
+                    {/* CHECKLIST BUTTON */}
+                    <div className="col-md-4 d-flex flex-column">
+
+                      <label className="form-label invisible">
+                        Checklist
+                      </label>
+
                       <button
-                        className="btn btn-primary w-100 mt-4"
+                        className="btn btn-primary flex-grow-1"
                         onClick={() => setShowPostChecklist(true)}
                       >
                         Post-Buffing Checklist
                       </button>
+
                     </div>
+
                   </div>
                 </div>
               </div>
 
               {/* RIGHT PANEL */}
-
-              <div className="col-md-4">
-                <label>Rejection Reason</label>
+              <div className=" col-md-4 panel-box text-start">
+                {/* <label>Rejection Reason</label> */}
 
                 <select
-                  className="form-select mt-1 mb-3"
+                  className="form-select mt-1 mb-1"
                   value={postRejectReason}
                   onChange={(e) => setPostRejectReason(e.target.value)}
                 >
-                  <option value="">Select Reason</option>
+                  <option value="">Select Rejection Reason</option>
 
                   {postBuffingReasons.map((item) => (
                     <option key={item.rejectionReasonId} value={item.code}>
@@ -399,7 +428,7 @@ const PostBuffingApprovalModal = ({
                 </select>
 
                 <button
-                  className="btn btn-reject w-100 mb-3"
+                  className="btn btn-reject w-100 mb-1"
                   onClick={handleReject}
                   disabled={loading}
                 >
@@ -407,7 +436,7 @@ const PostBuffingApprovalModal = ({
                 </button>
 
                 <button
-                  className="btn btn-approve w-100"
+                  className="btn btn-approve w-100 mb-1"
                   onClick={handleApprove}
                   disabled={loading}
                 >

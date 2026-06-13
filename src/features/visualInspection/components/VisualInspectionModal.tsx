@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
 import visualInspectionService from "../service/visualInspectionService";
 import VisualChecklistModal from "./VisualChecklistModal";
+import "../styles/VisualInspect.css"
 
 type Props = {
   item: any;
@@ -145,16 +146,12 @@ const VisualInspectionModal = ({
           <div className="modal-content nail-modal">
             {/* HEADER */}
             <div className="modal-header nail-header">
-              <h4 className="modal-title flex-grow-1 text-white text-start">
+              <h5 className="modal-title flex-grow-1 text-white text-start">
                 VISUAL INSPECTION – APPROVAL
-              </h4>
+              </h5>
 
-              <div
-                className="text-white text-end"
-              // style={{ marginLeft: "50rem" }}
-              >
-                {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
-                <b>John</b>
+              <div className="me-3 text-white text-end">
+                <div>John</div>
               </div>
 
               <button
@@ -167,135 +164,141 @@ const VisualInspectionModal = ({
             {/* BODY */}
             <div className="modal-body">
               {/* TOP INFO */}
-              <div className="modal-info">
-                <div>
-                  <strong>Production No</strong>
-                  <div>{item?.productionNumber || item?.casing}</div>
-                </div>
+              <div className="mb-2">
 
-                <div>
-                  <strong>Tyre Ref No</strong>
-                  <div>{item?.tyreReferenceNumber || item?.serial}</div>
-                </div>
+                                <div className="modal-info m-0 p-1 mb-1 postbuff-top row text-nowrap">
 
-                <div>
-                  <strong>Model</strong>
-                  <div>{item?.model || "-"}</div>
-                </div>
+                                    <div className="col">
+                                        <strong>Production No</strong>
+                                        <div>{item?.casing}</div>
+                                    </div>
 
-                <div>
-                  <strong>Tyre Size</strong>
-                  <div>
-                    {item?.tyreSize?.casingSize || item?.tyreSize || "-"}
-                  </div>
-                </div>
+                                    <div className="col">
+                                        <strong>Tyre Ref No</strong>
+                                        <div>{item?.serial}</div>
+                                    </div>
 
-                <div>
-                  <strong>Service</strong>
-                  <div>{item?.serviceType?.name || item?.service}</div>
-                </div>
-              </div>
+                                    <div className="col">
+                                        <strong>Customer Name</strong>
+                                        <div>{item?.customerName}</div>
+                                    </div>
+
+                                    <div className="col">
+                                        <strong>Tyre Size</strong>
+                                        <div>{item?.tyreSize}</div>
+                                    </div>
+
+                                    <div className="col">
+                                        <strong>Requested Pattern</strong>
+                                        <div>
+                                            {item?.requestedPattern}
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
 
               {(item?.serviceType?.name === "Retread" ||
                 item?.serviceType?.name === "Repair" ||
                 item?.service === "Retread" ||
                 item?.service === "Repair") && (
-                <div className="mt-3">
-                  <div className="row align-items-center">
-                    <div className="col-md-6">
-                      <button
-                        className="open-checklist-btn w-100"
-                        onClick={() => setShowChecklist(true)}
-                      >
-                        Visual Inspection Checklist
-                      </button>
-                    </div>
+                  <div className="mt-3">
+                    <div className="row align-items-center">
+                      <div className="col-md-6">
+                        <button
+                          className="open-checklist-btn w-100"
+                          onClick={() => setShowChecklist(true)}
+                        >
+                          Visual Inspection Checklist
+                        </button>
+                      </div>
 
-                    <div className="col-md-6">
-                      <label className="fw-semibold">Is Retreaded</label>
+                      <div className="col-md-6">
+                        <label className="fw-semibold">Is Retreaded</label>
 
-                      <div>
-                        <input
-                          type="checkbox"
-                          checked={isRetreaded}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
+                        <div>
+                          <input
+                            type="checkbox"
+                            checked={isRetreaded}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
 
-                            setIsRetreaded(checked);
+                              setIsRetreaded(checked);
 
-                            if (!checked) {
-                              setPreviousPattern("");
-                              setPreviousRetreader("");
-                              setNoOfRetread("");
-                              setNoOfExistingRepairs("");
-                            } else if (retreadBackup) {
-                              setPreviousPattern(retreadBackup.previousPattern);
+                              if (!checked) {
+                                setPreviousPattern("");
+                                setPreviousRetreader("");
+                                setNoOfRetread("");
+                                setNoOfExistingRepairs("");
+                              } else if (retreadBackup) {
+                                setPreviousPattern(retreadBackup.previousPattern);
 
-                              setPreviousRetreader(
-                                retreadBackup.previousRetreader,
-                              );
+                                setPreviousRetreader(
+                                  retreadBackup.previousRetreader,
+                                );
 
-                              setNoOfRetread(retreadBackup.noOfRetread);
+                                setNoOfRetread(retreadBackup.noOfRetread);
 
-                              setNoOfExistingRepairs(
-                                retreadBackup.noOfExistingRepairs,
-                              );
-                            }
-                          }}
-                        />
+                                setNoOfExistingRepairs(
+                                  retreadBackup.noOfExistingRepairs,
+                                );
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
+
+                    {isRetreaded && (
+                      <>
+                        <div className="row mt-3">
+                          <div className="col-md-6">
+                            <label>Previous Pattern</label>
+
+                            <input
+                              className="form-control"
+                              value={previousPattern}
+                              readOnly
+                            />
+                          </div>
+
+                          <div className="col-md-6">
+                            <label>Previous Retreader</label>
+
+                            <input
+                              className="form-control"
+                              value={previousRetreader}
+                              readOnly
+                            />
+                          </div>
+                        </div>
+
+                        <div className="row mt-2">
+                          <div className="col-md-6">
+                            <label>No Of Retreads</label>
+
+                            <input
+                              className="form-control"
+                              value={noOfRetread}
+                              readOnly
+                            />
+                          </div>
+
+                          <div className="col-md-6">
+                            <label>Existing Repairs</label>
+
+                            <input
+                              className="form-control"
+                              value={noOfExistingRepairs}
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
-
-                  {isRetreaded && (
-                    <>
-                      <div className="row mt-3">
-                        <div className="col-md-6">
-                          <label>Previous Pattern</label>
-
-                          <input
-                            className="form-control"
-                            value={previousPattern}
-                            readOnly
-                          />
-                        </div>
-
-                        <div className="col-md-6">
-                          <label>Previous Retreader</label>
-
-                          <input
-                            className="form-control"
-                            value={previousRetreader}
-                            readOnly
-                          />
-                        </div>
-                      </div>
-
-                      <div className="row mt-2">
-                        <div className="col-md-6">
-                          <label>No Of Retreads</label>
-
-                          <input
-                            className="form-control"
-                            value={noOfRetread}
-                            readOnly
-                          />
-                        </div>
-
-                        <div className="col-md-6">
-                          <label>Existing Repairs</label>
-
-                          <input
-                            className="form-control"
-                            value={noOfExistingRepairs}
-                            readOnly
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
+                )}
 
               {/* REJECTION */}
               <div className="mt-3">
@@ -335,6 +338,7 @@ const VisualInspectionModal = ({
                   <button
                     disabled={saving}
                     className="btn-reject w-100 border-0"
+                    style={{padding:"20px"}}
                     onClick={() => handleApproveReject(false)}
                   >
                     REJECTED

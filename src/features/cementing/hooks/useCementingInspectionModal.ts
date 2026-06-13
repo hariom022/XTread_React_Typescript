@@ -15,22 +15,39 @@ export const useCementingInspectionModal = () => {
       const res = await indexPageApiService.getOrderCasingDetails(item.id);
 
       const casing = res.data;
+      console.log("CEMENTING CASING DETAILS", casing);
 
       const modalData = {
         ...item,
 
-        productionNumber: casing.productionNumber || "-",
+        productionNumber:
+          casing.productionNumber || "-",
 
-        serial: casing.tyreReferenceNumber || "-",
+        serial:
+          casing.tyreReferenceNumber || "-",
 
-        pattern: casing.retreadDetail?.patternName || casing.patternName || "-",
+        customerName:
+          casing.customerName || "-",
 
-        tyreSize: casing.tyreSize?.casingSize || "-",
+        requestedPattern:
+          casing.retreadDetail?.patternName || "-",
 
-        service: casing.serviceType?.name || "-",
-        
-        skipRepair: casing.skipRepair || false,
-        casingDry: casing.casingDry || false,
+        pattern:
+          casing.retreadDetail?.patternName || "-",
+
+        tyreSize:
+          casing.tyreSize?.casingSize || "-",
+
+        service:
+          casing.serviceType?.name || "-",
+
+        skipRepair:
+          casing.skipRepair || false,
+
+        casingDry:
+          casing.casingDry || false,
+
+        reApprovedPattern: "-", // API not returning this field
       };
 
       setSelectedItem(modalData);

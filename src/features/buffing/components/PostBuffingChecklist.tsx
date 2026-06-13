@@ -124,12 +124,12 @@ const PostBuffingChecklist = ({
 
                     <div className="modal-footer">
 
-                        <button
+                        {/* <button
                             className="btn btn-secondary"
                             onClick={onClose}
                         >
                             Close
-                        </button>
+                        </button> */}
 
                         <button
                             className="btn btn-primary"

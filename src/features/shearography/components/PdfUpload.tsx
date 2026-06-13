@@ -27,7 +27,7 @@ const PdfUpload = ({
     <>
       {/* Upload Section */}
       <div className="col-md-6">
-        <label className="fw-semibold mb-2 d-block">
+        <label className="fw-semibold mb-2 d-block text-start">
           Upload Report{" "}
           <span className="fs-6 text-muted">
             (max 2 pdfs)

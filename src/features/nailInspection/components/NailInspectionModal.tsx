@@ -131,9 +131,9 @@ const NailInspectionModal = ({
 
             {/* BODY */}
             <div className="modal-body">
-              <div className="mb-2">
+              <div className="">
                 {/* TOP INFO */}
-                <div className="modal-info m-0  building-top row text-nowrap">
+                <div className="modal-info m-0 building-top row text-nowrap">
                   <div className="col">
                     <strong>Production No</strong>
                    <div>{selectedItem?.productionNumber}</div>
@@ -162,7 +162,7 @@ const NailInspectionModal = ({
                   </div>
                 </div>
               </div>
-              <div className="row mt-2">
+              <div className="row mt-1">
                 {/* LEFT SIDE */}
                 <div className="col-md-8 border-end">
                   <PatchesRemoveSection
@@ -229,7 +229,7 @@ const NailInspectionModal = ({
                   <RepairTable repairs={repairs} setRepairs={setRepairs} />
 
                   {/* BUTTONS */}
-                  <div className="row g-2 mt-2">
+                  <div className="row g-2 mt-1">
                     <div className="col-6">
                       <button
                         className="btn btn-success w-100 btn-lg-actiond-flex align-items-center justify-content-center"
@@ -254,7 +254,7 @@ const NailInspectionModal = ({
 
                 {/* RIGHT SIDE */}
                 <div className="col-md-4">
-                  <div className="mb-6" style={{ marginBottom: "9.5rem" }}>
+                  <div className="mb-6" style={{ marginBottom: "9.3rem" }}>
                     <label className="fw-semibold">Rejection Reason</label>
 
                     <select
@@ -308,7 +308,7 @@ const NailInspectionModal = ({
               </div>
 
               {/* HOLD */}
-              <div className="row mt-3">
+              <div className="row mt-1">
                 <div className="col">
                   <button
                     className="btn btn-warning w-100 fw-bold"

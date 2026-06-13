@@ -96,10 +96,12 @@ const SkivingStage1Modal = ({
         <div className="modal-content">
 
           <div className="modal-header bg-danger text-white">
-            <h5 className="modal-title">
+            <h5 className="modal-title flex-grow-1 text-white text-start">
               SKIVING STAGE 1 - APPROVAL
             </h5>
-
+            <div className="me-3 text-white text-end">
+              <div>John</div>
+            </div>
             <button
               type="button"
               className="btn-close btn-close-white"

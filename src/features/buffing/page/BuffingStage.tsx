@@ -64,7 +64,19 @@ const BuffingStage = () => {
 
   const preApproval = usePreBuffingApproveModal({
     selectedItem: selectedPreItem,
+
     refreshTable: fetchPreBuffingOrders,
+
+    onClose: () => {
+      if (preModalRef.current) {
+        Modal.getInstance(
+          preModalRef.current
+        )?.hide();
+      }
+
+      setSelectedPreItem(null);
+      setSelectedPreCasing(null);
+    },
   });
 
   /* ==================================
@@ -73,7 +85,20 @@ const BuffingStage = () => {
 
   const postApproval = usePostBuffingApproveModal({
     selectedItem: selectedPostItem,
+
     refreshTable: fetchPostBuffingOrders,
+
+    onClose: () => {
+      if (postModalRef.current) {
+        Modal.getInstance(
+          postModalRef.current
+        )?.hide();
+      }
+
+      setSelectedPostItem(null);
+
+      setSelectedPostCasing(null);
+    },
   });
 
   /* ==================================
