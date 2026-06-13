@@ -211,25 +211,19 @@ const BuildingStage = () => {
           <BuildingModal
             selectedItem={selectedItem}
 
-            selectedPattern={
-              buildingModal.selectedPattern
+            selectedPattern={buildingModal.selectedPattern}
+
+            selectedWidth={buildingModal.selectedWidth}
+
+            setSelectedWidth={buildingModal.setSelectedWidth}
+
+            widthOptions={buildingModal.widthOptions}
+
+            handleApprove={buildingModal.handleApprove}
+
+            handleReturnToRepair={
+              buildingModal.handleReturnToRepair
             }
-
-            selectedWidth={
-              buildingModal.selectedWidth
-            }
-
-            setSelectedWidth={
-              buildingModal.setSelectedWidth
-            }
-
-            widthOptions={
-              buildingModal.widthOptions
-            }
-
-            handleApprove={() => { }}
-
-            handleReturnToRepair={() => { }}
 
             onClose={() => {
               buildingModal.resetModal();

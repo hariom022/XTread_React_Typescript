@@ -78,7 +78,8 @@ const useBuildingModal = ({
 
         rejectionReasonCode: null,
       };
-
+      console.log("HANDLE APPROVED PAYLOAD:=->", selectedItem);
+      console.log("Building Payload", payload);
       await buildingServiceApi.approveReject(
         payload,
       );
@@ -107,25 +108,23 @@ const useBuildingModal = ({
           return;
         }
 
-        const reason =
-          prompt(
-            "Enter Rejection Reason Code",
-          );
-
-        if (!reason) return;
-
         const payload = {
           orderCasingIds: [
-            String(selectedItem.id),
+            selectedItem.orderCasingId ??
+            selectedItem.id,
           ],
 
           isApproved: false,
 
           width: selectedWidth,
 
-          rejectionReasonCode:
-            reason,
+          rejectionReasonCode: null,
         };
+
+        console.log(
+          "RETURN TO REPAIR PAYLOAD",
+          payload,
+        );
 
         await buildingServiceApi.approveReject(
           payload,
@@ -146,6 +145,8 @@ const useBuildingModal = ({
         alert("Return To Repair Failed");
       }
     };
+
+    
   useEffect(() => {
     if (selectedItem) {
       setSelectedPattern(
