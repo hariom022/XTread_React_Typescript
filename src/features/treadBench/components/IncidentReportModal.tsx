@@ -27,7 +27,10 @@ const IncidentReportModal = ({ onClose }: Props) => {
 
     try {
       const payload = {
-        reason: incidentReason === "Other" ? otherReason : incidentReason,
+        reason:
+          incidentReason === "Other"
+            ? otherReason
+            : incidentReason,
         comment: incidentReport,
       };
 
@@ -52,10 +55,14 @@ const IncidentReportModal = ({ onClose }: Props) => {
   return (
     <>
       {/* Backdrop */}
-      <div className="modal fade show" style={{display: "block", background:" rgba(0, 0, 0, 0.5)"}}></div>
+      <div className="modal fade show"></div>
 
       {/* Modal */}
-      <div className="modal d-block" tabIndex={-1}  style={{display: "block", background:" rgba(0, 0, 0, 0.5)"}}>
+      <div
+        className="modal d-block"
+        tabIndex={-1}
+        style={{ zIndex: 1055 }}
+      >
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content">
             {/* Header */}
@@ -94,17 +101,29 @@ const IncidentReportModal = ({ onClose }: Props) => {
                 >
                   <option value="">Select Reason</option>
 
-                  <option value="Machine Failure">Machine Failure</option>
+                  <option value="Machine Failure">
+                    Machine Failure
+                  </option>
 
-                  <option value="Power Failure">Power Failure</option>
+                  <option value="Power Failure">
+                    Power Failure
+                  </option>
 
-                  <option value="Steam Issue">Steam Issue</option>
+                  <option value="Steam Issue">
+                    Steam Issue
+                  </option>
 
-                  <option value="Operator Mistake">Operator Mistake</option>
+                  <option value="Operator Mistake">
+                    Operator Mistake
+                  </option>
 
-                  <option value="Material Issue">Material Issue</option>
+                  <option value="Material Issue">
+                    Material Issue
+                  </option>
 
-                  <option value="Other">Other</option>
+                  <option value="Other">
+                    Other
+                  </option>
                 </select>
               </div>
 
@@ -120,32 +139,44 @@ const IncidentReportModal = ({ onClose }: Props) => {
                     className="form-control"
                     placeholder="Enter reason..."
                     value={otherReason}
-                    onChange={(e) => setOtherReason(e.target.value)}
+                    onChange={(e) =>
+                      setOtherReason(e.target.value)
+                    }
                   />
                 </div>
               )}
 
               {/* Comment */}
               <div>
-                <label className="form-label fw-semibold">Comment</label>
+                <label className="form-label fw-semibold">
+                  Comment
+                </label>
 
                 <textarea
                   className="form-control"
                   rows={4}
                   placeholder="Describe incident..."
                   value={incidentReport}
-                  onChange={(e) => setIncidentReport(e.target.value)}
+                  onChange={(e) =>
+                    setIncidentReport(e.target.value)
+                  }
                 />
               </div>
             </div>
 
             {/* Footer */}
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={onClose}>
+              <button
+                className="btn btn-secondary"
+                onClick={onClose}
+              >
                 Cancel
               </button>
 
-              <button className="btn btn-danger" onClick={handleIncidentSubmit}>
+              <button
+                className="btn btn-danger"
+                onClick={handleIncidentSubmit}
+              >
                 Submit Incident
               </button>
             </div>

@@ -1,0 +1,257 @@
+
+
+/* REPAIR MODAL LAYOUT */
+.repair-modal {
+  border-radius: 12px;
+}
+
+/* Header stays flex */
+.repair-header {
+  background: #656a6c;
+  color: #fff;
+  font-weight: 500;
+  padding: 5px 15px;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 6px;
+}
+/* repairs top */
+.repairs-top {
+  background: #eaecee;
+  padding: 8px;
+  border-radius: 10px;
+
+  /* keep everything in ONE ROW */
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+/* SCROLLABLE MODAL CONTENT */
+.modal-content {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 1055;
+}
+
+.modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1055;
+  background: #fff;
+}
+
+.modal-body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding-bottom: 1rem;
+}
+
+/* MODAL SCROLLBAR */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* REPAIR CONTENT */
+.repair-bg {
+  background: #fff;
+}
+
+.repair-box {
+  max-width: 1200px;
+  border: 2px solid #dc3545;
+  background: #fff;
+}
+
+.side-panel {
+  /* border: 2px solid #dc3545; */
+  background: #ffe7d2;
+  padding: 5px;
+}
+
+.left-panel {
+  padding: 10px;
+}
+
+.panel-section {
+  border-radius: 10px;
+}
+
+.section-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.counter-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.counter-row input {
+  width: 50px;
+  text-align: center;
+}
+
+/* TOTAL SECTION */
+.total-box {
+  background: #ffe7d2;
+  padding: 3px;
+  border: 1px solid #dc3545;
+}
+
+.total-row {
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+}
+
+.total-count {
+  background-color: #dc3545;
+  border-radius: 5px;
+}
+
+.total-header {
+  background: #dc3545;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* FORM PANEL */
+.form-panel {
+  border: 2px solid #dc3545;
+  padding: 10px;
+  background: #fff;
+}
+
+.form-panel label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.add-btn {
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+/* TABLE PANEL */
+.table-panel {
+  border: 2px solid #dc3545;
+}
+
+.empty-row {
+  height: 150px;
+}
+
+/* FLOATING SELECT */
+.floating-select {
+  position: relative;
+  border: 1px solid #5a5a5a;
+  border-radius: 8px;
+}
+
+.floating-select select {
+  height: 52px;
+  padding-top: 22px;
+}
+
+.lable-con {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #777;
+  pointer-events: none;
+}
+
+/* ACTION BUTTONS */
+/*  */
+
+
+.btn-cancel {
+  background: #e2e2e2;
+  color: #615e5e;
+}
+
+.btn-sm-action {
+  padding: 1.6rem;
+  font-size: 1.2rem;
+}
+
+.icon-box {
+  background: rgba(255, 255, 255, 0.35);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+
+/* ===== Modal Tabs ===== */
+/* ===== TAB CONTAINER ===== */
+.repair-tabs {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-start;
+  align-items: baseline;
+}
+
+/* ===== DEFAULT TAB STYLE ===== */
+/* Tabs stay as-is */
+.repair-tab-btn {
+  padding: 5px 30px;
+  border-radius: 10px;
+  border: 1px solid #b0c7eb;
+  background-color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ===== ACTIVE TAB STYLE ===== */
+.repair-tab-btn.active {
+  background-color: #dc3545;
+  border: none;
+  color: #ffffff;
+}
+
+/* ===== HOVER EFFECT ===== */
+
+
+.repair-tab-btn:hover {
+  opacity: 0.9;
+}
+.table thead .bg-new th {
+  background-color: #656a6c !important;
+  color: #ffffff !important;
+  border-color: #656a6c !important;
+}
+
+.compact-table th,
+.compact-table td {
+  padding: 4px 8px !important;   
+  line-height: 1.2;
+  font-size: 13px;
+}
+
+
+.repair-details-btn{
+text-align: start;
+    align-items: start;
+}
+ 

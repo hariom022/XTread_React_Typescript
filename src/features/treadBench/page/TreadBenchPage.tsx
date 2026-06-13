@@ -1,60 +1,53 @@
+import React from "react";
+import { useMemo, useState, useEffect } from "react";
 import { RingLoader } from "react-spinners";
-import { useEffect, useMemo, useState } from "react";
-
-import CementingTable from "../components/CementingTable";
-import CementingModal from "../components/CementingModal";
+import { useTreadBench } from "../hooks/useTreadBench";
+import TreadBenchTable from "../components/TreadBenchTable";
 import IncidentReportModal from "../components/IncidentReportModal";
 import StockManagementModal from "../components/StockManagementModal";
-import { useCementingInspectionModal } from "../hooks/useCementingInspectionModal";
-import { useCementing } from "../hooks/useCementing";
-
-export const CementingPage = () => {
+import TreadBenchInspectionModal from "../components/TreadBenchInspectionModal";
+import { useTreadBenchInspectionModal } from "../hooks/useTreadBenchInspectionModal";
+const TreadBenchPage = () => {
+  const [search, setSearch] = useState("");
+  const [showIncidentModal, setShowIncidentModal] = useState(false);
   const {
     inspections,
     loading,
-    loadCementing,
-    openingStockKg,
-    setOpeningStockKg,
-    closingStockKg,
-    setClosingStockKg,
-    cementType,
-    setCementType,
+    loadTreadBench,
     cementTypes,
     loadCementTypes,
-    handleSave,
-    handleApprove,
     // selectedItem,
-  } = useCementing();
+    handleSave,
+  } = useTreadBench();
 
-  const {
-    showModal,
-    selectedItem: modalItem,
-    // loadingModal,
-    openModal,
-    closeModal,
-  } = useCementingInspectionModal();
-
-  const [search, setSearch] = useState("");
-  const [showIncidentModal, setShowIncidentModal] = useState(false);
-
+  const { showModal, selectedItem, openModal, closeModal } =
+    useTreadBenchInspectionModal();
+  useEffect(() => {
+    //   loadCementTypes();
+    loadTreadBench();
+  }, []);
+  
   const [showStockModal, setShowStockModal] = useState(false);
 
-  useEffect(() => {
-    loadCementTypes();
-    loadCementing();
-  }, []);
+  const [wasteForm, setWasteForm] = useState({
+    wasteKg: "",
+    treadPattern: "",
+    width: "",
+    cementType: "",
+  });
+  const [waste, setWaste] = useState<number>(0);
 
+  const [wasteRows, setWasteRows] = useState<any[]>([]);
   const filteredData = useMemo(() => {
     return inspections.filter((item: any) =>
       `${item.casing}
-       ${item.serial}
-       ${item.patternName}
-       ${item.batchNo}`
+             ${item.serial}
+             ${item.patternName}
+             ${item.batchNo}`
         .toLowerCase()
         .includes(search.toLowerCase()),
     );
   }, [inspections, search]);
-
   return (
     <div className="container-fluid mt-3">
       {/* Search + Buttons */}
@@ -92,7 +85,6 @@ export const CementingPage = () => {
           </button>
         </div>
       </div>
-
       {/* Main Loader */}
       {loading ? (
         <div
@@ -102,37 +94,37 @@ export const CementingPage = () => {
           <RingLoader color="#b30815" size={80} />
         </div>
       ) : (
-        <CementingTable data={filteredData} onInspect={openModal} />
+        <TreadBenchTable data={filteredData} onInspect={openModal} />
       )}
 
-      {/* Cementing Modal */}
-      {showModal && modalItem && (
-        <CementingModal
-          selectedItem={modalItem}
+      {/* Inspecton Modal */}
+      {showModal && (
+        <TreadBenchInspectionModal
+          selectedItem={selectedItem}
           staffName="John"
-          cementType={cementType}
-          setCementType={setCementType}
           cementTypes={cementTypes}
+          loadCementTypes={loadCementTypes}
           handleSave={handleSave}
-          handleApprove={handleApprove}
           onClose={closeModal}
         />
       )}
-      {/* Stock Modal */}
-      {showStockModal && (
-        <StockManagementModal
-          openingStockKg={openingStockKg}
-          setOpeningStockKg={setOpeningStockKg}
-          closingStockKg={closingStockKg}
-          setClosingStockKg={setClosingStockKg}
-          onClose={() => setShowStockModal(false)}
-        />
-      )}
-
       {/* Incident Modal */}
       {showIncidentModal && (
         <IncidentReportModal onClose={() => setShowIncidentModal(false)} />
       )}
+
+      {showStockModal && (
+        <StockManagementModal
+          wasteForm={wasteForm}
+          setWasteForm={setWasteForm}
+          wasteRows={wasteRows}
+          setWasteRows={setWasteRows}
+          setWaste={setWaste}
+          onClose={() => setShowStockModal(false)}
+        />
+      )}
     </div>
   );
 };
+
+export default TreadBenchPage;
