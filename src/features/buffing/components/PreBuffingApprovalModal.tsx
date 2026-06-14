@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-import { createPortal } from "react-dom";
-import { PRE_BUFFING_CHECKLIST } from "../constants/preBuffingCheckList";
 import PreBuffingChecklist from "../components/PreBuffingCheckList";
 import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
 import { RingLoader } from "react-spinners";
@@ -92,10 +89,8 @@ interface Props {
 }
 
 const PreBuffingApprovalModal = ({
-  checklistSaved,
   setChecklistSaved,
   approvalModalRef,
-  selected,
 
   reason,
   setReason,
@@ -135,7 +130,7 @@ const PreBuffingApprovalModal = ({
 
   isChecklistComplete,
   casingDetails,
-  loading
+  loading,
 }: Props) => {
   console.log("showChecklist", casingDetails);
 
@@ -149,10 +144,9 @@ const PreBuffingApprovalModal = ({
       >
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div
-            className={`modal-content prebuffer-modal ${showChecklist
-              ? "blur-approval-modal"
-              : ""
-              }`}
+            className={`modal-content prebuffer-modal ${
+              showChecklist ? "blur-approval-modal" : ""
+            }`}
           >
             {/* HEADER */}
 
@@ -187,7 +181,7 @@ const PreBuffingApprovalModal = ({
 
                 <div className="col">
                   <strong>Customer Name</strong>
-                  <div>-</div>
+                  <div>{casingDetails?.customerName}</div>
                 </div>
 
                 <div className="col">
@@ -295,10 +289,15 @@ const PreBuffingApprovalModal = ({
                           value={holdReason}
                           onChange={(e) => setHoldReason(e.target.value)}
                         >
-                          <option value="" disabled>Select Hold Reason</option>
+                          <option value="" disabled>
+                            Select Hold Reason
+                          </option>
 
                           {holdReasons.map((item) => (
-                            <option key={item.rejectionReasonId} value={item.code}>
+                            <option
+                              key={item.rejectionReasonId}
+                              value={item.code}
+                            >
                               {item.reason}
                             </option>
                           ))}
@@ -329,7 +328,9 @@ const PreBuffingApprovalModal = ({
                             }
                           }}
                         >
-                          <option value="" disabled>Select Pattern</option>
+                          <option value="" disabled>
+                            Select Pattern
+                          </option>
 
                           {patterns.map((item) => (
                             <option
@@ -354,7 +355,8 @@ const PreBuffingApprovalModal = ({
                             setSelectedVariantId(variantId);
 
                             const pattern = patterns.find(
-                              (p) => String(p.treadPatternId) === selectedPatternId,
+                              (p) =>
+                                String(p.treadPatternId) === selectedPatternId,
                             );
 
                             const variant = pattern?.variants?.find(
@@ -366,11 +368,14 @@ const PreBuffingApprovalModal = ({
                             }
                           }}
                         >
-                          <option value="" disabled>Select Width</option>
+                          <option value="" disabled>
+                            Select Width
+                          </option>
 
                           {patterns
                             .find(
-                              (p) => String(p.treadPatternId) === selectedPatternId,
+                              (p) =>
+                                String(p.treadPatternId) === selectedPatternId,
                             )
                             ?.variants?.map((variant) => (
                               <option
@@ -422,7 +427,8 @@ const PreBuffingApprovalModal = ({
 
               <div className="row g-2 p-1">
                 <div className="col-md-3">
-                  <button style={{ height: "100%" }}
+                  <button
+                    style={{ height: "100%" }}
                     className="btn btn-primary w-100"
                     onClick={() => {
                       console.log("Checklist Button Clicked");
@@ -454,7 +460,8 @@ const PreBuffingApprovalModal = ({
                 </div>
 
                 <div className="col-md-3">
-                  <button style={{ height: "100%" }}
+                  <button
+                    style={{ height: "100%" }}
                     disabled={loading}
                     className="btn btn-warning w-100"
                     onClick={() => {
@@ -473,7 +480,8 @@ const PreBuffingApprovalModal = ({
                 </div>
 
                 <div className="col-md-3">
-                  <button style={{ height: "100%" }}
+                  <button
+                    style={{ height: "100%" }}
                     className="btn btn-approve w-100"
                     disabled={loading}
                     onClick={() => {
@@ -529,10 +537,7 @@ const PreBuffingApprovalModal = ({
             alignItems: "center",
           }}
         >
-          <RingLoader
-            size={80}
-            color="#b30815"
-          />
+          <RingLoader size={80} color="#b30815" />
         </div>
       )}
     </>

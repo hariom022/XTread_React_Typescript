@@ -1,150 +1,110 @@
-import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import buffingStageServiceApi from "../service/buffingStageServiceApi";
 import { POST_BUFFING_CHECKLIST } from "../constants/postBuffingCheckList";
 
 interface Props {
-    show: boolean;
+  show: boolean;
 
-    checkedChecklist: string[];
+  checkedChecklist: string[];
 
-    toggleChecklist: (id: string) => void;
+  toggleChecklist: (id: string) => void;
 
-    selectAllChecklist: boolean;
+  selectAllChecklist: boolean;
 
-    handleSelectAllChecklist: () => void;
+  handleSelectAllChecklist: () => void;
 
-    onSave: () => void;
+  onSave: () => void;
 
-    onClose: () => void;
+  onClose: () => void;
 }
 
 const PostBuffingChecklist = ({
-    show,
-    checkedChecklist,
-    toggleChecklist,
-    selectAllChecklist,
-    handleSelectAllChecklist,
-    onSave,
-    onClose,
+  show,
+  checkedChecklist,
+  toggleChecklist,
+  selectAllChecklist,
+  handleSelectAllChecklist,
+  onSave,
+  onClose,
 }: Props) => {
-    if (!show) return null;
+  if (!show) return null;
 
-    return createPortal(
-        <div
-            className="modal d-block"
-            tabIndex={-1}
-            style={{
-                backgroundColor:
-                    "rgba(0,0,0,0.5)",
-            }}
-        >
-            <div className="modal-dialog modal-md modal-dialog-centered">
-                <div className="modal-content">
+  return createPortal(
+    <div
+      className="modal d-block"
+      tabIndex={-1}
+      style={{
+        backgroundColor: "rgba(0,0,0,0.5)",
+      }}
+    >
+      <div className="modal-dialog modal-md modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header nail-header">
+            <h5 className="modal-title">Post Buffing Checklist</h5>
 
-                    <div className="modal-header nail-header">
-                        <h5 className="modal-title">
-                            Post Buffing Checklist
-                        </h5>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              onClick={onClose}
+            />
+          </div>
 
-                        <button
-                            type="button"
-                            className="btn-close btn-close-white"
-                            onClick={onClose}
+          <div className="modal-body">
+            <table className="table table-bordered align-middle">
+              <tbody>
+                <tr>
+                  <td>
+                    <div className="form-check">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={selectAllChecklist}
+                        onChange={handleSelectAllChecklist}
+                      />
+
+                      <label className="form-check-label fw-bold">
+                        Select All
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+
+                {POST_BUFFING_CHECKLIST.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <div className="form-check">
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          checked={checkedChecklist.includes(item.id)}
+                          onChange={() => toggleChecklist(item.id)}
                         />
-                    </div>
 
-                    <div className="modal-body">
+                        <label className="form-check-label">{item.label}</label>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-                        <table className="table table-bordered align-middle">
-
-                            <tbody>
-
-                                <tr>
-                                    <td>
-
-                                        <div className="form-check">
-
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                checked={
-                                                    selectAllChecklist
-                                                }
-                                                onChange={
-                                                    handleSelectAllChecklist
-                                                }
-                                            />
-
-                                            <label className="form-check-label fw-bold">
-                                                Select All
-                                            </label>
-
-                                        </div>
-
-                                    </td>
-                                </tr>
-
-                                {POST_BUFFING_CHECKLIST.map(
-                                    (item) => (
-                                        <tr key={item.id}>
-                                            <td>
-
-                                                <div className="form-check">
-
-                                                    <input
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        checked={checkedChecklist.includes(
-                                                            item.id
-                                                        )}
-                                                        onChange={() =>
-                                                            toggleChecklist(
-                                                                item.id
-                                                            )
-                                                        }
-                                                    />
-
-                                                    <label className="form-check-label">
-                                                        {item.label}
-                                                    </label>
-
-                                                </div>
-
-                                            </td>
-                                        </tr>
-                                    )
-                                )}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div className="modal-footer">
-
-                        {/* <button
+          <div className="modal-footer">
+            {/* <button
                             className="btn btn-secondary"
                             onClick={onClose}
                         >
                             Close
                         </button> */}
 
-                        <button
-                            className="btn btn-primary"
-                            onClick={onSave}
-                        >
-                            Save Checklist
-                        </button>
-
-                    </div>
-
-                </div>
-            </div>
-        </div>,
-        document.body
-    );
+            <button className="btn btn-primary" onClick={onSave}>
+              Save Checklist
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
 };
 
 export default PostBuffingChecklist;

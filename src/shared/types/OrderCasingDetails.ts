@@ -2,6 +2,7 @@ export interface OrderCasingDetails {
   orderCasingId: number;
   productionNumber: string;
   tyreReferenceNumber: string;
+  customerName:string;
   tyreSize: {
     tyreSizeId: number;
     casingSize: string;

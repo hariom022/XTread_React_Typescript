@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-import buffingStageServiceApi from "../service/buffingStageServiceApi";
 import PostBuffingChecklist from "./PostBuffingChecklist";
 import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
 import { RingLoader } from "react-spinners";
@@ -160,7 +158,9 @@ const PostBuffingApprovalModal = ({
           {/* HEADER */}
 
           <div className="modal-header">
-            <h5 className="modal-title flex-grow-1 text-white text-start">POST BUFFING - APPROVAL</h5>
+            <h5 className="modal-title flex-grow-1 text-white text-start">
+              POST BUFFING - APPROVAL
+            </h5>
             <div className="me-3 text-white text-end">
               <div>John</div>
             </div>
@@ -192,7 +192,7 @@ const PostBuffingApprovalModal = ({
 
               <div className="col">
                 <strong>Customer Name</strong>
-                <div>-</div>
+                <div>{casingDetails?.customerName}</div>
               </div>
 
               <div className="col">
@@ -205,10 +205,10 @@ const PostBuffingApprovalModal = ({
                 <div>{casingDetails?.retreadDetail?.patternName}</div>
               </div>
 
-              <div className="col">
+              {/* <div className="col">
                 <strong>ReApproved Pattern</strong>
-                <div>- {/* {casingDetails?.retreadDetail?.patternName} */}</div>
-              </div>
+                <div>- { {casingDetails?.retreadDetail?.patternName} }</div>
+              </div> */}
             </div>
 
             {/* MATERIAL */}
@@ -369,13 +369,9 @@ const PostBuffingApprovalModal = ({
                   </div>
 
                   <div className="row mt-1 align-items-stretch">
-
                     {/* REMARKS */}
                     <div className="col-md-8">
-
-                      <label className="form-label fw-semibold">
-                        Remarks
-                      </label>
+                      <label className="form-label fw-semibold">Remarks</label>
 
                       <textarea
                         className="form-control"
@@ -386,15 +382,11 @@ const PostBuffingApprovalModal = ({
                           resize: "none",
                         }}
                       />
-
                     </div>
 
                     {/* CHECKLIST BUTTON */}
                     <div className="col-md-4 d-flex flex-column">
-
-                      <label className="form-label invisible">
-                        Checklist
-                      </label>
+                      <label className="form-label invisible">Checklist</label>
 
                       <button
                         className="btn btn-primary flex-grow-1"
@@ -402,9 +394,7 @@ const PostBuffingApprovalModal = ({
                       >
                         Post-Buffing Checklist
                       </button>
-
                     </div>
-
                   </div>
                 </div>
               </div>

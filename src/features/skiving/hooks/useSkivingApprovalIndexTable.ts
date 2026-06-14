@@ -14,15 +14,11 @@ const ACTIVE_STATUS = 1;
 const useSkivingApprovalTable = () => {
   const [search, setSearch] = useState("");
 
-  const [skivingApprovalData,
-    setSkivingApprovalData] =
-    useState<
-      SkivingApprovalRow[]
-    >([]);
+  const [skivingApprovalData, setSkivingApprovalData] = useState<
+    SkivingApprovalRow[]
+  >([]);
 
-  const transformData = (
-    stages: any[],
-  ): SkivingApprovalRow[] => {
+  const transformData = (stages: any[]): SkivingApprovalRow[] => {
     const list: SkivingApprovalRow[] = [];
 
     stages.forEach((stage) => {
@@ -36,26 +32,17 @@ const useSkivingApprovalTable = () => {
             list.push({
               id: casing.orderCasingId,
 
-              casing:
-                casing.productionNumber ||
-                casing.barcodeNumber ||
-                "-",
+              casing: casing.productionNumber || casing.barcodeNumber || "-",
+              service: casing.serviceTypeName || "-",
+              date: casing.orderDate ? casing.orderDate.split("T")[0] : "-",
 
-              date: casing.orderDate
-                ? casing.orderDate.split("T")[0]
-                : "-",
+              serial: casing.tyreReferenceNumber || "-",
 
-              serial:
-                casing.tyreReferenceNumber || "-",
+              patternName: casing.patternName || "-",
 
-              patternName:
-                casing.patternName || "-",
+              requestedPattern: casing.patternName || "-",
 
-              requestedPattern:
-                casing.patternName || "-",
-
-              tyreSize:
-                casing.tyreSizeLabel || "-",
+              tyreSize: casing.tyreSizeLabel || "-",
 
               tyreMake: "-",
 
@@ -65,13 +52,9 @@ const useSkivingApprovalTable = () => {
 
               width: "-",
 
-              customerName:
-                casing.customerName || "-",
+              customerName: casing.customerName || "-",
 
-              service: "-",
-
-              batchNo:
-                batch.batchNumber || "-",
+              batchNo: batch.batchNumber || "-",
 
               tyresCollected: 1,
 
@@ -83,33 +66,24 @@ const useSkivingApprovalTable = () => {
 
               repairOperations: [],
 
-              currentStage:
-                casing.currentStage,
+              currentStage: casing.currentStage,
 
-              currentSubstage:
-                casing.currentSubstage,
+              currentSubstage: casing.currentSubstage,
 
-              currentStageStatus:
-                casing.currentStageStatus,
+              currentStageStatus: casing.currentStageStatus,
 
-              approved:
-                batch.stageSummary?.approved || 0,
+              approved: batch.stageSummary?.approved || 0,
 
-              rejected:
-                batch.stageSummary?.rejected || 0,
+              rejected: batch.stageSummary?.rejected || 0,
 
-              pending:
-                batch.stageSummary?.pending || 0,
+              pending: batch.stageSummary?.pending || 0,
 
-              previousStage:
-                batch.stageSummary?.stillAtPreviousStage || 0,
+              previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
 
               expectedTotal:
-                batch.stageSummary?.expectedTotal ||
-                batch.originalBatchSize,
+                batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
-              arrived:
-                batch.stageSummary?.arrived || 0,
+              arrived: batch.stageSummary?.arrived || 0,
 
               isRetreaded: false,
 
@@ -133,47 +107,37 @@ const useSkivingApprovalTable = () => {
     return list;
   };
 
-  const fetchSkivingApprovalOrders =
-    async () => {
-      try {
-        const response =
-          await indexPageApiService.getBatchProgress(
-            SKIVING_STAGE,
-            SKIVING_APPROVAL_SUBSTAGE,
-            ACTIVE_STATUS,
-          );
-        console.log("SKIVING APPROVAL RESPONSE", JSON.stringify(response.data.data, null, 2));
+  const fetchSkivingApprovalOrders = async () => {
+    try {
+      const response = await indexPageApiService.getBatchProgress(
+        SKIVING_STAGE,
+        SKIVING_APPROVAL_SUBSTAGE,
+        ACTIVE_STATUS,
+      );
+      console.log(
+        "SKIVING APPROVAL RESPONSE",
+        JSON.stringify(response.data.data, null, 2),
+      );
 
-        const transformed =
-          transformData(
-            response.data.data || [],
-          );
+      const transformed = transformData(response.data.data || []);
 
-        setSkivingApprovalData(
-          transformed,
-        );
-      } catch (error) {
-        console.error(
-          "Skiving Approval Error",
-          error,
-        );
-      }
-    };
+      setSkivingApprovalData(transformed);
+    } catch (error) {
+      console.error("Skiving Approval Error", error);
+    }
+  };
 
   useEffect(() => {
     fetchSkivingApprovalOrders();
   }, []);
 
   const filteredData = useMemo(() => {
-    return skivingApprovalData.filter(
-      (item) =>
-        `${item.casing}
+    return skivingApprovalData.filter((item) =>
+      `${item.casing}
          ${item.serial}
          ${item.patternName}`
-          .toLowerCase()
-          .includes(
-            search.toLowerCase(),
-          ),
+        .toLowerCase()
+        .includes(search.toLowerCase()),
     );
   }, [search, skivingApprovalData]);
 

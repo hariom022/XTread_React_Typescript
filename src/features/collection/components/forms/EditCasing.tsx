@@ -7,7 +7,7 @@ type Props = {
   casing: any;
   onClose: () => void;
   onSave: () => void;
-  setSaveEditLoading: (loading: boolean) => void;
+  setSaveEditLoading?: (loading: boolean) => void;
 };
 
 const EditCasing = ({

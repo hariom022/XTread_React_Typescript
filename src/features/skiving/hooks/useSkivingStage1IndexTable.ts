@@ -14,12 +14,11 @@ const ACTIVE_STATUS = 1;
 const useSkivingStage1Table = () => {
   const [search, setSearch] = useState("");
 
-  const [skivingStage1Data, setSkivingStage1Data] =
-    useState<SkivingStage1Row[]>([]);
+  const [skivingStage1Data, setSkivingStage1Data] = useState<
+    SkivingStage1Row[]
+  >([]);
 
-  const transformData = (
-    stages: any[],
-  ): SkivingStage1Row[] => {
+  const transformData = (stages: any[]): SkivingStage1Row[] => {
     const list: SkivingStage1Row[] = [];
 
     stages.forEach((stage) => {
@@ -35,26 +34,17 @@ const useSkivingStage1Table = () => {
             list.push({
               id: casing.orderCasingId,
 
-              casing:
-                casing.productionNumber ||
-                casing.barcodeNumber ||
-                "-",
+              casing: casing.productionNumber || casing.barcodeNumber || "-",
+              service: casing.serviceTypeName || "-",
+              date: casing.orderDate ? casing.orderDate.split("T")[0] : "-",
 
-              date: casing.orderDate
-                ? casing.orderDate.split("T")[0]
-                : "-",
+              serial: casing.tyreReferenceNumber || "-",
 
-              serial:
-                casing.tyreReferenceNumber || "-",
+              patternName: casing.patternName || "-",
 
-              patternName:
-                casing.patternName || "-",
+              requestedPattern: casing?.patternName || "-",
 
-              requestedPattern:
-                casing?.patternName || "-",
-
-              tyreSize:
-                casing.tyreSizeLabel || "-",
+              tyreSize: casing.tyreSizeLabel || "-",
 
               tyreMake: "-",
 
@@ -64,13 +54,9 @@ const useSkivingStage1Table = () => {
 
               width: "-",
 
-              customerName:
-                casing.customerName || "-",
+              customerName: casing.customerName || "-",
 
-              service: "-",
-
-              batchNo:
-                batch.batchNumber || "-",
+              batchNo: batch.batchNumber || "-",
 
               tyresCollected: 1,
 
@@ -82,33 +68,24 @@ const useSkivingStage1Table = () => {
 
               inspectionRepairs: [],
 
-              currentStage:
-                casing.currentStage,
+              currentStage: casing.currentStage,
 
-              currentSubstage:
-                casing.currentSubstage,
+              currentSubstage: casing.currentSubstage,
 
-              currentStageStatus:
-                casing.currentStageStatus,
+              currentStageStatus: casing.currentStageStatus,
 
-              approved:
-                batch.stageSummary?.approved || 0,
+              approved: batch.stageSummary?.approved || 0,
 
-              rejected:
-                batch.stageSummary?.rejected || 0,
+              rejected: batch.stageSummary?.rejected || 0,
 
-              pending:
-                batch.stageSummary?.pending || 0,
+              pending: batch.stageSummary?.pending || 0,
 
-              previousStage:
-                batch.stageSummary?.stillAtPreviousStage || 0,
+              previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
 
               expectedTotal:
-                batch.stageSummary?.expectedTotal ||
-                batch.originalBatchSize,
+                batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
-              arrived:
-                batch.stageSummary?.arrived || 0,
+              arrived: batch.stageSummary?.arrived || 0,
 
               isRetreaded: false,
 
@@ -132,47 +109,37 @@ const useSkivingStage1Table = () => {
     return list;
   };
 
-  const fetchSkivingStage1Orders =
-    async () => {
-      try {
-        const response =
-          await indexPageApiService.getBatchProgress(
-            SKIVING_STAGE,
-            SKIVING_STAGE1_SUBSTAGE,
-            ACTIVE_STATUS,
-          );
-        console.log("SKIVING STAGE 1 RESPONSE", JSON.stringify(response.data.data, null, 2));
+  const fetchSkivingStage1Orders = async () => {
+    try {
+      const response = await indexPageApiService.getBatchProgress(
+        SKIVING_STAGE,
+        SKIVING_STAGE1_SUBSTAGE,
+        ACTIVE_STATUS,
+      );
+      console.log(
+        "SKIVING STAGE 1 RESPONSE",
+        JSON.stringify(response.data.data, null, 2),
+      );
 
-        const transformed =
-          transformData(
-            response.data.data || [],
-          );
-        console.log("TRANSFORMED", transformed);
-        setSkivingStage1Data(
-          transformed,
-        );
-      } catch (error) {
-        console.error(
-          "Skiving Stage 1 Error",
-          error,
-        );
-      }
-    };
+      const transformed = transformData(response.data.data || []);
+      console.log("TRANSFORMED", transformed);
+      setSkivingStage1Data(transformed);
+    } catch (error) {
+      console.error("Skiving Stage 1 Error", error);
+    }
+  };
 
   useEffect(() => {
     fetchSkivingStage1Orders();
   }, []);
 
   const filteredData = useMemo(() => {
-    return skivingStage1Data.filter(
-      (item) =>
-        `${item.casing}
+    return skivingStage1Data.filter((item) =>
+      `${item.casing}
          ${item.serial}
          ${item.patternName}`
-          .toLowerCase()
-          .includes(
-            search.toLowerCase(),
-          ),
+        .toLowerCase()
+        .includes(search.toLowerCase()),
     );
   }, [search, skivingStage1Data]);
 

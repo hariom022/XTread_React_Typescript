@@ -1,5 +1,4 @@
 import CommonTable from "../../../shared/components/CommonTable";
-import type { PostBuffingRow } from "../types/postBuffingTypes";
 import { indexPageColumns } from "../../../shared/constants/indexPageColumns"; 
 
 
