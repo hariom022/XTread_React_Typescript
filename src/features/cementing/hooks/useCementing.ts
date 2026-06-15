@@ -5,9 +5,9 @@ import cementingService from "../service/cementingService";
 export const useCementing = () => {
   const [loading, setLoading] = useState(false);
   const [inspections, setInspections] = useState<any[]>([]);
-  const [openingStockKg, setOpeningStockKg] = useState(185);
+  const [openingStockKg, setOpeningStockKg] = useState<number>();
 
-  const [closingStockKg, setClosingStockKg] = useState(190);
+  const [closingStockKg, setClosingStockKg] = useState<number>();
   const [cementType, setCementType] = useState("");
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [cementTypes, setCementTypes] = useState<any[]>([]);
@@ -128,6 +128,10 @@ export const useCementing = () => {
     }
   };
 
+  const resetStockManagement = () => {
+  setOpeningStockKg(undefined);
+  setClosingStockKg(undefined);
+};
   return {
     inspections,
     loading,
@@ -146,5 +150,6 @@ export const useCementing = () => {
 
     handleSave,
     handleApprove,
+    resetStockManagement,
   };
 };

@@ -27,6 +27,8 @@ export interface InspectionItem {
   circumference?: string;
   brand?: string;
   productionNumber?: string;
+  customerName:string;
+  categoryName:string;
 }
 
 export interface TreadBenchInspectionModalProps {

@@ -48,6 +48,22 @@ const TreadBenchPage = () => {
         .includes(search.toLowerCase()),
     );
   }, [inspections, search]);
+
+  const resetStockManagement = () => {
+  setWasteForm({
+    wasteKg: "",
+    treadPattern: "",
+    width: "",
+    cementType: "",
+  });
+
+  setWasteRows([]);
+  setWaste(0);
+};
+const handleCloseStockModal = () => {
+  resetStockManagement();
+  setShowStockModal(false);
+};
   return (
     <div className="container-fluid mt-3">
       {/* Search + Buttons */}
@@ -120,7 +136,7 @@ const TreadBenchPage = () => {
           wasteRows={wasteRows}
           setWasteRows={setWasteRows}
           setWaste={setWaste}
-          onClose={() => setShowStockModal(false)}
+           onClose={handleCloseStockModal}
         />
       )}
     </div>

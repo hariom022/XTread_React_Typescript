@@ -1,11 +1,11 @@
 import React from "react";
 
 interface StockManagementModalProps {
-  openingStockKg: number;
-  setOpeningStockKg: React.Dispatch<React.SetStateAction<number>>;
+  openingStockKg: number | undefined;
+  setOpeningStockKg: React.Dispatch<React.SetStateAction<number | undefined>>;
 
-  closingStockKg: number;
-  setClosingStockKg: React.Dispatch<React.SetStateAction<number>>;
+  closingStockKg: number | undefined;
+  setClosingStockKg: React.Dispatch<React.SetStateAction<number | undefined>>;
 
   onClose: () => void;
 }

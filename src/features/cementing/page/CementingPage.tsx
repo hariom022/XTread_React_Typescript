@@ -23,6 +23,7 @@ export const CementingPage = () => {
     loadCementTypes,
     handleSave,
     handleApprove,
+     resetStockManagement,
     // selectedItem,
   } = useCementing();
 
@@ -55,6 +56,10 @@ export const CementingPage = () => {
     );
   }, [inspections, search]);
 
+  const handleCloseStockModal = () => {
+  resetStockManagement();
+  setShowStockModal(false);
+};
   return (
     <div className="container-fluid mt-3">
       {/* Search + Buttons */}
@@ -125,7 +130,8 @@ export const CementingPage = () => {
           setOpeningStockKg={setOpeningStockKg}
           closingStockKg={closingStockKg}
           setClosingStockKg={setClosingStockKg}
-          onClose={() => setShowStockModal(false)}
+          // onClose={() => setShowStockModal(false)}
+          onClose={handleCloseStockModal}
         />
       )}
 

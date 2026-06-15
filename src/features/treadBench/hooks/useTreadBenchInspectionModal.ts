@@ -30,6 +30,8 @@ export const useTreadBenchInspectionModal = () => {
         service: casing.serviceType?.name || "-",
         width: casing.retreadDetail?.width || "-",
         brand: casing.retreadDetail?.brand || "-",
+        customerName:casing.customerName || "-",
+        categoryName:casing.categoryName || "-",
       };
 
       setSelectedItem(modalData);

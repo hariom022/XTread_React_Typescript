@@ -72,53 +72,83 @@ const TreadBenchInspectionModal = ({
           <div className="modal-body">
             {/* Row 1 */}
             <div className="row text-center mb-2">
-              <div className="col-md-3">
+              <div className="col-md-2">
                 <small className="fw-semibold">Production No</small>
                 <div>{selectedItem.productionNumber}</div>
               </div>
 
-              <div className="col-md-3">
-                <small className="fw-semibold">Serial No</small>
-                <div>{selectedItem.serial}</div>
+              <div className="col-md-2">
+                <small className="fw-semibold">Customer Name</small>
+                <div>{selectedItem.customerName}</div>
               </div>
 
-              <div className="col-md-3">
+              <div className="col-md-2">
                 <small className="fw-semibold">Tyre Size</small>
                 <div>{selectedItem.tyreSize}</div>
               </div>
 
-              <div className="col-md-3">
+              <div className="col-md-2">
                 <small className="fw-semibold">Service</small>
                 <div>{selectedItem.service}</div>
               </div>
-            </div>
-
-            {/* Row 2 */}
-            <div className="row text-center mb-3">
-              <div className="col-md-3">
-                <small className="fw-semibold">Pattern</small>
+               <div className="col-md-2">
+                <small className="fw-semibold">Request Pattern</small>
                 <div>{selectedItem.pattern}</div>
+                
               </div>
-
-              <div className="col-md-3">
-                <small className="fw-semibold">Width</small>
-                <div>{selectedItem.width || "-"}</div>
-              </div>
-
-              <div className="col-md-3">
-                <small className="fw-semibold">Circumference</small>
-                <div>{selectedItem.circumference || "-"}</div>
-              </div>
-
-              <div className="col-md-3">
-                <small className="fw-semibold">Brand</small>
-                <div>{selectedItem.brand || "-"}</div>
+               <div className="col-md-2">
+                <small className="fw-semibold">ReApproved Pattern</small>
+                <div>-</div>
               </div>
             </div>
+
 
             <hr />
 
             <div className="container-fluid my-4">
+              <div
+                className="border rounded p-3 mb-3"
+                style={{
+                  backgroundColor: "#f8f8f8",
+                  border: "1px solid #d6d6d6",
+                }}
+              >
+                <h5 className="fw-bold mb-3">Record [1 of 1]</h5>
+
+                <div className="row mb-3">
+                  <div className="col-md-4">
+                    <span className="fw-bold">Tyre Size:</span>{" "}
+                    {selectedItem.tyreSize || "-"}
+                  </div>
+
+                  <div className="col-md-4">
+                    <span className="fw-bold">Circumference:</span>{" "}
+                    {selectedItem.circumference || "-"}
+                  </div>
+
+                  <div className="col-md-4">
+                    <span className="fw-bold">Service:</span>{" "}
+                    {selectedItem.service || "-"}
+                  </div>
+                </div>
+
+                <div className="row">
+                  <div className="col-md-4">
+                    <span className="fw-bold">Brand:</span>{" "}
+                    {selectedItem.brand || "-"}
+                  </div>
+
+                  <div className="col-md-4">
+                    <span className="fw-bold">Pattern:</span>{" "}
+                    {selectedItem.pattern || "-"}
+                  </div>
+
+                  <div className="col-md-4">
+                    <span className="fw-bold">Width:</span>{" "}
+                    {selectedItem.width || "-"}
+                  </div>
+                </div>
+              </div>
               <div className="row align-items-end g-3">
                 {/* Consumption */}
                 <div className="col-md-4">
