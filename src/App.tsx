@@ -22,6 +22,7 @@ import BuildingStage from "./features/building/page/BuildingStage";
 import RepairPage from "./features/repair/page/RepairPage";
 import TreadBenchPage from "./features/treadBench/page/TreadBenchPage";
 import EnvelopingStage from "./features/enveloping/page/EnvelopingStage";
+import CuringStage from "./features/curing/page/CuringStage";
 
 const Layout = () => {
   return (
@@ -67,6 +68,7 @@ function App() {
           <Route path="/repairs" element={<RepairPage/>}/>
           <Route path="/treadBench" element={<TreadBenchPage />} />
           <Route path="/enveloping" element={<EnvelopingStage/>} />
+          <Route path="/curing" element={<CuringStage/>} />
         </Route>
       </Routes>
     </BrowserRouter>

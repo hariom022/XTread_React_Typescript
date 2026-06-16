@@ -230,13 +230,12 @@ const EnvelopingStage = () => {
     };
 
   return (
-    <div className="container-fluid mt-3">
+    <div className="container-fluid box mt-3">
       {/* HEADER */}
 
       <div className=" d-flex justify-content-start">
         <button
           className="btn btn-primary p-4 "
-          style={{backgroundColor:"#f0ce23 !important"}}
           onClick={
             handleCreateBatch
           }
