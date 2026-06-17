@@ -98,7 +98,7 @@ const Navbar = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/qualityInspect">
+          <NavLink to="/qualityControl">
             <i className="bi bi-check-circle-fill"></i> Quality Control
           </NavLink>
         </li>

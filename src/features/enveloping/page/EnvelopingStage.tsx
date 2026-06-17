@@ -6,11 +6,9 @@ import EnvelopingTable from "../components/EnvelopingTable";
 
 import useEnvelopingBatchModal from "../hooks/useEnvelopingBatchModal";
 import useEnvelopingIndexTable from "../hooks/useEnvelopingIndexTable";
-import "../style/Enveloping.css"
+import "../style/Enveloping.css";
 
-import type {
-  RailType,
-} from "../type/enveloping.type";
+import type { RailType } from "../type/enveloping.type";
 
 const EnvelopingStage = () => {
   /* ===========================
@@ -38,108 +36,77 @@ const EnvelopingStage = () => {
     loading,
 
     fetchApprovedFromPreviousStage,
-  } =
-    useEnvelopingBatchModal({
-      refreshTable: () => { },
-    });
+  } = useEnvelopingBatchModal({
+    refreshTable: () => {},
+  });
 
   /* ===========================
           MODALS
   ============================ */
 
-  const [
-    showRailTypeModal,
-    setShowRailTypeModal,
-  ] = useState(false);
+  const [showRailTypeModal, setShowRailTypeModal] = useState(false);
 
-  const [
-    showBatchModal,
-    setShowBatchModal,
-  ] = useState(false);
+  const [showBatchModal, setShowBatchModal] = useState(false);
 
-  const [
-    railType,
-    setRailType,
-  ] = useState<RailType | "">("");
+  const [railType, setRailType] = useState<RailType | "">("");
 
   /* ===========================
           INDEX SELECTION
   ============================ */
 
-  const [
-    selectedRows,
-    setSelectedRows,
-  ] = useState<number[]>([]);
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   /* ===========================
           OPEN CREATE BATCH
   ============================ */
 
-  const handleCreateBatch =
-    () => {
-      setRailType("");
+  const handleCreateBatch = () => {
+    setRailType("");
 
-      setShowRailTypeModal(
-        true,
-      );
-    };
+    setShowRailTypeModal(true);
+  };
 
   /* ===========================
           OPEN ENVELOPING BATCH
   ============================ */
 
-  const handleContinueRail =
-    async () => {
-      await fetchApprovedFromPreviousStage();
+  const handleContinueRail = async () => {
+    await fetchApprovedFromPreviousStage();
 
-      setShowRailTypeModal(false);
+    setShowRailTypeModal(false);
 
-      setShowBatchModal(true);
-    };
+    setShowBatchModal(true);
+  };
 
   /* ===========================
           PROCESS ENVELOPE
   ============================ */
 
-  const handleProcessEnvelope =
-    () => {
-      if (
-        allocatedRows.length === 0
-      ) {
-        alert(
-          "Please allocate rail locations",
-        );
+  const handleProcessEnvelope = () => {
+    if (allocatedRows.length === 0) {
+      alert("Please allocate rail locations");
 
-        return;
-      }
-      processEnvelope();
-      setShowBatchModal(
-        false,
-      );
-      resetModal();
+      return;
+    }
+    processEnvelope();
+    setShowBatchModal(false);
+    resetModal();
 
-      alert(
-        "Envelope Processed Successfully",
-      );
-    };
+    alert("Envelope Processed Successfully");
+  };
 
   /* ===========================
           APPROVE
   ============================ */
 
-  const handleApprove =
-    async () => {
-      if (
-        selectedRows.length === 0
-      ) {
-        alert(
-          "Please select casing",
-        );
+  const handleApprove = async () => {
+    if (selectedRows.length === 0) {
+      alert("Please select casing");
 
-        return;
-      }
+      return;
+    }
 
-      /*
+    /*
       TODO API
 
       await envelopingApi.approve({
@@ -147,39 +114,27 @@ const EnvelopingStage = () => {
       })
       */
 
-      alert(
-        "Approved Successfully",
-      );
+    alert("Approved Successfully");
 
-      setEnvelopingRows((prev) =>
-        prev.filter(
-          (x) =>
-            !selectedRows.includes(
-              x.orderCasingId,
-            ),
-        ),
-      );
+    setEnvelopingRows((prev) =>
+      prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
+    );
 
-      setSelectedRows([]);
-    };
+    setSelectedRows([]);
+  };
 
   /* ===========================
           REJECT
   ============================ */
 
-  const handleReject =
-    async () => {
-      if (
-        selectedRows.length === 0
-      ) {
-        alert(
-          "Please select casing",
-        );
+  const handleReject = async () => {
+    if (selectedRows.length === 0) {
+      alert("Please select casing");
 
-        return;
-      }
+      return;
+    }
 
-      /*
+    /*
       TODO API
 
       await envelopingApi.reject({
@@ -187,91 +142,92 @@ const EnvelopingStage = () => {
       })
       */
 
-      alert(
-        "Rejected Successfully",
-      );
+    alert("Rejected Successfully");
 
-      setEnvelopingRows((prev) =>
-        prev.filter(
-          (x) =>
-            !selectedRows.includes(
-              x.orderCasingId,
-            ),
-        ),
-      );
+    setEnvelopingRows((prev) =>
+      prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
+    );
 
-      setSelectedRows([]);
-    };
+    setSelectedRows([]);
+  };
 
   /* ===========================
           CLOSE RAIL MODAL
   ============================ */
 
-  const closeRailModal =
-    () => {
-      setRailType("");
+  const closeRailModal = () => {
+    setRailType("");
 
-      setShowRailTypeModal(
-        false,
-      );
-    };
+    setShowRailTypeModal(false);
+  };
 
   /* ===========================
           CLOSE BATCH MODAL
   ============================ */
 
-  const closeBatchModal =
-    () => {
-      resetModal();
+  const closeBatchModal = () => {
+    resetModal();
 
-      setShowBatchModal(
-        false,
-      );
-    };
+    setShowBatchModal(false);
+  };
 
   return (
-    <div className="container-fluid mt-3">
+    <div className="container-fluid box mt-3">
       {/* HEADER */}
 
-      <div className=" d-flex justify-content-start">
-        <button
-          className="btn btn-primary p-4 "
-          style={{backgroundColor:"#f0ce23 !important"}}
-          onClick={
-            handleCreateBatch
-          }
-        >
+      <div
+        className=" d-flex justify-content-between"
+        style={{ alignItems: "center" }}
+      >
+        <button className="btn btn-primary p-4 " onClick={handleCreateBatch}>
           <strong>Create Enveloping Batch</strong>
         </button>
+
+        <div
+          className="d-flex justify-content-center p-2 "
+          style={{
+            border: "2px solid black",
+            padding: "10px",
+            borderRadius: "5px",
+          }}
+        >
+          <h3> Enveloping Stage </h3>
+        </div>
+        {/* INCIDENT */}
+        <div className="d-flex justify-content-end">
+          <button className="btn btn-danger">Incident Report</button>
+        </div>
       </div>
-      <div className="">
+
+      <hr />
+      {/* <div className="">
         <h3>
           Enveloping Stage
         </h3>
+      </div> */}
+
+      <div className="d-flex justify-content-end mb-3">
+        <input
+          className="form-control"
+          style={{
+            width: "260px",
+          }}
+          placeholder="Search Casing / Serial"
+        />
       </div>
-
-
       {/* INDEX TABLE */}
 
       <EnvelopingTable
         data={envelopingRows}
-        selectedRows={
-          selectedRows
-        }
-        setSelectedRows={
-          setSelectedRows
-        }
+        selectedRows={selectedRows}
+        setSelectedRows={setSelectedRows}
       />
 
       {/* ACTIONS */}
 
       <div className="row mt-3">
         <div className="col-md-6">
-          <button
-            className="btn-approve w-100 border-0"
-          >
-            APPROVED
-          </button>
+          <button className="btn-approve w-100 border-0">APPROVED</button>
         </div>
 
         <div className="col-md-6">
@@ -289,19 +245,11 @@ const EnvelopingStage = () => {
       ======================================= */}
 
       <RailTypeModal
-        show={
-          showRailTypeModal
-        }
+        show={showRailTypeModal}
         railType={railType}
-        setRailType={
-          setRailType
-        }
-        onContinue={
-          handleContinueRail
-        }
-        onClose={
-          closeRailModal
-        }
+        setRailType={setRailType}
+        onContinue={handleContinueRail}
+        onClose={closeRailModal}
       />
 
       {/* ======================================
@@ -309,28 +257,14 @@ const EnvelopingStage = () => {
       ======================================= */}
 
       <EnvelopingBatchModal
-        show={
-          showBatchModal
-        }
+        show={showBatchModal}
         railType={railType}
-        availableRows={
-          availableRows
-        }
-        allocatedRows={
-          allocatedRows
-        }
-        allocateRail={
-          allocateRail
-        }
-        removeFromRail={
-          removeFromRail
-        }
-        processEnvelope={
-          handleProcessEnvelope
-        }
-        onClose={
-          closeBatchModal
-        }
+        availableRows={availableRows}
+        allocatedRows={allocatedRows}
+        allocateRail={allocateRail}
+        removeFromRail={removeFromRail}
+        processEnvelope={handleProcessEnvelope}
+        onClose={closeBatchModal}
       />
     </div>
   );
