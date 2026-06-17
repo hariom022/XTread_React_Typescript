@@ -59,6 +59,8 @@ const ReceivingPage = () => {
     toggleCasingRow,
 
     setSelectedCasingRows,
+    loadBarcodeOrders,
+    loadBatchOrders,
   } = useReceiving();
 
   const [selectedCustomer, setSelectedCustomer] = useState("all");
@@ -128,6 +130,7 @@ const ReceivingPage = () => {
       setSelectedRows([]);
 
       await loadCollectionOrders();
+      await loadBatchOrders();
     } catch (error) {
       console.error(error);
 
@@ -186,6 +189,7 @@ const ReceivingPage = () => {
 
       // refresh tabs
       await loadCollectionOrders();
+      await loadBarcodeOrders();
 
       // optionally move to barcode tab
       setActiveTab("barcode");
@@ -357,16 +361,24 @@ const ReceivingPage = () => {
       )}
 
       {/* BARCODE TAB */}
-      {activeTab === "barcode" && (
-        <BarcodeTable
-          groupedBatches={groupedBatches}
-          expandedBatch={expandedBatch}
-          selectedBatches={selectedBatches}
-          toggleBatch={toggleBatch}
-          toggleBatchSelection={toggleBatchSelection}
-          onProceed={handleProceedToNextStage}
-        />
-      )}
+      {activeTab === "barcode" &&
+  (barcodeLoading ? (
+    <div
+      className="d-flex justify-content-center align-items-center"
+      style={{ minHeight: "400px" }}
+    >
+      <RingLoader color="#dc3545" size={80} />
+    </div>
+  ) : (
+    <BarcodeTable
+      groupedBatches={groupedBatches}
+      expandedBatch={expandedBatch}
+      selectedBatches={selectedBatches}
+      toggleBatch={toggleBatch}
+      toggleBatchSelection={toggleBatchSelection}
+      onProceed={handleProceedToNextStage}
+    />
+  ))}
 
       {/* NOT RECEIVED TAB */}
       {activeTab === "notReceived" && (
