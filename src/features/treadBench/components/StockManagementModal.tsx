@@ -16,8 +16,12 @@ const StockManagementModal: React.FC<StockManagementModalProps> = ({
   //   stockModalRef,
 }) => {
   const handleAddWaste = () => {
-    if (!wasteForm.wasteKg || !wasteForm.treadPattern || !wasteForm.width) {
-      alert("Please fill all fields");
+    if (
+      !wasteForm.treadPattern.trim() ||
+      !wasteForm.width.trim() ||
+      !wasteForm.wasteKg.toString().trim()
+    ) {
+      alert("Please fill all fields.");
       return;
     }
 
@@ -159,6 +163,22 @@ const StockManagementModal: React.FC<StockManagementModalProps> = ({
             <button
               className="btn btn-success inspect-save-btn"
               onClick={() => {
+                // Form partially filled but not added
+                if (
+                  wasteForm.treadPattern ||
+                  wasteForm.width ||
+                  wasteForm.wasteKg
+                ) {
+                  alert("Please click 'Add Waste' before saving.");
+                  return;
+                }
+
+                // No rows added
+                if (wasteRows.length === 0) {
+                  alert("Please add at least one waste entry.");
+                  return;
+                }
+
                 const total = wasteRows.reduce(
                   (sum, row) => sum + Number(row.wasteKg),
                   0,
