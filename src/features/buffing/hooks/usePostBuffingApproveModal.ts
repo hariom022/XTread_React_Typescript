@@ -195,6 +195,17 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
         );
         return;
       }
+      
+ if (!machineId) {
+      alert("Please select Machine.");
+      return;
+    }
+
+    // Damage Level validation
+    if (!damageLevelId) {
+      alert("Please select Damage Level.");
+      return;
+    }
 
       const payload = {
         orderCasingIds: [selectedItem.id],
