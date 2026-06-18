@@ -71,38 +71,40 @@ const TreadBenchInspectionModal = ({
           {/* BODY */}
           <div className="modal-body">
             {/* Row 1 */}
-            <div className="row text-center mb-2">
-              <div className="col-md-2">
-                <small className="fw-semibold">Production No</small>
-                <div>{selectedItem.productionNumber}</div>
-              </div>
 
-              <div className="col-md-2">
-                <small className="fw-semibold">Customer Name</small>
-                <div>{selectedItem.customerName}</div>
-              </div>
+            <div className="mb-3">
+              <div className="modal-info m-0 p-2 row text-nowrap">
+                <div className="col">
+                  <strong>Production No</strong>
+                  <div>{selectedItem?.casing}</div>
+                </div>
 
-              <div className="col-md-2">
-                <small className="fw-semibold">Tyre Size</small>
-                <div>{selectedItem.tyreSize}</div>
-              </div>
+                <div className="col">
+                  <strong>Tyre Ref No</strong>
+                  <div>{selectedItem?.serial}</div>
+                </div>
 
-              <div className="col-md-2">
-                <small className="fw-semibold">Service</small>
-                <div>{selectedItem.service}</div>
-              </div>
-               <div className="col-md-2">
-                <small className="fw-semibold">Request Pattern</small>
-                <div>{selectedItem.pattern}</div>
-                
-              </div>
-               <div className="col-md-2">
-                <small className="fw-semibold">ReApproved Pattern</small>
-                <div>-</div>
+                <div className="col">
+                  <strong>Customer Name</strong>
+                  <div>{selectedItem?.customerName || "-"}</div>
+                </div>
+
+                <div className="col">
+                  <strong>Tyre Size</strong>
+                  <div>{selectedItem?.tyreSize}</div>
+                </div>
+
+                <div className="col">
+                  <strong>Requested Pattern</strong>
+                  <div>{selectedItem?.requestedPattern || "-"}</div>
+                </div>
+
+                <div className="col">
+                  <strong>ReApproved Pattern</strong>
+                  <div>{selectedItem?.reApprovedPattern || "-"}</div>
+                </div>
               </div>
             </div>
-
-
             <hr />
 
             <div className="container-fluid my-4">
@@ -140,7 +142,7 @@ const TreadBenchInspectionModal = ({
 
                   <div className="col-md-4">
                     <span className="fw-bold">Pattern:</span>{" "}
-                    {selectedItem.pattern || "-"}
+                    {selectedItem.requestedPattern || "-"}
                   </div>
 
                   <div className="col-md-4">

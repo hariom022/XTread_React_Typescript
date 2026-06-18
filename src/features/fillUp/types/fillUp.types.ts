@@ -1,33 +1,35 @@
 export interface FillUpRow {
-    id: number;
+  id: number;
 
-    orderCasingId: number;
+  orderCasingId: number;
 
-    casing: string;
+  casing: string;
 
-    serial: string;
+  serial: string;
 
-    date: string;
+  date: string;
 
-    customerName: string;
+  customerName: string;
 
-    patternName: string;
+  patternName: string;
+  requestedPattern: string;
+  reApprovedPattern?: string;
 
-    tyreSize: string;
+  tyreSize: string;
 
-    service: string;
+  service: string;
 
-    batchNo: string;
+  batchNo: string;
 
-    approved: number;
+  approved: number;
 
-    rejected: number;
+  rejected: number;
 
-    pending: number;
+  pending: number;
 
-    expectedTotal: number;
+  expectedTotal: number;
 
-    originalBatch: any;
+  originalBatch: any;
 
-    originalCasing: any;
+  originalCasing: any;
 }

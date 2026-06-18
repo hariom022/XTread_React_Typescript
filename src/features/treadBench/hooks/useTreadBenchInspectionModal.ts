@@ -32,6 +32,15 @@ export const useTreadBenchInspectionModal = () => {
         brand: casing.retreadDetail?.brand || "-",
         customerName:casing.customerName || "-",
         categoryName:casing.categoryName || "-",
+         requestedPattern:
+          casing.retreadDetail
+            ?.patternName ||
+          "-",
+
+        reApprovedPattern:
+          // casing.retreadDetail
+          //   ?.patternName ||
+          "-",
       };
 
       setSelectedItem(modalData);

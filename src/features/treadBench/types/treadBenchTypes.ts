@@ -22,13 +22,14 @@ export interface InspectionItem {
   serial: string;
   tyreSize: string;
   service: string;
-  pattern: string;
   width?: string;
   circumference?: string;
   brand?: string;
   productionNumber?: string;
   customerName:string;
   categoryName:string;
+  requestedPattern: string;
+  reApprovedPattern?: string;
 }
 
 export interface TreadBenchInspectionModalProps {
