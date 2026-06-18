@@ -186,7 +186,7 @@ const EnvelopingStage = () => {
         <div
           className="d-flex justify-content-center p-2 "
           style={{
-            border: "2px solid black",
+           
             padding: "10px",
             borderRadius: "5px",
           }}
