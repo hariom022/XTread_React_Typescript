@@ -9,43 +9,63 @@ const envelopingServiceApi = {
     api.get(
       "/batches/progress?currentStage=13&currentStageStatus=1"
     ),
+    
+  getRailsTypes:()=>
+    api.get("/rails"),
 
+   deletePipe:(pipeId: number) =>
+  api.delete(`/rails/pipes/${pipeId}`),
+   
   /* ==========================
       API PENDING
   ========================== */
 
-  processEnvelope: async (
-    payload: any,
-  ) => {
-    console.log(
-      "PROCESS ENVELOPE PAYLOAD",
-      payload,
-    );
+ processEnvelope: async (
+  railId: number,
+  payload: any,
+) => {
+  const response = await api.post(
+    `/rails/${railId}/pipes`,
+    payload
+  );
 
-    return Promise.resolve();
-  },
+  console.log(
+    "Process Envelope Response",
+    response.data
+  );
 
-  approveEnvelope: async (
-    payload: any,
-  ) => {
-    console.log(
-      "APPROVE ENVELOPE PAYLOAD",
-      payload,
-    );
+  return response;
+},
 
-    return Promise.resolve();
-  },
+approveRejectEnvelope: async (
+  payload: any
+) => {
+  return api.post(
+    "/enveloping/approve-reject",
+    payload
+  );
+},
+  // approveEnvelope: async (
+  //   payload: any,
+  // ) => {
+  //   console.log(
+  //     "APPROVE ENVELOPE PAYLOAD",
+  //     payload,
+  //   );
 
-  rejectEnvelope: async (
-    payload: any,
-  ) => {
-    console.log(
-      "REJECT ENVELOPE PAYLOAD",
-      payload,
-    );
+  //   return Promise.resolve();
+  // },
 
-    return Promise.resolve();
-  },
+  // rejectEnvelope: async (
+  //   payload: any,
+  // ) => {
+  //   console.log(
+  //     "REJECT ENVELOPE PAYLOAD",
+  //     payload,
+  //   );
+
+  //   return Promise.resolve();
+  // },
 };
 
 export default envelopingServiceApi;

@@ -9,10 +9,10 @@ import type { EnvelopingRow } from "../type/enveloping.type";
 
 const useEnvelopingIndexTable =
   () => {
-    // const [
-    //   loading,
-    //   setLoading,
-    // ] = useState(false);
+    const [
+      loading,
+      setLoading,
+    ] = useState(false);
 
     const [
       envelopingRows,
@@ -21,47 +21,51 @@ const useEnvelopingIndexTable =
       EnvelopingRow[]
     >([]);
 
-    // const fetchEnvelopingOrders =
-    //   async () => {
-    //     try {
-    //       setLoading(true);
+//     const fetchEnvelopingOrders =
+//       async () => {
+//         try {
+//           setLoading(true);
 
-    //       const response =
-    //         await envelopingServiceApi.getEnvelopingOrders();
+//           const response =
+//             await envelopingServiceApi.getEnvelopingOrders();
 
-    //       const stage =
-    //         response.data.data?.[0];
+//           const stage =
+//             response.data.data?.[0];
 
-    //       const rows =
-    //         stage?.batches?.flatMap(
-    //           (
-    //             batch: any,
-    //           ) =>
-    //             batch.casings.map(
-    //               (
-    //                 casing: any,
-    //               ) => ({
-    //                 ...casing,
+//           const rows =
+//             stage?.batches?.flatMap(
+//               (
+//                 batch: any,
+//               ) =>
+//                 batch.casings.map(
+//                   (
+//                     casing: any,
+//                   ) => ({
+//                     ...casing,
 
-    //                 batchNumber:
-    //                   batch.batchNumber,
-    //               }),
-    //             ),
-    //         ) || [];
+//                     batchNumber:
+//                       batch.batchNumber,
+//                   }),
+//                 ),
+//             ) || [];
+// console.log(
+//   "Rows",
+//   rows
+// );
+// console.log("First Row", rows[0]);
+//           setEnvelopingRows(
+//             rows,
+//           );
+//         } catch (error) {
+//           console.error(error);
+//         } finally {
+//           setLoading(false);
+//         }
+//       };
 
-    //       setEnvelopingRows(
-    //         rows,
-    //       );
-    //     } catch (error) {
-    //       console.error(error);
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    //   };
-
-    // useEffect(() => {
-    //   fetchEnvelopingOrders();
-    // }, []);
+//     useEffect(() => {
+//       fetchEnvelopingOrders();
+//     }, []);
 
     return {
       // loading,

@@ -1,14 +1,10 @@
-import type { RailType } from "../type/enveloping.type";
-
+// import type { RailType } from "../type/enveloping.type";
+import type { Rail } from "../type/enveloping.type";
 interface Props {
   show: boolean;
-
-  railType: RailType | "";
-
-  setRailType: (
-    value: RailType,
-  ) => void;
-
+  selectedRailId: number | null;
+  rails: Rail[];
+  setSelectedRailId: (value: number) => void;
   onContinue: () => void;
 
   onClose: () => void;
@@ -16,8 +12,9 @@ interface Props {
 
 const RailTypeModal = ({
   show,
-  railType,
-  setRailType,
+  selectedRailId,
+  rails,
+  setSelectedRailId,
   onContinue,
   onClose,
 }: Props) => {
@@ -29,27 +26,22 @@ const RailTypeModal = ({
         <div className="modal-dialog modal-md modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header bg-danger text-white">
-              <h5 className="modal-title">
-                Select Rail Location
-              </h5>
+              <h5 className="modal-title">Select Rail Location</h5>
 
-              <button
-                className="btn-close btn-close-white"
-                onClick={onClose}
-              />
+              <button className="btn-close btn-close-white" onClick={onClose} />
             </div>
 
-            <div className="modal-body">
+             <div className="modal-body">
               <label className="form-label">
                 Rail Type
               </label>
 
               <select
                 className="form-select"
-                value={railType}
+                value={selectedRailId ?? ""}
                 onChange={(e) =>
-                  setRailType(
-                    e.target.value as RailType,
+                  setSelectedRailId(
+                    Number(e.target.value)
                   )
                 }
               >
@@ -57,20 +49,21 @@ const RailTypeModal = ({
                   Select Rail Type
                 </option>
 
-                <option value="Marangoni">
-                  Marangoni
-                </option>
-
-                <option value="Elgi">
-                  Elgi
-                </option>
+                {rails.map((rail) => (
+                  <option
+                    key={rail.railId}
+                    value={rail.railId}
+                  >
+                    {rail.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="modal-footer">
               <button
                 className="btn btn-primary"
-                disabled={!railType}
+                disabled={!selectedRailId}
                 onClick={onContinue}
               >
                 Continue
