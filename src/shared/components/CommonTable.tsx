@@ -214,11 +214,11 @@ const CommonTable = <T extends Record<string, any>>({
                           ● {pending} Pending
                         </span>
 
-                        {stillAtPreviousStage > 0 && (
+                        {/* {stillAtPreviousStage > 0 && (
                           <span className="previous-stage-text">
                             ● {stillAtPreviousStage} Still At Previous Stage
                           </span>
-                        )}
+                        )} */}
 
                         {rejectedAtPreviousStages > 0 && (
                           <span className="text-danger fw-semibold">
@@ -226,13 +226,17 @@ const CommonTable = <T extends Record<string, any>>({
                           </span>
                         )}
 
-                        {isBatchFullyArrived && (
+                        {isBatchFullyArrived ? (
                           <span className="text-success fw-semibold">
                             ✅ Fully Arrived
                           </span>
+                        ) : (
+                          <span className="text-warning fw-semibold">
+                            ⏳ Partial Arrived
+                          </span>
                         )}
 
-                        {isCompleteAtPreviousStage && (
+                        {/* {isCompleteAtPreviousStage && (
                           <span className="text-success fw-semibold">
                             ✅ Previous Stage Complete
                           </span>
@@ -242,7 +246,7 @@ const CommonTable = <T extends Record<string, any>>({
                           <span className="text-primary fw-semibold">
                             ✅ Batch Complete At This Stage
                           </span>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </td>
