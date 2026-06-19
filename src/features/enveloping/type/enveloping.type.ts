@@ -28,6 +28,8 @@ export interface EnvelopingRow {
   railLocation?: string;
 
   railNo?: number;
+  railId?: number;
+  railPipeId?: number;
 }
 
 export interface AllocatedRailRow
@@ -37,6 +39,12 @@ export interface AllocatedRailRow
   railNo: number;
 }
 
-export type RailType =
-  | "Marangoni"
-  | "Elgi";
+// export type RailType =
+//   | "Marangoni"
+//   | "Elgi";
+
+  export interface Rail {
+  railId: number;
+  name: string;
+  sortOrder: number;
+}

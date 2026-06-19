@@ -4,7 +4,7 @@ export const login = (
 ): boolean => {
   const dummyUser = {
     username: "admin",
-    password: "12345",
+    password: "!Ad9#min@20@26$",
   };
 
   if (

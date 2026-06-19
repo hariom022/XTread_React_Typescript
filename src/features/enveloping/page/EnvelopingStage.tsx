@@ -7,8 +7,9 @@ import EnvelopingTable from "../components/EnvelopingTable";
 import useEnvelopingBatchModal from "../hooks/useEnvelopingBatchModal";
 import useEnvelopingIndexTable from "../hooks/useEnvelopingIndexTable";
 import "../style/Enveloping.css";
+import envelopingServiceApi from "../services/envelopingServiceApi";
 
-import type { RailType } from "../type/enveloping.type";
+// import type { RailType } from "../type/enveloping.type";
 
 const EnvelopingStage = () => {
   /* ===========================
@@ -19,9 +20,8 @@ const EnvelopingStage = () => {
     // loading,
     envelopingRows,
     setEnvelopingRows,
-    // fetchEnvelopingOrders,
   } = useEnvelopingIndexTable();
-
+  console.log("Enveloping Rows", envelopingRows);
   /* ===========================
           BATCH DATA
   ============================ */
@@ -34,6 +34,9 @@ const EnvelopingStage = () => {
     processEnvelope,
     resetModal,
     loading,
+    rails,
+    selectedRailId,
+    setSelectedRailId,
 
     fetchApprovedFromPreviousStage,
   } = useEnvelopingBatchModal({
@@ -48,7 +51,7 @@ const EnvelopingStage = () => {
 
   const [showBatchModal, setShowBatchModal] = useState(false);
 
-  const [railType, setRailType] = useState<RailType | "">("");
+  // const [railType, setRailType] = useState<RailType | "">("");
 
   /* ===========================
           INDEX SELECTION
@@ -61,7 +64,7 @@ const EnvelopingStage = () => {
   ============================ */
 
   const handleCreateBatch = () => {
-    setRailType("");
+    setSelectedRailId(null);
 
     setShowRailTypeModal(true);
   };
@@ -82,73 +85,120 @@ const EnvelopingStage = () => {
           PROCESS ENVELOPE
   ============================ */
 
-  const handleProcessEnvelope = () => {
-    if (allocatedRows.length === 0) {
-      alert("Please allocate rail locations");
+  const handleProcessEnvelope = async () => {
+  if (allocatedRows.length === 0) {
+    alert("Please allocate rail locations");
+    return;
+  }
 
-      return;
-    }
-    processEnvelope();
-    setShowBatchModal(false);
-    resetModal();
+  const responses = await processEnvelope();
 
-    alert("Envelope Processed Successfully");
-  };
+  const processedRows = allocatedRows.map(
+    (row, index) => ({
+      ...row,
+      railId: responses[index]?.data?.railId,
+      railPipeId: responses[index]?.data?.railPipeId,
+    })
+  );
+
+  setEnvelopingRows((prev) => [
+    ...prev,
+    ...processedRows,
+  ]);
+
+  setShowBatchModal(false);
+
+  resetModal();
+
+  alert(
+    "Envelope Processed Successfully"
+  );
+};
 
   /* ===========================
           APPROVE
   ============================ */
 
   const handleApprove = async () => {
-    if (selectedRows.length === 0) {
-      alert("Please select casing");
+    try {
+      if (selectedRows.length === 0) {
+        alert("Please select casing");
+        return;
+      }
 
-      return;
+      const payload = {
+        isApproved: true,
+        rejectionReasonCode: null,
+        casings: envelopingRows
+          .filter((row) => selectedRows.includes(row.orderCasingId))
+          .map((row) => ({
+            orderCasingId: row.orderCasingId.toString(),
+
+            railId: row.railId?.toString() ?? "0",
+
+            railPipeId: row.railPipeId?.toString() ?? "0",
+          })),
+      };
+
+      console.log("Approve Payload", payload);
+
+      await envelopingServiceApi.approveRejectEnvelope(payload);
+
+      alert("Approved Successfully");
+
+      setEnvelopingRows((prev) =>
+        prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
+      );
+
+      setSelectedRows([]);
+    } catch (error: any) {
+      console.error(error);
+
+      alert(error?.response?.data || "Failed to approve");
     }
-
-    /*
-      TODO API
-
-      await envelopingApi.approve({
-         orderCasingIds:selectedRows
-      })
-      */
-
-    alert("Approved Successfully");
-
-    setEnvelopingRows((prev) =>
-      prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
-    );
-
-    setSelectedRows([]);
   };
-
   /* ===========================
           REJECT
   ============================ */
 
   const handleReject = async () => {
-    if (selectedRows.length === 0) {
-      alert("Please select casing");
+    try {
+      if (selectedRows.length === 0) {
+        alert("Please select casing");
+        return;
+      }
 
-      return;
+      const payload = {
+        isApproved: false,
+        rejectionReasonCode: null, // replace with actual reason if required
+
+        casings: envelopingRows
+          .filter((row) => selectedRows.includes(row.orderCasingId))
+          .map((row) => ({
+            orderCasingId: row.orderCasingId.toString(),
+
+            railId: row.railId?.toString() ?? "0",
+
+            railPipeId: row.railPipeId?.toString() ?? "0",
+          })),
+      };
+
+      console.log("Reject Payload", payload);
+
+      await envelopingServiceApi.approveRejectEnvelope(payload);
+
+      alert("Rejected Successfully");
+
+      setEnvelopingRows((prev) =>
+        prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
+      );
+
+      setSelectedRows([]);
+    } catch (error: any) {
+      console.error(error);
+
+      alert(error?.response?.data || "Failed to reject");
     }
-
-    /*
-      TODO API
-
-      await envelopingApi.reject({
-         orderCasingIds:selectedRows
-      })
-      */
-
-    alert("Rejected Successfully");
-
-    setEnvelopingRows((prev) =>
-      prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
-    );
-
-    setSelectedRows([]);
   };
 
   /* ===========================
@@ -156,8 +206,7 @@ const EnvelopingStage = () => {
   ============================ */
 
   const closeRailModal = () => {
-    setRailType("");
-
+    setSelectedRailId(null);
     setShowRailTypeModal(false);
   };
 
@@ -186,7 +235,6 @@ const EnvelopingStage = () => {
         <div
           className="d-flex justify-content-center p-2 "
           style={{
-           
             padding: "10px",
             borderRadius: "5px",
           }}
@@ -227,13 +275,19 @@ const EnvelopingStage = () => {
 
       <div className="row mt-3">
         <div className="col-md-6">
-          <button className="btn-approve w-100 border-0">APPROVED</button>
+          <button
+            className="btn-approve w-100 border-0"
+            onClick={handleApprove}
+          >
+            APPROVED
+          </button>
         </div>
 
         <div className="col-md-6">
           <button
             className="btn-reject w-100 border-0"
             style={{ padding: "20px" }}
+            onClick={handleReject}
           >
             REJECTED
           </button>
@@ -246,8 +300,9 @@ const EnvelopingStage = () => {
 
       <RailTypeModal
         show={showRailTypeModal}
-        railType={railType}
-        setRailType={setRailType}
+        selectedRailId={selectedRailId}
+        rails={rails}
+        setSelectedRailId={setSelectedRailId}
         onContinue={handleContinueRail}
         onClose={closeRailModal}
       />
@@ -258,7 +313,8 @@ const EnvelopingStage = () => {
 
       <EnvelopingBatchModal
         show={showBatchModal}
-        railType={railType}
+        selectedRailId={selectedRailId}
+        rails={rails}
         availableRows={availableRows}
         allocatedRows={allocatedRows}
         allocateRail={allocateRail}

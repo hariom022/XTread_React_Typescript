@@ -16,6 +16,8 @@ const EnvelopingTable = ({
   selectedRows,
   setSelectedRows,
 }: Props) => {
+  console.log("Table Data", data);
+  console.log(selectedRows);
   const toggleRow = (
     id: number,
   ) => {
