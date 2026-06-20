@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 
 import CuringTable from "../components/CuringTable";
-import ChamberTypeModal from "../components/ChamberTypeModal";
-import CuringBatchModal from "../components/CuringBatchModal";
 
+import CuringBatchModal from "../components/CuringBatchModal";
+import AutoclaveModal from "../components/AutoclaveModal";
 import useCuringBatchModal from "../hooks/useCuringBatchModal";
 import useCuringIndexTable from "../hooks/useCuringIndexTable";
+import curingServiceApi from "../service/curingServiceApi";
 import "../style/curing.css";
 
 const CuringStage = () => {
@@ -20,8 +21,8 @@ const CuringStage = () => {
     ========================= */
 
   const {
-    chamberType,
-    setChamberType,
+    selectedAutoclave,
+    setSelectedAutoclave,
 
     availableRows,
     allocatedRows,
@@ -58,9 +59,8 @@ const CuringStage = () => {
 
   const [mainTab, setMainTab] = useState<"CURING" | "CANCEL">("CURING");
 
-  const [activeChamberTab, setActiveChamberTab] = useState<
-    "Marangoni" | "Elgi"
-  >("Marangoni");
+  const [activeAutoclaveTab, setActiveAutoclaveTab] =
+    useState<string>("Marangoni");
 
   /* =========================
           SEARCH
@@ -73,7 +73,7 @@ const CuringStage = () => {
     ========================= */
 
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-
+  const [isCureStarted, setIsCureStarted] = useState(false);
   /* =========================
           FILTER
     ========================= */
@@ -84,19 +84,21 @@ const CuringStage = () => {
         x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesChamber = !x.chamber || x.chamber === activeChamberTab;
+      const matchesAutoclave =
+        activeAutoclaveTab === "Marangoni"
+          ? x.autoclaveId === 1
+          : x.autoclaveId === 2;
 
-      return matchesSearch && matchesChamber;
+      return matchesSearch && matchesAutoclave;
     });
-  }, [curingRows, searchTerm, activeChamberTab]);
+  }, [curingRows, searchTerm, activeAutoclaveTab]);
 
   /* =========================
           CREATE BATCH
     ========================= */
 
   const handleCreateBatch = () => {
-    setChamberType("");
-
+    setSelectedAutoclave("");
     setShowChamberModal(true);
   };
 
@@ -113,9 +115,19 @@ const CuringStage = () => {
     ========================= */
 
   const handleLoadCuring = async () => {
+    const rowsToLoad = [...allocatedRows];
+
+    console.log("Rows To Load", rowsToLoad);
+
     await loadCuring();
 
-    setCuringRows((prev) => [...prev, ...allocatedRows]);
+    setCuringRows((prev) => {
+      const updated = [...prev, ...rowsToLoad];
+
+      console.log("Updated Curing Rows", updated);
+
+      return updated;
+    });
 
     setShowBatchModal(false);
 
@@ -126,46 +138,182 @@ const CuringStage = () => {
           APPROVAL ACTIONS
     ========================= */
 
-  const handleStartCure = () => {
+  const handleStartCure = async () => {
     if (selectedRows.length === 0) {
       alert("Select casing first");
-
       return;
     }
 
-    alert("Start Cure API Pending");
+    try {
+      const selectedCasings = curingRows.filter((row) =>
+        selectedRows.includes(row.orderCasingId),
+      );
+
+      const payload = {
+        casings: selectedCasings.map((row) => ({
+          orderCasingId: String(row.orderCasingId),
+          autoclaveId: String(row.autoclaveId),
+          autoclavePipeId: String(row.autoclavePipeId),
+        })),
+      };
+
+      console.log("START CURE PAYLOAD", payload);
+
+      await curingServiceApi.startCure(payload);
+      setIsCureStarted(true);
+      alert("Start Cure Successful");
+    } catch (error) {
+      console.error(error);
+
+      alert("Failed to Start Cure");
+    }
   };
 
-  const handleUnloadCure = () => {
+  const handleUnloadCure = async () => {
     if (selectedRows.length === 0) {
       alert("Select casing first");
-
       return;
     }
 
-    alert("Unload Cure API Pending");
+    try {
+      const payload = {
+        orderCasingIds: selectedRows.map(String),
+      };
+
+      console.log("UNLOAD CURE PAYLOAD", payload);
+
+      await curingServiceApi.unloadCure(payload);
+
+      alert("Unload Cure Successful");
+    } catch (error) {
+      console.error(error);
+
+      alert("Failed to Unload Cure");
+    }
   };
 
-  const handleSendToQA = () => {
+  const handleFinishCure = async () => {
     if (selectedRows.length === 0) {
       alert("Select casing first");
-
       return;
     }
 
-    alert("Send To QA API Pending");
+    try {
+      const payload = {
+        orderCasingIds: selectedRows.map(String),
+      };
+
+      console.log("FINISH CURE PAYLOAD", payload);
+
+      await curingServiceApi.finishCure(payload);
+
+      setIsCureStarted(false);
+
+      alert("Finish Cure Successful");
+    } catch (error) {
+      console.error(error);
+
+      alert("Failed to Finish Cure");
+    }
   };
 
-  const handleSendToEnvelope = () => {
+  const handleCancelCure = async () => {
     if (selectedRows.length === 0) {
       alert("Select casing first");
-
       return;
     }
 
-    alert("Send To Envelope API Pending");
+    try {
+      const payload = {
+        orderCasingIds: selectedRows.map(String),
+      };
+
+      console.log("CANCEL CURE PAYLOAD", payload);
+
+      await curingServiceApi.cancelCure(payload);
+
+      setIsCureStarted(false);
+
+      alert("Cancel Cure Successful");
+    } catch (error) {
+      console.error(error);
+
+      alert("Failed to Cancel Cure");
+    }
   };
 
+  // const handleSendToQA = () => {
+  //   if (selectedRows.length === 0) {
+  //     alert("Select casing first");
+
+  //     return;
+  //   }
+
+  //   alert("Send To QA API Pending");
+  // };
+
+  
+  // const handleSendToEnvelope = () => {
+  //   if (selectedRows.length === 0) {
+  //     alert("Select casing first");
+
+  //     return;
+  //   }
+
+  //   alert("Send To Envelope API Pending");
+  // };
+
+  const handleSendToQA = async () => {
+  if (selectedRows.length === 0) {
+    alert("Select casing first");
+    return;
+  }
+
+  try {
+    const payload = {
+      orderCasingIds: selectedRows.map(String),
+      destinationStage: 15,
+    };
+
+    console.log("SEND TO QA PAYLOAD", payload);
+
+    await curingServiceApi.moveCuring(payload);
+
+    alert("Sent To QA Successfully");
+
+    setSelectedRows([]);
+  } catch (error) {
+    console.error(error);
+
+    alert("Failed To Send To QA");
+  }
+};
+
+const handleSendToEnvelope = async () => {
+  if (selectedRows.length === 0) {
+    alert("Select casing first");
+    return;
+  }
+
+  try {
+    const payload = {
+      orderCasingIds: selectedRows.map(String),
+      destinationStage: 13,
+    };
+
+    console.log("SEND TO ENVELOPING PAYLOAD", payload);
+
+    await curingServiceApi.moveCuring(payload);
+
+    alert("Sent To Enveloping Successfully");
+
+    setSelectedRows([]);
+  } catch (error) {
+    console.error(error);
+
+    alert("Failed To Send To Enveloping");
+  }
+};
   return (
     <div className="container-fluid box mt-3">
       <div
@@ -182,7 +330,6 @@ const CuringStage = () => {
         <div
           className="d-flex justify-content-center p-2 "
           style={{
-           
             padding: "10px",
             borderRadius: "5px",
           }}
@@ -244,9 +391,9 @@ const CuringStage = () => {
           <li className="nav-item">
             <button
               className={`nav-link ${
-                activeChamberTab === "Marangoni" ? "active" : ""
+                activeAutoclaveTab === "Marangoni" ? "active" : ""
               }`}
-              onClick={() => setActiveChamberTab("Marangoni")}
+              onClick={() => setActiveAutoclaveTab("Marangoni")}
             >
               <b>Marangoni</b>
             </button>
@@ -255,9 +402,9 @@ const CuringStage = () => {
           <li className="nav-item">
             <button
               className={`nav-link ${
-                activeChamberTab === "Elgi" ? "active" : ""
+                activeAutoclaveTab === "Elgi" ? "active" : ""
               }`}
-              onClick={() => setActiveChamberTab("Elgi")}
+              onClick={() => setActiveAutoclaveTab("Elgi")}
             >
               <b>Elgi</b>
             </button>
@@ -276,31 +423,51 @@ const CuringStage = () => {
 
         <div className="row mt-4">
           {mainTab === "CURING" ? (
-            <>
-              <div className="col-md-6">
-                <button
-                  className="btn btn-success w-100"
-                  style={{
-                    height: "60px",
-                  }}
-                  onClick={handleStartCure}
-                >
-                  Start Cure
-                </button>
-              </div>
+            !isCureStarted ? (
+              <>
+                <div className="col-md-6">
+                  <button
+                    className="btn btn-success w-100"
+                    style={{ height: "60px" }}
+                    onClick={handleStartCure}
+                  >
+                    Start Cure
+                  </button>
+                </div>
 
-              <div className="col-md-6">
-                <button
-                  className="btn btn-danger w-100"
-                  style={{
-                    height: "60px",
-                  }}
-                  onClick={handleUnloadCure}
-                >
-                  Unload Cure
-                </button>
-              </div>
-            </>
+                <div className="col-md-6">
+                  <button
+                    className="btn btn-danger w-100"
+                    style={{ height: "60px" }}
+                    onClick={handleUnloadCure}
+                  >
+                    Unload Cure
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="col-md-6">
+                  <button
+                    className="btn btn-primary w-100"
+                    style={{ height: "60px" }}
+                    onClick={handleFinishCure}
+                  >
+                    Finish Cure
+                  </button>
+                </div>
+
+                <div className="col-md-6">
+                  <button
+                    className="btn btn-warning w-100"
+                    style={{ height: "60px" }}
+                    onClick={handleCancelCure}
+                  >
+                    Cancel Cure
+                  </button>
+                </div>
+              </>
+            )
           ) : (
             <>
               <div className="col-md-6">
@@ -333,10 +500,10 @@ const CuringStage = () => {
 
       {/* CHAMBER MODAL */}
 
-      <ChamberTypeModal
+      <AutoclaveModal
         show={showChamberModal}
-        chamberType={chamberType}
-        setChamberType={setChamberType}
+        selectedAutoclave={selectedAutoclave}
+        setSelectedAutoclave={setSelectedAutoclave}
         onContinue={handleContinue}
         onClose={() => setShowChamberModal(false)}
       />
@@ -345,7 +512,7 @@ const CuringStage = () => {
 
       <CuringBatchModal
         show={showBatchModal}
-        chamberType={chamberType}
+        selectedAutoclave={selectedAutoclave}
         availableRows={availableRows}
         allocatedRows={allocatedRows}
         selectedAllocatedRow={selectedAllocatedRow}

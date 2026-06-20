@@ -1,9 +1,11 @@
-export type ChamberType =
-  | "MARANGONI AUTOCLAVE VT24"
-  | "ELGI AUTOCLAVE";
+export type ChamberType = "MARANGONI AUTOCLAVE VT24" | "ELGI AUTOCLAVE";
 
 export interface CuringRow {
   orderCasingId: number;
+
+  autoclaveId?: number;
+
+  autoclavePipeId?: number;
 
   productionNumber: string;
 
@@ -24,11 +26,16 @@ export interface CuringRow {
   chamber?: string;
 }
 
-export interface AllocatedPipeRow
-  extends CuringRow {
-  chamber:
-    | ChamberType
-    | "";
+export interface AllocatedPipeRow extends CuringRow {
+  autoclaveId: number;
+ autoclavePipeId: number;
+  pipeName: string;
+}
 
-  pipeNo: number;
+export interface AutoclavePipe {
+  autoclavePipeId: number;
+  autoclaveId: number;
+  pipeName: string;
+  isActive: boolean;
+  sortOrder: number;
 }
