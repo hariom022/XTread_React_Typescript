@@ -127,8 +127,21 @@ const ReceivingPage = () => {
   }, {});
 }, [inspections, selectedCustomer, selectedDate]);
 
-const filteredBatchList = useMemo(() => {
-  return batchList.filter((item) => {
+// const filteredBatchList = useMemo(() => {
+//   return batchList.filter((item) => {
+//     const customerMatch =
+//       selectedCustomer === "all" ||
+//       item.customerName === selectedCustomer;
+
+//     const dateMatch =
+//       !selectedDate ||
+//       item.date === selectedDate;
+
+//     return customerMatch && dateMatch;
+//   });
+// }, [batchList, selectedCustomer, selectedDate]);
+const groupedBatchByCustomer = useMemo(() => {
+  const filtered = batchList.filter((item) => {
     const customerMatch =
       selectedCustomer === "all" ||
       item.customerName === selectedCustomer;
@@ -139,6 +152,21 @@ const filteredBatchList = useMemo(() => {
 
     return customerMatch && dateMatch;
   });
+
+  const map: Record<string, ReceivingRow[]> = {};
+
+  filtered.forEach((item) => {
+    const key =
+      item.customerName || "Unknown Customer";
+
+    if (!map[key]) {
+      map[key] = [];
+    }
+
+    map[key].push(item);
+  });
+
+  return map;
 }, [batchList, selectedCustomer, selectedDate]);
 
 const filteredGroupedBatches = useMemo(() => {
@@ -236,36 +264,82 @@ const filteredGroupedBatches = useMemo(() => {
   // CREATE BATCH
   // ==========================
   const handleCreateBatch = async () => {
-    if (selectedCasingRows.length === 0) {
-      alert("Select at least one casing.");
-      return;
-    }
+  if (selectedCasingRows.length === 0) {
+    alert("Select at least one casing.");
+    return;
+  }
 
-    try {
-      const payload = {
-        orderCasingIds: selectedCasingRows.map((id) => Number(id)),
-      };
+  // Check that all selected casings belong to the same customer
+  const selectedItems = batchList.filter((x) =>
+    selectedCasingRows.includes(String(x.id))
+  );
 
-      console.log("Payload =>", payload);
+  const customerIds = [
+    ...new Set(selectedItems.map((x) => x.customerId)),
+  ];
 
-      await receiveService.createBatch(payload);
+  if (customerIds.length > 1) {
+    alert(
+      "Please select casings from a single customer only."
+    );
+    return;
+  }
 
-      alert("Batch Created Successfully");
+  try {
+    const payload = {
+      orderCasingIds: selectedCasingRows.map((id) => Number(id)),
+    };
 
-      setSelectedCasingRows([]);
+    console.log("Payload =>", payload);
 
-      // refresh tabs
-      await loadCollectionOrders();
-      await loadBarcodeOrders();
+    await receiveService.createBatch(payload);
 
-      // optionally move to barcode tab
-      setActiveTab("barcode");
-    } catch (error) {
-      console.error(error);
+    alert("Batch Created Successfully");
 
-      alert("Failed to create batch");
-    }
-  };
+    setSelectedCasingRows([]);
+
+    await loadCollectionOrders();
+    await loadBatchOrders(); 
+    await loadBarcodeOrders();
+
+    setActiveTab("barcode");
+  } catch (error) {
+    console.error(error);
+
+    alert("Failed to create batch");
+  }
+};
+  // const handleCreateBatch = async () => {
+  //   if (selectedCasingRows.length === 0) {
+  //     alert("Select at least one casing.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const payload = {
+  //       orderCasingIds: selectedCasingRows.map((id) => Number(id)),
+  //     };
+
+  //     console.log("Payload =>", payload);
+
+  //     await receiveService.createBatch(payload);
+
+  //     alert("Batch Created Successfully");
+
+  //     setSelectedCasingRows([]);
+
+  //     // refresh tabs
+  //     await loadCollectionOrders();
+  //     await loadBarcodeOrders();
+
+  //     // optionally move to barcode tab
+  //     setActiveTab("barcode");
+  //   } catch (error) {
+  //     console.error(error);
+
+  //     alert("Failed to create batch");
+  //   }
+  // };
 
   // const handleProceedToNextStage = async () => {
   //   alert("Proceed API pending");
@@ -415,7 +489,7 @@ console.log("selectedDate", selectedDate);
       {activeTab === "batch" && (
         <>
           <BatchTable
-            data={filteredBatchList}
+            groupedData={groupedBatchByCustomer}
             selectedCasingRows={selectedCasingRows}
             toggleCasingRow={toggleCasingRow}
             toggleAllCasing={toggleAllCasing}

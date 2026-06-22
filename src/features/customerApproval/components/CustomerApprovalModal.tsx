@@ -59,7 +59,7 @@ const CustomerApprovalModal = ({
 
       await onSuccess();
 
-      alert("Customer Approved Successfully");
+      alert("I confirm that the above listed tyres/casings have been collected correctly and handed over for the requested services. ");
 
       onClose();
     } catch (e) {
