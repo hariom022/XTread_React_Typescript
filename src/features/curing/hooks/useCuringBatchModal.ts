@@ -2,10 +2,7 @@ import { useState } from "react";
 
 import curingServiceApi from "../service/curingServiceApi";
 
-import type {
-  CuringRow,
-  AllocatedPipeRow,
-} from "../type/curing.types";
+import type { CuringRow, AllocatedPipeRow } from "../type/curing.types";
 
 interface Props {
   refreshTable: () => void;
@@ -83,7 +80,12 @@ const useCuringBatchModal = ({ refreshTable }: Props) => {
         PIPE ALLOCATION
   ========================= */
 
-  const allocatePipe = (row: CuringRow, pipeNo: number, pipeName: string,autoclavePipeId: number) => {
+  const allocatePipe = (
+    row: CuringRow,
+    pipeNo: number,
+    pipeName: string,
+    autoclavePipeId: number,
+  ) => {
     const exists = allocatedRows.some((x) => x.pipeNo === pipeNo);
 
     if (exists) {
@@ -134,25 +136,40 @@ const useCuringBatchModal = ({ refreshTable }: Props) => {
         LOAD CURING
   ========================= */
 
-const loadCuring = async () => {
-  try {
-    if (!allocatedRows.length) {
-      alert("Allocate Pipe First");
-      return;
-    }
+  const loadCuring = async () => {
+    try {
+      if (!allocatedRows.length) {
+        alert("Allocate Pipe First");
+        return;
+      }
 
-    refreshTable();
-  } catch (error) {
-    console.error(error);
-  }
-};
+      const payload = {
+        casings: allocatedRows.map((row) => ({
+          orderCasingId: String(row.orderCasingId),
+          autoclaveId: String(row.autoclaveId),
+          autoclavePipeId: String(row.autoclavePipeId),
+        })),
+      };
+
+      console.log("LOAD CURING PAYLOAD", payload);
+
+      await curingServiceApi.loadCuring(payload);
+
+      alert("Curing Assigned Successfully");
+
+      refreshTable();
+    } catch (error) {
+      console.error(error);
+      alert("Failed To Assign Curing");
+    }
+  };
 
   /* =========================
         RESET
   ========================= */
 
   const resetModal = () => {
-  setSelectedAutoclave("");
+    setSelectedAutoclave("");
 
     setAvailableRows([]);
 
@@ -165,7 +182,7 @@ const loadCuring = async () => {
     loading,
 
     selectedAutoclave,
-  setSelectedAutoclave,
+    setSelectedAutoclave,
 
     availableRows,
     allocatedRows,

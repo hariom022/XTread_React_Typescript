@@ -174,3 +174,27 @@ body {
 .modal-header-custom .btn-close {
   filter: invert(1);
 }
+
+
+.workflow-box {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.workflow-title {
+  text-align: center;
+  font-weight: 700;
+  color: white;
+  background: #003366;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.workflow-flow {
+  text-align: center;
+  line-height: 2;
+  font-weight: 600;
+}
