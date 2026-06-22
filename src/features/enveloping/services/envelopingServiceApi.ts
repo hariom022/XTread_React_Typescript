@@ -45,27 +45,27 @@ approveRejectEnvelope: async (
     payload
   );
 },
-  // approveEnvelope: async (
-  //   payload: any,
-  // ) => {
-  //   console.log(
-  //     "APPROVE ENVELOPE PAYLOAD",
-  //     payload,
-  //   );
+  approveEnvelope: async (
+    payload: any,
+  ) => {
+    console.log(
+      "APPROVE ENVELOPE PAYLOAD",
+      payload,
+    );
 
-  //   return Promise.resolve();
-  // },
+    return Promise.resolve();
+  },
 
-  // rejectEnvelope: async (
-  //   payload: any,
-  // ) => {
-  //   console.log(
-  //     "REJECT ENVELOPE PAYLOAD",
-  //     payload,
-  //   );
+  rejectEnvelope: async (
+    payload: any,
+  ) => {
+    console.log(
+      "REJECT ENVELOPE PAYLOAD",
+      payload,
+    );
 
-  //   return Promise.resolve();
-  // },
+    return Promise.resolve();
+  },
 };
 
 export default envelopingServiceApi;
