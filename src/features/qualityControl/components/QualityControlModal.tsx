@@ -1,24 +1,28 @@
 import type { QualityControlDetails, } from "../type/qualityControl.type";
 
 interface Props {
-    show: boolean;
-    details: QualityControlDetails | null;
+  show: boolean;
+  selectedItem: any;
 
-    rejectReason: string;
-    setRejectReason: (value: string) => void;
+  rejectReason: string;
+  setRejectReason: React.Dispatch<
+    React.SetStateAction<string>
+  >;
 
-    rejectComment: string;
-    setRejectComment: (value: string) => void;
+  rejectComment: string;
+  setRejectComment: React.Dispatch<
+    React.SetStateAction<string>
+  >;
 
-    onApprove: () => void;
-    onReject: () => void;
-    onClose: () => void;
+  onApprove: () => void;
+  onReject: () => void;
+  onClose: () => void;
 }
 
 const QualityControlModal =
     ({
         show,
-        details,
+        selectedItem,
 
         rejectReason,
         setRejectReason,
@@ -31,7 +35,7 @@ const QualityControlModal =
         onClose,
     }: Props) => {
 
-        if (!show || !details) return null;
+        if (!show || !selectedItem) return null;
 
         return (
             <>
@@ -63,7 +67,7 @@ const QualityControlModal =
                                             Production No
                                         </b>
                                         <div>
-                                            {details.productionNumber}
+                                            {selectedItem.productionNumber}
                                         </div>
                                     </div>
 
@@ -72,7 +76,7 @@ const QualityControlModal =
                                             Serial No
                                         </b>
                                         <div>
-                                            {details.tyreReferenceNumber}
+                                            {selectedItem.tyreReferenceNumber}
                                         </div>
                                     </div>
 
@@ -81,7 +85,7 @@ const QualityControlModal =
                                             Customer
                                         </b>
                                         <div>
-                                            {details.customerName}
+                                            {selectedItem.customerName}
                                         </div>
                                     </div>
 
@@ -90,7 +94,7 @@ const QualityControlModal =
                                             Tyre Size
                                         </b>
                                         <div>
-                                            {details.tyreSize}
+                                            {selectedItem.tyreSize}
                                         </div>
                                     </div>
 

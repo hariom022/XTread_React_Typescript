@@ -1,89 +1,97 @@
 import {useState,} from "react";
 
-import qualityControlServiceApi from "../service/qualityControlServiceApi";
+// import qualityControlServiceApi from "../service/qualityControlServiceApi";
 
 import type {QualityControlDetails,} from "../type/qualityControl.type";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
-const useQualityControlModal =
-  () => {
+const useQualityControlModal = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [loadingModal, setLoadingModal] = useState(false);
 
-    const [
-      loading,
-      setLoading,
-    ] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectComment, setRejectComment] = useState("");
 
-    const [
-      details,
-      setDetails,
-    ] =
-      useState<
-        QualityControlDetails | null
-      >(null);
+  const openModal = async (item: any) => {
+    try {
+      setLoadingModal(true);
 
-    const [
-      rejectReason,
-      setRejectReason,
-    ] = useState("");
+      const res =
+        await indexPageApiService.getOrderCasingDetails(
+          item.id
+        );
 
-    const [
-      rejectComment,
-      setRejectComment,
-    ] = useState("");
+      const casing = res.data;
 
-    const reset =
-      () => {
+      console.log("QUALITY CONTROL DETAILS", casing);
 
-        setDetails(null);
+      const modalData = {
+        ...item,
 
-        setRejectReason("");
+        productionNumber:
+          casing.productionNumber || "-",
 
-        setRejectComment("");
+        serial:
+          casing.tyreReferenceNumber || "-",
+
+        customerName:
+          casing.customerName || "-",
+
+        tyreSize:
+          casing.tyreSize?.casingSize || "-",
+
+        requestedPattern:
+          casing.retreadDetail?.patternName || "-",
+
+        approvedPattern:
+          casing.retreadDetail?.patternName || "-",
+
+        treadWidth:
+          casing.retreadDetail?.width || "-",
+
+        repairOperations:
+          casing.repairDetail?.operations || [],
+
+        serviceType:
+          casing.serviceType?.name || "-",
+
+        receivedDate:
+          casing.receivedAtUtc,
+
+        fullDetails: casing,
       };
 
-    const openInspection =
-      async (
-        orderCasingId: number,
-      ) => {
-
-        try {
-
-          setLoading(true);
-
-          const response =
-          await indexPageApiService.getOrderCasingDetails(orderCasingId,);
-
-          setDetails(
-            response.data,
-          );
-
-        } catch (error) {
-
-          console.error(error);
-
-        } finally {
-
-          setLoading(false);
-        }
-      };
-
-    return {
-
-      details,
-
-      loading,
-
-      rejectReason,
-      setRejectReason,
-
-      rejectComment,
-      setRejectComment,
-
-      openInspection,
-
-      reset,
-    };
+      setSelectedItem(modalData);
+      setShowModal(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingModal(false);
+    }
   };
 
-export default
-  useQualityControlModal;
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedItem(null);
+    setRejectReason("");
+    setRejectComment("");
+  };
+
+  return {
+    showModal,
+    selectedItem,
+    loadingModal,
+
+    rejectReason,
+    setRejectReason,
+
+    rejectComment,
+    setRejectComment,
+
+    openModal,
+    closeModal,
+  };
+};
+
+export default useQualityControlModal;
