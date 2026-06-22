@@ -212,7 +212,7 @@ const CuringBatchModal = ({
 
                     <th>TimeSinceBuilding</th>
 
-                    <th>Chamber</th>
+                    {/* <th>Chamber</th> */}
 
                     <th>Pipe No</th>
                   </tr>
@@ -244,7 +244,7 @@ const CuringBatchModal = ({
 
                       <td>-</td>
 
-                      <td>{item.chamber}</td>
+                      {/* <td>{item.chamber}</td> */}
 
                       <td>{item.pipeName}</td>
                     </tr>
