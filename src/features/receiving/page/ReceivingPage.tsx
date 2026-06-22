@@ -91,16 +91,83 @@ const ReceivingPage = () => {
   // ==========================
   // FILTER DATA
   // ==========================
-  const filteredCollectionData = useMemo(() => {
-    return inspections.filter((item) => {
-      const customerMatch =
-        selectedCustomer === "all" || item.customerName === selectedCustomer;
+  // const filteredCollectionData = useMemo(() => {
+  //   return inspections.filter((item) => {
+  //     const customerMatch =
+  //       selectedCustomer === "all" || item.customerName === selectedCustomer;
 
-      const dateMatch = !selectedDate || item.date === selectedDate;
+  //     const dateMatch = !selectedDate || item.date === selectedDate;
 
-      return customerMatch && dateMatch;
-    });
-  }, [inspections, selectedCustomer, selectedDate]);
+  //     return customerMatch && dateMatch;
+  //   });
+  // }, [inspections, selectedCustomer, selectedDate]);
+  const filteredGroupedByCustomer = useMemo(() => {
+  const filtered = inspections.filter((item) => {
+    const customerMatch =
+      selectedCustomer === "all" ||
+      item.customerName === selectedCustomer;
+
+    const dateMatch =
+      !selectedDate ||
+      item.date?.split("T")[0] === selectedDate;
+
+    return customerMatch && dateMatch;
+  });
+
+  return filtered.reduce((acc: any, item) => {
+    const customer = item.customerName;
+
+    if (!acc[customer]) {
+      acc[customer] = [];
+    }
+
+    acc[customer].push(item);
+
+    return acc;
+  }, {});
+}, [inspections, selectedCustomer, selectedDate]);
+
+const filteredBatchList = useMemo(() => {
+  return batchList.filter((item) => {
+    const customerMatch =
+      selectedCustomer === "all" ||
+      item.customerName === selectedCustomer;
+
+    const dateMatch =
+      !selectedDate ||
+      item.date === selectedDate;
+
+    return customerMatch && dateMatch;
+  });
+}, [batchList, selectedCustomer, selectedDate]);
+
+const filteredGroupedBatches = useMemo(() => {
+  const filtered = casingList.filter((item) => {
+    const customerMatch =
+      selectedCustomer === "all" ||
+      item.customerName === selectedCustomer;
+
+    const dateMatch =
+      !selectedDate ||
+      item.date === selectedDate;
+
+    return customerMatch && dateMatch;
+  });
+
+  const map: Record<string, ReceivingRow[]> = {};
+
+  filtered.forEach((item) => {
+    const key = item.batchNo || "No Batch";
+
+    if (!map[key]) {
+      map[key] = [];
+    }
+
+    map[key].push(item);
+  });
+
+  return map;
+}, [casingList, selectedCustomer, selectedDate]);
 
   // ==========================
   // VIEW DETAILS
@@ -266,6 +333,8 @@ const ReceivingPage = () => {
 
     setSelectedCasing(null);
   };
+  console.log("selectedCustomer", selectedCustomer);
+console.log("selectedDate", selectedDate);
   return (
     <div className="container-fluid mt-3">
       {/* TABS */}
@@ -332,7 +401,7 @@ const ReceivingPage = () => {
           </div>
         ) : (
           <CollectionTable
-            groupedByCustomer={groupedByCustomer}
+            groupedByCustomer={filteredGroupedByCustomer}
             selectedRows={selectedRows}
             setSelectedRows={setSelectedRows}
             onReceive={handleReceive}
@@ -346,7 +415,7 @@ const ReceivingPage = () => {
       {activeTab === "batch" && (
         <>
           <BatchTable
-            data={batchList}
+            data={filteredBatchList}
             selectedCasingRows={selectedCasingRows}
             toggleCasingRow={toggleCasingRow}
             toggleAllCasing={toggleAllCasing}
@@ -371,7 +440,7 @@ const ReceivingPage = () => {
     </div>
   ) : (
     <BarcodeTable
-      groupedBatches={groupedBatches}
+      groupedBatches={filteredGroupedBatches}
       expandedBatch={expandedBatch}
       selectedBatches={selectedBatches}
       toggleBatch={toggleBatch}

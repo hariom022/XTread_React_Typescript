@@ -222,11 +222,17 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
 
       resetModal();
       onClose();
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+  console.error(error);
 
-      alert("Approval Failed");
-    } finally {
+  const message =
+    error?.response?.data?.message ||
+    error?.response?.data ||
+    error?.message ||
+    "Approval Failed";
+
+  alert(message);
+} finally {
       setLoading(false);
     }
   };
