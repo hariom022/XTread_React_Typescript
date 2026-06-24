@@ -24,6 +24,7 @@ import TreadBenchPage from "./features/treadBench/page/TreadBenchPage";
 import EnvelopingStage from "./features/enveloping/page/EnvelopingStage";
 import CuringStage from "./features/curing/page/CuringStage";
 import QualityControl from "./features/qualityControl/page/QualityControl";
+import DispatchStage from "./features/dispatch/page/DispatchStage";
 
 const Layout = () => {
   return (
@@ -71,6 +72,7 @@ function App() {
           <Route path="/enveloping" element={<EnvelopingStage/>} />
           <Route path="/curing" element={<CuringStage/>} />
           <Route path="/qualityControl" element={<QualityControl/>} />
+          <Route path="/dispatch" element={<DispatchStage/>} />
         </Route>
       </Routes>
     </BrowserRouter>
