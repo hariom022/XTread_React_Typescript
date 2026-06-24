@@ -473,13 +473,13 @@ const QualityControlRepairModal = ({
                     <option value="V04">Poor Repair Quality</option>
                   </select>
 
-                  <textarea
+                  {/* <textarea
                     className="form-control mt-2"
                     rows={3}
                     placeholder="Comments"
                     value={rejectComment}
                     onChange={(e) => setRejectComment(e.target.value)}
-                  />
+                  /> */}
                 </div>
               )}
 
