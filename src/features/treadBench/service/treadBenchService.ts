@@ -6,7 +6,7 @@ const getCementTypes = async () => {
 
 const saveCementTypes = async (payload: any) => {
   return await api.post(
-    "/cementing/save",
+    "/treadbench-cutting/save",
     payload
   );
 };

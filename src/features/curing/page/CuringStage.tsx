@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import CuringTable from "../components/CuringTable";
 
@@ -9,13 +9,30 @@ import useCuringIndexTable from "../hooks/useCuringIndexTable";
 import curingServiceApi from "../service/curingServiceApi";
 import "../style/curing.css";
 
+const CuringStatus = {
+  Pending: 1,
+  Approved: 2,
+  Hold: 3,
+  Rejected: 4,
+  InProgress: 5,
+  Cancelled: 6,
+  Unloaded: 7,
+  Loaded: 8,
+} as const;
+
 const CuringStage = () => {
   /* =========================
           INDEX DATA
     ========================= */
 
-  const { curingRows, setCuringRows } = useCuringIndexTable();
+  const [statusTab, setStatusTab] = useState<number>(CuringStatus.Loaded);
+  const { curingRows, setCuringRows, loadData } =
+    useCuringIndexTable(statusTab);
 
+
+    useEffect(() => {
+  setSelectedRows([]);
+}, [statusTab]);
   /* =========================
           BATCH MODAL
     ========================= */
@@ -57,8 +74,6 @@ const CuringStage = () => {
           TABS
     ========================= */
 
-  const [mainTab, setMainTab] = useState<"CURING" | "CANCEL">("CURING");
-
   const [activeAutoclaveTab, setActiveAutoclaveTab] =
     useState<string>("Marangoni");
 
@@ -73,10 +88,12 @@ const CuringStage = () => {
     ========================= */
 
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const [isCureStarted, setIsCureStarted] = useState(false);
+
   /* =========================
           FILTER
     ========================= */
+
+  // const [statusTab, setStatusTab] = useState<number>(CuringStatus.Loaded);
 
   const filteredRows = useMemo(() => {
     return curingRows.filter((x: any) => {
@@ -84,14 +101,11 @@ const CuringStage = () => {
         x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesAutoclave =
-        activeAutoclaveTab === "Marangoni"
-          ? x.autoclaveId === 1
-          : x.autoclaveId === 2;
+      const matchesStatus = Number(x.currentStageStatus) === Number(statusTab);
 
-      return matchesSearch && matchesAutoclave;
+      return matchesSearch && matchesStatus;
     });
-  }, [curingRows, searchTerm, activeAutoclaveTab]);
+  }, [curingRows, searchTerm, statusTab]);
 
   /* =========================
           CREATE BATCH
@@ -145,26 +159,20 @@ const CuringStage = () => {
     }
 
     try {
-      const selectedCasings = curingRows.filter((row) =>
-        selectedRows.includes(row.orderCasingId),
-      );
-
       const payload = {
-        casings: selectedCasings.map((row) => ({
-          orderCasingId: String(row.orderCasingId),
-          autoclaveId: String(row.autoclaveId),
-          autoclavePipeId: String(row.autoclavePipeId),
-        })),
+        orderCasingIds: selectedRows.map(String),
       };
 
       console.log("START CURE PAYLOAD", payload);
 
-      await curingServiceApi.startCure(payload);
-      setIsCureStarted(true);
+      const response = await curingServiceApi.startCure(payload);
+      await loadData();
+setSelectedRows([]);
+      console.log("START CURE RESPONSE", response);
+
       alert("Start Cure Successful");
     } catch (error) {
-      console.error(error);
-
+      console.error("START CURE ERROR", error);
       alert("Failed to Start Cure");
     }
   };
@@ -183,7 +191,7 @@ const CuringStage = () => {
       console.log("UNLOAD CURE PAYLOAD", payload);
 
       await curingServiceApi.unloadCure(payload);
-
+      await handleSendToEnvelope();
       alert("Unload Cure Successful");
     } catch (error) {
       console.error(error);
@@ -206,8 +214,7 @@ const CuringStage = () => {
       console.log("FINISH CURE PAYLOAD", payload);
 
       await curingServiceApi.finishCure(payload);
-
-      setIsCureStarted(false);
+      setStatusTab(CuringStatus.Unloaded);
 
       alert("Finish Cure Successful");
     } catch (error) {
@@ -231,9 +238,9 @@ const CuringStage = () => {
       console.log("CANCEL CURE PAYLOAD", payload);
 
       await curingServiceApi.cancelCure(payload);
-
-      setIsCureStarted(false);
-
+      await loadData();
+      setSelectedRows([]);
+      setStatusTab(CuringStatus.Cancelled);
       alert("Cancel Cure Successful");
     } catch (error) {
       console.error(error);
@@ -252,7 +259,6 @@ const CuringStage = () => {
   //   alert("Send To QA API Pending");
   // };
 
-  
   // const handleSendToEnvelope = () => {
   //   if (selectedRows.length === 0) {
   //     alert("Select casing first");
@@ -264,58 +270,60 @@ const CuringStage = () => {
   // };
 
   const handleSendToQA = async () => {
-  if (selectedRows.length === 0) {
-    alert("Select casing first");
-    return;
-  }
+    if (selectedRows.length === 0) {
+      alert("Select casing first");
+      return;
+    }
 
-  try {
-    const payload = {
-      orderCasingIds: selectedRows.map(String),
-      destinationStage: 15,
-    };
+    try {
+      const payload = {
+        orderCasingIds: selectedRows.map(String),
+        destinationStage: 15,
+      };
 
-    console.log("SEND TO QA PAYLOAD", payload);
+      console.log("SEND TO QA PAYLOAD", payload);
 
-    await curingServiceApi.moveCuring(payload);
+      await curingServiceApi.moveCuring(payload);
+      await loadData();
+      setSelectedRows([]);
+      alert("Sent To QA Successfully");
 
-    alert("Sent To QA Successfully");
+      setSelectedRows([]);
+    } catch (error) {
+      console.error(error);
 
-    setSelectedRows([]);
-  } catch (error) {
-    console.error(error);
+      alert("Failed To Send To QA");
+    }
+  };
 
-    alert("Failed To Send To QA");
-  }
-};
+  const handleSendToEnvelope = async () => {
+    if (selectedRows.length === 0) {
+      alert("Select casing first");
+      return;
+    }
 
-const handleSendToEnvelope = async () => {
-  if (selectedRows.length === 0) {
-    alert("Select casing first");
-    return;
-  }
+    try {
+      const payload = {
+        orderCasingIds: selectedRows.map(String),
+        destinationStage: 13,
+      };
 
-  try {
-    const payload = {
-      orderCasingIds: selectedRows.map(String),
-      destinationStage: 13,
-    };
+      console.log("SEND TO ENVELOPING PAYLOAD", payload);
 
-    console.log("SEND TO ENVELOPING PAYLOAD", payload);
+      await curingServiceApi.moveCuring(payload);
+      await loadData();
+      setSelectedRows([]);
+      alert("Sent To Enveloping Successfully");
 
-    await curingServiceApi.moveCuring(payload);
+      setSelectedRows([]);
+    } catch (error) {
+      console.error(error);
 
-    alert("Sent To Enveloping Successfully");
-
-    setSelectedRows([]);
-  } catch (error) {
-    console.error(error);
-
-    alert("Failed To Send To Enveloping");
-  }
-};
+      alert("Failed To Send To Enveloping");
+    }
+  };
   return (
-    <div className="container-fluid box mt-3">
+    <div className="container-fluid box">
       <div
         className="d-flex justify-content-between "
         style={{ alignItems: "center" }}
@@ -348,42 +356,8 @@ const handleSendToEnvelope = async () => {
       </div>
       <hr />
 
-      {/* SEARCH */}
-
-      <div className="d-flex justify-content-end mb-3">
-        <input
-          className="form-control"
-          style={{
-            width: "260px",
-          }}
-          placeholder="Search Casing / Serial"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
       <div className="col">
         {/* MAIN TAB */}
-
-        <ul className="nav nav-tabs mb-3">
-          <li className="nav-item">
-            <button
-              className={`nav-link ${mainTab === "CURING" ? "active" : ""}`}
-              onClick={() => setMainTab("CURING")}
-            >
-              Curing
-            </button>
-          </li>
-
-          <li className="nav-item">
-            <button
-              className={`nav-link ${mainTab === "CANCEL" ? "active" : ""}`}
-              onClick={() => setMainTab("CANCEL")}
-            >
-              Cancel Cure
-            </button>
-          </li>
-        </ul>
 
         {/* CHAMBER TAB */}
 
@@ -411,91 +385,226 @@ const handleSendToEnvelope = async () => {
           </li>
         </ul>
 
+        <ul className="nav nav-pills mb-4 mt-2">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${statusTab === CuringStatus.Loaded ? "active" : ""}`}
+              onClick={() => setStatusTab(CuringStatus.Loaded)}
+            >
+              Ready To Start
+            </button>
+          </li>
+
+          <li className="nav-item ms-2">
+            <button
+              className={`nav-link ${
+                statusTab === CuringStatus.InProgress ? "active" : ""
+              }`}
+              onClick={() => setStatusTab(CuringStatus.InProgress)}
+            >
+              Cure In Progress
+            </button>
+          </li>
+
+          {/* <li className="nav-item ms-2">
+            <button
+              className={`nav-link ${statusTab === CuringStatus.Unloaded ? "active" : ""}`}
+              onClick={() => setStatusTab(CuringStatus.Unloaded)}
+            >
+              Finished Cure
+            </button>
+          </li> */}
+
+          <li className="nav-item ms-2">
+            <button
+              className={`nav-link ${
+                statusTab === CuringStatus.Cancelled ? "active" : ""
+              }`}
+              onClick={() => setStatusTab(CuringStatus.Cancelled)}
+            >
+              Cancelled Cure
+            </button>
+          </li>
+        </ul>
+
         {/* TABLE */}
 
-        <CuringTable
-          data={filteredRows}
-          selectedRows={selectedRows}
-          setSelectedRows={setSelectedRows}
-        />
+        <div className="row mb-4">
+          <div className="col-md-4">
+            <div className="card shadow-sm border-0 curing-card-data">
+              <div className="card-body text-center">
+                <h6>Loaded</h6>
+                <h2>
+                  {
+                    curingRows.filter(
+                      (x: any) => x.currentStageStatus === CuringStatus.Loaded,
+                    ).length
+                  }
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="card shadow-sm border-0 curing-card-data">
+              <div className="card-body text-center">
+                <h6>Running</h6>
+                <h2>
+                  {
+                    curingRows.filter(
+                      (x: any) =>
+                        x.currentStageStatus === CuringStatus.InProgress,
+                    ).length
+                  }
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          {/* <div className="col-md-3">
+            <div className="card shadow-sm border-0">
+              <div className="card-body text-center">
+                <h6>Finished</h6>
+                <h2>
+                  {
+                    curingRows.filter(
+                      (x: any) =>
+                        x.currentStageStatus === CuringStatus.Cancelled,
+                    ).length
+                  }
+                </h2>
+              </div>
+            </div>
+          </div> */}
+
+          <div className="col-md-4">
+            <div className="card shadow-sm border-0 curing-card-data">
+              <div className="card-body text-center">
+                <h6>Cancelled</h6>
+                <h2>
+                  {
+                    curingRows.filter(
+                      (x: any) =>
+                        x.currentStageStatus === CuringStatus.Cancelled,
+                    ).length
+                  }
+                </h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <div className="card mb-4 shadow-sm">
+          <div className="card-body text-center">
+            <h5 className="mb-4">Curing Workflow</h5>
+
+            <div className="d-flex justify-content-center align-items-center flex-wrap gap-3">
+              <span className="badge bg-secondary p-3">Enveloping</span>➜
+              <span className="badge bg-primary p-3">Loaded</span>➜
+              <span className="badge bg-warning text-dark p-3">Running</span>➜
+              <span className="badge bg-success p-3">Finished</span>➜
+              <span className="badge bg-info p-3">QC</span>
+            </div>
+          </div>
+        </div> */}
+        <div className="row">
+          <div className="col-lg-9">
+            {/* SEARCH */}
+
+            <div className="d-flex justify-content-end mb-1">
+              <input
+                className="form-control"
+                style={{
+                  width: "260px",
+                }}
+                placeholder="Search Casing / Serial"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <CuringTable
+              data={filteredRows}
+              selectedRows={selectedRows}
+              setSelectedRows={setSelectedRows}
+            />
+          </div>
+
+          <div className="col-lg-3">
+            <div className="card shadow-sm">
+              <div className="card-header">Actions</div>
+
+              <div className="card-body">
+                <h6>Selected: {selectedRows.length}</h6>
+
+                <hr />
+
+                {statusTab === CuringStatus.Loaded && (
+                  <>
+                    <button
+                      className="btn btn-success w-100 mb-2"
+                      onClick={handleStartCure}
+                    >
+                      Start Cure
+                    </button>
+
+                    <button
+                      className="btn btn-danger w-100"
+                      onClick={handleUnloadCure}
+                    >
+                      Unload Cure
+                    </button>
+                  </>
+                )}
+
+                {statusTab === CuringStatus.InProgress && (
+                  <>
+                    <button
+                      className="btn btn-primary w-100 mb-2"
+                      onClick={handleFinishCure}
+                    >
+                      Finish Cure
+                    </button>
+
+                    <button
+                      className="btn btn-warning w-100"
+                      onClick={handleCancelCure}
+                    >
+                      Cancel Cure
+                    </button>
+                  </>
+                )}
+
+                {statusTab === CuringStatus.Unloaded && (
+                  <button
+                    className="btn btn-info w-100"
+                    onClick={handleSendToQA}
+                  >
+                    Send To QC
+                  </button>
+                )}
+
+                {statusTab === CuringStatus.Cancelled && (
+                  <>
+                    <button
+                      className="btn btn-success w-100 mb-2"
+                      onClick={handleSendToQA}
+                    >
+                      Send To QC
+                    </button>
+
+                    <button
+                      className="btn btn-secondary w-100"
+                      onClick={handleSendToEnvelope}
+                    >
+                      Send To Enveloping
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* BUTTONS */}
-
-        <div className="row mt-4">
-          {mainTab === "CURING" ? (
-            !isCureStarted ? (
-              <>
-                <div className="col-md-6">
-                  <button
-                    className="btn btn-success w-100"
-                    style={{ height: "60px" }}
-                    onClick={handleStartCure}
-                  >
-                    Start Cure
-                  </button>
-                </div>
-
-                <div className="col-md-6">
-                  <button
-                    className="btn btn-danger w-100"
-                    style={{ height: "60px" }}
-                    onClick={handleUnloadCure}
-                  >
-                    Unload Cure
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="col-md-6">
-                  <button
-                    className="btn btn-primary w-100"
-                    style={{ height: "60px" }}
-                    onClick={handleFinishCure}
-                  >
-                    Finish Cure
-                  </button>
-                </div>
-
-                <div className="col-md-6">
-                  <button
-                    className="btn btn-warning w-100"
-                    style={{ height: "60px" }}
-                    onClick={handleCancelCure}
-                  >
-                    Cancel Cure
-                  </button>
-                </div>
-              </>
-            )
-          ) : (
-            <>
-              <div className="col-md-6">
-                <button
-                  className="btn btn-success w-100"
-                  style={{
-                    height: "60px",
-                  }}
-                  onClick={handleSendToQA}
-                >
-                  Send To QA
-                </button>
-              </div>
-
-              <div className="col-md-6">
-                <button
-                  className="btn btn-primary w-100"
-                  style={{
-                    height: "60px",
-                  }}
-                  onClick={handleSendToEnvelope}
-                >
-                  Send To Enveloping
-                </button>
-              </div>
-            </>
-          )}
-        </div>
       </div>
 
       {/* CHAMBER MODAL */}

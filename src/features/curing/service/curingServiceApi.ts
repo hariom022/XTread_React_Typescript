@@ -12,7 +12,7 @@ const curingServiceApi = {
     FUTURE API
   */
 
-  loadCuring: (payload: any) => Promise.resolve(payload),
+  loadCuring: (payload: any) => api.post("/curing/assign", payload),
 
   loadAutoClaves: () => api.get("/autoclaves"),
 
@@ -27,6 +27,18 @@ const curingServiceApi = {
 
   cancelCure: (payload: any) => api.post("/curing/cancel-cure", payload),
   moveCuring: (payload: any) => api.post("/curing/move", payload),
+  getLoadedCuring: () => indexPageApiService.getBatchProgress(14, 8),
+
+  // getLoadedCuring: () => indexPageApiService.getBatchProgress(14, 8),
+
+  getInProgressCuring: () => indexPageApiService.getBatchProgress(14, 5),
+
+  getFinishedCuring: () => indexPageApiService.getBatchProgress(14, 7),
+
+  getCancelledCuring: () => indexPageApiService.getBatchProgress(14, 6),
+
+   getCuringByStatus: (status: number) =>
+    indexPageApiService.getBatchProgress(14, status),
 };
 
 export default curingServiceApi;

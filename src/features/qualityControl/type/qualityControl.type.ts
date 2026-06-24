@@ -17,3 +17,12 @@ export interface QualityControlDetails
   approvedTreadWidth?: string;
   repairDetails?: any[];
 }
+export interface QualityControlRequest {
+  orderCasingIds: number[];
+  isApproved: boolean | null;
+  isRepair: boolean | null;
+  isRecoverRubber: boolean | null;
+  isRubberRecoveryApproved: boolean | null;
+  isRejectedToDispatch: boolean | null;
+  rejectionReasonCode: string | null;
+}

@@ -116,7 +116,7 @@ const NailInspectionModal = ({
               {/* STAFF NAME */}
               <div
                 className="text-white text-end"
-              // style={{ marginLeft: "50rem" }}
+                // style={{ marginLeft: "50rem" }}
               >
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
                 <b>John</b>
@@ -136,7 +136,7 @@ const NailInspectionModal = ({
                 <div className="modal-info m-0 building-top row text-nowrap">
                   <div className="col">
                     <strong>Production No</strong>
-                   <div>{selectedItem?.productionNumber}</div>
+                    <div>{selectedItem?.productionNumber}</div>
                   </div>
 
                   <div className="col">
@@ -146,7 +146,7 @@ const NailInspectionModal = ({
 
                   <div className="col">
                     <strong>Customer Name</strong>
-                  <div>{selectedItem?.customerName}</div>
+                    <div>{selectedItem?.customerName}</div>
                   </div>
 
                   <div className="col">
@@ -156,9 +156,7 @@ const NailInspectionModal = ({
 
                   <div className="col">
                     <strong>Requested Pattern</strong>
-                    <div>
-                      {selectedItem?.requestedPattern}
-                    </div>
+                    <div>{selectedItem?.requestedPattern}</div>
                   </div>
                 </div>
               </div>
@@ -232,9 +230,18 @@ const NailInspectionModal = ({
                   <div className="row g-2 mt-1">
                     <div className="col-6">
                       <button
-                        className="btn btn-success w-100 btn-lg-actiond-flex align-items-center justify-content-center"
-                        style={{ height: "70px" }}
+                        className="btn btn-success w-100 btn-lg-action d-flex align-items-center justify-content-center"
+                        style={{
+                          height: "70px",
+                          opacity:
+                            selectedItem?.serviceType?.id === 2 ? 0.5 : 1,
+                          cursor:
+                            selectedItem?.serviceType?.id === 2
+                              ? "not-allowed"
+                              : "pointer",
+                        }}
                         onClick={handleApproveWithPressureTest}
+                        disabled={selectedItem?.serviceType?.id === 2}
                       >
                         <b>Approved With Pressure Test</b>
                       </button>

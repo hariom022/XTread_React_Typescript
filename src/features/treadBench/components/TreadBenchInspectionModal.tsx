@@ -23,6 +23,7 @@ const TreadBenchInspectionModal = ({
       const payload = {
         orderCasingIds: [selectedItem.id.toString()],
         cementTypeId: Number(cementType),
+        consumptionEstimateKgs:consumptionKg,
       };
 
       console.log("SAVE PAYLOAD", payload);

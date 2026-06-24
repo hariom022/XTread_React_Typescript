@@ -8,7 +8,7 @@ import {type CementType} from "../types/treadBenchTypes"
     const [loading, setLoading] = useState(false);
   const [inspections, setInspections] = useState<any[]>([]);
   const [cementTypes, setCementTypes] = useState<CementType[]>([]);
-  const loadTreadBench = async (stageId: number = 9, statusId: number = 1) => {
+  const loadTreadBench = async (stageId: number = 9, statusId: number = 2) => {
     try {
       setLoading(true);
 
