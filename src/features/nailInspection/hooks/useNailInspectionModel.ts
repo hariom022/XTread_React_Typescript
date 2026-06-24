@@ -28,6 +28,7 @@ export const useNailInspectionModal = () => {
         customerName: casing.customerName,
 
         service: casing.serviceType?.name || "-",
+        serviceType: casing.serviceType,
 
         tyreSize: casing.tyreSize?.casingSize || "-",
 

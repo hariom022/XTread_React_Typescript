@@ -9,7 +9,7 @@ const buildingServiceApi = {
   approveReject: (payload: {
     orderCasingIds: string[];
     isApproved: boolean;
-    width: string;
+     width: number | null;
     rejectionReasonCode: string | null;
   }) =>
     api.post(

@@ -8,19 +8,12 @@ interface Props {
   refreshTable: () => void;
 }
 
-const useBuildingModal = ({
-  selectedItem,
-  onClose,
-  refreshTable,
-}: Props) => {
-  const [selectedPattern, setSelectedPattern] =
-    useState("");
+const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
+  const [selectedPattern, setSelectedPattern] = useState("");
 
-  const [selectedWidth, setSelectedWidth] =
-    useState("");
+  const [selectedWidth, setSelectedWidth] = useState("");
 
-  const [widthOptions, setWidthOptions] =
-    useState<number[]>([]);
+  const [widthOptions, setWidthOptions] = useState<number[]>([]);
 
   // ==========================
   // LOAD WIDTHS
@@ -28,22 +21,14 @@ const useBuildingModal = ({
 
   const loadWidths = async () => {
     try {
-      if (
-        !selectedItem?.treadPatternId
-      )
-        return;
+      if (!selectedItem?.treadPatternId) return;
 
-      const response =
-        await buildingServiceApi.getWidth(
-          selectedItem.treadPatternId,
-        );
+      const response = await buildingServiceApi.getWidth(
+        selectedItem.treadPatternId,
+      );
 
       const widths =
-        response.data.data?.[0]
-          ?.variants?.map(
-            (item: any) =>
-              item.width,
-          ) || [];
+        response.data.data?.[0]?.variants?.map((item: any) => item.width) || [];
 
       setWidthOptions(widths);
     } catch (error) {
@@ -62,29 +47,68 @@ const useBuildingModal = ({
     try {
       if (!selectedItem) return;
 
-      if (!selectedWidth) {
-        alert("Please select width");
+      const isRetread = selectedItem?.serviceType?.id === 1;
+
+      if (isRetread && !selectedWidth) {
+        alert("Please select Width");
         return;
       }
-
       const payload = {
-        orderCasingIds: [
-          String(selectedItem.id),
-        ],
+        orderCasingIds: [String(selectedItem.id)],
 
         isApproved: true,
 
-        width: selectedWidth,
+        width: isRetread ? Number(selectedWidth) : null,
 
         rejectionReasonCode: null,
       };
       console.log("HANDLE APPROVED PAYLOAD:=->", selectedItem);
       console.log("Building Payload", payload);
-      await buildingServiceApi.approveReject(
-        payload,
-      );
+      await buildingServiceApi.approveReject(payload);
 
       alert("Approved Successfully");
+
+      refreshTable();
+
+      resetModal();
+
+      onClose();
+    } catch (error: any) {
+      console.error("FULL ERROR", error);
+      console.error("RESPONSE", error?.response);
+      console.error("DATA", error?.response?.data);
+      console.error("STATUS", error?.response?.status);
+
+      alert(JSON.stringify(error?.response?.data));
+    }
+  };
+
+  const handleReturnToRepair = async () => {
+    try {
+      if (!selectedItem) return;
+
+      const isRetread = selectedItem?.serviceType?.id === 1;
+
+      if (isRetread && !selectedWidth) {
+        alert("Please select Width");
+        return;
+      }
+
+      const payload = {
+        orderCasingIds: [selectedItem.orderCasingId ?? selectedItem.id],
+
+        isApproved: false,
+
+        width: isRetread ? Number(selectedWidth) : null,
+
+        rejectionReasonCode: null,
+      };
+
+      console.log("RETURN TO REPAIR PAYLOAD", payload);
+
+      await buildingServiceApi.approveReject(payload);
+
+      alert("Returned To Repair Successfully");
 
       refreshTable();
 
@@ -94,65 +118,13 @@ const useBuildingModal = ({
     } catch (error) {
       console.error(error);
 
-      alert("Approval Failed");
+      alert("Return To Repair Failed");
     }
   };
 
-  const handleReturnToRepair =
-    async () => {
-      try {
-        if (!selectedItem) return;
-
-        if (!selectedWidth) {
-          alert("Please select width");
-          return;
-        }
-
-        const payload = {
-          orderCasingIds: [
-            selectedItem.orderCasingId ??
-            selectedItem.id,
-          ],
-
-          isApproved: false,
-
-          width: selectedWidth,
-
-          rejectionReasonCode: null,
-        };
-
-        console.log(
-          "RETURN TO REPAIR PAYLOAD",
-          payload,
-        );
-
-        await buildingServiceApi.approveReject(
-          payload,
-        );
-
-        alert(
-          "Returned To Repair Successfully",
-        );
-
-        refreshTable();
-
-        resetModal();
-
-        onClose();
-      } catch (error) {
-        console.error(error);
-
-        alert("Return To Repair Failed");
-      }
-    };
-
-    
   useEffect(() => {
     if (selectedItem) {
-      setSelectedPattern(
-        selectedItem.requestedPattern ||
-        "",
-      );
+      setSelectedPattern(selectedItem.requestedPattern || "");
 
       setSelectedWidth("");
 
