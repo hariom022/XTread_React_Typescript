@@ -29,6 +29,10 @@ const CuringStage = () => {
   const { curingRows, setCuringRows, loadData } =
     useCuringIndexTable(statusTab);
 
+
+    useEffect(() => {
+  setSelectedRows([]);
+}, [statusTab]);
   /* =========================
           BATCH MODAL
     ========================= */
@@ -163,7 +167,7 @@ const CuringStage = () => {
 
       const response = await curingServiceApi.startCure(payload);
       await loadData();
-
+setSelectedRows([]);
       console.log("START CURE RESPONSE", response);
 
       alert("Start Cure Successful");
@@ -235,6 +239,7 @@ const CuringStage = () => {
 
       await curingServiceApi.cancelCure(payload);
       await loadData();
+      setSelectedRows([]);
       setStatusTab(CuringStatus.Cancelled);
       alert("Cancel Cure Successful");
     } catch (error) {
@@ -280,6 +285,7 @@ const CuringStage = () => {
 
       await curingServiceApi.moveCuring(payload);
       await loadData();
+      setSelectedRows([]);
       alert("Sent To QA Successfully");
 
       setSelectedRows([]);
@@ -306,6 +312,7 @@ const CuringStage = () => {
 
       await curingServiceApi.moveCuring(payload);
       await loadData();
+      setSelectedRows([]);
       alert("Sent To Enveloping Successfully");
 
       setSelectedRows([]);
@@ -316,7 +323,7 @@ const CuringStage = () => {
     }
   };
   return (
-    <div className="container-fluid box mt-3">
+    <div className="container-fluid box">
       <div
         className="d-flex justify-content-between "
         style={{ alignItems: "center" }}
@@ -349,20 +356,6 @@ const CuringStage = () => {
       </div>
       <hr />
 
-      {/* SEARCH */}
-
-      <div className="d-flex justify-content-end mb-3">
-        <input
-          className="form-control"
-          style={{
-            width: "260px",
-          }}
-          placeholder="Search Casing / Serial"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
       <div className="col">
         {/* MAIN TAB */}
 
@@ -392,7 +385,7 @@ const CuringStage = () => {
           </li>
         </ul>
 
-        <ul className="nav nav-pills mb-4">
+        <ul className="nav nav-pills mb-4 mt-2">
           <li className="nav-item">
             <button
               className={`nav-link ${statusTab === CuringStatus.Loaded ? "active" : ""}`}
@@ -413,14 +406,14 @@ const CuringStage = () => {
             </button>
           </li>
 
-          <li className="nav-item ms-2">
+          {/* <li className="nav-item ms-2">
             <button
               className={`nav-link ${statusTab === CuringStatus.Unloaded ? "active" : ""}`}
               onClick={() => setStatusTab(CuringStatus.Unloaded)}
             >
               Finished Cure
             </button>
-          </li>
+          </li> */}
 
           <li className="nav-item ms-2">
             <button
@@ -437,8 +430,8 @@ const CuringStage = () => {
         {/* TABLE */}
 
         <div className="row mb-4">
-          <div className="col-md-3">
-            <div className="card shadow-sm border-0">
+          <div className="col-md-4">
+            <div className="card shadow-sm border-0 curing-card-data">
               <div className="card-body text-center">
                 <h6>Loaded</h6>
                 <h2>
@@ -452,8 +445,8 @@ const CuringStage = () => {
             </div>
           </div>
 
-          <div className="col-md-3">
-            <div className="card shadow-sm border-0">
+          <div className="col-md-4">
+            <div className="card shadow-sm border-0 curing-card-data">
               <div className="card-body text-center">
                 <h6>Running</h6>
                 <h2>
@@ -468,7 +461,7 @@ const CuringStage = () => {
             </div>
           </div>
 
-          <div className="col-md-3">
+          {/* <div className="col-md-3">
             <div className="card shadow-sm border-0">
               <div className="card-body text-center">
                 <h6>Finished</h6>
@@ -482,10 +475,10 @@ const CuringStage = () => {
                 </h2>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <div className="col-md-3">
-            <div className="card shadow-sm border-0">
+          <div className="col-md-4">
+            <div className="card shadow-sm border-0 curing-card-data">
               <div className="card-body text-center">
                 <h6>Cancelled</h6>
                 <h2>
@@ -515,6 +508,19 @@ const CuringStage = () => {
         </div> */}
         <div className="row">
           <div className="col-lg-9">
+            {/* SEARCH */}
+
+            <div className="d-flex justify-content-end mb-1">
+              <input
+                className="form-control"
+                style={{
+                  width: "260px",
+                }}
+                placeholder="Search Casing / Serial"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
             <CuringTable
               data={filteredRows}
               selectedRows={selectedRows}
