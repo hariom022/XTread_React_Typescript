@@ -11,6 +11,9 @@ interface Props {
     setDispatchTeam: React.Dispatch<
         React.SetStateAction<DispatchTeam>
     >;
+    setIsInternal: React.Dispatch<
+        React.SetStateAction<boolean>
+    >;
 }
 
 const DispatchTeamModal =
@@ -19,6 +22,7 @@ const DispatchTeamModal =
         onClose,
         onContinue,
         setDispatchTeam,
+        setIsInternal,
     }: Props) => {
         const modal = useDispatchTeamModal();
 
@@ -291,17 +295,47 @@ const DispatchTeamModal =
                                                 <button
                                                     className="btn btn-primary"
                                                     onClick={() => {
-                                                        setDispatchTeam({
-                                                            salesRep: "",
-                                                            courierName:
-                                                                modal.selectedCourier?.name || "",
-                                                            regNo:
-                                                                modal.selectedVehicle,
-                                                            driverName:
-                                                                modal.driverName,
-                                                            driverId:
-                                                                modal.driverId,
-                                                        });
+
+                                                        if (
+                                                            modal.courierType === "Internal"
+                                                        ) {
+
+                                                            setDispatchTeam({
+                                                                salesRep: "",
+                                                                courierName: "",
+                                                                regNo: "",
+                                                                driverName: "",
+                                                                driverId: "",
+                                                            });
+
+                                                            setIsInternal(true);
+
+                                                        } else {
+
+                                                            const selected =
+                                                                modal.existingCouriers.find(
+                                                                    (x) =>
+                                                                        x.id ===
+                                                                        modal.selectedCourierId,
+                                                                );
+
+                                                            if (!selected) return;
+
+                                                            setDispatchTeam({
+                                                                salesRep: "",
+                                                                courierName:
+                                                                    selected.name,
+                                                                regNo:
+                                                                    selected.regNo,
+                                                                driverName:
+                                                                    selected.driver,
+                                                                driverId:
+                                                                    "AUTO123",
+                                                            });
+
+                                                            setIsInternal(false);
+                                                        }
+
                                                         modal.reset();
 
                                                         onContinue();
@@ -376,13 +410,13 @@ const DispatchTeamModal =
                                                                     <input
                                                                         type="radio"
                                                                         checked={
-                                                                            modal.selectedCourierId ===
-                                                                            item.id
+                                                                            modal.selectedCourierId === item.id
+                                                                        }
+                                                                        disabled={
+                                                                            modal.courierType === "Internal"
                                                                         }
                                                                         onChange={() =>
-                                                                            modal.setSelectedCourierId(
-                                                                                item.id,
-                                                                            )
+                                                                            modal.setSelectedCourierId(item.id)
                                                                         }
                                                                     />
                                                                 </td>
@@ -412,17 +446,47 @@ const DispatchTeamModal =
                                                     className="btn btn-success"
 
                                                     onClick={() => {
-                                                        setDispatchTeam({
-                                                            salesRep: "",
-                                                            courierName:
-                                                                modal.selectedCourier?.name || "",
-                                                            regNo:
-                                                                modal.selectedVehicle,
-                                                            driverName:
-                                                                modal.driverName,
-                                                            driverId:
-                                                                modal.driverId,
-                                                        });
+
+                                                        if (
+                                                            modal.courierType === "Internal"
+                                                        ) {
+
+                                                            setDispatchTeam({
+                                                                salesRep: "",
+                                                                courierName: "",
+                                                                regNo: "",
+                                                                driverName: "",
+                                                                driverId: "",
+                                                            });
+
+                                                            setIsInternal(true);
+
+                                                        } else {
+
+                                                            const selected =
+                                                                modal.existingCouriers.find(
+                                                                    (x) =>
+                                                                        x.id ===
+                                                                        modal.selectedCourierId,
+                                                                );
+
+                                                            if (!selected) return;
+
+                                                            setDispatchTeam({
+                                                                salesRep: "",
+                                                                courierName:
+                                                                    selected.name,
+                                                                regNo:
+                                                                    selected.regNo,
+                                                                driverName:
+                                                                    selected.driver,
+                                                                driverId:
+                                                                    "AUTO123",
+                                                            });
+
+                                                            setIsInternal(false);
+                                                        }
+
                                                         modal.reset();
 
                                                         onContinue();

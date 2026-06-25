@@ -40,7 +40,7 @@ const DispatchStage =
             driverName: "",
             driverId: "",
         });
-
+        const [isInternal, setIsInternal] = useState(false);
         const filteredData =
             useMemo(() => {
                 return rows.filter(
@@ -133,15 +133,13 @@ const DispatchStage =
                 <DispatchTeamModal
                     show={showDispatchTeamModal}
                     onClose={() => {
-                        setShowDispatchTeamModal(false)
+                        setShowDispatchTeamModal(false);
                     }}
                     setDispatchTeam={setDispatchTeam}
+                    setIsInternal={setIsInternal}
                     onContinue={() => {
                         setShowDispatchTeamModal(false);
-
-                        setShowCustomerDeliveryModal(
-                            true,
-                        );
+                        setShowCustomerDeliveryModal(true);
                     }}
                 />
                 <CustomerDeliveryOrderModal
@@ -154,7 +152,7 @@ const DispatchStage =
                     setDispatchTeam={
                         setDispatchTeam
                     }
-                    isInternal={false}
+                    isInternal={isInternal}
                     onClose={() =>
                         setShowCustomerDeliveryModal(
                             false,
