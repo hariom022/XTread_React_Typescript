@@ -37,6 +37,15 @@ const envelopingServiceApi = {
   return response;
 },
 
+assignEnvelope(payload: {
+  casings: {
+    orderCasingId: string;
+    railId: string;
+    railPipeId: string;
+  }[];
+}) {
+  return api.post("/enveloping/assign", payload);
+},
 approveRejectEnvelope: async (
   payload: any
 ) => {

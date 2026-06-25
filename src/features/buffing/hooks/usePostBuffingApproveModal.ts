@@ -188,7 +188,15 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
     try {
       setLoading(true);
       if (!selectedItem) return;
-
+       // Validation
+  if (!machineId) {
+    alert("Please select a machine.");
+    return;
+  }
+  if (!damageLevelId) {
+    alert("Please select a damage level.");
+    return;
+  }
       if (!postChecklistSaved) {
         alert(
           "Please complete all Post Buffing checklist items before Approval",

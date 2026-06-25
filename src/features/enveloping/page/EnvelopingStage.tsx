@@ -85,36 +85,69 @@ const EnvelopingStage = () => {
           PROCESS ENVELOPE
   ============================ */
 
-  const handleProcessEnvelope = async () => {
+//   const handleProcessEnvelope = async () => {
+//   if (allocatedRows.length === 0) {
+//     alert("Please allocate rail locations");
+//     return;
+//   }
+
+//   const responses = await processEnvelope();
+
+//   const processedRows = allocatedRows.map(
+//     (row, index) => ({
+//       ...row,
+//       railId: responses[index]?.data?.railId,
+//       railPipeId: responses[index]?.data?.railPipeId,
+//     })
+//   );
+
+//   setEnvelopingRows((prev) => [
+//     ...prev,
+//     ...processedRows,
+//   ]);
+
+//   setShowBatchModal(false);
+
+//   resetModal();
+
+//   alert(
+//     "Envelope Processed Successfully"
+//   );
+// };
+// 
+const handleProcessEnvelope = async () => {
   if (allocatedRows.length === 0) {
     alert("Please allocate rail locations");
     return;
   }
+console.log("Allocated Rows", allocatedRows);
+  const processedRows = await processEnvelope();
 
-  const responses = await processEnvelope();
+  if (!processedRows) return;
 
-  const processedRows = allocatedRows.map(
-    (row, index) => ({
-      ...row,
-      railId: responses[index]?.data?.railId,
-      railPipeId: responses[index]?.data?.railPipeId,
-    })
-  );
+  //setEnvelopingRows((prev) => [...prev, ...processedRows]);
+setEnvelopingRows((prev) => {
+  const updated = [...prev];
 
-  setEnvelopingRows((prev) => [
-    ...prev,
-    ...processedRows,
-  ]);
+  processedRows.forEach((row) => {
+    const index = updated.findIndex(
+      (x) => x.orderCasingId === row.orderCasingId
+    );
 
+    if (index >= 0) {
+      updated[index] = row;
+    } else {
+      updated.push(row);
+    }
+  });
+
+  return updated;
+});
   setShowBatchModal(false);
-
   resetModal();
 
-  alert(
-    "Envelope Processed Successfully"
-  );
+  alert("Envelope Processed Successfully");
 };
-
   /* ===========================
           APPROVE
   ============================ */

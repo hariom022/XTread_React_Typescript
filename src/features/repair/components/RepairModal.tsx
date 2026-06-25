@@ -216,14 +216,14 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
               {/* TOP INFO */}
 
               <div className="modal-info p-1 repairs-top row text-nowrap">
-                <div className="col-2">
+                <div className="col">
                   <strong>Production No</strong>
 
                   <div>{selectedItem?.productionNumber}</div>
                 </div>
 
-                <div className="col-2">
-                  <strong>Serial No</strong>
+                <div className="col">
+                  <strong>Tyre Ref No</strong>
 
                   <div>{selectedItem?.tyreReferenceNumber}</div>
                 </div>
@@ -234,16 +234,20 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                   <div>{selectedItem?.customerName}</div>
                 </div>
 
-                <div className="col-2">
+                <div className="col">
                   <strong>Tyre Size</strong>
 
                   <div>{selectedItem?.tyreSize}</div>
                 </div>
 
-                <div className="col-3">
+                <div className="col">
                   <strong>Requested Pattern</strong>
 
                   <div>{selectedItem?.requestedPattern}</div>
+                </div>
+                <div className="col">
+                  <strong>ReApproved Pattern</strong>
+                  <div>{selectedItem?.reApprovedPattern || "-"}</div>
                 </div>
               </div>
 

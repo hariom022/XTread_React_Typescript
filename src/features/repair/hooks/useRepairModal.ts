@@ -106,6 +106,10 @@ export const useRepairModal = () => {
         puncturesFound: casing.puncturesFound || 0,
 
         originalCasing: casing,
+        reApprovedPattern:
+          // casing.retreadDetail
+          //   ?.patternName ||
+          "-",
       };
 
       setSelectedItem(modalData);

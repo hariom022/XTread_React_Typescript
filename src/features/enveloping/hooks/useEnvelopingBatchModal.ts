@@ -186,30 +186,67 @@ const processEnvelope = async () => {
   try {
     if (!allocatedRows.length) {
       alert("Please allocate at least one casing");
-      return [];
+      return;
     }
 
     if (!selectedRailId) {
       alert("Please select a rail");
-      return [];
+      return;
     }
 
+    // Step 1: Create/Get Rail Pipes
     const responses = await Promise.all(
-      allocatedRows.map((row) =>
-        envelopingServiceApi.processEnvelope(
+      allocatedRows.map(async (row) => {
+        const response = await envelopingServiceApi.processEnvelope(
           selectedRailId,
           {
             pipeName: row.railLocation,
             sortOrder: row.railNo ?? 0,
           }
-        )
-      )
+        );
+
+        console.log("Process Envelope Response", response.data);
+
+        return response.data;
+      })
     );
 
-    return responses; // <-- RETURN THIS
-  } catch (error) {
+    // Step 2: Prepare Assign Payload
+    const payload = {
+      casings: allocatedRows.map((row, index) => ({
+        orderCasingId: String(row.orderCasingId),
+        railId: String(responses[index].railId),
+        railPipeId: String(responses[index].railPipeId),
+      })),
+    };
+
+    console.log("Assign Payload", payload);
+
+    // Step 3: Call Assign API
+    await envelopingServiceApi.assignEnvelope(payload);
+    return allocatedRows.map((row, index) => ({
+  ...row,
+  railId: responses[index].railId,
+  railPipeId: responses[index].railPipeId,
+}));
+
+    alert("Envelope Assigned Successfully");
+
+    // Optional
+    // await loadData();
+    // setAllocatedRows([]);
+    // onClose();
+
+  } catch (error: any) {
     console.error(error);
-    return [];
+
+    const message =
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      error?.message ||
+      "Failed to process envelope";
+
+    alert(message);
   }
 };
   const loadRails = async () => {
