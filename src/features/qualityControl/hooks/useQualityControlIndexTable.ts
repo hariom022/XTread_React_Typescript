@@ -1,71 +1,93 @@
-import { useEffect,useState,} from "react";
+import { useEffect, useState } from "react";
 
 import qualityControlServiceApi from "../service/qualityControlServiceApi";
 
-import type {QualityControlRow,} from "../type/qualityControl.type";
+import type { QualityControlRow } from "../type/qualityControl.type";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
-const useQualityControlIndexTable =
-    () => {
+const useQualityControlIndexTable = () => {
+  const [loading, setLoading] = useState(false);
 
-        const [
-            loading,
-            setLoading,
-        ] = useState(false);
+  const [rows, setRows] = useState<QualityControlRow[]>([]);
 
-        const [
-            rows,
-            setRows,
-        ] = useState<
-            QualityControlRow[]
-        >([]);
+  const fetchRows = async () => {
+    try {
+      setLoading(true);
 
-        const fetchRows =
-            async () => {
-                try {
+      const response = await indexPageApiService.getBatchProgress(15, 1);
+      const stage = response.data.data?.[0];
 
-                    setLoading(true);
+      const data =
+        stage?.batches?.flatMap((batch: any) =>
+          batch.casings.map((casing: any) => ({
+            ...casing,
+            // id: casing.orderCasingId,
 
-                    const response =
-                    await indexPageApiService.getBatchProgress(15,1);
-                    const stage =
-                        response.data.data?.[0];
+            // casing: casing.productionNumber || "-",
+            // batchNumber:
+            //     batch.batchNumber,
+            id: casing.orderCasingId,
 
-                    const data =
-                        stage?.batches?.flatMap(
-                            (batch: any) =>
-                                batch.casings.map(
-                                    (casing: any) => ({
-                                        ...casing,
+            casing: casing.productionNumber || "-",
 
-                                        batchNumber:
-                                            batch.batchNumber,
-                                    }),
-                                ),
-                        ) || [];
+            serial: casing.tyreReferenceNumber || "-",
 
-                    setRows(data);
+            dot: casing.dotNumber || "-",
 
-                } catch (error) {
+            tyreSize: casing.tyreSizeLabel || "-",
 
-                    console.error(error);
+            patternName: casing.patternName || "-",
 
-                } finally {
+            requestedPattern: "-",
 
-                    setLoading(false);
-                }
-            };
+            date: casing.orderDate || "-",
 
-        useEffect(() => {
-            fetchRows();
-        }, []);
+            customerName: casing.customerName || "-",
 
-        return {
-            rows,
-            loading,
-            fetchRows,
-        };
-    };
+            service: batch.batchNumber?.startsWith("RT") ? "Retread" : "Repair",
 
-export default
-    useQualityControlIndexTable;
+            batchNo: batch.batchNumber,
+
+            currentStageStatus: casing.currentStageStatus,
+
+            // batch summary
+            approved: batch.stageSummary?.approved || 0,
+            rejected: batch.stageSummary?.rejected || 0,
+            pending: batch.stageSummary?.pending || 0,
+            previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
+            expectedTotal:
+              batch.stageSummary?.expectedTotal || batch.originalBatchSize,
+            arrived: batch.stageSummary?.arrived || 0,
+
+            // modal fields
+            isRetreaded: false,
+            previousPattern: "",
+            previousRetreader: "",
+            noOfRetread: 0,
+            noOfExistingRepairs: 0,
+
+            originalBatch: batch,
+            originalCasing: casing,
+          })),
+        ) || [];
+
+      setRows(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRows();
+  }, []);
+
+  return {
+    rows,
+    loading,
+    fetchRows,
+  };
+};
+
+export default useQualityControlIndexTable;
