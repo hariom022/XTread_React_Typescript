@@ -36,7 +36,7 @@ export const useTreadBenchInspectionModal = () => {
           casing.retreadDetail
             ?.patternName ||
           "-",
-
+        circumference:casing.circumference || "-",
         reApprovedPattern:
           // casing.retreadDetail
           //   ?.patternName ||
