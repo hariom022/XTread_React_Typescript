@@ -24,6 +24,7 @@ export interface CuringRow {
   comment?: string;
 
   chamber?: string;
+  autoclavePipeName?:string;
 }
 
 export interface AllocatedPipeRow extends CuringRow {

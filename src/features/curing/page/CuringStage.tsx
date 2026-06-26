@@ -95,17 +95,35 @@ const CuringStage = () => {
 
   // const [statusTab, setStatusTab] = useState<number>(CuringStatus.Loaded);
 
+  // const filteredRows = useMemo(() => {
+  //   return curingRows.filter((x: any) => {
+  //     const matchesSearch =
+  //       x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
+
+  //     const matchesStatus = Number(x.currentStageStatus) === Number(statusTab);
+
+  //     return matchesSearch && matchesStatus;
+  //   });
+  // }, [curingRows, searchTerm, statusTab]);
   const filteredRows = useMemo(() => {
-    return curingRows.filter((x: any) => {
-      const matchesSearch =
-        x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
+  return curingRows.filter((x: any) => {
+    const matchesSearch =
+      x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = Number(x.currentStageStatus) === Number(statusTab);
+    const matchesStatus =
+      Number(x.currentStageStatus) === Number(statusTab);
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [curingRows, searchTerm, statusTab]);
+    const selectedAutoclaveId =
+      activeAutoclaveTab === "Marangoni" ? 1 : 2;
+
+    const matchesAutoclave =
+      Number(x.autoclaveId) === selectedAutoclaveId;
+
+    return matchesSearch && matchesStatus && matchesAutoclave;
+  });
+}, [curingRows, searchTerm, statusTab, activeAutoclaveTab]);
 
   /* =========================
           CREATE BATCH

@@ -68,7 +68,7 @@ const CuringTable = ({ data, selectedRows, setSelectedRows }: Props) => {
 
                 <td>{item.serviceTypeName}</td>
 
-                <td>{item.pipeNo ?? "-"}</td>
+                <td>{item.autoclavePipeName ?? "-"}</td>
 
                 <td>{item.comment ?? "-"}</td>
               </tr>

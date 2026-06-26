@@ -3,7 +3,8 @@ import type {
   AllocatedRailRow,
   EnvelopingRow,
   // RailType,
-  Rail
+  Rail,
+  RailPipe
 } from "../type/enveloping.type";
 
 interface Props {
@@ -13,11 +14,12 @@ interface Props {
  selectedRailId: number | null;
 
   rails: Rail[];
+  pipes:RailPipe[];
   availableRows: EnvelopingRow[];
 
   allocatedRows: AllocatedRailRow[];
 
-  allocateRail: (row: EnvelopingRow, railNo: number) => void;
+  allocateRail: (row: EnvelopingRow, railNo: RailPipe) => void;
 
   removeFromRail: (row: AllocatedRailRow) => void;
 
@@ -31,6 +33,7 @@ const EnvelopingBatchModal = ({
   // railType,
  selectedRailId,
   rails,
+  pipes,
   availableRows,
   allocatedRows,
 
@@ -171,22 +174,32 @@ const EnvelopingBatchModal = ({
                           <select
                             className="form-select form-select-sm"
                             defaultValue=""
-                            onChange={(e) =>
-                              allocateRail(item, Number(e.target.value))
-                            }
+                            onChange={(e) => {
+  const pipe = pipes.find(
+    (p) => p.railPipeId === Number(e.target.value)
+  );
+
+  if (pipe) {
+    allocateRail(item, pipe);
+  }
+}}
                           >
                             <option value="">Select</option>
 
-                            {[...Array(28)]
-                              .map((_, i) => (i + 1).toString())
-                              .filter(
-                                (railNo) => !usedRailNumbers.includes(railNo),
-                              )
-                              .map((railNo) => (
-                                <option key={railNo} value={railNo}>
-                                  {railNo}
-                                </option>
-                              ))}
+                            {pipes
+  .filter(
+    (pipe) =>
+      pipe.isActive &&
+      !usedRailNumbers.includes(pipe.pipeName)
+  )
+  .map((pipe) => (
+    <option
+      key={pipe.railPipeId}
+      value={pipe.railPipeId}
+    >
+      {pipe.pipeName}
+    </option>
+  ))}
                           </select>
                         </td>
                       </tr>

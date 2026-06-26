@@ -20,6 +20,7 @@ const EnvelopingStage = () => {
     // loading,
     envelopingRows,
     setEnvelopingRows,
+    fetchEnvelopingOrders,
   } = useEnvelopingIndexTable();
   console.log("Enveloping Rows", envelopingRows);
   /* ===========================
@@ -35,6 +36,7 @@ const EnvelopingStage = () => {
     resetModal,
     loading,
     rails,
+    pipes,
     selectedRailId,
     setSelectedRailId,
 
@@ -120,29 +122,12 @@ const handleProcessEnvelope = async () => {
     alert("Please allocate rail locations");
     return;
   }
-console.log("Allocated Rows", allocatedRows);
-  const processedRows = await processEnvelope();
 
-  if (!processedRows) return;
+  const success = await processEnvelope();
 
-  //setEnvelopingRows((prev) => [...prev, ...processedRows]);
-setEnvelopingRows((prev) => {
-  const updated = [...prev];
+  if (!success) return;
 
-  processedRows.forEach((row) => {
-    const index = updated.findIndex(
-      (x) => x.orderCasingId === row.orderCasingId
-    );
-
-    if (index >= 0) {
-      updated[index] = row;
-    } else {
-      updated.push(row);
-    }
-  });
-
-  return updated;
-});
+  await fetchEnvelopingOrders(); // Refresh index table
   setShowBatchModal(false);
   resetModal();
 
@@ -152,88 +137,163 @@ setEnvelopingRows((prev) => {
           APPROVE
   ============================ */
 
-  const handleApprove = async () => {
-    try {
-      if (selectedRows.length === 0) {
-        alert("Please select casing");
-        return;
-      }
+  // const handleApprove = async () => {
+  //   try {
+  //     if (selectedRows.length === 0) {
+  //       alert("Please select casing");
+  //       return;
+  //     }
 
-      const payload = {
-        isApproved: true,
-        rejectionReasonCode: null,
-        casings: envelopingRows
-          .filter((row) => selectedRows.includes(row.orderCasingId))
-          .map((row) => ({
-            orderCasingId: row.orderCasingId.toString(),
+  //     const payload = {
+  //       isApproved: true,
+  //       rejectionReasonCode: null,
+  //       casings: envelopingRows
+  //         .filter((row) => selectedRows.includes(row.orderCasingId))
+  //         .map((row) => ({
+  //           orderCasingId: row.orderCasingId.toString(),
 
-            railId: row.railId?.toString() ?? "0",
+  //           railId: row.railId?.toString() ?? "0",
 
-            railPipeId: row.railPipeId?.toString() ?? "0",
-          })),
-      };
+  //           railPipeId: row.railPipeId?.toString() ?? "0",
+  //         })),
+  //     };
 
-      console.log("Approve Payload", payload);
+  //     console.log("Approve Payload", payload);
 
-      await envelopingServiceApi.approveRejectEnvelope(payload);
+  //     await envelopingServiceApi.approveRejectEnvelope(payload);
 
-      alert("Approved Successfully");
+  //     alert("Approved Successfully");
 
-      setEnvelopingRows((prev) =>
-        prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
-      );
+  //     setEnvelopingRows((prev) =>
+  //       prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
+  //     );
 
-      setSelectedRows([]);
-    } catch (error: any) {
-      console.error(error);
+  //     setSelectedRows([]);
+  //   } catch (error: any) {
+  //     console.error(error);
 
-      alert(error?.response?.data || "Failed to approve");
+  //     alert(error?.response?.data || "Failed to approve");
+  //   }
+  // };
+ const handleApprove = async () => {
+  try {
+    if (selectedRows.length === 0) {
+      alert("Please select casing");
+      return;
     }
-  };
+
+    const payload = {
+      isApproved: true,
+      rejectionReasonCode: null,
+      casings: envelopingRows
+        .filter((row) => selectedRows.includes(row.orderCasingId))
+        .map((row) => ({
+          orderCasingId: row.orderCasingId.toString(),
+          railId: row.railId?.toString() ?? "0",
+          railPipeId: row.railPipeId?.toString() ?? "0",
+        })),
+    };
+
+    console.log("Approve Payload", payload);
+
+    await envelopingServiceApi.approveRejectEnvelope(payload);
+
+    await fetchEnvelopingOrders(); // Refresh table
+
+    setSelectedRows([]);
+
+    alert("Approved Successfully");
+  } catch (error: any) {
+    console.error(error);
+
+    alert(
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      "Failed to approve"
+    );
+  }
+};
   /* ===========================
           REJECT
   ============================ */
 
-  const handleReject = async () => {
-    try {
-      if (selectedRows.length === 0) {
-        alert("Please select casing");
-        return;
-      }
+  // const handleReject = async () => {
+  //   try {
+  //     if (selectedRows.length === 0) {
+  //       alert("Please select casing");
+  //       return;
+  //     }
 
-      const payload = {
-        isApproved: false,
-        rejectionReasonCode: null, // replace with actual reason if required
+  //     const payload = {
+  //       isApproved: false,
+  //       rejectionReasonCode: null, // replace with actual reason if required
 
-        casings: envelopingRows
-          .filter((row) => selectedRows.includes(row.orderCasingId))
-          .map((row) => ({
-            orderCasingId: row.orderCasingId.toString(),
+  //       casings: envelopingRows
+  //         .filter((row) => selectedRows.includes(row.orderCasingId))
+  //         .map((row) => ({
+  //           orderCasingId: row.orderCasingId.toString(),
 
-            railId: row.railId?.toString() ?? "0",
+  //           railId: row.railId?.toString() ?? "0",
 
-            railPipeId: row.railPipeId?.toString() ?? "0",
-          })),
-      };
+  //           railPipeId: row.railPipeId?.toString() ?? "0",
+  //         })),
+  //     };
 
-      console.log("Reject Payload", payload);
+  //     console.log("Reject Payload", payload);
 
-      await envelopingServiceApi.approveRejectEnvelope(payload);
+  //     await envelopingServiceApi.approveRejectEnvelope(payload);
 
-      alert("Rejected Successfully");
+  //     alert("Rejected Successfully");
 
-      setEnvelopingRows((prev) =>
-        prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
-      );
+  //     setEnvelopingRows((prev) =>
+  //       prev.filter((x) => !selectedRows.includes(x.orderCasingId)),
+  //     );
 
-      setSelectedRows([]);
-    } catch (error: any) {
-      console.error(error);
+  //     setSelectedRows([]);
+  //   } catch (error: any) {
+  //     console.error(error);
 
-      alert(error?.response?.data || "Failed to reject");
+  //     alert(error?.response?.data || "Failed to reject");
+  //   }
+  // };
+const handleReject = async () => {
+  try {
+    if (selectedRows.length === 0) {
+      alert("Please select casing");
+      return;
     }
-  };
 
+    const payload = {
+      isApproved: false,
+      rejectionReasonCode: null,
+      casings: envelopingRows
+        .filter((row) => selectedRows.includes(row.orderCasingId))
+        .map((row) => ({
+          orderCasingId: row.orderCasingId.toString(),
+          railId: row.railId?.toString() ?? "0",
+          railPipeId: row.railPipeId?.toString() ?? "0",
+        })),
+    };
+
+    console.log("Reject Payload", payload);
+
+    await envelopingServiceApi.approveRejectEnvelope(payload);
+
+    await fetchEnvelopingOrders(); // Refresh table
+
+    setSelectedRows([]);
+
+    alert("Rejected Successfully");
+  } catch (error: any) {
+    console.error(error);
+
+    alert(
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      "Failed to reject"
+    );
+  }
+};
   /* ===========================
           CLOSE RAIL MODAL
   ============================ */
@@ -300,6 +360,7 @@ setEnvelopingRows((prev) => {
 
       <EnvelopingTable
         data={envelopingRows}
+        rails={rails}
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
       />
@@ -348,6 +409,7 @@ setEnvelopingRows((prev) => {
         show={showBatchModal}
         selectedRailId={selectedRailId}
         rails={rails}
+        pipes={pipes}
         availableRows={availableRows}
         allocatedRows={allocatedRows}
         allocateRail={allocateRail}

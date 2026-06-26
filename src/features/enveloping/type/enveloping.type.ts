@@ -30,6 +30,8 @@ export interface EnvelopingRow {
   railNo?: number;
   railId?: number;
   railPipeId?: number;
+  railName: string;
+  railPipeName:string;
 }
 
 export interface AllocatedRailRow
@@ -48,3 +50,11 @@ export interface AllocatedRailRow
   name: string;
   sortOrder: number;
 }
+export interface RailPipe {
+  railPipeId: number;
+  railId: number;
+  pipeName: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+

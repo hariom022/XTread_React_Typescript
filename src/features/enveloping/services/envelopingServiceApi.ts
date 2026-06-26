@@ -9,9 +9,14 @@ const envelopingServiceApi = {
     api.get(
       "/batches/progress?currentStage=13&currentStageStatus=1"
     ),
-    
+    getEnvelopingOrdersLoaded: () =>
+    api.get(
+      "/batches/progress?currentStage=13&currentStageStatus=5"
+    ),
   getRailsTypes:()=>
     api.get("/rails"),
+  getRailPipes : (railId: number) =>
+  api.get(`/rails/${railId}/pipes`),
 
    deletePipe:(pipeId: number) =>
   api.delete(`/rails/pipes/${pipeId}`),
@@ -19,23 +24,6 @@ const envelopingServiceApi = {
   /* ==========================
       API PENDING
   ========================== */
-
- processEnvelope: async (
-  railId: number,
-  payload: any,
-) => {
-  const response = await api.post(
-    `/rails/${railId}/pipes`,
-    payload
-  );
-
-  console.log(
-    "Process Envelope Response",
-    response.data
-  );
-
-  return response;
-},
 
 assignEnvelope(payload: {
   casings: {

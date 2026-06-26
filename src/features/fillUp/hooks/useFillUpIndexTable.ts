@@ -93,6 +93,8 @@ console.log("BATCH ORDER FILLUP", result.data.data)
 
                   originalCasing:
                     casing,
+                    requestedPattern:casing.patternName ||
+                    "-",
                 });
               }
             );
