@@ -225,7 +225,7 @@ const QualityControlRepairModal = ({
     if (decision === "approved") {
       payload = buildQualityControlRequest(
         selectedItem.orderCasingId,
-        "APPROVE_REPAIR"
+        "APPROVE"
       );
 
       successMessage =
@@ -244,12 +244,12 @@ const QualityControlRepairModal = ({
 
       payload = buildQualityControlRequest(
         selectedItem.orderCasingId,
-        "REJECT_DISPATCH",
+        "SEND_TO_DISPATCH",
         rejectReason
       );
 
       successMessage =
-        "Tyre rejected and dispatched successfully.";
+        "Tyre rejected and moved to Dispatch.";
     }
 
     // Rejected -> Return to Repair
@@ -264,12 +264,12 @@ const QualityControlRepairModal = ({
 
       payload = buildQualityControlRequest(
         selectedItem.orderCasingId,
-        "REJECT_RETURN_REPAIR",
+        "SEND_TO_REPAIR",
         rejectReason
       );
 
       successMessage =
-        "Tyre returned to Repairs successfully.";
+        "Tyre returned to Repairs.";
     }
 
     if (!payload) {
@@ -277,9 +277,7 @@ const QualityControlRepairModal = ({
       return;
     }
 
-    await qualityControlServiceApi.approveReject(
-      payload
-    );
+    await qualityControlServiceApi.approveReject(payload);
 
     alert(successMessage);
 
@@ -446,7 +444,7 @@ const QualityControlRepairModal = ({
                     />
 
                     <label className="form-check-label">
-                      NO — Cannot recover, send to Repairs
+                       send to Repairs
                     </label>
                   </div>
                 </div>

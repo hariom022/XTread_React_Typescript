@@ -279,87 +279,157 @@ const QualityControlRetreadModal = ({
   setRejectComment,
   onApprove,
 }: Props) => {
-  const [decision, setDecision] = useState<
-    "approve" | "reprocess" | null
-  >(null);
-
-  const [reprocessRoute, setReprocessRoute] = useState<
-    "repair" | "recoverRubber" | null
-  >(null);
+  // const [reprocessRoute, setReprocessRoute] = useState<
+  //   "repair" | "recoverRubber" | null
+  // >(null);
 
   const [recoverDecision, setRecoverDecision] = useState<
     "approved" | "rejected" | null
   >(null);
-
+  const [destinationStage, setDestinationStage] = useState<number | null>(null);
+  const [decision, setDecision] = useState<
+    "approve" | "recoverRubber" | "destination" | null
+  >(null);
   if (!selectedItem) return null;
+
+  //   const handleSubmit = async () => {
+  //     try {
+  //       let payload = null;
+
+  //      let successMessage = "";
+
+  // if (decision === "approve") {
+  //   payload = buildQualityControlRequest(
+  //     selectedItem.orderCasingId,
+  //     "APPROVE_RETREAD"
+  //   );
+
+  //   successMessage =
+  //     "Tyre approved and moved to Dispatch.";
+  // }
+
+  // else if (
+  //   decision === "reprocess" &&
+  //   reprocessRoute === "repair"
+  // ) {
+  //   payload = buildQualityControlRequest(
+  //     selectedItem.orderCasingId,
+  //     "SEND_TO_REPAIR",
+  //     rejectReason
+  //   );
+
+  //   successMessage =
+  //     "Tyre sent to Repair successfully.";
+  // }
+
+  // else if (
+  //   decision === "reprocess" &&
+  //   reprocessRoute === "recoverRubber" &&
+  //   recoverDecision === "approved"
+  // ) {
+  //   payload = buildQualityControlRequest(
+  //     selectedItem.orderCasingId,
+  //     "RECOVER_RUBBER_APPROVED"
+  //   );
+
+  //   successMessage =
+  //     "Rubber recovery approved. Tyre moved to Dispatch.";
+  // }
+
+  // else if (
+  //   decision === "reprocess" &&
+  //   reprocessRoute === "recoverRubber" &&
+  //   recoverDecision === "rejected"
+  // ) {
+  //   payload = buildQualityControlRequest(
+  //     selectedItem.orderCasingId,
+  //     "RECOVER_RUBBER_REJECTED"
+  //   );
+
+  //   successMessage =
+  //     "Rubber recovery rejected. Tyre returned to Pre-Buffing.";
+  // }
+
+  //       if (!payload) {
+  //         alert("Please complete the QC decision.");
+  //         return;
+  //       }
+
+  //       await qualityControlServiceApi.approveReject(
+  //         payload
+  //       );
+  //         alert(successMessage)
+  //       onApprove();
+  //     } catch (error) {
+  //       console.error(error);
+  //       alert("Failed to process Quality Control decision.");
+  //     }
+  //   };
 
   const handleSubmit = async () => {
     try {
       let payload = null;
+      let successMessage = "";
 
-     let successMessage = "";
+      // Approve -> Dispatch
+      if (decision === "approve") {
+        payload = buildQualityControlRequest(
+          selectedItem.orderCasingId,
+          "APPROVE",
+        );
 
-if (decision === "approve") {
-  payload = buildQualityControlRequest(
-    selectedItem.orderCasingId,
-    "APPROVE_RETREAD"
-  );
+        successMessage = "Tyre approved and moved to Dispatch.";
+      }
 
-  successMessage =
-    "Tyre approved and moved to Dispatch.";
-}
+      // Recover Rubber -> Dispatch
+      else if (decision === "recoverRubber" && recoverDecision === "approved") {
+        payload = buildQualityControlRequest(
+          selectedItem.orderCasingId,
+          "RECOVER_RUBBER_APPROVED",
+        );
 
-else if (
-  decision === "reprocess" &&
-  reprocessRoute === "repair"
-) {
-  payload = buildQualityControlRequest(
-    selectedItem.orderCasingId,
-    "SEND_TO_REPAIR",
-    rejectReason
-  );
+        successMessage = "Rubber recovery approved. Tyre moved to Dispatch.";
+      }
 
-  successMessage =
-    "Tyre sent to Repair successfully.";
-}
+      // Recover Rubber -> PreBuffing
+      else if (decision === "recoverRubber" && recoverDecision === "rejected") {
+        payload = buildQualityControlRequest(
+          selectedItem.orderCasingId,
+          "RECOVER_RUBBER_REJECTED",
+        );
 
-else if (
-  decision === "reprocess" &&
-  reprocessRoute === "recoverRubber" &&
-  recoverDecision === "approved"
-) {
-  payload = buildQualityControlRequest(
-    selectedItem.orderCasingId,
-    "RECOVER_RUBBER_APPROVED"
-  );
+        successMessage =
+          "Rubber recovery rejected. Tyre returned to Pre-Buffing.";
+      }
 
-  successMessage =
-    "Rubber recovery approved. Tyre moved to Dispatch.";
-}
+      // Destination Stage
+      else if (decision === "destination" && destinationStage !== null) {
+        if (!rejectReason) {
+          alert("Please select a rejection reason.");
+          return;
+        }
 
-else if (
-  decision === "reprocess" &&
-  reprocessRoute === "recoverRubber" &&
-  recoverDecision === "rejected"
-) {
-  payload = buildQualityControlRequest(
-    selectedItem.orderCasingId,
-    "RECOVER_RUBBER_REJECTED"
-  );
+        payload = {
+          orderCasingIds: [selectedItem.orderCasingId],
+          isApproved: false,
+          destinationStage,
+          isRecoverRubber: null,
+          isRubberRecoveryApproved: null,
+          rejectionReasonCode: rejectReason,
+        };
 
-  successMessage =
-    "Rubber recovery rejected. Tyre returned to Pre-Buffing.";
-}
+        successMessage = "Tyre moved successfully.";
+      }
 
       if (!payload) {
         alert("Please complete the QC decision.");
         return;
       }
 
-      await qualityControlServiceApi.approveReject(
-        payload
-      );
-        alert(successMessage)
+      await qualityControlServiceApi.approveReject(payload);
+
+      alert(successMessage);
+
       onApprove();
     } catch (error) {
       console.error(error);
@@ -402,13 +472,10 @@ else if (
         <div className="col-md-6 p-3">
           <div className="panel-box">
             <div className="panel-body p-3">
-
               {/* Repair Details */}
               {selectedItem.repairOperations?.length > 0 && (
                 <>
-                  <h5 className="mb-3">
-                    Repair Details
-                  </h5>
+                  <h5 className="mb-3">Repair Details</h5>
 
                   <table className="table table-bordered text-center">
                     <thead>
@@ -421,16 +488,14 @@ else if (
                     </thead>
 
                     <tbody>
-                      {selectedItem.repairOperations.map(
-                        (repair: any) => (
-                          <tr key={repair.lineNumber}>
-                            <td>{repair.lineNumber}</td>
-                            <td>{repair.repairLocation}</td>
-                            <td>{repair.repairType}</td>
-                            <td>{repair.quantity}</td>
-                          </tr>
-                        )
-                      )}
+                      {selectedItem.repairOperations.map((repair: any) => (
+                        <tr key={repair.lineNumber}>
+                          <td>{repair.lineNumber}</td>
+                          <td>{repair.repairLocation}</td>
+                          <td>{repair.repairType}</td>
+                          <td>{repair.quantity}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </>
@@ -441,46 +506,30 @@ else if (
                 <tbody>
                   <tr>
                     <td width="40%">
-                      <strong>
-                        Requested Pattern
-                      </strong>
+                      <strong>Requested Pattern</strong>
                     </td>
-                    <td>
-                      {selectedItem.requestedPattern}
-                    </td>
+                    <td>{selectedItem.requestedPattern}</td>
                   </tr>
 
                   <tr>
                     <td>
-                      <strong>
-                        Approved Pattern
-                      </strong>
+                      <strong>Approved Pattern</strong>
                     </td>
-                    <td>
-                      {selectedItem.approvedPattern}
-                    </td>
+                    <td>{selectedItem.approvedPattern}</td>
                   </tr>
 
                   <tr>
                     <td>
-                      <strong>
-                        Approved Width
-                      </strong>
+                      <strong>Approved Width</strong>
                     </td>
-                    <td>
-                      {selectedItem.treadWidth}
-                    </td>
+                    <td>{selectedItem.treadWidth}</td>
                   </tr>
 
                   <tr>
                     <td>
-                      <strong>
-                        Service Type
-                      </strong>
+                      <strong>Service Type</strong>
                     </td>
-                    <td>
-                      {selectedItem.serviceType}
-                    </td>
+                    <td>{selectedItem.serviceType}</td>
                   </tr>
                 </tbody>
               </table>
@@ -492,46 +541,56 @@ else if (
         <div className="col-md-6 p-3">
           <div className="panel-box">
             <div className="panel-body p-3">
-
               {/* STEP 1 */}
               <div className="card p-3 mb-3">
-                <h6>1. Initial QC Decision</h6>
+                <h5 className="text-center mb-4">1. Initial QC Decision</h5>
+
+                <div className="form-check mb-3">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    checked={decision === "approve"}
+                    onChange={() => {
+                      setDecision("approve");
+                      setDestinationStage(null);
+                      setRecoverDecision(null);
+                    }}
+                  />
+
+                  <label className="form-check-label">Approve → Dispatch</label>
+                </div>
+
+                <div className="form-check mb-3">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    checked={decision === "recoverRubber"}
+                    onChange={() => {
+                      setDecision("recoverRubber");
+                      setDestinationStage(null);
+                    }}
+                  />
+
+                  <label className="form-check-label">Recover Rubber</label>
+                </div>
 
                 <div className="form-check">
                   <input
-                    type="radio"
                     className="form-check-input"
-                    checked={
-                      decision === "approve"
-                    }
-                    onChange={() =>
-                      setDecision("approve")
-                    }
+                    type="radio"
+                    checked={decision === "destination"}
+                    onChange={() => {
+                      setDecision("destination");
+                      setRecoverDecision(null);
+                    }}
                   />
-                  <label className="form-check-label">
-                    Approve — Send to Dispatch
-                  </label>
-                </div>
 
-                <div className="form-check mt-2">
-                  <input
-                    type="radio"
-                    className="form-check-input"
-                    checked={
-                      decision === "reprocess"
-                    }
-                    onChange={() =>
-                      setDecision("reprocess")
-                    }
-                  />
-                  <label className="form-check-label">
-                    Reprocess
-                  </label>
+                  <label className="form-check-label">Send To Stage</label>
                 </div>
               </div>
 
               {/* STEP 2 */}
-              {decision === "reprocess" && (
+              {/* {decision === "reprocess" && (
                 <div className="card p-3 mb-3">
                   <h6>2. Route To</h6>
 
@@ -573,91 +632,113 @@ else if (
                     </label>
                   </div>
                 </div>
-              )}
-
-              {/* Repair Reason */}
-              {reprocessRoute === "repair" && (
-                <div className="mb-3">
-                  <label className="fw-semibold">
-                    Rejection Reason
-                  </label>
-
-                  <select
-                    className="form-select"
-                    value={rejectReason}
-                    onChange={(e) =>
-                      setRejectReason(
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option value="">
-                      Select Reason
-                    </option>
-                    <option value={"V01"}>Pattern Mismatch</option>
-                    <option value={"V02"}>Tread Width Error</option>
-                    <option value={"V03"}>Failed Inspection</option>
-                  </select>
-                </div>
-              )}
-
-              {/* STEP 3 */}
-              {reprocessRoute ===
-                "recoverRubber" && (
+              )} */}
+              {/* STEP 2 */}
+              {decision === "recoverRubber" && (
                 <div className="card p-3 mb-3">
-                  <h6>
-                    3. Recover Rubber
-                    Decision
-                  </h6>
+                  <h5>Recover Rubber Decision</h5>
 
                   <div className="form-check">
                     <input
                       type="radio"
                       className="form-check-input"
-                      checked={
-                        recoverDecision ===
-                        "approved"
-                      }
-                      onChange={() =>
-                        setRecoverDecision(
-                          "approved"
-                        )
-                      }
+                      checked={recoverDecision === "approved"}
+                      onChange={() => setRecoverDecision("approved")}
                     />
+
                     <label className="form-check-label">
                       Approved → Dispatch
                     </label>
                   </div>
 
-                  <div className="form-check mt-2">
+                  <div className="form-check mt-3">
                     <input
                       type="radio"
                       className="form-check-input"
-                      checked={
-                        recoverDecision ===
-                        "rejected"
-                      }
-                      onChange={() =>
-                        setRecoverDecision(
-                          "rejected"
-                        )
-                      }
+                      checked={recoverDecision === "rejected"}
+                      onChange={() => setRecoverDecision("rejected")}
                     />
+
                     <label className="form-check-label">
-                      Not Approved →
-                      Pre-Buffing
+                      Send To → PreBuffing
                     </label>
                   </div>
                 </div>
               )}
+              {decision === "destination" && (
+                <div className="card p-3 mb-3">
+                  <h5>Destination Stage</h5>
 
-              <button
-                className="btn btn-danger w-100"
-                onClick={handleSubmit}
-              >
+                  {/* Show only when there are NO repair details */}
+                  {(!selectedItem.repairOperations ||
+                    selectedItem.repairOperations.length === 0) && (
+                    <div className="form-check mb-2">
+                      <input
+                        type="radio"
+                        className="form-check-input"
+                        name="destinationStage"
+                        checked={destinationStage === 8}
+                        onChange={() => setDestinationStage(8)}
+                      />
+                      <label className="form-check-label">
+                        Send To Skiving
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Show only when repair details exist */}
+                  {selectedItem.repairOperations &&
+                    selectedItem.repairOperations.length > 0 && (
+                      <div className="form-check mb-2">
+                        <input
+                          type="radio"
+                          className="form-check-input"
+                          name="destinationStage"
+                          checked={destinationStage === 10}
+                          onChange={() => setDestinationStage(10)}
+                        />
+                        <label className="form-check-label">
+                          Send To Repair
+                        </label>
+                      </div>
+                    )}
+
+                  {/* Always show Dispatch */}
+                  <div className="form-check">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      name="destinationStage"
+                      checked={destinationStage === 16}
+                      onChange={() => setDestinationStage(16)}
+                    />
+                    <label className="form-check-label">Send To Dispatch</label>
+                  </div>
+                </div>
+              )}
+              {destinationStage !== null && (
+                <div className="card p-3 mb-3">
+                  <label className="fw-semibold">Rejection Reason</label>
+
+                  <select
+                    className="form-select"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                  >
+                    <option value="">Select Reason</option>
+
+                    <option value="V01">Sidewall Damage</option>
+
+                    <option value="V02">Pattern Defect</option>
+
+                    <option value="V03">Failed Inspection</option>
+                  </select>
+                </div>
+              )}
+              {/* Submit */}
+              <button className="btn btn-danger w-100" onClick={handleSubmit}>
                 Submit QC Decision
               </button>
-
             </div>
           </div>
         </div>
