@@ -87,26 +87,15 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     try {
       if (!selectedItem) return;
 
-      const isRetread = selectedItem?.serviceType?.id === 1;
-
-      if (isRetread && !selectedWidth) {
-        alert("Please select Width");
-        return;
-      }
-
       const payload = {
-        orderCasingIds: [selectedItem.orderCasingId ?? selectedItem.id],
-
-        isApproved: false,
-
-        width: isRetread ? Number(selectedWidth) : null,
-
-        rejectionReasonCode: null,
+        orderCasingIds: [
+          Number(selectedItem.orderCasingId ?? selectedItem.id),
+        ],
       };
 
       console.log("RETURN TO REPAIR PAYLOAD", payload);
 
-      await buildingServiceApi.approveReject(payload);
+      await buildingServiceApi.sendToRepair(payload);
 
       alert("Returned To Repair Successfully");
 
@@ -115,10 +104,15 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       resetModal();
 
       onClose();
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("FULL ERROR", error);
+      console.error("RESPONSE", error?.response);
+      console.error("DATA", error?.response?.data);
 
-      alert("Return To Repair Failed");
+      alert(
+        error?.response?.data ||
+        "Return To Repair Failed"
+      );
     }
   };
 
