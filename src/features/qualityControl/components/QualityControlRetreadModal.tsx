@@ -585,7 +585,7 @@ const QualityControlRetreadModal = ({
                     }}
                   />
 
-                  <label className="form-check-label">Send To Stage</label>
+                  <label className="form-check-label">Reprocess</label>
                 </div>
               </div>
 
