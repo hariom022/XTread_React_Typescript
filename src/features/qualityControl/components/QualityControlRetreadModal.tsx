@@ -447,7 +447,7 @@ const QualityControlRetreadModal = ({
         </div>
 
         <div className="col-2">
-          <strong>Serial No</strong>
+          <strong>Type Ref No</strong>
           <div>{selectedItem.serial}</div>
         </div>
 

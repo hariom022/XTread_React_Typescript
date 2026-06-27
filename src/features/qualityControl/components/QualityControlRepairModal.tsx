@@ -298,7 +298,7 @@ const QualityControlRepairModal = ({
         </div>
 
         <div className="col-2">
-          <strong>Serial No</strong>
+          <strong>Tyre Ref No</strong>
           <div>{selectedItem.serial}</div>
         </div>
 
