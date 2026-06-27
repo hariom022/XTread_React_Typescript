@@ -520,16 +520,22 @@ const QualityControlRetreadModal = ({
 
                   <tr>
                     <td>
-                      <strong>Approved Width</strong>
+                      <strong>Approved Pattern with Tread Width</strong>
                     </td>
                     <td>{selectedItem.treadWidth}</td>
                   </tr>
 
                   <tr>
                     <td>
-                      <strong>Service Type</strong>
+                      <strong>Reason</strong>
                     </td>
-                    <td>{selectedItem.serviceType}</td>
+                    <td>{selectedItem.reason ||"-"}</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Approved Date</strong>
+                    </td>
+                    <td>{selectedItem.receivedDate ? new Date(selectedItem.receivedDate).toLocaleDateString("en-GB") : "-"}</td>
                   </tr>
                 </tbody>
               </table>

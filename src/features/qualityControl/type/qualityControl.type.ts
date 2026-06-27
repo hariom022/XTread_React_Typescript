@@ -8,6 +8,8 @@ export interface QualityControlRow {
   customerName: string;
   serviceTypeName: string;
   batchNumber?: string;
+  reason?:string;
+  
 }
 
 export interface QualityControlDetails
@@ -16,6 +18,7 @@ export interface QualityControlDetails
   approvedPattern?: string;
   approvedTreadWidth?: string;
   repairDetails?: any[];
+  receivedDate:string;
 }
 // export interface QualityControlRequest {
 //   orderCasingIds: number[];

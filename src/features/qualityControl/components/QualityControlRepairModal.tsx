@@ -354,7 +354,7 @@ const QualityControlRepairModal = ({
                 </tbody>
               </table>
 
-              <table className="table table-bordered mt-3">
+              {/* <table className="table table-bordered mt-3">
                 <tbody>
                   <tr>
                     <td width="40%">
@@ -377,7 +377,7 @@ const QualityControlRepairModal = ({
                     <td>{selectedItem.damageLevel}</td>
                   </tr>
                 </tbody>
-              </table>
+              </table> */}
             </div>
           </div>
         </div>
@@ -412,7 +412,7 @@ const QualityControlRepairModal = ({
                   />
 
                   <label className="form-check-label">
-                    Not Approved — Move to Reject Review
+                    Move to Reject Review
                   </label>
                 </div>
               </div>
@@ -431,7 +431,7 @@ const QualityControlRepairModal = ({
                     />
 
                     <label className="form-check-label">
-                      YES — Rubber recovered, send to Dispatch
+                       send to Dispatch
                     </label>
                   </div>
 
@@ -444,7 +444,7 @@ const QualityControlRepairModal = ({
                     />
 
                     <label className="form-check-label">
-                       send to Repairs
+                      send to Repairs
                     </label>
                   </div>
                 </div>
