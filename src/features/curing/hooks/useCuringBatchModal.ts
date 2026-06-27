@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 
 import curingServiceApi from "../service/curingServiceApi";
 
@@ -39,7 +39,22 @@ const useCuringBatchModal = ({ refreshTable }: Props) => {
 
   const [selectedAllocatedRow, setSelectedAllocatedRow] =
     useState<AllocatedPipeRow | null>(null);
+    // =======================
+    // rejection Reasons
+    // =======================
+    const [rejectionReasons, setRejectionReasons] = useState<any[]>([]);
 
+const loadRejectionReasons = async () => {
+  try {
+    const response = await curingServiceApi.getRejectionReasons();
+    setRejectionReasons(response.data.data);
+  } catch (error) {
+    console.error("Failed to load rejection reasons", error);
+  }
+};
+useEffect(() => {
+  loadRejectionReasons();
+}, []);
   /* =========================
         FETCH
         APPROVED FROM
@@ -197,6 +212,8 @@ const useCuringBatchModal = ({ refreshTable }: Props) => {
     removeFromPipe,
 
     loadCuring,
+    rejectionReasons,
+    loadRejectionReasons,
 
     resetModal,
   };

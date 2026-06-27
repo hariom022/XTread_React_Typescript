@@ -39,6 +39,14 @@ const curingServiceApi = {
 
    getCuringByStatus: (status: number) =>
     indexPageApiService.getBatchProgress(14, status),
+   getRejectionReasons: () =>
+    api.get("/rejection-reasons", {
+      params: {
+        currentStage: 14,
+        category: "Cancel Cure",
+      },
+    }),
+   
 };
 
 export default curingServiceApi;
