@@ -29,10 +29,9 @@ const CuringStage = () => {
   const { curingRows, setCuringRows, loadData } =
     useCuringIndexTable(statusTab);
 
-
-    useEffect(() => {
-  setSelectedRows([]);
-}, [statusTab]);
+  useEffect(() => {
+    setSelectedRows([]);
+  }, [statusTab]);
   /* =========================
           BATCH MODAL
     ========================= */
@@ -107,23 +106,20 @@ const CuringStage = () => {
   //   });
   // }, [curingRows, searchTerm, statusTab]);
   const filteredRows = useMemo(() => {
-  return curingRows.filter((x: any) => {
-    const matchesSearch =
-      x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
+    return curingRows.filter((x: any) => {
+      const matchesSearch =
+        x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus =
-      Number(x.currentStageStatus) === Number(statusTab);
+      const matchesStatus = Number(x.currentStageStatus) === Number(statusTab);
 
-    const selectedAutoclaveId =
-      activeAutoclaveTab === "Marangoni" ? 1 : 2;
+      const selectedAutoclaveId = activeAutoclaveTab === "Marangoni" ? 1 : 2;
 
-    const matchesAutoclave =
-      Number(x.autoclaveId) === selectedAutoclaveId;
+      const matchesAutoclave = Number(x.autoclaveId) === selectedAutoclaveId;
 
-    return matchesSearch && matchesStatus && matchesAutoclave;
-  });
-}, [curingRows, searchTerm, statusTab, activeAutoclaveTab]);
+      return matchesSearch && matchesStatus && matchesAutoclave;
+    });
+  }, [curingRows, searchTerm, statusTab, activeAutoclaveTab]);
 
   /* =========================
           CREATE BATCH
@@ -185,7 +181,7 @@ const CuringStage = () => {
 
       const response = await curingServiceApi.startCure(payload);
       await loadData();
-setSelectedRows([]);
+      setSelectedRows([]);
       console.log("START CURE RESPONSE", response);
 
       alert("Start Cure Successful");
@@ -243,26 +239,51 @@ setSelectedRows([]);
   };
 
   const handleCancelCure = async () => {
-    if (selectedRows.length === 0) {
-      alert("Select casing first");
+    const current = cancelData[activeAutoclaveTab];
+
+    if (
+      !current?.reason ||
+      (current.reason === "Other" && !current.other.trim()) ||
+      !current.comment.trim()
+    ) {
+      alert("All fields are required");
       return;
     }
 
     try {
       const payload = {
         orderCasingIds: selectedRows.map(String),
+
+        // include these only if your API expects them
+        reason: current.reason === "Other" ? current.other : current.reason,
+
+        comment: current.comment,
       };
 
       console.log("CANCEL CURE PAYLOAD", payload);
 
       await curingServiceApi.cancelCure(payload);
+
       await loadData();
+
       setSelectedRows([]);
+
       setStatusTab(CuringStatus.Cancelled);
+
       alert("Cancel Cure Successful");
+
+      setCancelData((prev) => ({
+        ...prev,
+        [activeAutoclaveTab]: {
+          reason: "",
+          other: "",
+          comment: "",
+        },
+      }));
+
+      setShowCancelModal(false);
     } catch (error) {
       console.error(error);
-
       alert("Failed to Cancel Cure");
     }
   };
@@ -340,6 +361,30 @@ setSelectedRows([]);
       alert("Failed To Send To Enveloping");
     }
   };
+
+  // ==================== Cancel modal logic =======================
+
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
+  const [cancelData, setCancelData] = useState<{
+    [key: string]: {
+      reason: string;
+      other: string;
+      comment: string;
+    };
+  }>({
+    Marangoni: {
+      reason: "",
+      other: "",
+      comment: "",
+    },
+    Elgi: {
+      reason: "",
+      other: "",
+      comment: "",
+    },
+  });
+
   return (
     <div className="container-fluid box">
       <div
@@ -584,7 +629,14 @@ setSelectedRows([]);
 
                     <button
                       className="btn btn-warning w-100"
-                      onClick={handleCancelCure}
+                      onClick={() => {
+                        if (selectedRows.length === 0) {
+                          alert("Select casing first");
+                          return;
+                        }
+
+                        setShowCancelModal(true);
+                      }}
                     >
                       Cancel Cure
                     </button>
@@ -653,6 +705,115 @@ setSelectedRows([]);
           setShowBatchModal(false);
         }}
       />
+
+      {showCancelModal && (
+        <div className="modal fade show d-block">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-warning">
+                <h5 className="modal-title">
+                  Cancel Cure - {activeAutoclaveTab}
+                </h5>
+
+                <button
+                  className="btn-close"
+                  onClick={() => setShowCancelModal(false)}
+                />
+              </div>
+
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">
+                    Cancel Reason
+                  </label>
+
+                  <select
+                    className="form-select"
+                    value={cancelData[activeAutoclaveTab]?.reason || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setCancelData((prev) => ({
+                        ...prev,
+                        [activeAutoclaveTab]: {
+                          ...prev[activeAutoclaveTab],
+                          reason: value,
+                          other:
+                            value !== "Other"
+                              ? ""
+                              : prev[activeAutoclaveTab].other,
+                        },
+                      }));
+                    }}
+                  >
+                    <option value="">Select Reason</option>
+                    <option value="Machine Failure">Machine Failure</option>
+                    <option value="Pressure Issue">Pressure Issue</option>
+                    <option value="Operator Request">Operator Request</option>
+                    <option value="Material Issue">Material Issue</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                {cancelData[activeAutoclaveTab]?.reason === "Other" && (
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Specify Reason
+                    </label>
+
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={cancelData[activeAutoclaveTab]?.other || ""}
+                      onChange={(e) =>
+                        setCancelData((prev) => ({
+                          ...prev,
+                          [activeAutoclaveTab]: {
+                            ...prev[activeAutoclaveTab],
+                            other: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="form-label fw-semibold">Comment</label>
+
+                  <textarea
+                    className="form-control"
+                    rows={4}
+                    value={cancelData[activeAutoclaveTab]?.comment || ""}
+                    onChange={(e) =>
+                      setCancelData((prev) => ({
+                        ...prev,
+                        [activeAutoclaveTab]: {
+                          ...prev[activeAutoclaveTab],
+                          comment: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowCancelModal(false)}
+                >
+                  Close
+                </button>
+
+                <button className="btn btn-danger" onClick={handleCancelCure}>
+                  Submit Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
