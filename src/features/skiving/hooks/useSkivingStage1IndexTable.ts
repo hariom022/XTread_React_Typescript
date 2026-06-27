@@ -8,7 +8,7 @@ import type {
 } from "../types/skivingStage1.types";
 
 const SKIVING_STAGE = 8;
-// const SKIVING_STAGE1_SUBSTAGE = 81;
+const SKIVING_STAGE1_SUBSTAGE = 81;
 const ACTIVE_STATUS = 1;
 
 const useSkivingStage1Table = () => {
@@ -26,7 +26,7 @@ const useSkivingStage1Table = () => {
         batch.casings?.forEach((casing: any) => {
           if (
             casing.currentStage === SKIVING_STAGE &&
-            // casing.currentSubstage === SKIVING_STAGE1_SUBSTAGE &&
+            casing.currentSubstage === SKIVING_STAGE1_SUBSTAGE &&
             casing.currentStageStatus === ACTIVE_STATUS
           ) {
             console.log("CASING stage 1", casing);
@@ -113,7 +113,7 @@ const useSkivingStage1Table = () => {
     try {
       const response = await indexPageApiService.getBatchProgress(
         SKIVING_STAGE,
-        // SKIVING_STAGE1_SUBSTAGE,
+        SKIVING_STAGE1_SUBSTAGE,
         ACTIVE_STATUS,
       );
       console.log(
