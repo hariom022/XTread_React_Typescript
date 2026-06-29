@@ -229,7 +229,10 @@ const CuringStage = () => {
       console.log("FINISH CURE PAYLOAD", payload);
 
       await curingServiceApi.finishCure(payload);
-      setStatusTab(CuringStatus.Unloaded);
+      await loadData();
+      setSelectedRows([]);
+
+      // setStatusTab(CuringStatus.Unloaded);
 
       alert("Finish Cure Successful");
     } catch (error) {
@@ -686,14 +689,14 @@ const CuringStage = () => {
                   </>
                 )}
 
-                {statusTab === CuringStatus.Unloaded && (
+                {/* {statusTab === CuringStatus.Unloaded && (
                   <button
                     className="btn btn-info w-100"
                     onClick={handleSendToQA}
                   >
                     Send To QC
                   </button>
-                )}
+                )} */}
 
                 {statusTab === CuringStatus.Cancelled && (
                   <>
