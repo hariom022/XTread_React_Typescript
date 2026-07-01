@@ -13,6 +13,12 @@ approveReject: async (
     payload
   );
 },
+getRejectionReasons: () =>
+    api.get("/rejection-reasons", {
+      params: {
+        currentStage: 15
+      },
+    }),
 /**APPROVE REJECT POST API */
 };
 

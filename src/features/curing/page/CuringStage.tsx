@@ -206,7 +206,7 @@ const CuringStage = () => {
       console.log("UNLOAD CURE PAYLOAD", payload);
 
       await curingServiceApi.unloadCure(payload);
-      await handleSendToEnvelope();
+      // await handleSendToEnvelope();
       alert("Unload Cure Successful");
     } catch (error) {
       console.error(error);

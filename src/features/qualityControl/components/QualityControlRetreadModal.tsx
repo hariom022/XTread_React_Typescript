@@ -256,13 +256,14 @@ import React, { useState } from "react";
 import qualityControlServiceApi from "../service/qualityControlServiceApi";
 import { buildQualityControlRequest } from "../utils/qualityControlHelper";
 import { retreadReasons } from "../constants/constants";
+import {type RejectionReason}from "../type/qualityControl.type"
 
 interface Props {
   selectedItem: any;
 
   rejectReason: string;
   setRejectReason: (value: string) => void;
-
+  rejectionReasons: RejectionReason[],
   rejectComment: string;
   setRejectComment: (value: string) => void;
 
@@ -275,6 +276,7 @@ const QualityControlRetreadModal = ({
   selectedItem,
   rejectReason,
   setRejectReason,
+  rejectionReasons,
   rejectComment,
   setRejectComment,
   onApprove,
@@ -727,18 +729,21 @@ const QualityControlRetreadModal = ({
                   <label className="fw-semibold">Rejection Reason</label>
 
                   <select
-                    className="form-select"
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                  >
-                    <option value="">Select Reason</option>
+  className="form-select"
+  value={rejectReason}
+  onChange={(e) => setRejectReason(e.target.value)}
+>
+  <option value="">Select Reason</option>
 
-                    <option value="V01">Sidewall Damage</option>
-
-                    <option value="V02">Pattern Defect</option>
-
-                    <option value="V03">Failed Inspection</option>
-                  </select>
+  {rejectionReasons.map((reason) => (
+    <option
+      key={reason.code}
+      value={reason.code}
+    >
+      {reason.reason}
+    </option>
+  ))}
+</select>
                 </div>
               )}
               {/* Submit */}

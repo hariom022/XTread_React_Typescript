@@ -47,12 +47,14 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     try {
       if (!selectedItem) return;
 
-      const isRetread = selectedItem?.serviceType?.id === 1;
+      // const isRetread = selectedItem?.serviceType?.id === 1;
+      const isRetread = selectedItem?.service === "Retread";
 
       if (isRetread && !selectedWidth) {
         alert("Please select Width");
         return;
       }
+
       const payload = {
         orderCasingIds: [String(selectedItem.id)],
 
@@ -62,6 +64,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
 
         rejectionReasonCode: null,
       };
+
       console.log("HANDLE APPROVED PAYLOAD:=->", selectedItem);
       console.log("Building Payload", payload);
       await buildingServiceApi.approveReject(payload);

@@ -1,6 +1,6 @@
-import {useState,} from "react";
+import {useState,useEffect} from "react";
 
-// import qualityControlServiceApi from "../service/qualityControlServiceApi";
+import qualityControlServiceApi from "../service/qualityControlServiceApi";
 
 import type {QualityControlDetails,} from "../type/qualityControl.type";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
@@ -12,6 +12,18 @@ const useQualityControlModal = () => {
 
   const [rejectReason, setRejectReason] = useState("");
   const [rejectComment, setRejectComment] = useState("");
+  const [rejectionReasons, setRejectionReasons] = useState([]);
+  const loadRejectionReasons = async () => {
+    try {
+      const response = await qualityControlServiceApi.getRejectionReasons();
+      setRejectionReasons(response.data.data);
+    } catch (error) {
+      console.error("Failed to load rejection reasons", error);
+    }
+  };
+  useEffect(() => {
+    loadRejectionReasons();
+  }, []);
 
   const openModal = async (item: any) => {
     try {
@@ -85,6 +97,8 @@ const useQualityControlModal = () => {
 
     rejectReason,
     setRejectReason,
+    rejectionReasons,
+loadRejectionReasons,
 
     rejectComment,
     setRejectComment,

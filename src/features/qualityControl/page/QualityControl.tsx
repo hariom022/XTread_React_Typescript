@@ -118,6 +118,7 @@ const QualityControl = () => {
                       selectedItem={qualityModal.selectedItem}
                       rejectReason={qualityModal.rejectReason}
                       setRejectReason={qualityModal.setRejectReason}
+                      rejectionReasons={qualityModal.rejectionReasons}
                       rejectComment={qualityModal.rejectComment}
                       setRejectComment={qualityModal.setRejectComment}
                       onApprove={() => {
@@ -135,6 +136,8 @@ const QualityControl = () => {
                       selectedItem={qualityModal.selectedItem}
                       rejectReason={qualityModal.rejectReason}
                       setRejectReason={qualityModal.setRejectReason}
+                      rejectionReasons={qualityModal.rejectionReasons}
+
                       rejectComment={qualityModal.rejectComment}
                       setRejectComment={qualityModal.setRejectComment}
                       onApprove={() => {
