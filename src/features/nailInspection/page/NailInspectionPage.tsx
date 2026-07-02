@@ -81,6 +81,35 @@ const NailInspectionPage = () => {
   const closeChecklist = () => {
     setShowChecklist(false);
   };
+  //Reset all states and close modal
+  const resetAndCloseModal = () => {
+    // Close modal
+    closeModal();
+
+    // Reset page states
+    setSelectedItem(null);
+
+    setRejectionReason("");
+
+    setPatchesRemoved(0);
+    setPuncturesFound(0);
+
+    setRepairs([]);
+
+    setNewRepair({
+      type: "",
+      location: "",
+    });
+
+    setPatchRemovals([]);
+
+    setNewPatchRemoval({
+      reasonForRemoval: "",
+      location: "",
+    });
+
+    setShowChecklist(false);
+  };
   const handleApprove = async () => {
     try {
       if (!isChecklistComplete) {
@@ -121,9 +150,10 @@ const NailInspectionPage = () => {
 
       alert("Nail Inspection Approved Successfully");
 
-      setSelectedItem(null);
+      // setSelectedItem(null);
 
       await loadOrders();
+      resetAndCloseModal();
     } catch (error: any) {
       console.error(error);
 
@@ -168,9 +198,10 @@ const NailInspectionPage = () => {
 
       alert("Nail Inspection Rejected");
 
-      setSelectedItem(null);
+      // setSelectedItem(null);
 
       await loadOrders();
+      resetAndCloseModal();
     } catch (error: any) {
       console.error(error);
 
@@ -217,8 +248,8 @@ const NailInspectionPage = () => {
 
       alert("Approved With Pressure Test Successfully");
 
-      setSelectedItem(null);
-
+      // setSelectedItem(null);
+      resetAndCloseModal();
       navigate("/pressuretest", {
         state: {
           casing: selectedItem.casing,
@@ -231,8 +262,8 @@ const NailInspectionPage = () => {
 
       alert(
         error?.response?.data?.message ||
-          error?.response?.data ||
-          "Failed to approve with pressure test",
+        error?.response?.data ||
+        "Failed to approve with pressure test",
       );
     }
   };
@@ -243,7 +274,8 @@ const NailInspectionPage = () => {
 
     alert("Moved to HOLD – Awaiting Customer Approval");
 
-    setSelectedItem(null);
+    // setSelectedItem(null);
+    resetAndCloseModal();
   };
   // const handleApprove = () => {
   //   console.log("Approve");
@@ -303,7 +335,7 @@ const NailInspectionPage = () => {
       {/* APPROVAL MODAL */}
       {selectedItem && (
         <NailInspectionModal
-          onClose={closeModal}
+          onClose={resetAndCloseModal}
           selectedItem={selectedItem}
           patchesRemoved={patchesRemoved}
           setPatchesRemoved={setPatchesRemoved}
