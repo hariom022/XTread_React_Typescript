@@ -1,14 +1,14 @@
-  import { useState } from "react";
-  import indexPageApiService from "../../../shared/services/indexPageApiService";
+import { useState } from "react";
+import indexPageApiService from "../../../shared/services/indexPageApiService";
 //   import cementingService from "../service/cementingService";
 import treadBenchService from "../service/treadBenchService";
-import {type CementType} from "../types/treadBenchTypes"
-  
-  export const useTreadBench = () => {
-    const [loading, setLoading] = useState(false);
+import { type CementType } from "../types/treadBenchTypes";
+
+export const useTreadBench = () => {
+  const [loading, setLoading] = useState(false);
   const [inspections, setInspections] = useState<any[]>([]);
   const [cementTypes, setCementTypes] = useState<CementType[]>([]);
-  const loadTreadBench = async (stageId: number = 9, statusId: number = 2) => {
+  const loadTreadBench = async (stageId: number = 9, statusId?: number ) => {
     try {
       setLoading(true);
 
@@ -21,6 +21,9 @@ import {type CementType} from "../types/treadBenchTypes"
       (res.data?.data || []).forEach((stage: any) => {
         stage.batches?.forEach((batch: any) => {
           batch.casings?.forEach((casing: any) => {
+            // Don't show if tread bench data is already collected
+            if (casing.isTreadBenchDataCollected) return;
+
             transformed.push({
               id: casing.orderCasingId,
 
@@ -48,7 +51,6 @@ import {type CementType} from "../types/treadBenchTypes"
 
               currentStageStatus: casing.currentStageStatus,
 
-              // batch summary
               approved: batch.stageSummary?.approved || 0,
               rejected: batch.stageSummary?.rejected || 0,
               pending: batch.stageSummary?.pending || 0,
@@ -57,7 +59,6 @@ import {type CementType} from "../types/treadBenchTypes"
                 batch.stageSummary?.expectedTotal || batch.originalBatchSize,
               arrived: batch.stageSummary?.arrived || 0,
 
-              // modal fields
               isRetreaded: false,
               previousPattern: "",
               previousRetreader: "",
@@ -82,35 +83,35 @@ import {type CementType} from "../types/treadBenchTypes"
   };
 
   const loadCementTypes = async () => {
-  try {
-    const res = await treadBenchService.getCementTypes();
+    try {
+      const res = await treadBenchService.getCementTypes();
 
-    setCementTypes(res.data.data);
-  } catch (error) {
-    console.error(error);
-  }
-};
-const handleSave = async (payload: any) => {
-  try {
-    setLoading(true);
+      setCementTypes(res.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleSave = async (payload: any) => {
+    try {
+      setLoading(true);
 
-    const res = await treadBenchService.saveCementTypes(payload);
+      const res = await treadBenchService.saveCementTypes(payload);
 
-    return res.data;
-  } catch (error) {
-    console.error("Error saving cementing", error);
-    throw error;
-  } finally {
-    setLoading(false);
-  }
-};
+      return res.data;
+    } catch (error) {
+      console.error("Error saving cementing", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return{
+  return {
     inspections,
     loading,
     loadTreadBench,
-cementTypes,
-  loadCementTypes,
-handleSave, 
- };
+    cementTypes,
+    loadCementTypes,
+    handleSave,
   };
+};
