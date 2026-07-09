@@ -29,6 +29,7 @@ const NailInspectionPage = () => {
 
     checkedItems,
     toggleChecklist,
+    resetChecklist,
 
     isChecklistComplete,
     isAllSelected,
@@ -73,6 +74,7 @@ const NailInspectionPage = () => {
   const [showChecklist, setShowChecklist] = useState(false);
 
   const [showIncidentModal, setShowIncidentModal] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const openChecklist = () => {
     setShowChecklist(true);
@@ -107,7 +109,7 @@ const NailInspectionPage = () => {
       reasonForRemoval: "",
       location: "",
     });
-
+    resetChecklist();
     setShowChecklist(false);
   };
   const handleApprove = async () => {
@@ -119,6 +121,7 @@ const NailInspectionPage = () => {
         return;
       }
 
+      setProcessing(true);
       const payload = {
         orderCasingIds: [selectedItem.id.toString()],
 
@@ -158,6 +161,8 @@ const NailInspectionPage = () => {
       console.error(error);
 
       alert(error?.response?.data || "Failed to approve nail inspection");
+    } finally {
+      setProcessing(false);
     }
   };
   const handleReject = async () => {
@@ -173,6 +178,7 @@ const NailInspectionPage = () => {
         alert("Please select rejection reason");
         return;
       }
+      setProcessing(true);
 
       const payload = {
         orderCasingIds: [selectedItem.id.toString()],
@@ -206,6 +212,8 @@ const NailInspectionPage = () => {
       console.error(error);
 
       alert(error?.response?.data || "Failed to reject nail inspection");
+    } finally {
+      setProcessing(false);
     }
   };
   const handleApproveWithPressureTest = async () => {
@@ -216,6 +224,7 @@ const NailInspectionPage = () => {
         );
         return;
       }
+      setProcessing(true);
 
       const payload = {
         orderCasingIds: [selectedItem.id.toString()],
@@ -248,23 +257,26 @@ const NailInspectionPage = () => {
 
       alert("Approved With Pressure Test Successfully");
 
+      await loadOrders();
       // setSelectedItem(null);
       resetAndCloseModal();
-      navigate("/pressuretest", {
-        state: {
-          casing: selectedItem.casing,
-          serial: selectedItem.serial,
-          orderCasingId: selectedItem.id,
-        },
-      });
+      // navigate("/pressuretest", {
+      //   state: {
+      //     casing: selectedItem.casing,
+      //     serial: selectedItem.serial,
+      //     orderCasingId: selectedItem.id,
+      //   },
+      // });
     } catch (error: any) {
       console.error(error);
 
       alert(
         error?.response?.data?.message ||
-        error?.response?.data ||
-        "Failed to approve with pressure test",
+          error?.response?.data ||
+          "Failed to approve with pressure test",
       );
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -387,6 +399,18 @@ const NailInspectionPage = () => {
       {showIncidentModal && (
         <IncidentReportModal onClose={() => setShowIncidentModal(false)} />
       )}
+      {/* LOADER */}
+      {(loadingModal || processing) && (
+  <div
+    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+    style={{
+      background: "rgba(0,0,0,0.3)",
+      zIndex: 99999,
+    }}
+  >
+    <RingLoader color="#b30815" size={80} />
+  </div>
+)}
     </div>
   );
 };

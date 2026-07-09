@@ -34,6 +34,7 @@ const BuildingStage = () => {
     useState<any>(null);
   const [showModal, setShowModal] =
     useState(false);
+    const [loadingModal, setloadingModal] = useState(false);
   const buildingModal =
     useBuildingModal({
       selectedItem,
@@ -67,6 +68,7 @@ const BuildingStage = () => {
     item: BuildingRow,
   ) => {
     try {
+      setloadingModal(true);
       const response =
         await indexPageApiService.getOrderCasingDetails(
           item.id,
@@ -135,6 +137,8 @@ const BuildingStage = () => {
       alert(
         "Unable to load casing details",
       );
+    }finally{
+      setloadingModal(false);
     }
   };
 
@@ -246,6 +250,17 @@ const BuildingStage = () => {
           }
         />
       )}
+      {(loadingModal || buildingModal.processing) && (
+  <div
+    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+    style={{
+      background: "rgba(255,255,255,0.6)",
+      zIndex: 99999,
+    }}
+  >
+    <RingLoader color="#b30815" size={80} />
+  </div>
+)}
     </div>
   );
 };

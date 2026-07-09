@@ -1084,7 +1084,24 @@ const CollectionPage = ({
 
   //========================================================================
   return (
+    <>
+    {loading ? (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          minHeight: "100vh",
+        }}
+      >
+        <RingLoader
+          color="#b30815"
+          size={80}
+          loading={loading}
+        />
+      </div>
+    ) : (
     <div className="container-fluid modern-form p-3">
+  {/* Rest of your page */}
+
       {/* TOP SECTION */}
       {!hideLayout && (
         <div className="row g-4">
@@ -1382,6 +1399,8 @@ const CollectionPage = ({
         </div>
       )}
     </div>
+    )}
+    </>
   );
 };
 

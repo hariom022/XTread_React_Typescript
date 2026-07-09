@@ -1,196 +1,15 @@
-// import React from "react";
-// import { buildQualityControlRequest } from "../utils/qualityControlHelper";
-// import qualityControlServiceApi from "../service/qualityControlServiceApi";
-//   interface Props {
-//   selectedItem: any;
-
-//   rejectReason: string;
-//   setRejectReason: (value: string) => void;
-
-//   rejectComment: string;
-//   setRejectComment: (value: string) => void;
-
-//   onApprove: () => void;
-//   onReject: () => void;
-//   onClose: () => void;
-// }
-
-// const QualityControlRepairModal = ({
-//    selectedItem,
-//   rejectReason,
-//   setRejectReason,
-//   rejectComment,
-//   setRejectComment,
-//   onApprove,
-//   onReject,
-//   onClose,
-// }: Props) => {
-//   if (!selectedItem) return null;
-//   // approved
-
-//   const handleApprove = async () => {
-//   const payload = buildQualityControlRequest(
-//     selectedItem.orderCasingId,
-//     "APPROVE_REPAIR"
-//   );
-
-//   await qualityControlServiceApi.approveReject(payload);
-
-//   onApprove();
-// };
-
-// // Reject & Dispatch:
-
-// const handleRejectDispatch = async () => {
-//   const payload = buildQualityControlRequest(
-//     selectedItem.orderCasingId,
-//     "REJECT_DISPATCH",
-//     rejectReason
-//   );
-
-//   await qualityControlServiceApi.approveReject(payload);
-
-//   onReject();
-// };
-
-// // Reject & Return To Repair
-
-// const handleReturnToRepair = async () => {
-//   const payload = buildQualityControlRequest(
-//     selectedItem.orderCasingId,
-//     "REJECT_RETURN_REPAIR",
-//     rejectReason
-//   );
-
-//   await qualityControlServiceApi.approveReject(payload);
-
-//   onReject();
-// };
-
-//   return (
-//     <>
-//       <div className="modal-info m-0 p-2 building-top row text-nowrap">
-//         <div className="col-2">
-//           <strong>Production No</strong>
-//           <div>{selectedItem.productionNumber}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Serial No</strong>
-//           <div>{selectedItem.serial}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Customer Name</strong>
-//           <div>{selectedItem.customerName}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Tyre Size</strong>
-//           <div>{selectedItem.tyreSize}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Repair</strong>
-//         </div>
-//       </div>
-
-//       <div className="row align-items-stretch">
-//         <div className="col-md-6 p-3">
-//           <div className="panel-box">
-//             <div className="panel-body p-3">
-//               <table className="table table-bordered text-center">
-//                 <thead>
-//                   <tr>
-//                     <th>#Patch</th>
-//                     <th>Location</th>
-//                     <th>Damage Type</th>
-//                     <th>Quantity</th>
-//                   </tr>
-//                 </thead>
-
-//                 <tbody>
-//                   {selectedItem.repairOperations?.length > 0 ? (
-//                     selectedItem.repairOperations.map(
-//                       (op: any) => (
-//                         <tr key={op.lineNumber}>
-//                           <td>{op.lineNumber}</td>
-//                           <td>{op.repairLocation}</td>
-//                           <td>{op.repairType}</td>
-//                           <td>{op.quantity}</td>
-//                         </tr>
-//                       )
-//                     )
-//                   ) : (
-//                     <tr>
-//                       <td colSpan={4}>
-//                         No repair records found
-//                       </td>
-//                     </tr>
-//                   )}
-//                 </tbody>
-//               </table>
-//             </div>
-//           </div>
-//         </div>
-
-//         <div className="col-md-6 p-3">
-//           <div className="panel-box">
-//             <div className="panel-body p-4">
-//               <button className="btn btn-approve w-100 mb-3">
-//                 APPROVED
-//               </button>
-
-//               <label className="fw-semibold">
-//                 Rejection Reason
-//               </label>
-
-//               <select
-//                 className="form-select mb-2"
-//                 value={rejectReason}
-//                 onChange={(e) => setRejectReason(e.target.value)}
-//               >
-//                 <option value="">Select Reason</option>
-//                 <option>Incorrect Repair</option>
-//                 <option>Poor Workmanship</option>
-//                 <option>Failed Inspection</option>
-//               </select>
-
-//               {rejectComment && (
-//                 <textarea
-//                   className="form-control"
-//                   rows={3}
-//                   value={rejectComment}
-//                   onChange={(e) =>
-//                     setRejectComment(e.target.value)
-//                   }
-//                 />
-//               )}
-
-//               <button className="btn btn-reject w-100 mt-3">
-//                 REJECTED
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default QualityControlRepairModal;
-
 import React, { useState } from "react";
 import qualityControlServiceApi from "../service/qualityControlServiceApi";
 import { buildQualityControlRequest } from "../utils/qualityControlHelper";
-import {type RejectionReason}from "../type/qualityControl.type"
+import { type RejectionReason } from "../type/qualityControl.type";
+import { RingLoader } from "react-spinners";
 
 interface Props {
   selectedItem: any;
 
   rejectReason: string;
   setRejectReason: (value: string) => void;
-  rejectionReasons: RejectionReason[],
+  rejectionReasons: RejectionReason[];
 
   rejectComment: string;
   setRejectComment: (value: string) => void;
@@ -216,80 +35,74 @@ const QualityControlRepairModal = ({
   const [recoverDecision, setRecoverDecision] = useState<
     "dispatch" | "repair" | null
   >(null);
-
+  const [processing, setProcessing] = useState(false);
   if (!selectedItem) return null;
 
   const handleSubmit = async () => {
-  try {
-    let payload = null;
-    let successMessage = "";
+    try {
+      setProcessing(true);
+      let payload = null;
+      let successMessage = "";
 
-    // Approved -> Dispatch
-    if (decision === "approved") {
-      payload = buildQualityControlRequest(
-        selectedItem.orderCasingId,
-        "APPROVE"
-      );
+      // Approved -> Dispatch
+      if (decision === "approved") {
+        payload = buildQualityControlRequest(
+          selectedItem.orderCasingId,
+          "APPROVE",
+        );
 
-      successMessage =
-        "Tyre approved and moved to Dispatch.";
-    }
+        successMessage = "Tyre approved and moved to Dispatch.";
+      }
 
-    // Rejected -> Dispatch
-    else if (
-      decision === "rejected" &&
-      recoverDecision === "dispatch"
-    ) {
-      if (!rejectReason) {
-        alert("Please select a rejection reason.");
+      // Rejected -> Dispatch
+      else if (decision === "rejected" && recoverDecision === "dispatch") {
+        if (!rejectReason) {
+          alert("Please select a rejection reason.");
+          return;
+        }
+
+        payload = buildQualityControlRequest(
+          selectedItem.orderCasingId,
+          "SEND_TO_DISPATCH",
+          rejectReason,
+        );
+
+        successMessage = "Tyre rejected and moved to Dispatch.";
+      }
+
+      // Rejected -> Return to Repair
+      else if (decision === "rejected" && recoverDecision === "repair") {
+        if (!rejectReason) {
+          alert("Please select a rejection reason.");
+          return;
+        }
+
+        payload = buildQualityControlRequest(
+          selectedItem.orderCasingId,
+          "SEND_TO_REPAIR",
+          rejectReason,
+        );
+
+        successMessage = "Tyre returned to Repairs.";
+      }
+
+      if (!payload) {
+        alert("Please complete the QC decision.");
         return;
       }
 
-      payload = buildQualityControlRequest(
-        selectedItem.orderCasingId,
-        "SEND_TO_DISPATCH",
-        rejectReason
-      );
+      await qualityControlServiceApi.approveReject(payload);
 
-      successMessage =
-        "Tyre rejected and moved to Dispatch.";
+      alert(successMessage);
+
+      onApprove();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to process QC decision.");
+    } finally {
+      setProcessing(false);
     }
-
-    // Rejected -> Return to Repair
-    else if (
-      decision === "rejected" &&
-      recoverDecision === "repair"
-    ) {
-      if (!rejectReason) {
-        alert("Please select a rejection reason.");
-        return;
-      }
-
-      payload = buildQualityControlRequest(
-        selectedItem.orderCasingId,
-        "SEND_TO_REPAIR",
-        rejectReason
-      );
-
-      successMessage =
-        "Tyre returned to Repairs.";
-    }
-
-    if (!payload) {
-      alert("Please complete the QC decision.");
-      return;
-    }
-
-    await qualityControlServiceApi.approveReject(payload);
-
-    alert(successMessage);
-
-    onApprove();
-  } catch (error) {
-    console.error(error);
-    alert("Failed to process QC decision.");
-  }
-};
+  };
 
   return (
     <>
@@ -433,9 +246,7 @@ const QualityControlRepairModal = ({
                       onChange={() => setRecoverDecision("dispatch")}
                     />
 
-                    <label className="form-check-label">
-                       send to Dispatch
-                    </label>
+                    <label className="form-check-label">send to Dispatch</label>
                   </div>
 
                   <div className="form-check mt-2">
@@ -446,9 +257,7 @@ const QualityControlRepairModal = ({
                       onChange={() => setRecoverDecision("repair")}
                     />
 
-                    <label className="form-check-label">
-                      send to Repairs
-                    </label>
+                    <label className="form-check-label">send to Repairs</label>
                   </div>
                 </div>
               )}
@@ -459,21 +268,18 @@ const QualityControlRepairModal = ({
                   <label className="fw-semibold">Rejection Reason</label>
 
                   <select
-  className="form-select"
-  value={rejectReason}
-  onChange={(e) => setRejectReason(e.target.value)}
->
-  <option value="">Select Reason</option>
+                    className="form-select"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                  >
+                    <option value="">Select Reason</option>
 
-  {rejectionReasons.map((reason) => (
-    <option
-      key={reason.code}
-      value={reason.code}
-    >
-      {reason.reason}
-    </option>
-  ))}
-</select>
+                    {rejectionReasons.map((reason) => (
+                      <option key={reason.code} value={reason.code}>
+                        {reason.reason}
+                      </option>
+                    ))}
+                  </select>
 
                   {/* <textarea
                     className="form-control mt-2"
@@ -485,13 +291,28 @@ const QualityControlRepairModal = ({
                 </div>
               )}
 
-              <button className="btn btn-danger w-100" onClick={handleSubmit}>
-                Submit QC Decision
+              <button
+                className="btn btn-danger w-100"
+                onClick={handleSubmit}
+                disabled={processing}
+              >
+                {processing ? "Submitting..." : "Submit QC Decision"}
               </button>
             </div>
           </div>
         </div>
       </div>
+      {processing && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(255,255,255,0.6)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      )}
     </>
   );
 };

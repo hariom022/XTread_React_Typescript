@@ -11,6 +11,7 @@ export const useCementing = () => {
   const [cementType, setCementType] = useState("");
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [cementTypes, setCementTypes] = useState<any[]>([]);
+  const [processing, setProcessing] = useState(false);
 
   const { getCementTypes, saveCementing, approveCementing } = cementingService;
 
@@ -118,6 +119,7 @@ export const useCementing = () => {
       setLoading(true);
 
       const res = await approveCementing(payload);
+      await loadCementing();
 
       return res.data;
     } catch (error) {
@@ -135,6 +137,7 @@ export const useCementing = () => {
   return {
     inspections,
     loading,
+    processing,
     loadCementing,
     cementType,
     setCementType,

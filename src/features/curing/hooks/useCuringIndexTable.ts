@@ -4,9 +4,11 @@ import type { CuringRow } from "../type/curing.types";
 
 const useCuringIndexTable = (status: number) => {
   const [curingRows, setCuringRows] = useState<CuringRow[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const loadData = async () => {
     try {
+      setLoading(true);
       const response =
         await curingServiceApi.getCuringByStatus(status);
 
@@ -24,6 +26,9 @@ const useCuringIndexTable = (status: number) => {
     } catch (error) {
       console.error(error);
     }
+    finally{
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -34,6 +39,7 @@ const useCuringIndexTable = (status: number) => {
     curingRows,
     setCuringRows,
     loadData,
+    loading
   };
 };
 

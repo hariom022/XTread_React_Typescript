@@ -27,10 +27,11 @@ interface SelectedItem {
 interface Props {
   selectedItem: SelectedItem | null;
   refreshTable: () => void;
+  refreshPostTable: () => Promise<void>;
   onClose:()=>void;
 }
 
-const usePreBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Props) => {
+const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTable,onClose }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const [reason, setReason] = useState("");
@@ -159,6 +160,7 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Prop
       alert("Casing Rejected Successfully");
 
       refreshTable();
+      refreshPostTable(),
       resetModal();
       onClose();
     } catch (error) {
@@ -205,6 +207,7 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Prop
       alert("Approved Successfully");
 
       refreshTable();
+      refreshPostTable(),
       resetModal();
       onClose();
      

@@ -7,6 +7,7 @@ export const useCementingInspectionModal = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const [loadingModal, setLoadingModal] = useState(false);
+  
 
   const openModal = async (item: any) => {
     try {

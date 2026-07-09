@@ -18,6 +18,7 @@ const FillUpStage = () => {
 
   const [showIncidentModal, setShowIncidentModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
   const [search, setSearch] = useState("");
 
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -52,6 +53,7 @@ const FillUpStage = () => {
 
   const handleInspect = async (item: FillUpRow) => {
     try {
+      setLoadingModal(true);
       const response = await indexPageApiService.getOrderCasingDetails(item.id);
 
       const casing = response.data;
@@ -82,6 +84,8 @@ const FillUpStage = () => {
       console.error(error);
 
       alert("Unable to load casing details");
+    }finally{
+      setLoadingModal(false);
     }
   };
   return (
@@ -169,7 +173,20 @@ const FillUpStage = () => {
       {showIncidentModal && (
         <IncidentReportModal onClose={() => setShowIncidentModal(false)} />
       )}
+      {/* loader */}
+      {(loadingModal || fillUpModal.processing) && (
+  <div
+    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+    style={{
+      background: "rgba(255,255,255,0.6)",
+      zIndex: 99999,
+    }}
+  >
+    <RingLoader color="#b30815" size={80} />
+  </div>
+)}
     </div>
+    
   );
 };
 

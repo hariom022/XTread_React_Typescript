@@ -28,6 +28,10 @@ export const indexPageColumns = (onInspect: any) => [
     header: "Tyre Size",
     accessor: "tyreSize",
   },
+  {
+    header: "Make",
+    accessor: "brand",
+  },
 
   {
     header: "Service",

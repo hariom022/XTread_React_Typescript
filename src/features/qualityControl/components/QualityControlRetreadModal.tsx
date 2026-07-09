@@ -1,269 +1,15 @@
-// import React from "react";
-// import { buildQualityControlRequest } from "../utils/qualityControlHelper";
-// import { useState } from "react";
-// import qualityControlServiceApi from "../service/qualityControlServiceApi";
-// interface Props {
-//   selectedItem: any;
-
-//   rejectReason: string;
-//   setRejectReason: (value: string) => void;
-
-//   rejectComment: string;
-//   setRejectComment: (value: string) => void;
-
-//   onApprove: () => void;
-//   onReject: () => void;
-//   onClose: () => void;
-// }
-
-// const QualityControlRetreadModal = ({
-//   selectedItem,
-//   rejectReason,
-//   setRejectReason,
-//   rejectComment,
-//   setRejectComment,
-//   onApprove,
-//   onReject,
-//   onClose,
-// }: Props) => {
-//   if (!selectedItem) return null;
-// const [decision, setDecision] = useState<
-//   "approve" | "reprocess" | null
-// >(null);
-
-// const [reprocessRoute, setReprocessRoute] = useState<
-//   "repair" | "recoverRubber" | null
-// >(null);
-
-// const [recoverDecision, setRecoverDecision] = useState<
-//   "approved" | "rejected" | null
-// >(null);
-
-//   const handleApprove = async () => {
-//     try {
-//       const payload = buildQualityControlRequest(
-//         selectedItem.orderCasingId,
-//         "APPROVE_RETREAD",
-//       );
-
-//       await qualityControlServiceApi.approveReject(payload);
-
-//       onApprove();
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-//   const handleSendToRepair = async () => {
-//     const payload = buildQualityControlRequest(
-//       selectedItem.orderCasingId,
-//       "SEND_TO_REPAIR",
-//       rejectReason,
-//     );
-
-//     await qualityControlServiceApi.approveReject(payload);
-
-//     onReject();
-//   };
-//   // Move to dispatch
-//   const handleRecoverRubberApproved = async () => {
-//     try {
-//       const payload = buildQualityControlRequest(
-//         selectedItem.orderCasingId,
-//         "RECOVER_RUBBER_APPROVED",
-//       );
-
-//       await qualityControlServiceApi.approveReject(payload);
-
-//       onApprove();
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-//   //  (Move to PreBuffing)
-//   const handleRecoverRubberRejected = async () => {
-//     try {
-//       const payload = buildQualityControlRequest(
-//         selectedItem.orderCasingId,
-//         "RECOVER_RUBBER_REJECTED",
-//       );
-
-//       await qualityControlServiceApi.approveReject(payload);
-
-//       onReject();
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-//   return (
-//     <>
-//       <div className="modal-info m-0 p-2 building-top row text-nowrap">
-//         <div className="col-2">
-//           <strong>Production No</strong>
-//           <div>{selectedItem.productionNumber}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Serial No</strong>
-//           <div>{selectedItem.serial}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Customer Name</strong>
-//           <div>{selectedItem.customerName}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Tyre Size</strong>
-//           <div>{selectedItem.tyreSize}</div>
-//         </div>
-
-//         <div className="col-2">
-//           <strong>Requested Pattern</strong>
-//           <div>{selectedItem.requestedPattern}</div>
-//         </div>
-//       </div>
-
-//       <div className="row align-items-stretch">
-//         <div className="col-md-6 p-3">
-//           <div className="panel-box">
-//             <div className="panel-body p-3">
-//               {selectedItem.repairOperations?.length > 0 && (
-//                 <div className="mt-4">
-//                   <h5 className="mb-3">Repair Details</h5>
-
-//                   <table className="table table-bordered text-center">
-//                     <thead>
-//                       <tr>
-//                         <th>#Patch</th>
-//                         <th>Location</th>
-//                         <th>Damage Type</th>
-//                         <th>Quantity</th>
-//                       </tr>
-//                     </thead>
-
-//                     <tbody>
-//                       {selectedItem.repairOperations.map((repair: any) => (
-//                         <tr key={repair.lineNumber}>
-//                           <td>{repair.lineNumber}</td>
-//                           <td>{repair.repairLocation}</td>
-//                           <td>{repair.repairType}</td>
-//                           <td>{repair.quantity}</td>
-//                         </tr>
-//                       ))}
-//                     </tbody>
-//                   </table>
-//                 </div>
-//               )}
-//               <table className="table table-bordered compact-table">
-//                 <tbody>
-//                   <tr>
-//                     <td width="40%">
-//                       <strong>Requested Pattern</strong>
-//                     </td>
-//                     <td>{selectedItem.requestedPattern}</td>
-//                   </tr>
-
-//                   <tr>
-//                     <td>
-//                       <strong>Approved Pattern</strong>
-//                     </td>
-//                     <td>{selectedItem.approvedPattern}</td>
-//                   </tr>
-
-//                   <tr>
-//                     <td>
-//                       <strong>Approved Width</strong>
-//                     </td>
-//                     <td>{selectedItem.treadWidth}</td>
-//                   </tr>
-
-//                   <tr>
-//                     <td>
-//                       <strong>Service Type</strong>
-//                     </td>
-//                     <td>{selectedItem.serviceType}</td>
-//                   </tr>
-//                 </tbody>
-//               </table>
-//             </div>
-//           </div>
-//         </div>
-
-//         <div className="col-md-6 p-3">
-//           <div className="panel-box">
-//             <div className="panel-body p-4">
-//               <button
-//                 className="btn btn-approve w-100 mb-3"
-//                 onClick={handleApprove}
-//               >
-//                 APPROVED
-//               </button>
-
-//               <label className="fw-semibold">Rejection Reason</label>
-
-//               <select
-//                 className="form-select mb-2"
-//                 value={rejectReason}
-//                 onChange={(e) => setRejectReason(e.target.value)}
-//               >
-//                 <option value="">Select Reason</option>
-//                 <option>Pattern Mismatch</option>
-//                 <option>Tread Width Error</option>
-//                 <option>Failed Inspection</option>
-//               </select>
-
-//               {rejectComment && (
-//                 <textarea
-//                   className="form-control"
-//                   rows={3}
-//                   value={rejectComment}
-//                   onChange={(e) => setRejectComment(e.target.value)}
-//                 />
-//               )}
-
-//               <button
-//                 className="btn btn-reject w-100 mt-3"
-//                 onClick={handleSendToRepair}
-//               >
-//                 REJECTED
-//               </button>
-//             </div>
-//             <div className="d-grid gap-2 mt-3">
-//               <button
-//                 className="btn btn-success"
-//                 onClick={handleRecoverRubberApproved}
-//               >
-//                 Recover Rubber Approved
-//               </button>
-
-//               <button
-//                 className="btn btn-warning"
-//                 onClick={handleRecoverRubberRejected}
-//               >
-//                 Recover Rubber Not Approved
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default QualityControlRetreadModal;
-
 import React, { useState } from "react";
 import qualityControlServiceApi from "../service/qualityControlServiceApi";
 import { buildQualityControlRequest } from "../utils/qualityControlHelper";
-import { retreadReasons } from "../constants/constants";
-import {type RejectionReason}from "../type/qualityControl.type"
+import { type RejectionReason } from "../type/qualityControl.type";
+import { RingLoader } from "react-spinners";
 
 interface Props {
   selectedItem: any;
 
   rejectReason: string;
   setRejectReason: (value: string) => void;
-  rejectionReasons: RejectionReason[],
+  rejectionReasons: RejectionReason[];
   rejectComment: string;
   setRejectComment: (value: string) => void;
 
@@ -292,84 +38,12 @@ const QualityControlRetreadModal = ({
   const [decision, setDecision] = useState<
     "approve" | "recoverRubber" | "destination" | null
   >(null);
+  const [processing, setProcessing] = useState(false);
   if (!selectedItem) return null;
-
-  //   const handleSubmit = async () => {
-  //     try {
-  //       let payload = null;
-
-  //      let successMessage = "";
-
-  // if (decision === "approve") {
-  //   payload = buildQualityControlRequest(
-  //     selectedItem.orderCasingId,
-  //     "APPROVE_RETREAD"
-  //   );
-
-  //   successMessage =
-  //     "Tyre approved and moved to Dispatch.";
-  // }
-
-  // else if (
-  //   decision === "reprocess" &&
-  //   reprocessRoute === "repair"
-  // ) {
-  //   payload = buildQualityControlRequest(
-  //     selectedItem.orderCasingId,
-  //     "SEND_TO_REPAIR",
-  //     rejectReason
-  //   );
-
-  //   successMessage =
-  //     "Tyre sent to Repair successfully.";
-  // }
-
-  // else if (
-  //   decision === "reprocess" &&
-  //   reprocessRoute === "recoverRubber" &&
-  //   recoverDecision === "approved"
-  // ) {
-  //   payload = buildQualityControlRequest(
-  //     selectedItem.orderCasingId,
-  //     "RECOVER_RUBBER_APPROVED"
-  //   );
-
-  //   successMessage =
-  //     "Rubber recovery approved. Tyre moved to Dispatch.";
-  // }
-
-  // else if (
-  //   decision === "reprocess" &&
-  //   reprocessRoute === "recoverRubber" &&
-  //   recoverDecision === "rejected"
-  // ) {
-  //   payload = buildQualityControlRequest(
-  //     selectedItem.orderCasingId,
-  //     "RECOVER_RUBBER_REJECTED"
-  //   );
-
-  //   successMessage =
-  //     "Rubber recovery rejected. Tyre returned to Pre-Buffing.";
-  // }
-
-  //       if (!payload) {
-  //         alert("Please complete the QC decision.");
-  //         return;
-  //       }
-
-  //       await qualityControlServiceApi.approveReject(
-  //         payload
-  //       );
-  //         alert(successMessage)
-  //       onApprove();
-  //     } catch (error) {
-  //       console.error(error);
-  //       alert("Failed to process Quality Control decision.");
-  //     }
-  //   };
 
   const handleSubmit = async () => {
     try {
+      setProcessing(true);
       let payload = null;
       let successMessage = "";
 
@@ -436,6 +110,8 @@ const QualityControlRetreadModal = ({
     } catch (error) {
       console.error(error);
       alert("Failed to process Quality Control decision.");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -531,13 +207,19 @@ const QualityControlRetreadModal = ({
                     <td>
                       <strong>Reason</strong>
                     </td>
-                    <td>{selectedItem.reason ||"-"}</td>
+                    <td>{selectedItem.reason || "-"}</td>
                   </tr>
                   <tr>
                     <td>
                       <strong>Approved Date</strong>
                     </td>
-                    <td>{selectedItem.receivedDate ? new Date(selectedItem.receivedDate).toLocaleDateString("en-GB") : "-"}</td>
+                    <td>
+                      {selectedItem.receivedDate
+                        ? new Date(
+                            selectedItem.receivedDate,
+                          ).toLocaleDateString("en-GB")
+                        : "-"}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -596,51 +278,6 @@ const QualityControlRetreadModal = ({
                   <label className="form-check-label">Reprocess</label>
                 </div>
               </div>
-
-              {/* STEP 2 */}
-              {/* {decision === "reprocess" && (
-                <div className="card p-3 mb-3">
-                  <h6>2. Route To</h6>
-
-                  <div className="form-check">
-                    <input
-                      type="radio"
-                      className="form-check-input"
-                      checked={
-                        reprocessRoute ===
-                        "repair"
-                      }
-                      onChange={() =>
-                        setReprocessRoute(
-                          "repair"
-                        )
-                      }
-                    />
-                    <label className="form-check-label">
-                      Send To Repair
-                    </label>
-                  </div>
-
-                  <div className="form-check mt-2">
-                    <input
-                      type="radio"
-                      className="form-check-input"
-                      checked={
-                        reprocessRoute ===
-                        "recoverRubber"
-                      }
-                      onChange={() =>
-                        setReprocessRoute(
-                          "recoverRubber"
-                        )
-                      }
-                    />
-                    <label className="form-check-label">
-                      Send To Recover Rubber
-                    </label>
-                  </div>
-                </div>
-              )} */}
               {/* STEP 2 */}
               {decision === "recoverRubber" && (
                 <div className="card p-3 mb-3">
@@ -729,31 +366,43 @@ const QualityControlRetreadModal = ({
                   <label className="fw-semibold">Rejection Reason</label>
 
                   <select
-  className="form-select"
-  value={rejectReason}
-  onChange={(e) => setRejectReason(e.target.value)}
->
-  <option value="">Select Reason</option>
+                    className="form-select"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                  >
+                    <option value="">Select Reason</option>
 
-  {rejectionReasons.map((reason) => (
-    <option
-      key={reason.code}
-      value={reason.code}
-    >
-      {reason.reason}
-    </option>
-  ))}
-</select>
+                    {rejectionReasons.map((reason) => (
+                      <option key={reason.code} value={reason.code}>
+                        {reason.reason}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
               {/* Submit */}
-              <button className="btn btn-danger w-100" onClick={handleSubmit}>
-                Submit QC Decision
+              <button
+                className="btn btn-danger w-100"
+                onClick={handleSubmit}
+                disabled={processing}
+              >
+                {processing ? "Submitting..." : "Submit QC Decision"}
               </button>
             </div>
           </div>
         </div>
       </div>
+      {processing && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(255,255,255,0.6)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      )}
     </>
   );
 };

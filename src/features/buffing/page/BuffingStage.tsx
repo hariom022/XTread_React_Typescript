@@ -50,13 +50,14 @@ const BuffingStage = () => {
   /* ==================================
           PRE BUFFING TABLE
     =================================== */
-  const { preBuffingData, fetchPreBuffingOrders, } = usePreBuffingIndexTable();
+  const { preBuffingData, fetchPreBuffingOrders } = usePreBuffingIndexTable();
 
   /* ==================================
           POST BUFFING TABLE
     =================================== */
 
-  const { postBuffingData, fetchPostBuffingOrders, } = usePostBuffingIndexTable();
+  const { postBuffingData, fetchPostBuffingOrders } =
+    usePostBuffingIndexTable();
 
   /* ==================================
           PRE APPROVAL HOOK
@@ -66,12 +67,11 @@ const BuffingStage = () => {
     selectedItem: selectedPreItem,
 
     refreshTable: fetchPreBuffingOrders,
+    refreshPostTable: fetchPostBuffingOrders,
 
     onClose: () => {
       if (preModalRef.current) {
-        Modal.getInstance(
-          preModalRef.current
-        )?.hide();
+        Modal.getInstance(preModalRef.current)?.hide();
       }
 
       setSelectedPreItem(null);
@@ -90,9 +90,7 @@ const BuffingStage = () => {
 
     onClose: () => {
       if (postModalRef.current) {
-        Modal.getInstance(
-          postModalRef.current
-        )?.hide();
+        Modal.getInstance(postModalRef.current)?.hide();
       }
 
       setSelectedPostItem(null);
@@ -186,79 +184,84 @@ const BuffingStage = () => {
     loadData();
   }, []);
 
-  const filteredPreBuffingRows =
-    useMemo(() => {
-      return preBuffingData.filter(
-        (item) =>
-          `${item.casing}
+  const filteredPreBuffingRows = useMemo(() => {
+    return preBuffingData.filter((item) =>
+      `${item.casing}
          ${item.serial}
          ${item.patternName}
          ${item.customerName}
          ${item.batchNo}`
-            .toLowerCase()
-            .includes(search.toLowerCase()),
-      );
-    }, [search, preBuffingData]);
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+    );
+  }, [search, preBuffingData]);
 
-  const filteredPostBuffingRows =
-    useMemo(() => {
-      return postBuffingData.filter(
-        (item) =>
-          `${item.casing}
+  const filteredPostBuffingRows = useMemo(() => {
+    return postBuffingData.filter((item) =>
+      `${item.casing}
          ${item.serial}
          ${item.patternName}
          ${item.customerName}
          ${item.batchNo}`
-            .toLowerCase()
-            .includes(search.toLowerCase()),
-      );
-    }, [search, postBuffingData]);
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+    );
+  }, [search, postBuffingData]);
   return (
     <div className="container-fluid">
       <div className="row mb-3">
-
         <div className="col-md-10">
-
           <input
             className="form-control"
             placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
+            onChange={(e) => setSearch(e.target.value)}
           />
-
         </div>
 
         <div className="col-md-2 d-flex justify-content-end">
-
           <button
             className="btn btn-danger w-100"
-            onClick={() =>
-              setShowIncidentModal(true)
-            }
+            onClick={() => setShowIncidentModal(true)}
           >
             Incident Report
           </button>
-
         </div>
-
       </div>
       {/* TABS */}
 
       <div className="d-flex gap-2 mb-3">
         <button
-          className={`btn ${activeTab === "pre" ? "btn-primary" : "btn-outline-primary"
-            }`}
+          className={`btn ${
+            activeTab === "pre" ? "btn-primary" : "btn-outline-primary"
+          }`}
           onClick={() => setActiveTab("pre")}
         >
           PRE BUFFING
         </button>
 
-        <button
+        {/* <button
           className={`btn ${activeTab === "post" ? "btn-primary" : "btn-outline-primary"
             }`}
           onClick={() => setActiveTab("post")}
+        >
+          POST BUFFING
+        </button> */}
+        <button
+          className={`btn ${
+            activeTab === "post" ? "btn-primary" : "btn-outline-primary"
+          }`}
+          onClick={async () => {
+            setLoading(true);
+
+            try {
+              setActiveTab("post");
+
+              await fetchPostBuffingOrders();
+            } finally {
+              setLoading(false);
+            }
+          }}
         >
           POST BUFFING
         </button>
@@ -306,11 +309,7 @@ const BuffingStage = () => {
         />
       )}
       {showIncidentModal && (
-        <IncidentReportModal
-          onClose={() =>
-            setShowIncidentModal(false)
-          }
-        />
+        <IncidentReportModal onClose={() => setShowIncidentModal(false)} />
       )}
 
       {loading && (

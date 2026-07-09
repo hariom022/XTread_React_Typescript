@@ -16,17 +16,18 @@ const TreadBenchPage = () => {
     loadTreadBench,
     cementTypes,
     loadCementTypes,
+    processing,
     // selectedItem,
     handleSave,
   } = useTreadBench();
 
-  const { showModal, selectedItem, openModal, closeModal } =
+  const { showModal, selectedItem, openModal, closeModal, loadingModal } =
     useTreadBenchInspectionModal();
   useEffect(() => {
     //   loadCementTypes();
     loadTreadBench();
   }, []);
-  
+
   const [showStockModal, setShowStockModal] = useState(false);
 
   const [wasteForm, setWasteForm] = useState({
@@ -50,20 +51,20 @@ const TreadBenchPage = () => {
   }, [inspections, search]);
 
   const resetStockManagement = () => {
-  setWasteForm({
-    wasteKg: "",
-    treadPattern: "",
-    width: "",
-    cementType: "",
-  });
+    setWasteForm({
+      wasteKg: "",
+      treadPattern: "",
+      width: "",
+      cementType: "",
+    });
 
-  setWasteRows([]);
-  setWaste(0);
-};
-const handleCloseStockModal = () => {
-  resetStockManagement();
-  setShowStockModal(false);
-};
+    setWasteRows([]);
+    setWaste(0);
+  };
+  const handleCloseStockModal = () => {
+    resetStockManagement();
+    setShowStockModal(false);
+  };
   return (
     <div className="container-fluid mt-3">
       {/* Search + Buttons */}
@@ -136,9 +137,22 @@ const handleCloseStockModal = () => {
           wasteRows={wasteRows}
           setWasteRows={setWasteRows}
           setWaste={setWaste}
-           onClose={handleCloseStockModal}
+          onClose={handleCloseStockModal}
         />
       )}
+      {/* Modal Loader */}
+      {(loadingModal ||
+        processing) && (
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+            style={{
+              background: "rgba(255,255,255,0.6)",
+              zIndex: 99999,
+            }}
+          >
+            <RingLoader color="#b30815" size={80} />
+          </div>
+        )}
     </div>
   );
 };
