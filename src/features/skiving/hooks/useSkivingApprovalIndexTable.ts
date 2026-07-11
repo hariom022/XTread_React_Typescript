@@ -43,6 +43,7 @@ const useSkivingApprovalTable = () => {
               requestedPattern: casing.patternName || "-",
 
               tyreSize: casing.tyreSizeLabel || "-",
+              tyreMakeName:casing.tyreMakeName || "-",
 
               tyreMake: "-",
 

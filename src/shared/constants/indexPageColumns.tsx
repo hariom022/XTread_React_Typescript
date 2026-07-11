@@ -10,10 +10,10 @@ export const indexPageColumns = (onInspect: any) => [
     render: (item: any) =>
       item.date ? new Date(item.date).toLocaleDateString("en-GB") : "-",
   },
-  {
-    header: "Customer Name",
-    accessor: "customerName",
-  },
+  // {
+  //   header: "Customer Name",
+  //   accessor: "customerName",
+  // },
   {
     header: "Tyre Ref No",
     accessor: "serial",
@@ -23,14 +23,13 @@ export const indexPageColumns = (onInspect: any) => [
     header: "Pattern",
     accessor: "patternName",
   },
-
+  {
+    header: "Make",
+    accessor: "tyreMakeName",
+  },
   {
     header: "Tyre Size",
     accessor: "tyreSize",
-  },
-  {
-    header: "Make",
-    accessor: "brand",
   },
 
   {

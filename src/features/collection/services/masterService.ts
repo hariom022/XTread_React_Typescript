@@ -37,8 +37,8 @@ const masterService = {
   getRepairLocations: () =>
     api.get("/repair-locations"),
 
-  addCasingToOrder: (orderNumber: string, data: unknown) =>
-    api.post(`/orders/${orderNumber}/casings`, data),
+  addCasingToOrder: ( data: unknown) =>
+    api.post(`/orders/casings`, data),
   updateOrderCasing: (
     orderNumber: string,
     orderCasingId: number,

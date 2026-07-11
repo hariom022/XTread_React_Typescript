@@ -59,7 +59,7 @@ const OrderDetails = ({
         <div className="row mt-3">
           {/* BOOK NUMBER */}
           <div className="col-md-12">
-            <label className="form-label">Book No#</label>
+            <label className="form-label">Book Number</label>
 
             <input
               className="form-control modern-input"

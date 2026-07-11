@@ -17,6 +17,7 @@ export interface SkivingStage1Row {
   date: string;
 
   customerName: string;
+  tyreMakeName:string;
 
   tyreSize: string;
   tyreMake: string;

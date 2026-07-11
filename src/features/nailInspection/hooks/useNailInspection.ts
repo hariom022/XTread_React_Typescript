@@ -107,6 +107,7 @@ export const useNailInspection = () => {
             dot: casing.dotNumber || "-",
 
             patternName: casing?.patternName || "-",
+            tyreMakeName:casing.tyreMakeName || "-",
 
             tyreSize: casing.tyreSizeLabel || "-",
 

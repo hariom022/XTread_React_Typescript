@@ -44,6 +44,7 @@ export const useCementing = () => {
               requestedPattern: "-",
 
               date: casing.orderDate || "-",
+              tyreMakeName:casing.tyreMakeName || "-",
 
               customerName: casing.customerName || "-",
 

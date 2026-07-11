@@ -69,6 +69,9 @@ const useBuildingIndexTable = () => {
                                     patternName:
                                         casing.patternName ||
                                         "-",
+                                    tyreMakeName:
+                                        casing.tyreMakeName || 
+                                        "-",
 
                                     tyreSize:
                                         casing.tyreSizeLabel ||

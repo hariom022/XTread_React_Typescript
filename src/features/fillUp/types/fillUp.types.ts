@@ -12,6 +12,7 @@ export interface FillUpRow {
   customerName: string;
 
   patternName: string;
+  tyreMakeName: string;
   requestedPattern: string;
   reApprovedPattern?: string;
 

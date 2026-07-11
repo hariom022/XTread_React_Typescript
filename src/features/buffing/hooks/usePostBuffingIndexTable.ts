@@ -40,6 +40,7 @@ const usePostBuffingIndexTable = () => {
               patternName: casing.patternName || "-",
 
               requestedPattern: casing.patternName || "-",
+              tyreMakeName:casing.tyreMakeName || "-",
 
               date: casing.orderDate || "",
 

@@ -18,6 +18,7 @@ export interface PreBuffingRow {
   service: string;
 
   batchNo: string;
+  tyreMakeName:string;
 
   // Batch Summary
   approved: number;

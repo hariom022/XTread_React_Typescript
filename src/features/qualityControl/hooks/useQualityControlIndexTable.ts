@@ -37,6 +37,7 @@ const useQualityControlIndexTable = () => {
             tyreSize: casing.tyreSizeLabel || "-",
 
             patternName: casing.patternName || "-",
+            tyreMakeName:casing.tyreMakeName || "-",
 
             requestedPattern: "-",
 

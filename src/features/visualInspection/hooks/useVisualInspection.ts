@@ -42,6 +42,7 @@ export const useVisualInspection = () => {
               customerName:casing.customerName ||  "-",
 
               service: casing.serviceTypeName || "-",
+              tyreMakeName:casing.tyreMakeName || "-",
 
               batchNo: batch.batchNumber,
 
