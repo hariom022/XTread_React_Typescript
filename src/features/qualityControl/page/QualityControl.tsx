@@ -21,7 +21,7 @@ const QualityControl = () => {
   const { rows, loading, fetchRows } = useQualityControlIndexTable();
   const qualityModal = useQualityControlModal();
   const [search, setSearch] = useState("");
-
+  const [loadingModal, setLoadingModal] = useState(false);
   const [showIncidentModal, setShowIncidentModal] = useState(false);
 
   // const [
@@ -46,9 +46,17 @@ const QualityControl = () => {
   //   };
 
   const handleInspect = async (item: QualityControlRow) => {
-    console.log("Inspect clicked", item);
+    try {
+      setLoadingModal(true);
 
-    await qualityModal.openModal(item);
+      console.log("Inspect clicked", item);
+
+      await qualityModal.openModal(item);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingModal(false);
+    }
   };
   return (
     <div className="container-fluid mt-3">
@@ -137,7 +145,6 @@ const QualityControl = () => {
                       rejectReason={qualityModal.rejectReason}
                       setRejectReason={qualityModal.setRejectReason}
                       rejectionReasons={qualityModal.rejectionReasons}
-
                       rejectComment={qualityModal.rejectComment}
                       setRejectComment={qualityModal.setRejectComment}
                       onApprove={() => {
@@ -159,6 +166,17 @@ const QualityControl = () => {
 
       {showIncidentModal && (
         <IncidentReportModal onClose={() => setShowIncidentModal(false)} />
+      )}
+      {loadingModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(255,255,255,0.6)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
       )}
     </div>
   );

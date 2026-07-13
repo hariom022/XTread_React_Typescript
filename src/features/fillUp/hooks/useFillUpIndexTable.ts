@@ -58,6 +58,8 @@ console.log("BATCH ORDER FILLUP", result.data.data)
                   patternName:
                     casing.patternName ||
                     "-",
+                  tyreMakeName:
+                    casing.tyreMakeName || "-",
 
                   tyreSize:
                     casing.tyreSizeLabel,

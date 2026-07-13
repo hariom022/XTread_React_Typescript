@@ -8,6 +8,7 @@ export const useTreadBench = () => {
   const [loading, setLoading] = useState(false);
   const [inspections, setInspections] = useState<any[]>([]);
   const [cementTypes, setCementTypes] = useState<CementType[]>([]);
+  const [processing, setProcessing] = useState(false);
   const loadTreadBench = async (stageId: number = 9, statusId?: number ) => {
     try {
       setLoading(true);
@@ -36,6 +37,7 @@ export const useTreadBench = () => {
               tyreSize: casing.tyreSizeLabel || "-",
 
               patternName: casing.patternName || "-",
+              tyreMakeName:casing.tyreMakeName || "-",
 
               requestedPattern: "-",
 
@@ -93,22 +95,23 @@ export const useTreadBench = () => {
   };
   const handleSave = async (payload: any) => {
     try {
-      setLoading(true);
+      setProcessing(true);
 
       const res = await treadBenchService.saveCementTypes(payload);
-
+      await loadTreadBench();
       return res.data;
     } catch (error) {
       console.error("Error saving cementing", error);
       throw error;
     } finally {
-      setLoading(false);
+      setProcessing(false);
     }
   };
 
   return {
     inspections,
     loading,
+    processing,
     loadTreadBench,
     cementTypes,
     loadCementTypes,

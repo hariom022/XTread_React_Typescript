@@ -17,6 +17,7 @@ const useFillUpModal = ({
 }: Props) => {
     const [fillUpType, setFillUpType] =
         useState("");
+        const [processing, setProcessing] = useState(false);
 
     const [fillUpTypes, setFillUpTypes] =
         useState<
@@ -63,6 +64,7 @@ const useFillUpModal = ({
     const handleSave = async () => {
         console.log("SAVE CLICKED");
         try {
+            setProcessing(true);
             if (!fillUpType) {
                 alert(
                     "Please select Fill Up Type"
@@ -111,6 +113,8 @@ const useFillUpModal = ({
             alert(
                 "Failed to save Fill Up"
             );
+        }finally{
+            setProcessing(false);
         }
     };
 
@@ -119,7 +123,7 @@ const useFillUpModal = ({
         setFillUpType,
 
         fillUpTypes,
-
+        processing,
         handleSave,
 
         resetModal,

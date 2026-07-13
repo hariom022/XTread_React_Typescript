@@ -12,6 +12,7 @@ export const CementingPage = () => {
   const {
     inspections,
     loading,
+    processing,
     loadCementing,
     openingStockKg,
     setOpeningStockKg,
@@ -30,7 +31,7 @@ export const CementingPage = () => {
   const {
     showModal,
     selectedItem: modalItem,
-    // loadingModal,
+    loadingModal,
     openModal,
     closeModal,
   } = useCementingInspectionModal();
@@ -99,16 +100,19 @@ export const CementingPage = () => {
       </div>
 
       {/* Main Loader */}
-      {loading ? (
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{ minHeight: "400px" }}
-        >
-          <RingLoader color="#b30815" size={80} />
-        </div>
-      ) : (
-        <CementingTable data={filteredData} onInspect={openModal} />
-      )}
+      {(loading || loadingModal || processing) ? (
+  <div
+    className="d-flex justify-content-center align-items-center"
+    style={{ minHeight: "400px" }}
+  >
+    <RingLoader color="#b30815" size={80} />
+  </div>
+) : (
+  <CementingTable
+    data={filteredData}
+    onInspect={openModal}
+  />
+)}
 
       {/* Cementing Modal */}
       {showModal && modalItem && (
@@ -139,6 +143,17 @@ export const CementingPage = () => {
       {showIncidentModal && (
         <IncidentReportModal onClose={() => setShowIncidentModal(false)} />
       )}
+      {/* {processing && (
+  <div
+    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+    style={{
+      background: "rgba(255,255,255,0.7)",
+      zIndex: 99999,
+    }}
+  >
+    <RingLoader color="#b30815" size={80} />
+  </div>
+)} */}
     </div>
   );
 };

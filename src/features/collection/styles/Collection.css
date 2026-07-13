@@ -284,7 +284,12 @@ textarea.form-control.modern-input {
 .row.g-3 {
   --bs-gutter-x: 1rem;
 }
-
+/* .dot-inputs input {
+    height: 37px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+} */
 /* =========================================================
    RESPONSIVE
 ========================================================= */
@@ -328,4 +333,5 @@ textarea.form-control.modern-input {
     border-radius: 12px;
     padding: 15px;
   }
+  
 }

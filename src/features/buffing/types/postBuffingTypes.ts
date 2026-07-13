@@ -20,6 +20,7 @@ export interface PostBuffingRow {
   width: string; // ADD
 
   patternName: string;
+  tyreMakeName: string;
   requestedPattern: string;
 
   date: string;

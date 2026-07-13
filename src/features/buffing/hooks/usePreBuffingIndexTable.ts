@@ -43,6 +43,8 @@ const usePreBuffingIndexTable = () => {
               date:casing.orderDate ||  "-",
 
               customerName:casing.customerName ||  "-",
+              
+              tyreMakeName:casing.tyreMakeName || "-",
 
               service: batch.batchNumber?.startsWith("RT")
                 ? "Retread"

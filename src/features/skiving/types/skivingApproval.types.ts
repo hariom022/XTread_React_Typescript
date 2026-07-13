@@ -12,6 +12,7 @@ export interface SkivingApprovalRow {
   date: string;
 
   customerName: string;
+  tyreMakeName: string;
 
   tyreSize: string;
   tyreMake: string;

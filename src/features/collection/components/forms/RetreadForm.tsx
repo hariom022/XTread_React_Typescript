@@ -1,6 +1,7 @@
 // src/features/collection/components/forms/RetreadForm.tsx
 
 import React from "react";
+import { useState } from "react";
 import type {
   Pattern,
   PatternVariant,
@@ -124,6 +125,14 @@ interface RetreadFormProps {
 
   brand: string;
   patternClass: string;
+  factoryCode: string;
+  setFactoryCode: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingWeek: string;
+  setManufacturingWeek: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingYear: string;
+  setManufacturingYear: React.Dispatch<React.SetStateAction<string>>;
 
   // ================= COMMON =================
   category: Category | null;
@@ -228,6 +237,12 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
 
   handleAddCasing,
   isEditMode = false,
+  factoryCode,
+  setFactoryCode,
+  manufacturingWeek,
+  manufacturingYear,
+  setManufacturingWeek,
+  setManufacturingYear,
 }) => {
   return (
     <div className="truck-retread-form">
@@ -385,7 +400,7 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
         </div>
 
         {/* DOT */}
-        <div className="col-md-3">
+        {/* <div className="col-md-3">
           <label className="form-label">
             DOT No# <span className="text-danger">*</span>
           </label>
@@ -396,6 +411,86 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
             value={dot}
             onChange={(e) => setDot(e.target.value)}
           />
+        </div> */}
+        {/* DOT */}
+        <div className="col-md-3">
+          <label className="form-label">
+            DOT No <span className="text-danger">*</span>
+          </label>
+          <div className="d-flex gap-2">
+            {/* Factory Code */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "80px",height: "37px"}}
+              maxLength={3}
+              placeholder="ABC"
+              value={factoryCode}
+              onChange={(e) => {
+                const value = e.target.value
+                  .toUpperCase()
+                  .replace(/[^A-Z0-9]/g, "");
+
+                setFactoryCode(value);
+              }}
+            />
+
+            {/* Manufacturing Week */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "70px",height: "37px" }}
+              maxLength={2}
+              placeholder="WW"
+              value={manufacturingWeek}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+
+                if (value === "") {
+                  setManufacturingWeek("");
+                  return;
+                }
+
+                if (Number(value) > 52) return;
+
+                setManufacturingWeek(value);
+              }}
+              onBlur={() => {
+                if (manufacturingWeek.length === 1) {
+                  setManufacturingWeek(manufacturingWeek.padStart(2, "0"));
+                }
+              }}
+            />
+
+            {/* Manufacturing Year */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "70px",height: "37px" }}
+              maxLength={2}
+              placeholder="YY"
+              value={manufacturingYear}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+
+                if (value === "") {
+                  setManufacturingYear("");
+                  return;
+                }
+
+                const currentYear = new Date().getFullYear() % 100;
+
+                if (Number(value) > currentYear) return;
+
+                setManufacturingYear(value);
+              }}
+              onBlur={() => {
+                if (manufacturingYear.length === 1) {
+                  setManufacturingYear(manufacturingYear.padStart(2, "0"));
+                }
+              }}
+            />
+          </div>
         </div>
 
         {/* Other Number */}
@@ -632,15 +727,9 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
               const selectedVariant = selectedPatternObj?.variants.find(
                 (v: PatternVariant) => v.width === Number(width),
               );
-              console.log(
-                "Selected Variant",
-                selectedVariant
-              );
+              console.log("Selected Variant", selectedVariant);
 
-              console.log(
-                "Variant Id",
-                selectedVariant?.treadPatternVariantId
-              );
+              console.log("Variant Id", selectedVariant?.treadPatternVariantId);
 
               setSelectedWidth(width);
 
@@ -697,28 +786,25 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
               Cancel
             </button>
 
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={onSave}
-            >
+            <button type="button" className="btn btn-primary" onClick={onSave}>
               Save Changes
             </button>
           </>
         ) : (
-          <div className="mx-10 d-flex justify-content-end"
-          style={{marginLeft:"70.3rem"}}>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={handleAddCasing}
+          <div
+            className="mx-10 d-flex justify-content-end"
+            style={{ marginLeft: "70.3rem" }}
           >
-            Add Casing to Order
-          </button>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={handleAddCasing}
+            >
+              Add Casing to Order
+            </button>
           </div>
         )}
       </div>
     </div>
-
   );
 };
 

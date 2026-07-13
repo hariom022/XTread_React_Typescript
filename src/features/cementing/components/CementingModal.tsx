@@ -46,7 +46,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
   const [skipRepair, setSkipRepair] = useState(false);
 
   const [casingDry, setCasingDry] = useState(false);
-
+  const [processing, setProcessing] = useState(false);
   useEffect(() => {
     if (selectedItem) {
       setSkipRepair(Boolean(selectedItem.skipRepair));
@@ -81,6 +81,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
     console.log("APPROVE PAYLOAD", payload);
 
     try {
+      setProcessing(true);
       await handleApprove(payload);
 
       alert("Approved Successfully");
@@ -88,6 +89,8 @@ const CementingModal: React.FC<CementingModalProps> = ({
       onClose();
     } catch (error) {
       console.error(error);
+    }finally{
+      setProcessing(false);
     }
   };
 

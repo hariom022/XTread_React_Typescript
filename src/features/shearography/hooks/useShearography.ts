@@ -37,6 +37,8 @@ const transformApiData = (stages: any[]) => {
           tyreSize:
             casing.tyreSizeLabel ||
             "-",
+          tyreMakeName:casing.
+            tyreMakeName || "-",
 
           customerName:
             casing.customerName ||

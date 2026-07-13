@@ -14,6 +14,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
   const [selectedWidth, setSelectedWidth] = useState("");
 
   const [widthOptions, setWidthOptions] = useState<number[]>([]);
+  const [processing, setProcessing] = useState(false);
 
   // ==========================
   // LOAD WIDTHS
@@ -45,6 +46,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
 
   const handleApprove = async () => {
     try {
+      setProcessing(true);
       if (!selectedItem) return;
 
       // const isRetread = selectedItem?.serviceType?.id === 1;
@@ -83,11 +85,14 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       console.error("STATUS", error?.response?.status);
 
       alert(JSON.stringify(error?.response?.data));
+    }finally{
+      setProcessing(false);
     }
   };
 
   const handleReturnToRepair = async () => {
     try {
+      setProcessing(true);
       if (!selectedItem) return;
 
       const payload = {
@@ -116,6 +121,8 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
         error?.response?.data ||
         "Return To Repair Failed"
       );
+    }finally{
+      setProcessing(false);
     }
   };
 
@@ -139,6 +146,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     resetModal,
     handleApprove,
     handleReturnToRepair,
+    processing,
   };
 };
 

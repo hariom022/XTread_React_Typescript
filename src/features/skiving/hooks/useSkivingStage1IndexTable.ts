@@ -45,6 +45,7 @@ const useSkivingStage1Table = () => {
               requestedPattern: casing?.patternName || "-",
 
               tyreSize: casing.tyreSizeLabel || "-",
+              tyreMakeName:casing.tyreMakeName || "-",
 
               tyreMake: "-",
 

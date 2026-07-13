@@ -12,6 +12,7 @@ export interface BuildingRow {
     customerName: string;
 
     patternName: string;
+    tyreMakeName: string;
 
     tyreSize: string;
 

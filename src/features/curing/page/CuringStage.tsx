@@ -8,6 +8,7 @@ import useCuringBatchModal from "../hooks/useCuringBatchModal";
 import useCuringIndexTable from "../hooks/useCuringIndexTable";
 import curingServiceApi from "../service/curingServiceApi";
 import "../style/curing.css";
+import { RingLoader } from "react-spinners";
 
 const CuringStatus = {
   Pending: 1,
@@ -26,7 +27,7 @@ const CuringStage = () => {
     ========================= */
 
   const [statusTab, setStatusTab] = useState<number>(CuringStatus.Loaded);
-  const { curingRows, setCuringRows, loadData } =
+  const { curingRows, setCuringRows, loadData, loading } =
     useCuringIndexTable(statusTab);
 
   useEffect(() => {
@@ -59,7 +60,10 @@ const CuringStage = () => {
   } = useCuringBatchModal({
     refreshTable: () => {},
   });
-
+  /*  ==================
+          Loader
+    =======================*/
+  const [processing, setProcessing] = useState(false);
   /* =========================
           MODALS
     ========================= */
@@ -174,6 +178,7 @@ const CuringStage = () => {
     }
 
     try {
+      setProcessing(true);
       const payload = {
         orderCasingIds: selectedRows.map(String),
       };
@@ -189,6 +194,8 @@ const CuringStage = () => {
     } catch (error) {
       console.error("START CURE ERROR", error);
       alert("Failed to Start Cure");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -199,6 +206,7 @@ const CuringStage = () => {
     }
 
     try {
+      setProcessing(true);
       const payload = {
         orderCasingIds: selectedRows.map(String),
       };
@@ -212,6 +220,8 @@ const CuringStage = () => {
       console.error(error);
 
       alert("Failed to Unload Cure");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -222,6 +232,7 @@ const CuringStage = () => {
     }
 
     try {
+      setProcessing(true);
       const payload = {
         orderCasingIds: selectedRows.map(String),
       };
@@ -239,6 +250,8 @@ const CuringStage = () => {
       console.error(error);
 
       alert("Failed to Finish Cure");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -295,11 +308,12 @@ const CuringStage = () => {
     const current = cancelData[activeAutoclaveTab];
 
     if (!current?.reason) {
-  alert("Please select a cancel reason.");
-  return;
-}
+      alert("Please select a cancel reason.");
+      return;
+    }
 
     try {
+      setProcessing(true);
       const payload = {
         orderCasingIds: selectedRows.map(String),
         rejectionReasonCode: current.reason,
@@ -331,6 +345,8 @@ const CuringStage = () => {
     } catch (error) {
       console.error(error);
       alert("Failed to Cancel Cure");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -361,6 +377,7 @@ const CuringStage = () => {
     }
 
     try {
+      setProcessing(true);
       const payload = {
         orderCasingIds: selectedRows.map(String),
         destinationStage: 15,
@@ -378,6 +395,8 @@ const CuringStage = () => {
       console.error(error);
 
       alert("Failed To Send To QA");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -388,6 +407,7 @@ const CuringStage = () => {
     }
 
     try {
+      setProcessing(true);
       const payload = {
         orderCasingIds: selectedRows.map(String),
         destinationStage: 13,
@@ -405,6 +425,8 @@ const CuringStage = () => {
       console.error(error);
 
       alert("Failed To Send To Enveloping");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -464,58 +486,65 @@ const CuringStage = () => {
         </div>
       </div>
       <hr />
+      {loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "400px" }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      ) : (
+        <div className="col">
+          {/* MAIN TAB */}
 
-      <div className="col">
-        {/* MAIN TAB */}
+          {/* CHAMBER TAB */}
 
-        {/* CHAMBER TAB */}
+          <ul className="nav nav-tabs mb-3">
+            <li className="nav-item">
+              <button
+                className={`nav-link ${
+                  activeAutoclaveTab === "Marangoni" ? "active" : ""
+                }`}
+                onClick={() => setActiveAutoclaveTab("Marangoni")}
+              >
+                <b>Marangoni</b>
+              </button>
+            </li>
 
-        <ul className="nav nav-tabs mb-3">
-          <li className="nav-item">
-            <button
-              className={`nav-link ${
-                activeAutoclaveTab === "Marangoni" ? "active" : ""
-              }`}
-              onClick={() => setActiveAutoclaveTab("Marangoni")}
-            >
-              <b>Marangoni</b>
-            </button>
-          </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${
+                  activeAutoclaveTab === "Elgi" ? "active" : ""
+                }`}
+                onClick={() => setActiveAutoclaveTab("Elgi")}
+              >
+                <b>Elgi</b>
+              </button>
+            </li>
+          </ul>
 
-          <li className="nav-item">
-            <button
-              className={`nav-link ${
-                activeAutoclaveTab === "Elgi" ? "active" : ""
-              }`}
-              onClick={() => setActiveAutoclaveTab("Elgi")}
-            >
-              <b>Elgi</b>
-            </button>
-          </li>
-        </ul>
+          <ul className="nav nav-pills mb-4 mt-2">
+            <li className="nav-item">
+              <button
+                className={`nav-link ${statusTab === CuringStatus.Loaded ? "active" : ""}`}
+                onClick={() => setStatusTab(CuringStatus.Loaded)}
+              >
+                Ready To Start
+              </button>
+            </li>
 
-        <ul className="nav nav-pills mb-4 mt-2">
-          <li className="nav-item">
-            <button
-              className={`nav-link ${statusTab === CuringStatus.Loaded ? "active" : ""}`}
-              onClick={() => setStatusTab(CuringStatus.Loaded)}
-            >
-              Ready To Start
-            </button>
-          </li>
+            <li className="nav-item ms-2">
+              <button
+                className={`nav-link ${
+                  statusTab === CuringStatus.InProgress ? "active" : ""
+                }`}
+                onClick={() => setStatusTab(CuringStatus.InProgress)}
+              >
+                Cure In Progress
+              </button>
+            </li>
 
-          <li className="nav-item ms-2">
-            <button
-              className={`nav-link ${
-                statusTab === CuringStatus.InProgress ? "active" : ""
-              }`}
-              onClick={() => setStatusTab(CuringStatus.InProgress)}
-            >
-              Cure In Progress
-            </button>
-          </li>
-
-          {/* <li className="nav-item ms-2">
+            {/* <li className="nav-item ms-2">
             <button
               className={`nav-link ${statusTab === CuringStatus.Unloaded ? "active" : ""}`}
               onClick={() => setStatusTab(CuringStatus.Unloaded)}
@@ -524,53 +553,54 @@ const CuringStage = () => {
             </button>
           </li> */}
 
-          <li className="nav-item ms-2">
-            <button
-              className={`nav-link ${
-                statusTab === CuringStatus.Cancelled ? "active" : ""
-              }`}
-              onClick={() => setStatusTab(CuringStatus.Cancelled)}
-            >
-              Cancelled Cure
-            </button>
-          </li>
-        </ul>
+            <li className="nav-item ms-2">
+              <button
+                className={`nav-link ${
+                  statusTab === CuringStatus.Cancelled ? "active" : ""
+                }`}
+                onClick={() => setStatusTab(CuringStatus.Cancelled)}
+              >
+                Cancelled Cure
+              </button>
+            </li>
+          </ul>
 
-        {/* TABLE */}
+          {/* TABLE */}
 
-        <div className="row mb-4">
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 curing-card-data">
-              <div className="card-body text-center">
-                <h6>Loaded</h6>
-                <h2>
-                  {
-                    curingRows.filter(
-                      (x: any) => x.currentStageStatus === CuringStatus.Loaded,
-                    ).length
-                  }
-                </h2>
+          <div className="row mb-4">
+            <div className="col-md-4">
+              <div className="card shadow-sm border-0 curing-card-data">
+                <div className="card-body text-center">
+                  <h6>Loaded</h6>
+                  <h2>
+                    {
+                      curingRows.filter(
+                        (x: any) =>
+                          x.currentStageStatus === CuringStatus.Loaded,
+                      ).length
+                    }
+                  </h2>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 curing-card-data">
-              <div className="card-body text-center">
-                <h6>Running</h6>
-                <h2>
-                  {
-                    curingRows.filter(
-                      (x: any) =>
-                        x.currentStageStatus === CuringStatus.InProgress,
-                    ).length
-                  }
-                </h2>
+            <div className="col-md-4">
+              <div className="card shadow-sm border-0 curing-card-data">
+                <div className="card-body text-center">
+                  <h6>Running</h6>
+                  <h2>
+                    {
+                      curingRows.filter(
+                        (x: any) =>
+                          x.currentStageStatus === CuringStatus.InProgress,
+                      ).length
+                    }
+                  </h2>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* <div className="col-md-3">
+            {/* <div className="col-md-3">
             <div className="card shadow-sm border-0">
               <div className="card-body text-center">
                 <h6>Finished</h6>
@@ -586,23 +616,23 @@ const CuringStage = () => {
             </div>
           </div> */}
 
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0 curing-card-data">
-              <div className="card-body text-center">
-                <h6>Cancelled</h6>
-                <h2>
-                  {
-                    curingRows.filter(
-                      (x: any) =>
-                        x.currentStageStatus === CuringStatus.Cancelled,
-                    ).length
-                  }
-                </h2>
+            <div className="col-md-4">
+              <div className="card shadow-sm border-0 curing-card-data">
+                <div className="card-body text-center">
+                  <h6>Cancelled</h6>
+                  <h2>
+                    {
+                      curingRows.filter(
+                        (x: any) =>
+                          x.currentStageStatus === CuringStatus.Cancelled,
+                      ).length
+                    }
+                  </h2>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* <div className="card mb-4 shadow-sm">
+          {/* <div className="card mb-4 shadow-sm">
           <div className="card-body text-center">
             <h5 className="mb-4">Curing Workflow</h5>
 
@@ -615,81 +645,81 @@ const CuringStage = () => {
             </div>
           </div>
         </div> */}
-        <div className="row">
-          <div className="col-lg-9">
-            {/* SEARCH */}
+          <div className="row">
+            <div className="col-lg-9">
+              {/* SEARCH */}
 
-            <div className="d-flex justify-content-end mb-1">
-              <input
-                className="form-control"
-                style={{
-                  width: "260px",
-                }}
-                placeholder="Search Casing / Serial"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+              <div className="d-flex justify-content-end mb-1">
+                <input
+                  className="form-control"
+                  style={{
+                    width: "260px",
+                  }}
+                  placeholder="Search Casing / Serial"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <CuringTable
+                data={filteredRows}
+                selectedRows={selectedRows}
+                setSelectedRows={setSelectedRows}
               />
             </div>
-            <CuringTable
-              data={filteredRows}
-              selectedRows={selectedRows}
-              setSelectedRows={setSelectedRows}
-            />
-          </div>
 
-          <div className="col-lg-3">
-            <div className="card shadow-sm">
-              <div className="card-header">Actions</div>
+            <div className="col-lg-3">
+              <div className="card shadow-sm">
+                <div className="card-header">Actions</div>
 
-              <div className="card-body">
-                <h6>Selected: {selectedRows.length}</h6>
+                <div className="card-body">
+                  <h6>Selected: {selectedRows.length}</h6>
 
-                <hr />
+                  <hr />
 
-                {statusTab === CuringStatus.Loaded && (
-                  <>
-                    <button
-                      className="btn btn-success w-100 mb-2"
-                      onClick={handleStartCure}
-                    >
-                      Start Cure
-                    </button>
+                  {statusTab === CuringStatus.Loaded && (
+                    <>
+                      <button
+                        className="btn btn-success w-100 mb-2"
+                        onClick={handleStartCure}
+                      >
+                        Start Cure
+                      </button>
 
-                    <button
-                      className="btn btn-danger w-100"
-                      onClick={handleUnloadCure}
-                    >
-                      Unload Cure
-                    </button>
-                  </>
-                )}
+                      <button
+                        className="btn btn-danger w-100"
+                        onClick={handleUnloadCure}
+                      >
+                        Unload Cure
+                      </button>
+                    </>
+                  )}
 
-                {statusTab === CuringStatus.InProgress && (
-                  <>
-                    <button
-                      className="btn btn-primary w-100 mb-2"
-                      onClick={handleFinishCure}
-                    >
-                      Finish Cure
-                    </button>
+                  {statusTab === CuringStatus.InProgress && (
+                    <>
+                      <button
+                        className="btn btn-primary w-100 mb-2"
+                        onClick={handleFinishCure}
+                      >
+                        Finish Cure
+                      </button>
 
-                    <button
-                      className="btn btn-warning w-100"
-                      onClick={() => {
-                        if (selectedRows.length === 0) {
-                          alert("Select casing first");
-                          return;
-                        }
+                      <button
+                        className="btn btn-warning w-100"
+                        onClick={() => {
+                          if (selectedRows.length === 0) {
+                            alert("Select casing first");
+                            return;
+                          }
 
-                        setShowCancelModal(true);
-                      }}
-                    >
-                      Cancel Cure
-                    </button>
-                  </>
-                )}
+                          setShowCancelModal(true);
+                        }}
+                      >
+                        Cancel Cure
+                      </button>
+                    </>
+                  )}
 
-                {/* {statusTab === CuringStatus.Unloaded && (
+                  {/* {statusTab === CuringStatus.Unloaded && (
                   <button
                     className="btn btn-info w-100"
                     onClick={handleSendToQA}
@@ -698,30 +728,31 @@ const CuringStage = () => {
                   </button>
                 )} */}
 
-                {statusTab === CuringStatus.Cancelled && (
-                  <>
-                    <button
-                      className="btn btn-success w-100 mb-2"
-                      onClick={handleSendToQA}
-                    >
-                      Send To QC
-                    </button>
+                  {statusTab === CuringStatus.Cancelled && (
+                    <>
+                      <button
+                        className="btn btn-success w-100 mb-2"
+                        onClick={handleSendToQA}
+                      >
+                        Send To QC
+                      </button>
 
-                    <button
-                      className="btn btn-secondary w-100"
-                      onClick={handleSendToEnvelope}
-                    >
-                      Send To Enveloping
-                    </button>
-                  </>
-                )}
+                      <button
+                        className="btn btn-secondary w-100"
+                        onClick={handleSendToEnvelope}
+                      >
+                        Send To Enveloping
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* BUTTONS */}
-      </div>
+          {/* BUTTONS */}
+        </div>
+      )}
 
       {/* CHAMBER MODAL */}
 
@@ -761,57 +792,52 @@ const CuringStage = () => {
               </div>
             </div>
           </div> */}
-                  <div className="modal fade show d-block">
-                    <div className="modal-dialog modal-dialog-centered">
-                      <div className="modal-content">
-                        <div className="modal-header bg-warning">
-                          <h5 className="modal-title">
-                            Cancel Cure - {activeAutoclaveTab}
-                          </h5>
+          <div className="modal fade show d-block">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header bg-warning">
+                  <h5 className="modal-title">
+                    Cancel Cure - {activeAutoclaveTab}
+                  </h5>
 
-                          <button
-                            className="btn-close"
-                            onClick={() => setShowCancelModal(false)}
-                          />
-                        </div>
+                  <button
+                    className="btn-close"
+                    onClick={() => setShowCancelModal(false)}
+                  />
+                </div>
 
-                        <div className="modal-body">
-                          <div className="mb-3">
-                            <label className="form-label fw-semibold">
-                              Cancel Reason
-                            </label>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label fw-semibold">
+                      Cancel Reason
+                    </label>
 
-                            <select
-                              className="form-select"
-                              value={
-                                cancelData[activeAutoclaveTab]?.reason || ""
-                              }
-                              onChange={(e) => {
-                                const value = e.target.value;
+                    <select
+                      className="form-select"
+                      value={cancelData[activeAutoclaveTab]?.reason || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
 
-                                setCancelData((prev) => ({
-                                  ...prev,
-                                  [activeAutoclaveTab]: {
-                                    ...prev[activeAutoclaveTab],
-                                    reason: value,
-                                  },
-                                }));
-                              }}
-                            >
-                              <option value="">Select Reason</option>
+                        setCancelData((prev) => ({
+                          ...prev,
+                          [activeAutoclaveTab]: {
+                            ...prev[activeAutoclaveTab],
+                            reason: value,
+                          },
+                        }));
+                      }}
+                    >
+                      <option value="">Select Reason</option>
 
-                              {rejectionReasons.map((item) => (
-                                <option
-                                  key={item.rejectionReasonId}
-                                  value={item.code}
-                                >
-                                  {item.reason}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                      {rejectionReasons.map((item) => (
+                        <option key={item.rejectionReasonId} value={item.code}>
+                          {item.reason}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                          {/* {cancelData[activeAutoclaveTab]?.reason ===
+                  {/* {cancelData[activeAutoclaveTab]?.reason ===
                             "Other" && (
                             <div className="mb-3">
                               <label className="form-label fw-semibold">
@@ -837,49 +863,53 @@ const CuringStage = () => {
                             </div>
                           )} */}
 
-                          <div>
-                            <label className="form-label fw-semibold">
-                              Comment
-                            </label>
+                  <div>
+                    <label className="form-label fw-semibold">Comment</label>
 
-                            <textarea
-                              className="form-control"
-                              rows={4}
-                              value={
-                                cancelData[activeAutoclaveTab]?.comment || ""
-                              }
-                              onChange={(e) =>
-                                setCancelData((prev) => ({
-                                  ...prev,
-                                  [activeAutoclaveTab]: {
-                                    ...prev[activeAutoclaveTab],
-                                    comment: e.target.value,
-                                  },
-                                }))
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <div className="modal-footer">
-                          <button
-                            className="btn btn-secondary"
-                            onClick={() => setShowCancelModal(false)}
-                          >
-                            Close
-                          </button>
-
-                          <button
-                            className="btn btn-danger"
-                            onClick={handleCancelCure}
-                          >
-                            Submit Cancel
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                    <textarea
+                      className="form-control"
+                      rows={4}
+                      value={cancelData[activeAutoclaveTab]?.comment || ""}
+                      onChange={(e) =>
+                        setCancelData((prev) => ({
+                          ...prev,
+                          [activeAutoclaveTab]: {
+                            ...prev[activeAutoclaveTab],
+                            comment: e.target.value,
+                          },
+                        }))
+                      }
+                    />
                   </div>
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowCancelModal(false)}
+                  >
+                    Close
+                  </button>
+
+                  <button className="btn btn-danger" onClick={handleCancelCure}>
+                    Submit Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </>
+      )}
+      {processing && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(255,255,255,0.6)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
       )}
     </div>
   );

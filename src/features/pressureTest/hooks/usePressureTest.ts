@@ -43,6 +43,9 @@ export const usePressureTest = () => {
 
               patternName:
                 casing.patternName || "-",
+                
+              tyreMakeName:
+                casing.tyreMakeName || "-",
 
               tyreSize:
                 casing.tyreSizeLabel,
