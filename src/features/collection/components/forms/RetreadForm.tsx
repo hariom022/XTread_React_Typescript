@@ -422,7 +422,7 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "80px",height: "37px"}}
+              style={{ width: "80px", height: "37px" }}
               maxLength={3}
               placeholder="ABC"
               value={factoryCode}
@@ -439,7 +439,7 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "70px",height: "37px" }}
+              style={{ width: "70px", height: "37px" }}
               maxLength={2}
               placeholder="WW"
               value={manufacturingWeek}
@@ -466,7 +466,7 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "70px",height: "37px" }}
+              style={{ width: "70px", height: "37px" }}
               maxLength={2}
               placeholder="YY"
               value={manufacturingYear}
@@ -523,10 +523,21 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
 
           <input
             type="number"
+            min={1}
             className="form-control modern-input"
             placeholder="No of existing repairs"
             value={noOfRepairs}
-            onChange={(e) => setNoOfRepairs(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "" || Number(value) >= 1) {
+                setNoOfRepairs(value);
+              }
+            }}
           />
         </div>
       </div>

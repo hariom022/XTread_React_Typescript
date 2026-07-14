@@ -137,14 +137,14 @@ type Props = {
   remarks: string;
 
   setRemarks: (value: string) => void;
-    factoryCode: string;
-    setFactoryCode: React.Dispatch<React.SetStateAction<string>>;
-  
-    manufacturingWeek: string;
-    setManufacturingWeek: React.Dispatch<React.SetStateAction<string>>;
-  
-    manufacturingYear: string;
-    setManufacturingYear: React.Dispatch<React.SetStateAction<string>>;
+  factoryCode: string;
+  setFactoryCode: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingWeek: string;
+  setManufacturingWeek: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingYear: string;
+  setManufacturingYear: React.Dispatch<React.SetStateAction<string>>;
 
   // ================= COMMON =================
   category: Category | null;
@@ -450,7 +450,7 @@ const RepairForm = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "80px",height: "37px"}}
+              style={{ width: "80px", height: "37px" }}
               maxLength={3}
               placeholder="ABC"
               value={factoryCode}
@@ -467,7 +467,7 @@ const RepairForm = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "70px",height: "37px" }}
+              style={{ width: "70px", height: "37px" }}
               maxLength={2}
               placeholder="WW"
               value={manufacturingWeek}
@@ -494,7 +494,7 @@ const RepairForm = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "70px",height: "37px" }}
+              style={{ width: "70px", height: "37px" }}
               maxLength={2}
               placeholder="YY"
               value={manufacturingYear}
@@ -551,10 +551,21 @@ const RepairForm = ({
 
           <input
             type="number"
+            min={1}
             className="form-control modern-input"
             placeholder="No of existing repairs"
             value={noOfRepairs}
-            onChange={(e) => setNoOfRepairs(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "" || Number(value) >= 1) {
+                setNoOfRepairs(value);
+              }
+            }}
           />
         </div>
       </div>
@@ -667,9 +678,21 @@ const RepairForm = ({
 
               <input
                 type="number"
+                min={0}
                 className="form-control modern-input"
                 value={noOfRetreads}
-                onChange={(e) => setNoOfRetreads(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e" || e.key === "E") {
+                    e.preventDefault();
+                  }
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (value === "" || Number(value) >= 0) {
+                    setNoOfRetreads(value);
+                  }
+                }}
               />
             </>
           )}
@@ -724,13 +747,12 @@ const RepairForm = ({
             value={repairType}
             onChange={(e) => setRepairType(e.target.value)}
           >
-            <option value="" selected disabled>-- Select Repair --</option>
+            <option value="" selected disabled>
+              -- Select Repair --
+            </option>
 
             {damageTypes.map((item) => (
-              <option
-                key={item.id}
-                value={item.name}
-              >
+              <option key={item.id} value={item.name}>
                 {item.name}
               </option>
             ))}
@@ -746,13 +768,12 @@ const RepairForm = ({
             value={repairLocation}
             onChange={(e) => setRepairLocation(e.target.value)}
           >
-            <option value="" selected disabled>-- Select Location --</option>
+            <option value="" selected disabled>
+              -- Select Location --
+            </option>
 
             {repairLocations.map((item) => (
-              <option
-                key={item.id}
-                value={item.name}
-              >
+              <option key={item.id} value={item.name}>
                 {item.name}
               </option>
             ))}
@@ -881,8 +902,10 @@ const RepairForm = ({
             </button>
           </>
         ) : (
-          <div className="mx-10 d-flex justify-content-end"
-            style={{ marginLeft: "70.3rem" }}>
+          <div
+            className="mx-10 d-flex justify-content-end"
+            style={{ marginLeft: "70.3rem" }}
+          >
             <button
               className="btn btn-primary btn-sm"
               onClick={handleAddCasing}
