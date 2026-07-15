@@ -22,7 +22,12 @@ interface Props {
     React.SetStateAction<AllocatedPipeRow | null>
   >;
 
-  allocatePipe: (row: CuringRow, pipeNo: number, pipeName: string,autoclavePipeId: number) => void;
+  allocatePipe: (
+    row: CuringRow,
+    pipeNo: number,
+    pipeName: string,
+    autoclavePipeId: number,
+  ) => void;
 
   removeFromPipe: () => void;
 
@@ -58,6 +63,7 @@ const CuringBatchModal = ({
 
   const [pipes, setPipes] = useState<AutoclavePipe[]>([]);
   const [autoclaveName, setAutoclaveName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     const fetchPipes = async () => {
       try {
@@ -83,6 +89,13 @@ const CuringBatchModal = ({
 
     fetchPipes();
   }, [selectedAutoclave]);
+  const filteredAvailableRows = availableRows.filter(
+    (item) =>
+      item.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.tyreReferenceNumber
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()),
+  );
   return (
     <>
       <div className="modal fade show d-block">
@@ -99,7 +112,7 @@ const CuringBatchModal = ({
             {/* BODY */}
 
             <div className="modal-body">
-              <div
+              {/* <div
                 className="d-flex justify-content-between align-items-center mb-3 px-3 py-2 rounded"
                 style={{
                   backgroundColor: "#e9f2ff",
@@ -108,8 +121,42 @@ const CuringBatchModal = ({
                 <h5 className="fw-bold">Auto Clave Allocation</h5>
 
                 <div>
-                <b>{autoclaveName}</b>
+                  <b>John</b>
                 </div>
+              </div> */}
+              <div
+                className="d-flex justify-content-between align-items-center mb-3 px-3 py-2 rounded"
+                style={{
+                  backgroundColor: "#e9f2ff",
+                }}
+              >
+                <h5 className="fw-bold mb-0">Auto Clave - Casing Allocation</h5>
+
+                <div className="d-flex align-items-center gap-2">
+                  <span className="fw-semibold">Staff Name</span>
+
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    style={{ width: "180px" }}
+                    value="John"
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <b>{autoclaveName}</b>
+                </div>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search Production No"
+                  style={{ width: "250px" }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
 
               {/* TABLE 1 */}
@@ -163,7 +210,7 @@ const CuringBatchModal = ({
                               item,
                               Number(selectedPipe.pipeName),
                               selectedPipe.pipeName,
-                              selectedPipe.autoclavePipeId
+                              selectedPipe.autoclavePipeId,
                             );
                           }}
                         >
