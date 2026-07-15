@@ -147,25 +147,41 @@ const CuringStage = () => {
           LOAD CURING
     ========================= */
 
-  const handleLoadCuring = async () => {
-    const rowsToLoad = [...allocatedRows];
+  // const handleLoadCuring = async () => {
+  //   const rowsToLoad = [...allocatedRows];
 
-    console.log("Rows To Load", rowsToLoad);
+  //   console.log("Rows To Load", rowsToLoad);
+
+  //   await loadCuring();
+
+  //   setCuringRows((prev) => {
+  //     const updated = [...prev, ...rowsToLoad];
+
+  //     console.log("Updated Curing Rows", updated);
+
+  //     return updated;
+  //   });
+
+  //   setShowBatchModal(false);
+
+  //   resetModal();
+  // };
+  const handleLoadCuring = async () => {
+  try {
+    setProcessing(true); // Optional loader
 
     await loadCuring();
-
-    setCuringRows((prev) => {
-      const updated = [...prev, ...rowsToLoad];
-
-      console.log("Updated Curing Rows", updated);
-
-      return updated;
-    });
+    await loadData();
 
     setShowBatchModal(false);
-
     resetModal();
-  };
+  } catch (error) {
+    console.error("Load Curing Error:", error);
+    alert("Failed to load curing.");
+  } finally {
+    setProcessing(false); // Hide loader
+  }
+};
 
   /* =========================
           APPROVAL ACTIONS

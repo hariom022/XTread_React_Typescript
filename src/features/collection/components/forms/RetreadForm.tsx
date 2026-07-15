@@ -639,9 +639,23 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
 
               <input
                 type="number"
+                min={1}
                 className="form-control modern-input"
                 value={noOfRetreads}
-                onChange={(e) => setNoOfRetreads(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  // Allow empty value or non-negative numbers only
+                  if (value === "" || Number(value) >= 1) {
+                    setNoOfRetreads(value);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // Prevent typing negative sign and scientific notation
+                  if (e.key === "-" || e.key === "e" || e.key === "E") {
+                    e.preventDefault();
+                  }
+                }}
               />
             </>
           )}

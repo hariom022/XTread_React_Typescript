@@ -678,7 +678,7 @@ const RepairForm = ({
 
               <input
                 type="number"
-                min={0}
+                min={1}
                 className="form-control modern-input"
                 value={noOfRetreads}
                 onKeyDown={(e) => {
@@ -689,7 +689,7 @@ const RepairForm = ({
                 onChange={(e) => {
                   const value = e.target.value;
 
-                  if (value === "" || Number(value) >= 0) {
+                  if (value === "" || Number(value) >= 1) {
                     setNoOfRetreads(value);
                   }
                 }}
@@ -786,10 +786,23 @@ const RepairForm = ({
 
           <input
             type="number"
-            min="1"
+            min={1}
             className="form-control modern-input"
             value={repairQty}
-            onChange={(e) => setRepairQty(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              // Allow empty value or values >= 1
+              if (value === "" || Number(value) >= 1) {
+                setRepairQty(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              // Prevent negative sign, zero as first value, and scientific notation
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
       </div>
@@ -864,10 +877,26 @@ const RepairForm = ({
 
           <input
             type="number"
+            min={1}
+            max={100}
             className="form-control modern-input"
             placeholder="Enter tread depth in %"
             value={remainingTreadDepth}
-            onChange={(e) => setRemainingTreadDepth(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (
+                value === "" ||
+                (Number(value) >= 1 && Number(value) <= 100)
+              ) {
+                setRemainingTreadDepth(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
 

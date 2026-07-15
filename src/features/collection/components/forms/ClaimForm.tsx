@@ -101,13 +101,13 @@ type Props = {
 
   setShowRejectMessage: (value: boolean) => void;
   factoryCode: string;
-    setFactoryCode: React.Dispatch<React.SetStateAction<string>>;
-  
-    manufacturingWeek: string;
-    setManufacturingWeek: React.Dispatch<React.SetStateAction<string>>;
-  
-    manufacturingYear: string;
-    setManufacturingYear: React.Dispatch<React.SetStateAction<string>>;
+  setFactoryCode: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingWeek: string;
+  setManufacturingWeek: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingYear: string;
+  setManufacturingYear: React.Dispatch<React.SetStateAction<string>>;
 
   // ================= COMMON =================
   category: Category | null;
@@ -422,7 +422,7 @@ const ClaimForm = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "80px",height: "37px"}}
+              style={{ width: "80px", height: "37px" }}
               maxLength={3}
               placeholder="ABC"
               value={factoryCode}
@@ -439,7 +439,7 @@ const ClaimForm = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "70px",height: "37px" }}
+              style={{ width: "70px", height: "37px" }}
               maxLength={2}
               placeholder="WW"
               value={manufacturingWeek}
@@ -466,7 +466,7 @@ const ClaimForm = ({
             <input
               type="text"
               className="form-control text-center"
-              style={{ width: "70px",height: "37px" }}
+              style={{ width: "70px", height: "37px" }}
               maxLength={2}
               placeholder="YY"
               value={manufacturingYear}
@@ -526,8 +526,22 @@ const ClaimForm = ({
 
           <input
             type="number"
+            min={1}
             className="form-control modern-input"
             placeholder="Tread Depth in mm"
+            // value={treadDepth}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (value === "" || Number(value) >= 1) {
+                // setTreadDepth(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
       </div>
@@ -540,8 +554,22 @@ const ClaimForm = ({
 
           <input
             type="number"
+            min={1}
             className="form-control modern-input"
             placeholder="Tread Depth in mm"
+            // value={treadDepth}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (value === "" || Number(value) >= 1) {
+                // setTreadDepth(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
 
@@ -981,8 +1009,10 @@ const ClaimForm = ({
                 </button>
               </>
             ) : (
-              <div className="mx-10 d-flex justify-content-end"
-                style={{ marginLeft: "70.3rem" }}>
+              <div
+                className="mx-10 d-flex justify-content-end"
+                style={{ marginLeft: "70.3rem" }}
+              >
                 <button
                   className="btn btn-primary btn-sm"
                   onClick={handleAddCasing}
