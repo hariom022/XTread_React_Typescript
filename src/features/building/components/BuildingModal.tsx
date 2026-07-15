@@ -1,4 +1,6 @@
 import "../style/buildingStage.css";
+import { useEffect, useState } from "react";
+
 type Props = {
   selectedItem: any;
   selectedPattern: string;
@@ -20,6 +22,16 @@ const BuildingModal = ({
   handleReturnToRepair,
   onClose,
 }: Props) => {
+  const [isOverride, setIsOverride] = useState(false);
+  useEffect(() => {
+    if (selectedItem?.width) {
+      setSelectedWidth(String(selectedItem.width));
+    }
+
+    // Reset override for every new order
+    setIsOverride(false);
+  }, [selectedItem]);
+
   return (
     <>
       <div
@@ -117,6 +129,19 @@ const BuildingModal = ({
                         {/* PATTERN + WIDTH */}
                         {selectedItem?.serviceType?.id !== 2 && (
                           <div className="w-100 mb-3">
+                            <div className="row mb-1">
+                              <div className="col-6 d-flex align-items-center">
+                                <input
+                                  type="checkbox"
+                                  className="m-1"
+                                  checked={isOverride}
+                                  onChange={(e) =>
+                                    setIsOverride(e.target.checked)
+                                  }
+                                />
+                                Override Width
+                              </div>
+                            </div>
                             <div className="row g-2">
                               <div className="col-6">
                                 <label className="form-label fw-semibold">
@@ -140,9 +165,9 @@ const BuildingModal = ({
                                   onChange={(e) =>
                                     setSelectedWidth(e.target.value)
                                   }
+                                  disabled={!isOverride}
                                 >
                                   <option value="">Select Width</option>
-
                                   {widthOptions.map((width) => (
                                     <option key={width} value={width}>
                                       {width}

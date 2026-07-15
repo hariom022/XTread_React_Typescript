@@ -70,6 +70,7 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
     [],
   );
 
+  
   const togglePostChecklist = (id: string) => {
     setCheckedPostChecklist((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
@@ -301,6 +302,7 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
     }
   };
 
+  
   return {
     loading,
     machines,

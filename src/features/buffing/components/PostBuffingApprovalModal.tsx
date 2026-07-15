@@ -1,6 +1,7 @@
 import PostBuffingChecklist from "./PostBuffingChecklist";
 import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
 import { RingLoader } from "react-spinners";
+import { useEffect } from "react";
 
 interface Machine {
   machineId: number;
@@ -146,6 +147,18 @@ const PostBuffingApprovalModal = ({
   setPostChecklistSaved,
   casingDetails,
 }: Props) => {
+
+  useEffect(() => {
+  if (
+    casingDetails?.retreadDetail?.treadPatternVariantId &&
+    patternVariants.length > 0
+  ) {
+    setSelectedPostVariantId(
+      casingDetails.retreadDetail.treadPatternVariantId
+    );
+  }
+}, [casingDetails, patternVariants]);
+
   return (
     <div
       className="modal fade"
@@ -205,10 +218,10 @@ const PostBuffingApprovalModal = ({
                 <div>{casingDetails?.retreadDetail?.patternName}</div>
               </div>
 
-              {/* <div className="col">
+               <div className="col">
                 <strong>ReApproved Pattern</strong>
-                <div>- { {casingDetails?.retreadDetail?.patternName} }</div>
-              </div> */}
+                <div>-</div>
+              </div>
             </div>
 
             {/* MATERIAL */}
@@ -296,7 +309,7 @@ const PostBuffingApprovalModal = ({
                       checked={override}
                       onChange={(e) => setOverride(e.target.checked)}
                     />
-                    <label className="form-label mt-2 ms-1">Override</label>
+                    <label className="form-label mt-2 ms-1">Override Circumference</label>
                   </div>
 
                   <div className="row">
