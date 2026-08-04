@@ -75,7 +75,7 @@ const BuildingStage = () => {
         );
 
       const casing =
-        response.data;
+        response.data.data;
 
       console.log(
         "BUILDING CASING DETAILS",

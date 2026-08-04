@@ -15,7 +15,7 @@ export const useCementingInspectionModal = () => {
 
       const res = await indexPageApiService.getOrderCasingDetails(item.id);
 
-      const casing = res.data;
+      const casing = res.data.data;
       console.log("CEMENTING CASING DETAILS", casing);
 
       const modalData = {

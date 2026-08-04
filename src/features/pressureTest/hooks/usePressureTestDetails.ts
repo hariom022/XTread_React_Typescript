@@ -21,8 +21,8 @@ export const usePressureTestDetails = (
         await indexPageApiService.getOrderCasingDetails(
           orderCasingId
         );
-
-      setDetails(result.data);
+          console.log("Pressure Test API:", result.data);
+      setDetails(result.data.data);
     } catch (error) {
       console.error(
         "Failed to load casing details",
