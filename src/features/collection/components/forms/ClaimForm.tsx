@@ -100,6 +100,14 @@ type Props = {
   showRejectMessage: boolean;
 
   setShowRejectMessage: (value: boolean) => void;
+  factoryCode: string;
+  setFactoryCode: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingWeek: string;
+  setManufacturingWeek: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingYear: string;
+  setManufacturingYear: React.Dispatch<React.SetStateAction<string>>;
 
   // ================= COMMON =================
   category: Category | null;
@@ -108,7 +116,7 @@ type Props = {
 
   isEditMode?: boolean;
   onSave?: () => void;
-onClose?: () => void;
+  onClose?: () => void;
 };
 
 const ClaimForm = ({
@@ -183,6 +191,12 @@ const ClaimForm = ({
 
   showRejectMessage,
   setShowRejectMessage,
+  factoryCode,
+  setFactoryCode,
+  manufacturingWeek,
+  manufacturingYear,
+  setManufacturingWeek,
+  setManufacturingYear,
 
   // ================= COMMON =================
   category,
@@ -387,7 +401,7 @@ const ClaimForm = ({
       {/* ================= ROW 3 ================= */}
       <div className="row g-3 mt-2">
         {/* DOT */}
-        <div className="col-md-3">
+        {/* <div className="col-md-3">
           <label className="form-label">
             DOT No# <span className="text-danger">*</span>
           </label>
@@ -398,6 +412,85 @@ const ClaimForm = ({
             value={dot}
             onChange={(e) => setDot(e.target.value)}
           />
+        </div> */}
+        <div className="col-md-3">
+          <label className="form-label">
+            DOT No <span className="text-danger">*</span>
+          </label>
+          <div className="d-flex gap-2">
+            {/* Factory Code */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "80px", height: "37px" }}
+              maxLength={3}
+              placeholder="ABC"
+              value={factoryCode}
+              onChange={(e) => {
+                const value = e.target.value
+                  .toUpperCase()
+                  .replace(/[^A-Z0-9]/g, "");
+
+                setFactoryCode(value);
+              }}
+            />
+
+            {/* Manufacturing Week */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "70px", height: "37px" }}
+              maxLength={2}
+              placeholder="WW"
+              value={manufacturingWeek}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+
+                if (value === "") {
+                  setManufacturingWeek("");
+                  return;
+                }
+
+                if (Number(value) > 52) return;
+
+                setManufacturingWeek(value);
+              }}
+              onBlur={() => {
+                if (manufacturingWeek.length === 1) {
+                  setManufacturingWeek(manufacturingWeek.padStart(2, "0"));
+                }
+              }}
+            />
+
+            {/* Manufacturing Year */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "70px", height: "37px" }}
+              maxLength={2}
+              placeholder="YY"
+              value={manufacturingYear}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+
+                if (value === "") {
+                  setManufacturingYear("");
+                  return;
+                }
+
+                const currentYear = new Date().getFullYear() % 100;
+
+                if (Number(value) > currentYear) return;
+
+                setManufacturingYear(value);
+              }}
+              onBlur={() => {
+                if (manufacturingYear.length === 1) {
+                  setManufacturingYear(manufacturingYear.padStart(2, "0"));
+                }
+              }}
+            />
+          </div>
         </div>
 
         {/* OTHER NUMBER */}
@@ -433,8 +526,22 @@ const ClaimForm = ({
 
           <input
             type="number"
+            min={1}
             className="form-control modern-input"
             placeholder="Tread Depth in mm"
+            // value={treadDepth}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (value === "" || Number(value) >= 1) {
+                // setTreadDepth(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
       </div>
@@ -447,8 +554,22 @@ const ClaimForm = ({
 
           <input
             type="number"
+            min={1}
             className="form-control modern-input"
             placeholder="Tread Depth in mm"
+            // value={treadDepth}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (value === "" || Number(value) >= 1) {
+                // setTreadDepth(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
 
@@ -869,33 +990,38 @@ const ClaimForm = ({
 
           {/* FOOTER */}
           <div className="footer-actions">
-  {isEditMode ? (
-    <>
-      <button
-        type="button"
-        className="btn btn-secondary me-2"
-        onClick={onClose}
-      >
-        Cancel
-      </button>
+            {isEditMode ? (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary me-2"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
 
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={onSave}
-      >
-        Save Changes
-      </button>
-    </>
-  ) : (
-    <button
-      className="btn btn-primary btn-sm"
-      onClick={handleAddCasing}
-    >
-      Add Casing to Order
-    </button>
-  )}
-</div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={onSave}
+                >
+                  Save Changes
+                </button>
+              </>
+            ) : (
+              <div
+                className="mx-10 d-flex justify-content-end"
+                style={{ marginLeft: "70.3rem" }}
+              >
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={handleAddCasing}
+                >
+                  Add Casing to Order
+                </button>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

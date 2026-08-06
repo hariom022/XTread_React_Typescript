@@ -58,7 +58,9 @@ const CollectionPage = ({
 
   // const [customers, setCustomers] =
   //   useState<Customer[]>([]);
-
+  const [factoryCode, setFactoryCode] = useState("");
+  const [manufacturingWeek, setManufacturingWeek] = useState("");
+  const [manufacturingYear, setManufacturingYear] = useState("");
   const { customers, loading, error } = useCustomers();
 
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -151,6 +153,9 @@ const CollectionPage = ({
 
   const [repairs, setRepairs] = useState<any[]>([]);
 
+  const [damageTypes, setDamageTypes] = useState<any[]>([]);
+
+  const [repairLocations, setRepairLocations] = useState<any[]>([]);
   // =========================================================
   // CLAIM
   // =========================================================
@@ -289,8 +294,33 @@ const CollectionPage = ({
     loadServiceTypes();
 
     loadTyreMakes();
+    loadDamageTypes();
+    loadRepairLocations();
   }, []);
 
+  const validateDot = () => {
+    if (factoryCode.length < 2 || factoryCode.length > 3) {
+      alert("Factory Code must be 2 or 3 alphanumeric characters.");
+      return false;
+    }
+
+    const week = Number(manufacturingWeek);
+
+    if (week < 1 || week > 52) {
+      alert("Manufacturing Week must be between 01 and 52.");
+      return false;
+    }
+
+    const currentYear = new Date().getFullYear() % 100;
+    const year = Number(manufacturingYear);
+
+    if (year > currentYear) {
+      alert("Manufacturing Year cannot be in the future.");
+      return false;
+    }
+
+    return true;
+  };
   // =========================================================
   // LOADERS
   // =========================================================
@@ -305,6 +335,25 @@ const CollectionPage = ({
     const res = await masterService.getTyreMakes();
 
     setMake(res.data.data || []);
+  };
+  const loadDamageTypes = async () => {
+    try {
+      const res = await masterService.getDamageTypes();
+
+      setDamageTypes(res.data.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadRepairLocations = async () => {
+    try {
+      const res = await masterService.getRepairLocations();
+
+      setRepairLocations(res.data.data || []);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   //======================= EDIT ============================
@@ -550,6 +599,10 @@ const CollectionPage = ({
   // =========================
 
   const handleAddCasing = () => {
+    if (!validateDot()) return;
+
+    const dotNumber = `${factoryCode}${manufacturingWeek}${manufacturingYear}`;
+
     const payload = {
       id: Date.now(),
 
@@ -563,7 +616,7 @@ const CollectionPage = ({
 
       serial,
 
-      dot,
+      dot: dotNumber,
 
       make: selectedMake || "",
 
@@ -644,7 +697,7 @@ const CollectionPage = ({
       images,
     };
 
-    console.log("payload", payload);
+    console.log("Add casing payload", payload);
 
     setOrderItems((prev) => [...prev, payload]);
 
@@ -778,6 +831,9 @@ const CollectionPage = ({
     setClaimRemarks("");
 
     setRejectedPatternNo("");
+    setFactoryCode("");
+    setManufacturingWeek("");
+    setManufacturingYear("");
   };
 
   // =========================================================
@@ -787,6 +843,7 @@ const CollectionPage = ({
   const buildApiPayload = () => {
     return {
       customerNumber: selectedCustomer?.customerNumber,
+      bookNumber: orderNumber?.trim() || null,
 
       casings: orderItems.map((item) => ({
         serviceTypeId: item.serviceTypeId?.toString(),
@@ -869,91 +926,92 @@ const CollectionPage = ({
       // ADD CASING TO EXISTING ORDER
       // ==================================
 
-      if (orderNumber && orderNumber.trim() !== "") {
-        const lastItem = orderItems[orderItems.length - 1];
+      // if (orderNumber && orderNumber.trim() !== "") {
+      //   const lastItem = orderItems[orderItems.length - 1];
 
-        const casingPayload = {
-          serviceTypeId: lastItem.serviceTypeId?.toString(),
+      //   const casingPayload = {
+      //     bookNumber: orderNumber?.trim() || null,
+      //     serviceTypeId: lastItem.serviceTypeId?.toString(),
 
-          categoryId: lastItem.categoryId?.toString(),
+      //     categoryId: lastItem.categoryId?.toString(),
 
-          tyreSizeId: lastItem.tyreSizeId?.toString(),
+      //     tyreSizeId: lastItem.tyreSizeId?.toString(),
 
-          rimSize: lastItem.rimSize,
+      //     rimSize: lastItem.rimSize,
 
-          tyreMakeId: lastItem.tyreMakeId?.toString(),
+      //     tyreMakeId: lastItem.tyreMakeId?.toString(),
 
-          model: lastItem.model,
+      //     model: lastItem.model,
 
-          tyreClassificationId: lastItem.tyreClassificationId?.toString(),
+      //     tyreClassificationId: lastItem.tyreClassificationId?.toString(),
 
-          tyreReferenceNumber: lastItem.serial,
+      //     tyreReferenceNumber: lastItem.serial,
 
-          dotNumber: lastItem.dot,
+      //     dotNumber: lastItem.dot,
 
-          otherNumber: lastItem.otherNumber,
+      //     otherNumber: lastItem.otherNumber,
 
-          vehicleRegistrationNumber: lastItem.vehicleReg,
+      //     vehicleRegistrationNumber: lastItem.vehicleReg,
 
-          existingRepairsCount: lastItem.noOfRepairs || "0",
+      //     existingRepairsCount: lastItem.noOfRepairs || "0",
 
-          isRetreaded: !!lastItem.isRetreaded,
+      //     isRetreaded: !!lastItem.isRetreaded,
 
-          noOfRetread: lastItem.isRetreaded
-            ? lastItem.noOfRetreads?.toString()
-            : null,
+      //     noOfRetread: lastItem.isRetreaded
+      //       ? lastItem.noOfRetreads?.toString()
+      //       : null,
 
-          previousPattern: lastItem.isRetreaded
-            ? lastItem.previousPattern
-            : null,
+      //     previousPattern: lastItem.isRetreaded
+      //       ? lastItem.previousPattern
+      //       : null,
 
-          previousRetreader: lastItem.isRetreaded ? lastItem.retreadRef : null,
+      //     previousRetreader: lastItem.isRetreaded ? lastItem.retreadRef : null,
 
-          // RETREAD
-          retreadDetail:
-            lastItem.serviceType === "Retread"
-              ? {
-                  treadPatternVariantId:
-                    lastItem.treadPatternVariantId?.toString(),
+      //     // RETREAD
+      //     retreadDetail:
+      //       lastItem.serviceType === "Retread"
+      //         ? {
+      //             treadPatternVariantId:
+      //               lastItem.treadPatternVariantId?.toString(),
 
-                  isPatternOverride: !!lastItem.override,
-                }
-              : null,
+      //             isPatternOverride: !!lastItem.override,
+      //           }
+      //         : null,
 
-          // REPAIR
-          repairDetail:
-            lastItem.serviceType === "Repair"
-              ? {
-                  percentageRemainingTreadDepth:
-                    lastItem.remainingTreadDepth || "0",
+      //     // REPAIR
+      //     repairDetail:
+      //       lastItem.serviceType === "Repair"
+      //         ? {
+      //             percentageRemainingTreadDepth:
+      //               lastItem.remainingTreadDepth || "0",
 
-                  remarks: lastItem.remarks || "",
+      //             remarks: lastItem.remarks || "",
 
-                  operations:
-                    lastItem.repairs?.map((r: any) => ({
-                      repairType: r.repairType,
+      //             operations:
+      //               lastItem.repairs?.map((r: any) => ({
+      //                 repairType: r.repairType,
 
-                      repairLocation: r.repairLocation,
+      //                 repairLocation: r.repairLocation,
 
-                      quantity: r.repairQty,
-                    })) || [],
-                }
-              : null,
-        };
+      //                 quantity: r.repairQty,
+      //               })) || [],
+      //           }
+      //         : null,
+      //   };
 
-        console.log("ADD CASING API", casingPayload);
+      //   console.log("ADD CASING API", casingPayload);
 
-        await masterService.addCasingToOrder(orderNumber, casingPayload);
+      //   await masterService.addCasingToOrder(casingPayload);
 
-        alert("Casing added successfully ✅");
+      //   alert("Casing added successfully ✅");
 
-        setOrderItems([]);
-      }
+      //   setOrderItems([]);
+      // }
 
-      // ==================================
-      // CREATE NEW ORDER
-      // ==================================
-      else {
+      // // ==================================
+      // // CREATE NEW ORDER
+      // // ==================================
+      // else {
         const payload = buildApiPayload();
 
         console.log("CREATE ORDER API", payload);
@@ -965,8 +1023,7 @@ const CollectionPage = ({
         setOrderItems([]);
 
         resetFormFields();
-      }
-    } catch (err) {
+      } catch (err) {
       console.error("SAVE ORDER ERROR", err);
 
       alert("Error saving order ❌");
@@ -1054,301 +1111,337 @@ const CollectionPage = ({
 
   //========================================================================
   return (
-    <div className="container-fluid modern-form p-3">
-      {/* TOP SECTION */}
-      {!hideLayout && (
-        <div className="row g-4">
-          <div className="col-lg-6">
-            <CustomerSelection
-              customers={customers}
-              selectedCustomer={selectedCustomer}
-              setSelectedCustomer={setSelectedCustomer}
-              orderItemsLength={orderItems.length}
-            />
-          </div>
-
-          <div className="col-lg-6">
-            <OrderDetails
-              serviceTypes={serviceTypes}
-              selectedServiceType={serviceTypeId}
-              handleServiceTypeChange={handleServiceTypeChange}
-              categories={categories}
-              category={category?.categoryId || 0}
-              handleCategoryChange={handleCategoryChange}
-              orderNumber={orderNumber}
-              setOrderNumber={setOrderNumber}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* RETREAD */}
-      {selectedService === "Retread" && category && (
-        <div className="card modern-card mt-4">
-          <div className="card-header modern-header">
-            {category?.categoryName} Retread
-          </div>
-
-          <div className="card-body">
-            <RetreadForm
-              handleMakeSelect={handleMakeSelect}
-              selectedRimSize={selectedRimSize}
-              setSelectedRimSize={setSelectedRimSize}
-              tyreSize={tyreSize}
-              setTyreSize={setTyreSize}
-              tyreSizes={tyreSizes}
-              rimSizes={rimSizes}
-              selectedTyreName={selectedTyreName}
-              setSelectedTyreName={setSelectedTyreName}
-              selectedMake={selectedMake}
-              setSelectedMake={setSelectedMake}
-              make={make}
-              filteredMake={filteredMake}
-              search={search}
-              setSearch={setSearch}
-              showDropdown={showDropdown}
-              setShowDropdown={setShowDropdown}
-              setTyreClass={setTyreClass}
-              setTyreMakeId={setTyreMakeId}
-              tyreClassificationId={tyreClassificationId}
-              setTyreClassificationId={setTyreClassificationId}
-              model={model}
-              setModel={setModel}
-              tyreClass={tyreClass}
-              serial={serial}
-              setSerial={setSerial}
-              dot={dot}
-              setDot={setDot}
-              otherNumber={otherNumber}
-              setOtherNumber={setOtherNumber}
-              vehicleReg={vehicleReg}
-              setVehicleReg={setVehicleReg}
-              noOfRepairs={noOfRepairs}
-              setNoOfRepairs={setNoOfRepairs}
-              isRetreaded={isRetreaded}
-              // handleIsRetreadedChange={setIsRetreaded}
-              noOfRetreads={noOfRetreads}
-              setNoOfRetreads={setNoOfRetreads}
-              previousPattern={previousPattern}
-              setPreviousPattern={setPreviousPattern}
-              retreadRef={retreadRef}
-              setRetreadRef={setRetreadRef}
-              // showTyreHistory={false}
-              // setShowTyreHistory={() => {}}
-              // tyreHistoryList={[]}
-              override={override}
-              setOverride={setOverride}
-              // handleOverrideChange={setOverride}
-              selectedPattern={selectedPattern}
-              handlePatternChange={handlePatternChange}
-              patterns={patterns}
-              selectedWidth={selectedWidth}
-              setSelectedWidth={setSelectedWidth}
-              widths={widths}
-              selectedPatternObj={selectedPatternObj}
-              setSelectedVariantId={setSelectedVariantId}
-              brand={brand}
-              patternClass={patternClass}
-              category={category}
-              handleAddCasing={handleAddCasing}
-              showTyreHistory={showTyreHistory}
-              setShowTyreHistory={setShowTyreHistory}
-              tyreHistoryList={tyreHistoryList}
-              handleIsRetreadedChange={setIsRetreaded}
-              handleOverrideChange={setOverride}
-              isEditMode={editMode}
-              onSave={handleUpdateCasing}
-              onClose={onClose}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* REPAIR */}
-      {selectedService === "Repair" && category && (
-        <div className="card modern-card mt-4">
-          <div className="card-header modern-header">
-            {category?.categoryName} Repair
-          </div>
-
-          <div className="card-body">
-            <RepairForm
-              selectedRimSize={selectedRimSize}
-              setSelectedRimSize={setSelectedRimSize}
-              tyreSize={tyreSize}
-              setTyreSize={setTyreSize}
-              tyreSizes={tyreSizes}
-              rimSizes={rimSizes}
-              selectedTyreName={selectedTyreName}
-              setSelectedTyreName={setSelectedTyreName}
-              selectedMake={selectedMake}
-              setSelectedMake={setSelectedMake}
-              filteredMake={filteredMake}
-              search={search}
-              setSearch={setSearch}
-              showDropdown={showDropdown}
-              setShowDropdown={setShowDropdown}
-              setTyreClass={setTyreClass}
-              setTyreMakeId={setTyreMakeId}
-              tyreClassificationId={tyreClassificationId}
-              setTyreClassificationId={setTyreClassificationId}
-              model={model}
-              setModel={setModel}
-              tyreClass={tyreClass}
-              serial={serial}
-              setSerial={setSerial}
-              dot={dot}
-              setDot={setDot}
-              otherNumber={otherNumber}
-              setOtherNumber={setOtherNumber}
-              vehicleReg={vehicleReg}
-              setVehicleReg={setVehicleReg}
-              noOfRepairs={noOfRepairs}
-              setNoOfRepairs={setNoOfRepairs}
-              isRetreaded={isRetreaded}
-              // handleIsRetreadedChange={setIsRetreaded}
-              noOfRetreads={noOfRetreads}
-              setNoOfRetreads={setNoOfRetreads}
-              previousPattern={previousPattern}
-              setPreviousPattern={setPreviousPattern}
-              retreadRef={retreadRef}
-              setRetreadRef={setRetreadRef}
-              // showTyreHistory={false}
-              // setShowTyreHistory={() => {}}
-              // tyreHistoryList={[]}
-              repairType={repairType}
-              setRepairType={setRepairType}
-              repairLocation={repairLocation}
-              setRepairLocation={setRepairLocation}
-              repairQty={repairQty}
-              setRepairQty={setRepairQty}
-              repairs={repairs}
-              handleAddRepair={handleAddRepair}
-              handleDeleteRepair={handleDeleteRepair}
-              remainingTreadDepth={remainingTreadDepth}
-              setRemainingTreadDepth={setRemainingTreadDepth}
-              remarks={remarks}
-              setRemarks={setRemarks}
-              category={category}
-              handleAddCasing={handleAddCasing}
-              showTyreHistory={showTyreHistory}
-              setShowTyreHistory={setShowTyreHistory}
-              tyreHistoryList={tyreHistoryList}
-              handleIsRetreadedChange={setIsRetreaded}
-              isEditMode={editMode}
-              onSave={handleUpdateCasing}
-              onClose={onClose}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* CLAIM */}
-      {selectedService === "Claims" && category && (
-        // =========================
-        // UPDATE CLAIM FORM CALL
-        // =========================
-
-        <div className="card modern-card mt-4">
-          <div className="card-header modern-header">
-            {category?.categoryName} Claims
-          </div>
-
-          <div className="card-body">
-            <ClaimForm
-              selectedRimSize={selectedRimSize}
-              setSelectedRimSize={setSelectedRimSize}
-              tyreSize={tyreSize}
-              setTyreSize={setTyreSize}
-              tyreSizes={tyreSizes}
-              rimSizes={rimSizes}
-              selectedTyreName={selectedTyreName}
-              setSelectedTyreName={setSelectedTyreName}
-              selectedMake={selectedMake}
-              setSelectedMake={setSelectedMake}
-              filteredMake={filteredMake}
-              search={search}
-              setSearch={setSearch}
-              showDropdown={showDropdown}
-              setShowDropdown={setShowDropdown}
-              setTyreClass={setTyreClass}
-              setTyreMakeId={setTyreMakeId}
-              tyreClassificationId={tyreClassificationId}
-              setTyreClassificationId={setTyreClassificationId}
-              model={model}
-              setModel={setModel}
-              tyreClass={tyreClass}
-              serial={serial}
-              setSerial={setSerial}
-              dot={dot}
-              setDot={setDot}
-              otherNumber={otherNumber}
-              setOtherNumber={setOtherNumber}
-              vehicleReg={vehicleReg}
-              setVehicleReg={setVehicleReg}
-              // TYRE HISTORY
-              showTyreHistory={showTyreHistory}
-              setShowTyreHistory={setShowTyreHistory}
-              tyreHistoryList={tyreHistoryList}
-              // IMAGE
-              images={images}
-              setImages={setImages}
-              showPreview={showPreview}
-              setShowPreview={setShowPreview}
-              selectedImage={selectedImage}
-              setSelectedImage={setSelectedImage}
-              // PATTERN
-              patternMismatch={patternMismatch}
-              setPatternMismatch={setPatternMismatch}
-              showRejectMessage={showRejectMessage}
-              setShowRejectMessage={setShowRejectMessage}
-              category={category}
-              handleAddCasing={handleAddCasing}
-              isEditMode={editMode}
-              onSave={handleUpdateCasing}
-              onClose={onClose}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* ORDER TABLE */}
-      {!hideLayout && (
-        <div className="mt-4">
-          <OrderTable
-            orderItems={orderItems}
-            setOrderItems={setOrderItems}
-            handleSaveOrder={handleSaveOrder}
-          />
-        </div>
-      )}
-      {/* <!-- Footer Buttons --> */}
-      {!hideLayout && (
-        <div className="footer-actions">
-          <button className="btn btn-secondary">Reset</button>
-
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={handleSaveOrder}
-            disabled={saveOrderLoading}
-          >
-            {saveOrderLoading ? "Saving..." : "Save Customer Order"}
-          </button>
-        </div>
-      )}
-
-      {saveOrderLoading && (
+    <>
+      {loading ? (
         <div
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          className="d-flex justify-content-center align-items-center"
           style={{
-            background: "rgba(0,0,0,0.45)",
-            zIndex: 99999,
+            minHeight: "100vh",
           }}
         >
-          <RingLoader color="#b30815" size={80} />
+          <RingLoader color="#b30815" size={80} loading={loading} />
+        </div>
+      ) : (
+        <div className="container-fluid modern-form p-3">
+          {/* Rest of your page */}
+
+          {/* TOP SECTION */}
+          {!hideLayout && (
+            <div className="row g-4">
+              <div className="col-lg-6">
+                <CustomerSelection
+                  customers={customers}
+                  selectedCustomer={selectedCustomer}
+                  setSelectedCustomer={setSelectedCustomer}
+                  orderItemsLength={orderItems.length}
+                />
+              </div>
+
+              <div className="col-lg-6">
+                <OrderDetails
+                  serviceTypes={serviceTypes}
+                  selectedServiceType={serviceTypeId}
+                  handleServiceTypeChange={handleServiceTypeChange}
+                  categories={categories}
+                  category={category?.categoryId || 0}
+                  handleCategoryChange={handleCategoryChange}
+                  orderNumber={orderNumber}
+                  setOrderNumber={setOrderNumber}
+                  isServiceLocked={orderItems.length > 0}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* RETREAD */}
+          {selectedService === "Retread" && category && (
+            <div className="card modern-card mt-4">
+              <div className="card-header modern-header">
+                {category?.categoryName} Retread
+              </div>
+
+              <div className="card-body">
+                <RetreadForm
+                  handleMakeSelect={handleMakeSelect}
+                  selectedRimSize={selectedRimSize}
+                  setSelectedRimSize={setSelectedRimSize}
+                  tyreSize={tyreSize}
+                  setTyreSize={setTyreSize}
+                  tyreSizes={tyreSizes}
+                  rimSizes={rimSizes}
+                  selectedTyreName={selectedTyreName}
+                  setSelectedTyreName={setSelectedTyreName}
+                  selectedMake={selectedMake}
+                  setSelectedMake={setSelectedMake}
+                  make={make}
+                  filteredMake={filteredMake}
+                  search={search}
+                  setSearch={setSearch}
+                  showDropdown={showDropdown}
+                  setShowDropdown={setShowDropdown}
+                  setTyreClass={setTyreClass}
+                  setTyreMakeId={setTyreMakeId}
+                  tyreClassificationId={tyreClassificationId}
+                  setTyreClassificationId={setTyreClassificationId}
+                  model={model}
+                  setModel={setModel}
+                  tyreClass={tyreClass}
+                  serial={serial}
+                  setSerial={setSerial}
+                  dot={dot}
+                  setDot={setDot}
+                  otherNumber={otherNumber}
+                  setOtherNumber={setOtherNumber}
+                  vehicleReg={vehicleReg}
+                  setVehicleReg={setVehicleReg}
+                  noOfRepairs={noOfRepairs}
+                  setNoOfRepairs={setNoOfRepairs}
+                  isRetreaded={isRetreaded}
+                  // handleIsRetreadedChange={setIsRetreaded}
+                  noOfRetreads={noOfRetreads}
+                  setNoOfRetreads={setNoOfRetreads}
+                  previousPattern={previousPattern}
+                  setPreviousPattern={setPreviousPattern}
+                  retreadRef={retreadRef}
+                  setRetreadRef={setRetreadRef}
+                  // showTyreHistory={false}
+                  // setShowTyreHistory={() => {}}
+                  // tyreHistoryList={[]}
+                  override={override}
+                  setOverride={setOverride}
+                  // handleOverrideChange={setOverride}
+                  selectedPattern={selectedPattern}
+                  handlePatternChange={handlePatternChange}
+                  patterns={patterns}
+                  selectedWidth={selectedWidth}
+                  setSelectedWidth={setSelectedWidth}
+                  widths={widths}
+                  selectedPatternObj={selectedPatternObj}
+                  setSelectedVariantId={setSelectedVariantId}
+                  brand={brand}
+                  patternClass={patternClass}
+                  category={category}
+                  handleAddCasing={handleAddCasing}
+                  showTyreHistory={showTyreHistory}
+                  setShowTyreHistory={setShowTyreHistory}
+                  tyreHistoryList={tyreHistoryList}
+                  handleIsRetreadedChange={setIsRetreaded}
+                  handleOverrideChange={setOverride}
+                  factoryCode={factoryCode}
+                  setFactoryCode={setFactoryCode}
+                  manufacturingWeek={manufacturingWeek}
+                  setManufacturingWeek={setManufacturingWeek}
+                  manufacturingYear={manufacturingYear}
+                  setManufacturingYear={setManufacturingYear}
+                  isEditMode={editMode}
+                  onSave={handleUpdateCasing}
+                  onClose={onClose}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* REPAIR */}
+          {selectedService === "Repair" && category && (
+            <div className="card modern-card mt-4">
+              <div className="card-header modern-header">
+                {category?.categoryName} Repair
+              </div>
+
+              <div className="card-body">
+                <RepairForm
+                  selectedRimSize={selectedRimSize}
+                  setSelectedRimSize={setSelectedRimSize}
+                  tyreSize={tyreSize}
+                  setTyreSize={setTyreSize}
+                  tyreSizes={tyreSizes}
+                  rimSizes={rimSizes}
+                  selectedTyreName={selectedTyreName}
+                  setSelectedTyreName={setSelectedTyreName}
+                  selectedMake={selectedMake}
+                  setSelectedMake={setSelectedMake}
+                  filteredMake={filteredMake}
+                  search={search}
+                  setSearch={setSearch}
+                  showDropdown={showDropdown}
+                  setShowDropdown={setShowDropdown}
+                  setTyreClass={setTyreClass}
+                  setTyreMakeId={setTyreMakeId}
+                  tyreClassificationId={tyreClassificationId}
+                  setTyreClassificationId={setTyreClassificationId}
+                  model={model}
+                  setModel={setModel}
+                  tyreClass={tyreClass}
+                  serial={serial}
+                  setSerial={setSerial}
+                  dot={dot}
+                  setDot={setDot}
+                  otherNumber={otherNumber}
+                  setOtherNumber={setOtherNumber}
+                  vehicleReg={vehicleReg}
+                  setVehicleReg={setVehicleReg}
+                  noOfRepairs={noOfRepairs}
+                  setNoOfRepairs={setNoOfRepairs}
+                  isRetreaded={isRetreaded}
+                  // handleIsRetreadedChange={setIsRetreaded}
+                  noOfRetreads={noOfRetreads}
+                  setNoOfRetreads={setNoOfRetreads}
+                  previousPattern={previousPattern}
+                  setPreviousPattern={setPreviousPattern}
+                  retreadRef={retreadRef}
+                  setRetreadRef={setRetreadRef}
+                  // showTyreHistory={false}
+                  // setShowTyreHistory={() => {}}
+                  // tyreHistoryList={[]}
+                  repairType={repairType}
+                  setRepairType={setRepairType}
+                  repairLocation={repairLocation}
+                  setRepairLocation={setRepairLocation}
+                  repairQty={repairQty}
+                  setRepairQty={setRepairQty}
+                  repairs={repairs}
+                  handleAddRepair={handleAddRepair}
+                  handleDeleteRepair={handleDeleteRepair}
+                  remainingTreadDepth={remainingTreadDepth}
+                  setRemainingTreadDepth={setRemainingTreadDepth}
+                  remarks={remarks}
+                  setRemarks={setRemarks}
+                  category={category}
+                  handleAddCasing={handleAddCasing}
+                  showTyreHistory={showTyreHistory}
+                  setShowTyreHistory={setShowTyreHistory}
+                  tyreHistoryList={tyreHistoryList}
+                  handleIsRetreadedChange={setIsRetreaded}
+                  factoryCode={factoryCode}
+                  setFactoryCode={setFactoryCode}
+                  manufacturingWeek={manufacturingWeek}
+                  setManufacturingWeek={setManufacturingWeek}
+                  manufacturingYear={manufacturingYear}
+                  setManufacturingYear={setManufacturingYear}
+                  isEditMode={editMode}
+                  onSave={handleUpdateCasing}
+                  onClose={onClose}
+                  damageTypes={damageTypes}
+                  repairLocations={repairLocations}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* CLAIM */}
+          {selectedService === "Claims" && category && (
+            // =========================
+            // UPDATE CLAIM FORM CALL
+            // =========================
+
+            <div className="card modern-card mt-4">
+              <div className="card-header modern-header">
+                {category?.categoryName} Claims
+              </div>
+
+              <div className="card-body">
+                <ClaimForm
+                  selectedRimSize={selectedRimSize}
+                  setSelectedRimSize={setSelectedRimSize}
+                  tyreSize={tyreSize}
+                  setTyreSize={setTyreSize}
+                  tyreSizes={tyreSizes}
+                  rimSizes={rimSizes}
+                  selectedTyreName={selectedTyreName}
+                  setSelectedTyreName={setSelectedTyreName}
+                  selectedMake={selectedMake}
+                  setSelectedMake={setSelectedMake}
+                  filteredMake={filteredMake}
+                  search={search}
+                  setSearch={setSearch}
+                  showDropdown={showDropdown}
+                  setShowDropdown={setShowDropdown}
+                  setTyreClass={setTyreClass}
+                  setTyreMakeId={setTyreMakeId}
+                  tyreClassificationId={tyreClassificationId}
+                  setTyreClassificationId={setTyreClassificationId}
+                  model={model}
+                  setModel={setModel}
+                  tyreClass={tyreClass}
+                  serial={serial}
+                  setSerial={setSerial}
+                  dot={dot}
+                  setDot={setDot}
+                  otherNumber={otherNumber}
+                  setOtherNumber={setOtherNumber}
+                  vehicleReg={vehicleReg}
+                  setVehicleReg={setVehicleReg}
+                  // TYRE HISTORY
+                  showTyreHistory={showTyreHistory}
+                  setShowTyreHistory={setShowTyreHistory}
+                  tyreHistoryList={tyreHistoryList}
+                  // IMAGE
+                  images={images}
+                  setImages={setImages}
+                  showPreview={showPreview}
+                  setShowPreview={setShowPreview}
+                  selectedImage={selectedImage}
+                  setSelectedImage={setSelectedImage}
+                  // PATTERN
+                  patternMismatch={patternMismatch}
+                  setPatternMismatch={setPatternMismatch}
+                  showRejectMessage={showRejectMessage}
+                  setShowRejectMessage={setShowRejectMessage}
+                  category={category}
+                  factoryCode={factoryCode}
+                  setFactoryCode={setFactoryCode}
+                  manufacturingWeek={manufacturingWeek}
+                  setManufacturingWeek={setManufacturingWeek}
+                  manufacturingYear={manufacturingYear}
+                  setManufacturingYear={setManufacturingYear}
+                  handleAddCasing={handleAddCasing}
+                  isEditMode={editMode}
+                  onSave={handleUpdateCasing}
+                  onClose={onClose}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ORDER TABLE */}
+          {!hideLayout && (
+            <div className="mt-4">
+              <OrderTable
+                orderItems={orderItems}
+                setOrderItems={setOrderItems}
+                handleSaveOrder={handleSaveOrder}
+              />
+            </div>
+          )}
+          {/* <!-- Footer Buttons --> */}
+          {!hideLayout && (
+            <div className="footer-actions">
+              <button className="btn btn-secondary">Reset</button>
+
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={handleSaveOrder}
+                disabled={saveOrderLoading}
+              >
+                {saveOrderLoading ? "Saving..." : "Save Customer Order"}
+              </button>
+            </div>
+          )}
+
+          {saveOrderLoading && (
+            <div
+              className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+              style={{
+                background: "rgba(0,0,0,0.45)",
+                zIndex: 99999,
+              }}
+            >
+              <RingLoader color="#b30815" size={80} />
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </>
   );
 };
 

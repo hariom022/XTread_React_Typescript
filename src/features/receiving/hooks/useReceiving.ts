@@ -51,33 +51,33 @@ export const useReceiving = () => {
 
           orderNo: order.orderNumber,
 
-          customerId: order.customer?.customerNumber || "",
+          customerId: order.customer?.customerNumber || "-",
 
-          customerName: order.customer?.customerName || "",
+          customerName: order.customer?.customerName || "-",
 
-          date: order.createdAtUtc?.split("T")[0] || "",
+          date: order.createdAtUtc?.split("T")[0] || "-",
 
-          tyreReferenceNumber: casing.tyreReferenceNumber || "",
+          tyreReferenceNumber: casing.tyreReferenceNumber || "-",
 
-          otherNumber: casing.otherNumber || "",
+          otherNumber: casing.otherNumber || "-",
 
-          dotNo: casing.dotNumber || "",
+          dotNo: casing.dotNumber || "-",
 
-          casingSize: casing.tyreSize?.casingSize || "",
+          casingSize: casing.tyreSize?.casingSize || "-",
 
-          treadPattern: casing.retreadDetail?.patternName || "",
+          treadPattern: casing.retreadDetail?.patternName || "-",
 
-          treadWidth: casing.retreadDetail?.width || "",
+          treadWidth: casing.retreadDetail?.width || "-",
 
-          make: casing.tyreMake?.name || "",
+          make: casing.tyreMake?.name || "-",
 
-          model: casing.model || "",
+          model: casing.model || "-",
 
-          serviceType: casing.serviceType?.name || "",
+          serviceType: casing.serviceType?.name || "-",
 
-          rimSize: casing.rimSize || "",
+          rimSize: casing.rimSize || "-",
 
-          tyreClassification: casing.tyreClassification?.name || "",
+          tyreClassification: casing.tyreClassification?.name || "-",
 
           existingRepairsCount: casing.existingRepairsCount || 0,
 
@@ -87,11 +87,11 @@ export const useReceiving = () => {
 
           previousPattern: casing.previousPattern || "-",
 
-          customerVehicleRegNo: casing.vehicleRegistrationNumber || "",
+          customerVehicleRegNo: casing.vehicleRegistrationNumber || "-",
 
           category: casing.category || null,
 
-          categoryName: casing.category?.categoryName || "",
+          categoryName: casing.category?.categoryName || "-",
 
           damageType:
             casing.repairDetail?.operations
@@ -111,11 +111,11 @@ export const useReceiving = () => {
           remainingTreadDepth:
             casing.repairDetail?.percentageRemainingTreadDepth || "-",
 
-          productionNo: casing.productionNumber || "",
+          productionNo: casing.productionNumber || "-",
 
-          batchNo: casing.batchNumber || "",
+          batchNo: casing.batchNumber || "-",
 
-          barcodeNumber: casing.barcodeNumber || "",
+          barcodeNumber: casing.barcodeNumber || "-",
 
           comments: "",
         });

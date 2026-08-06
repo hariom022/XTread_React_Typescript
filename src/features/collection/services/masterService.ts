@@ -31,8 +31,14 @@ const masterService = {
 
   postSaveOrder: (data: unknown) => api.post("/orders", data),
 
-  addCasingToOrder: (orderNumber: string, data: unknown) =>
-    api.post(`/orders/${orderNumber}/casings`, data),
+  getDamageTypes: () =>
+    api.get("/damage-types"),
+
+  getRepairLocations: () =>
+    api.get("/repair-locations"),
+
+  addCasingToOrder: ( data: unknown) =>
+    api.post(`/orders/casings`, data),
   updateOrderCasing: (
     orderNumber: string,
     orderCasingId: number,

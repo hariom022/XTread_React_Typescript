@@ -9,7 +9,7 @@ import VisualInspectionModal from "../components/VisualInspectionModal";
 // import IncidentReportModal from "../components/IncidentReportModal";
 
 import IncidentReportModal from "../../../shared/components/IncidentReportModal";
-import "../styles/VisualInspect.css";
+// import "../styles/VisualInspect.css";
 
 const VisualInspectionPage = () => {
   const {
@@ -32,16 +32,37 @@ const VisualInspectionPage = () => {
     closeModal,
   } = useVisualInspectionModal();
 
-  const filteredData = useMemo(() => {
-    return inspections.filter((item: any) =>
-      `${item.casing}
-       ${item.serial}
-       ${item.patternName}
-       ${item.batchNo}`
+const filteredData = useMemo(() => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return inspections
+    .filter((item: any) =>
+      `${item.casing} ${item.serial} ${item.patternName} ${item.batchNo}`
         .toLowerCase()
         .includes(search.toLowerCase())
-    );
-  }, [inspections, search]);
+    )
+    .sort((a: any, b: any) => {
+      const timeA = new Date(a.date).getTime();
+      const timeB = new Date(b.date).getTime();
+
+      const aDay = new Date(timeA);
+      const bDay = new Date(timeB);
+
+      aDay.setHours(0, 0, 0, 0);
+      bDay.setHours(0, 0, 0, 0);
+
+      const isTodayA = aDay.getTime() === today.getTime();
+      const isTodayB = bDay.getTime() === today.getTime();
+
+      if (isTodayA !== isTodayB) {
+        return isTodayA ? -1 : 1;
+      }
+
+      return timeB - timeA;
+    });
+}, [inspections, search]);
+
 
   return (
     <div className="container-fluid mt-3">

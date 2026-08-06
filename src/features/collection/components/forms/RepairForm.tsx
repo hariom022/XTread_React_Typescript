@@ -109,6 +109,9 @@ type Props = {
   tyreHistoryList: TyreHistory[];
 
   // ================= REPAIR =================
+  damageTypes: any[];
+
+  repairLocations: any[];
   repairType: string;
 
   setRepairType: (value: string) => void;
@@ -134,6 +137,14 @@ type Props = {
   remarks: string;
 
   setRemarks: (value: string) => void;
+  factoryCode: string;
+  setFactoryCode: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingWeek: string;
+  setManufacturingWeek: React.Dispatch<React.SetStateAction<string>>;
+
+  manufacturingYear: string;
+  setManufacturingYear: React.Dispatch<React.SetStateAction<string>>;
 
   // ================= COMMON =================
   category: Category | null;
@@ -221,7 +232,9 @@ const RepairForm = ({
   // ================= REPAIR =================
   repairType,
   setRepairType,
+  damageTypes = [],
 
+  repairLocations = [],
   repairLocation,
   setRepairLocation,
 
@@ -245,6 +258,12 @@ const RepairForm = ({
   handleAddCasing,
 
   isEditMode = false,
+  factoryCode,
+  setFactoryCode,
+  manufacturingWeek,
+  manufacturingYear,
+  setManufacturingWeek,
+  setManufacturingYear,
 }: Props) => {
   return (
     <div className="truck-repair-form">
@@ -410,7 +429,7 @@ const RepairForm = ({
         </div>
 
         {/* DOT */}
-        <div className="col-md-3">
+        {/* <div className="col-md-3">
           <label className="form-label">
             DOT No# <span className="text-danger">*</span>
           </label>
@@ -421,6 +440,85 @@ const RepairForm = ({
             value={dot}
             onChange={(e) => setDot(e.target.value)}
           />
+        </div> */}
+        <div className="col-md-3">
+          <label className="form-label">
+            DOT No <span className="text-danger">*</span>
+          </label>
+          <div className="d-flex gap-2">
+            {/* Factory Code */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "80px", height: "37px" }}
+              maxLength={3}
+              placeholder="ABC"
+              value={factoryCode}
+              onChange={(e) => {
+                const value = e.target.value
+                  .toUpperCase()
+                  .replace(/[^A-Z0-9]/g, "");
+
+                setFactoryCode(value);
+              }}
+            />
+
+            {/* Manufacturing Week */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "70px", height: "37px" }}
+              maxLength={2}
+              placeholder="WW"
+              value={manufacturingWeek}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+
+                if (value === "") {
+                  setManufacturingWeek("");
+                  return;
+                }
+
+                if (Number(value) > 52) return;
+
+                setManufacturingWeek(value);
+              }}
+              onBlur={() => {
+                if (manufacturingWeek.length === 1) {
+                  setManufacturingWeek(manufacturingWeek.padStart(2, "0"));
+                }
+              }}
+            />
+
+            {/* Manufacturing Year */}
+            <input
+              type="text"
+              className="form-control text-center"
+              style={{ width: "70px", height: "37px" }}
+              maxLength={2}
+              placeholder="YY"
+              value={manufacturingYear}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+
+                if (value === "") {
+                  setManufacturingYear("");
+                  return;
+                }
+
+                const currentYear = new Date().getFullYear() % 100;
+
+                if (Number(value) > currentYear) return;
+
+                setManufacturingYear(value);
+              }}
+              onBlur={() => {
+                if (manufacturingYear.length === 1) {
+                  setManufacturingYear(manufacturingYear.padStart(2, "0"));
+                }
+              }}
+            />
+          </div>
         </div>
 
         {/* VEHICLE REG */}
@@ -453,10 +551,21 @@ const RepairForm = ({
 
           <input
             type="number"
+            min={1}
             className="form-control modern-input"
             placeholder="No of existing repairs"
             value={noOfRepairs}
-            onChange={(e) => setNoOfRepairs(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "" || Number(value) >= 1) {
+                setNoOfRepairs(value);
+              }
+            }}
           />
         </div>
       </div>
@@ -569,9 +678,21 @@ const RepairForm = ({
 
               <input
                 type="number"
+                min={1}
                 className="form-control modern-input"
                 value={noOfRetreads}
-                onChange={(e) => setNoOfRetreads(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e" || e.key === "E") {
+                    e.preventDefault();
+                  }
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (value === "" || Number(value) >= 1) {
+                    setNoOfRetreads(value);
+                  }
+                }}
               />
             </>
           )}
@@ -626,15 +747,15 @@ const RepairForm = ({
             value={repairType}
             onChange={(e) => setRepairType(e.target.value)}
           >
-            <option value="">-- Select Repair --</option>
+            <option value="" selected disabled>
+              -- Select Repair --
+            </option>
 
-            <option>Puncture</option>
-
-            <option>Side Wall Cut</option>
-
-            <option>Bead Damage</option>
-
-            <option>Tread Cut</option>
+            {damageTypes.map((item) => (
+              <option key={item.id} value={item.name}>
+                {item.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -647,13 +768,15 @@ const RepairForm = ({
             value={repairLocation}
             onChange={(e) => setRepairLocation(e.target.value)}
           >
-            <option value="">-- Select Location --</option>
+            <option value="" selected disabled>
+              -- Select Location --
+            </option>
 
-            <option>Side Wall</option>
-
-            <option>Tread</option>
-
-            <option>Shoulder</option>
+            {repairLocations.map((item) => (
+              <option key={item.id} value={item.name}>
+                {item.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -663,10 +786,23 @@ const RepairForm = ({
 
           <input
             type="number"
-            min="1"
+            min={1}
             className="form-control modern-input"
             value={repairQty}
-            onChange={(e) => setRepairQty(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              // Allow empty value or values >= 1
+              if (value === "" || Number(value) >= 1) {
+                setRepairQty(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              // Prevent negative sign, zero as first value, and scientific notation
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
       </div>
@@ -741,10 +877,26 @@ const RepairForm = ({
 
           <input
             type="number"
+            min={1}
+            max={100}
             className="form-control modern-input"
             placeholder="Enter tread depth in %"
             value={remainingTreadDepth}
-            onChange={(e) => setRemainingTreadDepth(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (
+                value === "" ||
+                (Number(value) >= 1 && Number(value) <= 100)
+              ) {
+                setRemainingTreadDepth(value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === "E") {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
 
@@ -779,9 +931,17 @@ const RepairForm = ({
             </button>
           </>
         ) : (
-          <button className="btn btn-primary btn-sm" onClick={handleAddCasing}>
-            Add Casing to Order
-          </button>
+          <div
+            className="mx-10 d-flex justify-content-end"
+            style={{ marginLeft: "70.3rem" }}
+          >
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={handleAddCasing}
+            >
+              Add Casing to Order
+            </button>
+          </div>
         )}
       </div>
     </div>

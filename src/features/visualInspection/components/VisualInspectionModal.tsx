@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
 import visualInspectionService from "../service/visualInspectionService";
 import VisualChecklistModal from "./VisualChecklistModal";
+import "../styles/VisualInspect.css";
 
 type Props = {
   item: any;
@@ -145,11 +146,13 @@ const VisualInspectionModal = ({
           <div className="modal-content nail-modal">
             {/* HEADER */}
             <div className="modal-header nail-header">
-              <h4 className="modal-title fw-bold">
+              <h5 className="modal-title flex-grow-1 text-white text-start">
                 VISUAL INSPECTION – APPROVAL
-              </h4>
+              </h5>
 
-              <div className="ms-auto me-3 text-white fw-bold">John</div>
+              <div className="me-3 text-white text-end">
+                <div>John</div>
+              </div>
 
               <button
                 className="btn-close btn-close-white"
@@ -161,32 +164,32 @@ const VisualInspectionModal = ({
             {/* BODY */}
             <div className="modal-body">
               {/* TOP INFO */}
-              <div className="modal-info">
-                <div>
-                  <strong>Production No</strong>
-                  <div>{item?.productionNumber || item?.casing}</div>
-                </div>
-
-                <div>
-                  <strong>Tyre Ref No</strong>
-                  <div>{item?.tyreReferenceNumber || item?.serial}</div>
-                </div>
-
-                <div>
-                  <strong>Model</strong>
-                  <div>{item?.model || "-"}</div>
-                </div>
-
-                <div>
-                  <strong>Tyre Size</strong>
-                  <div>
-                    {item?.tyreSize?.casingSize || item?.tyreSize || "-"}
+              <div className="mb-2">
+                <div className="modal-info m-0 p-1 mb-1 postbuff-top row text-nowrap">
+                  <div className="col">
+                    <strong>Production No</strong>
+                    <div>{item?.casing}</div>
                   </div>
-                </div>
 
-                <div>
-                  <strong>Service</strong>
-                  <div>{item?.serviceType?.name || item?.service}</div>
+                  <div className="col">
+                    <strong>Tyre Ref No</strong>
+                    <div>{item?.serial}</div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Customer Name</strong>
+                    <div>{item?.customerName}</div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Tyre Size</strong>
+                    <div>{item?.tyreSize}</div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Requested Pattern</strong>
+                    <div>{item?.requestedPattern}</div>
+                  </div>
                 </div>
               </div>
 
@@ -329,6 +332,7 @@ const VisualInspectionModal = ({
                   <button
                     disabled={saving}
                     className="btn-reject w-100 border-0"
+                    style={{ padding: "20px" }}
                     onClick={() => handleApproveReject(false)}
                   >
                     REJECTED

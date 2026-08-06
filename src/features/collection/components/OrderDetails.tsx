@@ -15,6 +15,8 @@ type Props = {
 
   handleServiceTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 
+  isServiceLocked?: boolean;
+
   // ================= CATEGORY =================
   categories: Category[];
 
@@ -44,6 +46,7 @@ const OrderDetails = ({
   handleCategoryChange,
 
   orderItemsLength = 0,
+  isServiceLocked = false,
 }: Props) => {
   return (
     <div className="card modern-card">
@@ -56,7 +59,7 @@ const OrderDetails = ({
         <div className="row mt-3">
           {/* BOOK NUMBER */}
           <div className="col-md-12">
-            <label className="form-label">Book No#</label>
+            <label className="form-label">Book Number</label>
 
             <input
               className="form-control modern-input"
@@ -77,7 +80,8 @@ const OrderDetails = ({
               className="form-select modern-input"
               value={selectedServiceType}
               onChange={handleServiceTypeChange}
-              disabled={orderItemsLength > 0}
+              // disabled={orderItemsLength > 0}
+              disabled={isServiceLocked}
             >
               <option value="">-- Select Service Type --</option>
 

@@ -171,11 +171,11 @@ const BarcodeTable = ({
 
       <div className="d-flex justify-content-end mt-3 me-1 mb-2">
         <button
-          className="btn btn-danger btn-sm"
+          className="btn btn-danger btn"
           onClick={onProceed}
           disabled={selectedBatches.length === 0}
         >
-          Proceed To Next Stage
+          <b>Proceed To Next Stage</b>
         </button>
       </div>
     </div>

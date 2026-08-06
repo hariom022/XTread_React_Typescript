@@ -1,0 +1,359 @@
+/* ======================================================
+   PAGE BACKGROUND
+====================================================== */
+body {
+  background: #ffffff;
+}
+
+/* ======================================================
+   SEARCH BOX
+====================================================== */
+.search-box {
+  background: #ffffff;
+  padding: 0px !important;
+  border-radius: 10px;
+  position: relative;
+  margin-bottom: 0px !important;
+}
+
+.search-box i {
+  position: absolute;
+  top: 50%;
+  left: 20px !important;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-box input {
+  padding-left: 40px !important;
+  height: 50px !important;
+}
+
+/* ======================================================
+   TABS (PRE & POST)
+====================================================== */
+.nav-pills .nav-link {
+  font-weight: 600;
+  color: #495057;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: transparent;
+  color: #dc3545;
+}
+
+/* ======================================================
+   MODALS
+====================================================== */
+.prebuffer-modal,
+.postbuff-modal {
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ======================================================
+   TOP INFO (PRE + POST)
+====================================================== */
+/* Limit modal height */
+.modal-dialog {
+  max-height: 90vh;
+}
+
+/* Scroll only the body */
+.postbuff-scroll {
+  max-height: calc(90vh - 160px); /* header + footer height */
+  overflow-y: auto;
+}
+
+.prebuff-scroll {
+  max-height: calc(90vh - 160px); /* header + footer height */
+  overflow-y: auto;
+}
+
+.prebuffer-top {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #eaecee;
+  padding: 2px;
+  /* margin-bottom: 20px; */
+  border-radius: 10px;
+  justify-content: space-between;
+}
+
+.postbuff-top .modal-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #eaecee;
+  padding: 2px;
+  /* margin-bottom: 20px;  */
+  border-radius: 10px;
+  justify-content: space-between;
+}
+
+
+.prebuffer-top div,
+.postbuff-top div {
+  flex: 1;
+  text-align: center;
+}
+
+.prebuffer-top label,
+.postbuff-top label {
+  font-size: 13px;
+  color: #6c757d;
+  display: block;
+}
+
+.prebuffer-top span,
+.postbuff-top span {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* ======================================================
+   PRE BUFFING PANELS
+====================================================== */
+.panel-box {
+  border: 2px solid #dc3545;
+  background: #fff3e6;
+  border-radius: 6px;
+  height: 85%;
+}
+
+.panel-header {
+  background: #dc3545;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.panel-body {
+  padding: 12px;
+}
+
+.value-box {
+  background: #f8f9fa;
+  border: 1px solid #aaaaaa;
+  padding: 4px 12px;
+  font-weight: 700;
+  min-width: 80px;
+  text-align: center;
+}
+
+.small-text {
+  font-size: 14px;
+}
+
+/* ======================================================
+   RECORD BOX
+====================================================== */
+.record-box {
+  border: 1px solid #cccccc;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.record-header {
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.record-item {
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.suggest {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ======================================================
+   COMMON BOX (POST BUFFING)
+====================================================== */
+.box {
+  background: #fff3e6;
+  padding: 2px;
+  border: 2px solid #dc3545;
+  /* height: 70%; */
+}
+
+.box-title {
+  background: #dc3545;
+  color: #ffffff;
+  padding: 2px;
+  /* margin: -15px -15px 10px; */
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ======================================================
+   FORMS
+====================================================== */
+.form-control,
+.form-select {
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  box-shadow: none;
+  border-color: #dc3545;
+}
+
+/* Floating Select */
+.floating-select {
+  position: relative;
+}
+
+.floating-select select {
+  padding-top: 20px;
+}
+
+.floating-select label {
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  font-size: 12px;
+  color: #6c757d;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.floating-select.has-value label {
+  color: #dc3545;
+}
+
+/* ======================================================
+   BUTTONS
+====================================================== */
+.btn-approve {
+  background: linear-gradient(135deg, #26a369, #28a745);
+  border: 2px solid #7bd77b;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 18px;
+  color: #ffffff;
+}
+
+.btn-approve:hover {
+  color: #ffffff;
+}
+
+.btn-hold {
+  background: #fff3cd;
+  color: #000000;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 18px;
+  border: 1px solid #e0c97f;
+}
+
+.btn-hold:hover {
+  background: #ffe69c;
+}
+
+.btn-reject {
+  background: linear-gradient(135deg, #dc3545, #f54b5c);
+  color: #ffffff;
+}
+
+.btn-reject:hover {
+  color: #ffffff;
+}
+
+.btn-cancel {
+  background: linear-gradient(135deg, #f7f7f7, #e2e2e2);
+  color: #000000;
+}
+
+.btn-lg-action {
+  height: 48px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.btn-sm-action {
+  height: 40px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+@media (max-width: 768px) {
+  .prebuffer-top,
+  .postbuff-top {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
+/* ================= ACTION BUTTON SIZE (COMMON) ================= */
+.action-btn {
+  height: 48px;              /* SAME HEIGHT */
+  font-size: 14px;           /* SAME TEXT SIZE */
+  font-weight: 600;
+  padding: 0 16px;           /* SAME PADDING */
+  border-radius: 8px;
+  gap: 8px;
+}
+.btn-approve {
+  background: linear-gradient(135deg, #26a369, #28a745);
+  border: 2px solid #7bd77b;
+  color: #ffffff;
+
+  /* REMOVE these big styles */
+  font-size: 14px;
+  padding: 0;
+}
+.action-btn {
+  margin-bottom: 12px;
+}
+.action-btn i {
+  font-size: 8px;
+}
+.checklist-table {
+  border-collapse: collapse;
+}
+
+.checklist-table td {
+  border: 1px solid #000 !important;
+  padding: 8px 12px;
+}
+
+.checklist-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checklist-table tr:hover {
+  background: #f8f9fa;
+}
+
+.blur-approval-modal {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+}
+.post-buffing-remarks {
+    min-height: 100px;
+    resize: none;
+}
+
+.post-buffing-checklist-btn {
+    height: 100px;
+}

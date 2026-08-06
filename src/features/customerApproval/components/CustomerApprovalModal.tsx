@@ -59,7 +59,7 @@ const CustomerApprovalModal = ({
 
       await onSuccess();
 
-      alert("Customer Approved Successfully");
+      alert("I confirm that the above listed tyres/casings have been collected correctly and handed over for the requested services. ");
 
       onClose();
     } catch (e) {
@@ -175,11 +175,11 @@ const CustomerApprovalModal = ({
                   {/* PHONE */}
                   <div className="col-md-4 mb-3">
                     <label className="form-label fw-semibold">
-                      Phone Number
+                      Mobile Number
                     </label>
 
                     <div className="d-flex">
-                      <select
+                      {/* <select
                         className="form-select"
                         style={{
                           maxWidth: "110px",
@@ -188,12 +188,12 @@ const CustomerApprovalModal = ({
                         disabled={saving}
                         onChange={(e) => setCountryCode(e.target.value)}
                       >
-                        <option value="+91">+91</option>
+                        <option value="+91">+254</option>
 
-                        <option value="+1">+1</option>
-                      </select>
+                        <option value="+1">+91</option>
+                      </select> */}
 
-                      <input
+                      {/* <input
                         type="text"
                         className="form-control"
                         placeholder="9876543210"
@@ -202,6 +202,11 @@ const CustomerApprovalModal = ({
                         onChange={(e) =>
                           setPhoneNumber(e.target.value.replace(/\D/g, ""))
                         }
+                      /> */}
+                      <input
+                        className="form-control"
+                        value={selectedOrder?.items?.[0]?.customer?.mobileNumber}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -213,7 +218,7 @@ const CustomerApprovalModal = ({
                     </label>
 
                     <div className="d-flex align-items-center gap-2">
-                      <input
+                      {/* <input
                         className="form-control"
                         placeholder="john"
                         value={emailName}
@@ -242,13 +247,19 @@ const CustomerApprovalModal = ({
                         <option value="com">com</option>
 
                         <option value="org">org</option>
-                      </select>
+                      </select> */}
+                      <input
+                        className="form-control"
+                        value={selectedOrder?.items?.[0]?.customer?.email}
+                        readOnly
+                      />
+                      
                     </div>
 
-                    <small className="text-muted">
+                    {/* <small className="text-muted">
                       Generated Email:
                       <b> {generatedEmail || "-"}</b>
-                    </small>
+                    </small> */}
                   </div>
 
                   {/* SIGNATURE */}
@@ -258,10 +269,10 @@ const CustomerApprovalModal = ({
                     </label>
 
                     <div
-                      className="border rounded bg-white"
+                      className="border rounded bg-white overflow-hidden"
                       style={{
                         width: "100%",
-                        height: "110px",
+                        height: "150px",
                       }}
                     >
                       <SignatureCanvas
@@ -269,8 +280,8 @@ const CustomerApprovalModal = ({
                         penColor="black"
                         canvasProps={{
                           width: 1000,
-                          height: 220,
-                          className: "signatureCanvas w-100",
+                          height: 150,
+                          className: "w-100 h-100",
                         }}
                       />
                     </div>

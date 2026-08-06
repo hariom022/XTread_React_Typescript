@@ -1,0 +1,156 @@
+
+/* COMMON BUTTON EFFECT */
+.btn-approve,
+.btn-return,
+.btn-cancel {
+  border-radius: 5px;
+  font-weight: 800;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18);
+}
+
+/* HOVER EFFECT */
+.btn-approve:hover,
+.btn-return:hover,
+.btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ACTIVE */
+.btn-approve:active,
+.btn-return:active,
+.btn-cancel:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* APPROVE */
+/* .btn-approve {
+  background: linear-gradient(135deg, #28a745, #26a369, #28a745);
+  color: #fff !important;
+  font-weight: 700 !important;
+  padding: 20px !important;
+  font-size: larger !important;
+  height: 80px;
+} */
+
+/* return */
+.btn-return {
+  background: linear-gradient(
+    135deg,
+    oklch(63.7% 0.237 25.331),
+    #f54f5f,
+    oklch(63.7% 0.237 25.331)
+  );
+  color: #fff !important;
+  font-weight: 700 !important;
+  padding: 20px !important;
+  font-size: larger !important;
+  height: 80px;
+}
+
+
+/* BUTTON SIZES */
+.btn-lg-action {
+  padding-top: 1.6rem;
+  padding-bottom: 1.6rem;
+  font-size: 1.2rem;
+}
+
+.btn.btn-primary {
+  background-color: oklch(63.7% 0.237 25.331);
+  color: #fff;
+  outline: none !important;
+  border: none;
+}
+.btn-primary:hover {
+  transform: none;
+  box-shadow: none;
+  color: #fff;
+  background-color: oklch(63.7% 0.237 25.331);
+  border-color: none;
+}
+.btn-sm-action {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  font-size: 1rem;
+}
+.btn.btn-danger.btn-sm {
+  background-color: oklch(63.7% 0.237 25.331) !important; /*#dc3545; */
+  border-color: oklch(63.7% 0.237 25.331) !important; /*#dc3545; */
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+/* ICON BOX */
+.icon-box {
+  background: rgba(255, 255, 255, 0.35);
+  padding: 8px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-lg-action .icon-box {
+  padding: 10px 14px;
+}
+
+.btn-sm-action .icon-box {
+  padding: 6px 10px;
+}
+
+.w-80 {
+  width: 80% !important;
+}
+/* LEFT PANEL – REMOVE EXTRA EMPTY SPACE */
+
+
+/* Record box spacing tight */
+.record-box {
+  margin-bottom: 0 !important;
+}
+/* COMMON ACTION BUTTON (FOR SAME HEIGHT & WIDTH) */
+.btn-action {
+  width: 80%;
+  height: 72px;              /* 🔥 FIXED HEIGHT (KEY) */
+  padding: 0;                /* remove internal diff */
+  font-size: 18px;
+  font-weight: 700;
+  border-radius: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* KEEP COLORS SEPARATE */
+.btn-approve {
+  background: linear-gradient(135deg, #28a745, #26a369);
+  color: #fff;
+}
+
+.btn-return {
+  background: linear-gradient(135deg, #dc3545, #f54f5f);
+  color: #fff;
+  border: none !important;
+}
+
+.panel-box {
+  border: 2px solid #dc3545;
+  background: #fff3e6;
+  border-radius: 6px;
+
+  /* 🔑 THIS IS THE KEY */
+  height: 100%;
+}
+.left-panel-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* content upar chipka rahe */
+}
+.record-box .record-item {
+  margin-bottom: 6px;
+}

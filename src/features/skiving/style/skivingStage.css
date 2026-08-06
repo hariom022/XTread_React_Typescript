@@ -1,0 +1,337 @@
+/* ==================================================
+   SKIVING MODULE
+================================================== */
+
+/* =========================
+   PAGE
+========================= */
+
+body {
+  background: #ffffff;
+}
+
+/* =========================
+   FORM CONTROLS
+========================= */
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #ced4da;
+  outline: none;
+  box-shadow: none;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+.table-responsive {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+table thead th,
+.table-danger th {
+  background-color: oklch(63.7% 0.237 25.331) !important;
+  color: #fff !important;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-content,
+.skiving-modal {
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.skiving-header,
+.modal-header {
+  background: oklch(63.7% 0.237 25.331);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* =========================
+   TOP INFO BAR
+========================= */
+
+.modal-info,
+.postbuff-top {
+  background: #eaecee;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.modal-info strong {
+  font-size: 13px;
+  color: #555;
+}
+
+.modal-info div {
+  font-size: 14px;
+}
+
+/* =========================
+   STAGE 1 BOXES
+========================= */
+
+.box {
+  border: 2px solid #dc3545;
+  background: #fff3e6;
+  border-radius: 8px;
+  padding: 12px;
+  height: 100%;
+}
+
+.box h5,
+.box h6 {
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.box .form-control,
+.box .form-select {
+  height: 42px;
+  border-radius: 6px;
+}
+
+/* =========================
+   APPROVAL PANELS
+========================= */
+
+.panel-box-left,
+.panel-box-right {
+  border: 2px solid #dc3545;
+  background: #fff3e6;
+  border-radius: 8px;
+  height: 100%;
+}
+
+.panel-header {
+  background: #dc3545;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn-danger {
+  background: oklch(63.7% 0.237 25.331);
+  border-color: oklch(63.7% 0.237 25.331);
+}
+
+.btn-danger:hover {
+  background: #c62828;
+  border-color: #c62828;
+}
+
+.btn-danger.btn-sm {
+  padding: 5px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+/* =========================
+   SAVE BUTTON
+========================= */
+
+.save-btn {
+  background: #26a369 !important;
+  border: 1px solid #28a745 !important;
+  color: #fff !important;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  min-width: 180px;
+  height: 50px;
+
+  border-radius: 8px;
+
+  transition: all 0.25s ease;
+}
+
+.save-btn:hover {
+  background: #28a745 !important;
+  color: #fff !important;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   PRIMARY BUTTONS
+========================= */
+
+.btn.btn-primary {
+  background-color: oklch(63.7% 0.237 25.331);
+  border: none;
+  color: #fff;
+}
+
+.btn.btn-primary:hover {
+  background-color: oklch(63.7% 0.237 25.331);
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================
+   ICON BOX
+========================= */
+
+.icon-box {
+  background: rgba(255, 255, 255, 0.35);
+  padding: 8px 12px;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+
+/* Laptop */
+
+@media (max-width: 1200px) {
+
+  .modal-dialog.modal-xl {
+    max-width: 96%;
+  }
+
+}
+
+/* Tablet Landscape */
+
+@media (max-width: 992px) {
+
+  .modal-dialog.modal-xl {
+    max-width: 96%;
+  }
+
+  .box,
+  .panel-box-left,
+  .panel-box-right {
+    margin-bottom: 15px;
+  }
+
+  .save-btn {
+    min-width: 160px;
+  }
+
+}
+
+/* Tablet Portrait / iPad */
+
+@media (max-width: 768px) {
+
+  .modal-info {
+    padding: 12px;
+  }
+
+  .modal-info .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 10px;
+  }
+
+  .box,
+  .panel-box-left,
+  .panel-box-right {
+    height: auto;
+  }
+
+  .save-btn {
+    width: 100%;
+  }
+
+  .table {
+    font-size: 14px;
+  }
+
+}
+
+/* Mobile */
+
+@media (max-width: 576px) {
+
+  .modal-dialog {
+    margin: 8px;
+  }
+
+  .modal-header {
+    flex-wrap: wrap;
+  }
+
+  .modal-title {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  .modal-info .col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .row > [class*="col-md"] {
+    width: 100%;
+  }
+
+  .save-btn {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  .table {
+    font-size: 13px;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 14px;
+  }
+
+}
+
+/* Small Mobile */
+
+@media (max-width: 400px) {
+
+  .modal-title {
+    font-size: 14px;
+  }
+
+  .table {
+    font-size: 12px;
+  }
+
+}

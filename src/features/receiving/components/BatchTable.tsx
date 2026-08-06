@@ -1,13 +1,11 @@
 import type { ReceivingRow } from "../types/receiving.types";
 
 type Props = {
-  data: ReceivingRow[];
+  groupedData: Record<string, ReceivingRow[]>;
 
   selectedCasingRows: string[];
 
-  toggleCasingRow: (
-    id: number
-  ) => void;
+  toggleCasingRow: (id: number) => void;
 
   toggleAllCasing: () => void;
 
@@ -15,7 +13,7 @@ type Props = {
 };
 
 const BatchTable = ({
-  data,
+  groupedData,
   selectedCasingRows,
   toggleCasingRow,
   toggleAllCasing,
@@ -31,10 +29,10 @@ const BatchTable = ({
                 type="checkbox"
                 onChange={toggleAllCasing}
                 checked={
-                  data.length > 0 &&
-                  selectedCasingRows.length ===
-                    data.length
-                }
+  Object.values(groupedData).flat().length > 0 &&
+  selectedCasingRows.length ===
+    Object.values(groupedData).flat().length
+}
               />
             </th>
 
@@ -53,83 +51,85 @@ const BatchTable = ({
         </thead>
 
         <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td
-                colSpan={12}
-                className="text-center"
-              >
-                No Records Found
-              </td>
-            </tr>
-          ) : (
-            data.map((item) => (
-              <tr key={item.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedCasingRows.includes(
-                      String(item.id)
-                    )}
-                    onChange={() =>
-                      toggleCasingRow(item.id)
-                    }
-                  />
-                </td>
+  {Object.keys(groupedData).length === 0 ? (
+    <tr>
+      <td colSpan={12} className="text-center">
+        No Records Found
+      </td>
+    </tr>
+  ) : (
+    Object.entries(groupedData).map(
+      ([customerName, rows]) => (
+        <>
+          {/* Customer Header */}
+          <tr key={`group-${customerName}`}>
+            <td
+              colSpan={12}
+              className="text-center fw-bold"
+              style={{
+                backgroundColor: "#d9e7f7",
+                fontSize: "13px",
+              }}
+            >
+              {customerName}
+            </td>
+          </tr>
 
-                <td>{item.date}</td>
-
-                <td>
-                  {item.productionNo}
-                </td>
-
-                <td>
-                  {
-                    item.tyreReferenceNumber
+          {/* Customer Rows */}
+          {rows.map((item) => (
+            <tr key={item.id}>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={selectedCasingRows.includes(
+                    String(item.id)
+                  )}
+                  onChange={() =>
+                    toggleCasingRow(item.id)
                   }
-                </td>
+                />
+              </td>
 
-                <td>{item.otherNumber}</td>
+              <td>{item.date}</td>
 
-                <td>{item.dotNo}</td>
+              <td>{item.productionNo}</td>
 
-                <td>
-                  {Number(
-                    item.numberOfRetreads
-                  ) > 0
-                    ? "Yes"
-                    : "No"}
-                </td>
+              <td>{item.tyreReferenceNumber}</td>
 
-                <td>
-                  {item.casingSize}
-                </td>
+              <td>{item.otherNumber}</td>
 
-                <td>{item.make}</td>
+              <td>{item.dotNo}</td>
 
-                <td>
-                  {item.treadPattern}
-                </td>
+              <td>
+                {Number(item.numberOfRetreads) > 0
+                  ? "Yes"
+                  : "No"}
+              </td>
 
-                <td>
-                  {item.serviceType}
-                </td>
+              <td>{item.casingSize}</td>
 
-                <td>
-                  {item.comments || "-"}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
+              <td>{item.make}</td>
+
+              <td>{item.treadPattern}</td>
+
+              <td>{item.serviceType}</td>
+
+              <td>{item.comments || "-"}</td>
+            </tr>
+          ))}
+        </>
+      )
+    )
+  )}
+</tbody>
       </table>
 
       <div className="d-flex justify-content-end">
         <button
-          className="btn btn-danger btn-sm m-2"
+          className="btn btn-danger btn m-2"
           onClick={onCreateBatch}
         >
-          Create Production Batch
+          <b>Create Production Batch</b>
         </button>
       </div>
     </div>

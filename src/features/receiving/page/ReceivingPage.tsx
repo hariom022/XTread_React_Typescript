@@ -59,6 +59,8 @@ const ReceivingPage = () => {
     toggleCasingRow,
 
     setSelectedCasingRows,
+    loadBarcodeOrders,
+    loadBatchOrders,
   } = useReceiving();
 
   const [selectedCustomer, setSelectedCustomer] = useState("all");
@@ -70,6 +72,7 @@ const ReceivingPage = () => {
   const [selectedCasing, setSelectedCasing] = useState<any>(null);
 
   const [showEditModal, setShowEditModal] = useState(false);
+  const [proceedLoading, setProceedLoading] = useState(false);
   // ==========================
   // CUSTOMER DROPDOWN
   // ==========================
@@ -89,8 +92,55 @@ const ReceivingPage = () => {
   // ==========================
   // FILTER DATA
   // ==========================
-  const filteredCollectionData = useMemo(() => {
-    return inspections.filter((item) => {
+  // const filteredCollectionData = useMemo(() => {
+  //   return inspections.filter((item) => {
+  //     const customerMatch =
+  //       selectedCustomer === "all" || item.customerName === selectedCustomer;
+
+  //     const dateMatch = !selectedDate || item.date === selectedDate;
+
+  //     return customerMatch && dateMatch;
+  //   });
+  // }, [inspections, selectedCustomer, selectedDate]);
+  const filteredGroupedByCustomer = useMemo(() => {
+    const filtered = inspections.filter((item) => {
+      const customerMatch =
+        selectedCustomer === "all" || item.customerName === selectedCustomer;
+
+      const dateMatch =
+        !selectedDate || item.date?.split("T")[0] === selectedDate;
+
+      return customerMatch && dateMatch;
+    });
+
+    return filtered.reduce((acc: any, item) => {
+      const customer = item.customerName;
+
+      if (!acc[customer]) {
+        acc[customer] = [];
+      }
+
+      acc[customer].push(item);
+
+      return acc;
+    }, {});
+  }, [inspections, selectedCustomer, selectedDate]);
+
+  // const filteredBatchList = useMemo(() => {
+  //   return batchList.filter((item) => {
+  //     const customerMatch =
+  //       selectedCustomer === "all" ||
+  //       item.customerName === selectedCustomer;
+
+  //     const dateMatch =
+  //       !selectedDate ||
+  //       item.date === selectedDate;
+
+  //     return customerMatch && dateMatch;
+  //   });
+  // }, [batchList, selectedCustomer, selectedDate]);
+  const groupedBatchByCustomer = useMemo(() => {
+    const filtered = batchList.filter((item) => {
       const customerMatch =
         selectedCustomer === "all" || item.customerName === selectedCustomer;
 
@@ -98,7 +148,46 @@ const ReceivingPage = () => {
 
       return customerMatch && dateMatch;
     });
-  }, [inspections, selectedCustomer, selectedDate]);
+
+    const map: Record<string, ReceivingRow[]> = {};
+
+    filtered.forEach((item) => {
+      const key = item.customerName || "Unknown Customer";
+
+      if (!map[key]) {
+        map[key] = [];
+      }
+
+      map[key].push(item);
+    });
+
+    return map;
+  }, [batchList, selectedCustomer, selectedDate]);
+
+  const filteredGroupedBatches = useMemo(() => {
+    const filtered = casingList.filter((item) => {
+      const customerMatch =
+        selectedCustomer === "all" || item.customerName === selectedCustomer;
+
+      const dateMatch = !selectedDate || item.date === selectedDate;
+
+      return customerMatch && dateMatch;
+    });
+
+    const map: Record<string, ReceivingRow[]> = {};
+
+    filtered.forEach((item) => {
+      const key = item.batchNo || "No Batch";
+
+      if (!map[key]) {
+        map[key] = [];
+      }
+
+      map[key].push(item);
+    });
+
+    return map;
+  }, [casingList, selectedCustomer, selectedDate]);
 
   // ==========================
   // VIEW DETAILS
@@ -128,6 +217,7 @@ const ReceivingPage = () => {
       setSelectedRows([]);
 
       await loadCollectionOrders();
+      await loadBatchOrders();
     } catch (error) {
       console.error(error);
 
@@ -171,6 +261,18 @@ const ReceivingPage = () => {
       return;
     }
 
+    // Check that all selected casings belong to the same customer
+    const selectedItems = batchList.filter((x) =>
+      selectedCasingRows.includes(String(x.id)),
+    );
+
+    const customerIds = [...new Set(selectedItems.map((x) => x.customerId))];
+
+    if (customerIds.length > 1) {
+      alert("Please select casings from a single customer only.");
+      return;
+    }
+
     try {
       const payload = {
         orderCasingIds: selectedCasingRows.map((id) => Number(id)),
@@ -184,10 +286,10 @@ const ReceivingPage = () => {
 
       setSelectedCasingRows([]);
 
-      // refresh tabs
       await loadCollectionOrders();
+      await loadBatchOrders();
+      await loadBarcodeOrders();
 
-      // optionally move to barcode tab
       setActiveTab("barcode");
     } catch (error) {
       console.error(error);
@@ -195,6 +297,37 @@ const ReceivingPage = () => {
       alert("Failed to create batch");
     }
   };
+  // const handleCreateBatch = async () => {
+  //   if (selectedCasingRows.length === 0) {
+  //     alert("Select at least one casing.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const payload = {
+  //       orderCasingIds: selectedCasingRows.map((id) => Number(id)),
+  //     };
+
+  //     console.log("Payload =>", payload);
+
+  //     await receiveService.createBatch(payload);
+
+  //     alert("Batch Created Successfully");
+
+  //     setSelectedCasingRows([]);
+
+  //     // refresh tabs
+  //     await loadCollectionOrders();
+  //     await loadBarcodeOrders();
+
+  //     // optionally move to barcode tab
+  //     setActiveTab("barcode");
+  //   } catch (error) {
+  //     console.error(error);
+
+  //     alert("Failed to create batch");
+  //   }
+  // };
 
   // const handleProceedToNextStage = async () => {
   //   alert("Proceed API pending");
@@ -210,6 +343,7 @@ const ReceivingPage = () => {
         alert("Please select batch");
         return;
       }
+      setProceedLoading(true);
 
       const payload = {
         orderCasingIds: selectedItems.map((item) => Number(item.id)),
@@ -221,6 +355,7 @@ const ReceivingPage = () => {
 
       alert("Moved to Visual Inspection Successfully");
 
+      await loadBarcodeOrders();
       await loadCollectionOrders();
     } catch (err: any) {
       console.error(err);
@@ -231,6 +366,9 @@ const ReceivingPage = () => {
           "Failed to move next stage",
       );
     }
+    finally {
+    setProceedLoading(false);
+  }
   };
 
   const toggleAllCasing = () => {
@@ -262,6 +400,8 @@ const ReceivingPage = () => {
 
     setSelectedCasing(null);
   };
+  console.log("selectedCustomer", selectedCustomer);
+  console.log("selectedDate", selectedDate);
   return (
     <div className="container-fluid mt-3">
       {/* TABS */}
@@ -328,7 +468,7 @@ const ReceivingPage = () => {
           </div>
         ) : (
           <CollectionTable
-            groupedByCustomer={groupedByCustomer}
+            groupedByCustomer={filteredGroupedByCustomer}
             selectedRows={selectedRows}
             setSelectedRows={setSelectedRows}
             onReceive={handleReceive}
@@ -339,34 +479,54 @@ const ReceivingPage = () => {
         ))}
 
       {/* BATCH TAB */}
-      {activeTab === "batch" && (
-        <>
-          <BatchTable
-            data={batchList}
-            selectedCasingRows={selectedCasingRows}
-            toggleCasingRow={toggleCasingRow}
-            toggleAllCasing={toggleAllCasing}
-            onCreateBatch={handleCreateBatch}
-          />
-          {/* <div className="d-flex justify-content-end mt-2">
-            <button className="btn btn-success" onClick={handleCreateBatch}>
-              Create Batch
-            </button>
-          </div> */}
-        </>
-      )}
+      {activeTab === "batch" &&
+        (batchLoading ? (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ minHeight: "400px" }}
+          >
+            <RingLoader color="#dc3545" size={80} />
+          </div>
+        ) : (
+          <>
+            <BatchTable
+              groupedData={groupedBatchByCustomer}
+              selectedCasingRows={selectedCasingRows}
+              toggleCasingRow={toggleCasingRow}
+              toggleAllCasing={toggleAllCasing}
+              onCreateBatch={handleCreateBatch}
+            />
+
+            {/* <div className="d-flex justify-content-end mt-2">
+        <button
+          className="btn btn-success"
+          onClick={handleCreateBatch}
+        >
+          Create Batch
+        </button>
+      </div> */}
+          </>
+        ))}
 
       {/* BARCODE TAB */}
-      {activeTab === "barcode" && (
-        <BarcodeTable
-          groupedBatches={groupedBatches}
-          expandedBatch={expandedBatch}
-          selectedBatches={selectedBatches}
-          toggleBatch={toggleBatch}
-          toggleBatchSelection={toggleBatchSelection}
-          onProceed={handleProceedToNextStage}
-        />
-      )}
+      {activeTab === "barcode" &&
+        (barcodeLoading || proceedLoading ? (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ minHeight: "400px" }}
+          >
+            <RingLoader color="#dc3545" size={80} />
+          </div>
+        ) : (
+          <BarcodeTable
+            groupedBatches={filteredGroupedBatches}
+            expandedBatch={expandedBatch}
+            selectedBatches={selectedBatches}
+            toggleBatch={toggleBatch}
+            toggleBatchSelection={toggleBatchSelection}
+            onProceed={handleProceedToNextStage}
+          />
+        ))}
 
       {/* NOT RECEIVED TAB */}
       {activeTab === "notReceived" && (

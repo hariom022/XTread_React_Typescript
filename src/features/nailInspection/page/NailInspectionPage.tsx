@@ -29,6 +29,7 @@ const NailInspectionPage = () => {
 
     checkedItems,
     toggleChecklist,
+    resetChecklist,
 
     isChecklistComplete,
     isAllSelected,
@@ -54,17 +55,26 @@ const NailInspectionPage = () => {
 
     openInspection,
     loadOrders,
+    resonForRemoval,
+    setReasonForRemoval,
+    location,
+    setLocation,
+    damageType,
+    setDamageType,
+    patchRemovals,
+    setPatchRemovals,
+
+    newPatchRemoval,
+    setNewPatchRemoval,
+
+    addRemove,
   } = useNailInspection();
-  const {
-  showModal,
-  selectedItem,
-  loadingModal,
-  openModal,
-  closeModal,
-} = useNailInspectionModal();
+  const { showModal, selectedItem, loadingModal, openModal, closeModal } =
+    useNailInspectionModal();
   const [showChecklist, setShowChecklist] = useState(false);
 
   const [showIncidentModal, setShowIncidentModal] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const openChecklist = () => {
     setShowChecklist(true);
@@ -73,154 +83,212 @@ const NailInspectionPage = () => {
   const closeChecklist = () => {
     setShowChecklist(false);
   };
-  const handleApprove = async () => {
-  try {
-    if (!isChecklistComplete) {
-      alert(
-        "Please complete all Nail Inspection checklist items before Approval"
-      );
-      return;
-    }
+  //Reset all states and close modal
+  const resetAndCloseModal = () => {
+    // Close modal
+    closeModal();
 
-    const payload = {
-      orderCasingIds: [selectedItem.id.toString()],
-      isApproved: true,
-      isPressureTestRequired: false,
-      patchesRemoved,
-      puncturesFound,
-      rejectionReasonCode: "",
-
-      repairOperations: repairs.map((r: any) => ({
-        repairType: r.type,
-        repairLocation: r.location,
-        quantity: 1,
-      })),
-    };
-
-    console.log("Approve Payload", payload);
-
-    await nailInspectionService.handleApprovalRejection(
-      payload
-    );
-
-    alert("Nail Inspection Approved Successfully");
-
+    // Reset page states
     setSelectedItem(null);
 
-    await loadOrders();
-  } catch (error: any) {
-    console.error(error);
+    setRejectionReason("");
 
-    alert(
-      error?.response?.data ||
-        "Failed to approve nail inspection"
-    );
-  }
-};
-const handleReject = async () => {
-  try {
-    if (!isChecklistComplete) {
-      alert(
-        "Please complete all Nail Inspection checklist items before Rejection"
-      );
-      return;
-    }
+    setPatchesRemoved(0);
+    setPuncturesFound(0);
 
-    if (!rejectionReason) {
-      alert("Please select rejection reason");
-      return;
-    }
+    setRepairs([]);
 
-    const payload = {
-      orderCasingIds: [selectedItem.id.toString()],
-      isApproved: false,
-      isPressureTestRequired: false,
-      patchesRemoved,
-      puncturesFound,
-      rejectionReasonCode: rejectionReason,
-      repairOperations: [],
-    };
-
-    console.log("Reject Payload", payload);
-
-    await nailInspectionService.handleApprovalRejection(
-      payload
-    );
-
-    alert("Nail Inspection Rejected");
-
-    setSelectedItem(null);
-
-    await loadOrders();
-  } catch (error: any) {
-    console.error(error);
-
-    alert(
-      error?.response?.data ||
-        "Failed to reject nail inspection"
-    );
-  }
-};
-const handleApproveWithPressureTest = async () => {
-  try {
-    if (!isChecklistComplete) {
-      alert(
-        "Please complete all Nail Inspection checklist items before Approval"
-      );
-      return;
-    }
-
-    const payload = {
-      orderCasingIds: [selectedItem.id.toString()],
-      isApproved: true,
-      isPressureTestRequired: true,
-      patchesRemoved,
-      puncturesFound,
-      rejectionReasonCode: "",
-
-      repairOperations: repairs.map((r: any) => ({
-        repairType: r.type,
-        repairLocation: r.location,
-        quantity: 1,
-      })),
-    };
-
-    console.log("Pressure Test Payload", payload);
-
-    await nailInspectionService.handleApprovalRejection(
-      payload
-    );
-
-    alert("Approved With Pressure Test Successfully");
-
-    setSelectedItem(null);
-
-    navigate("/pressuretest", {
-      state: {
-        casing: selectedItem.casing,
-        serial: selectedItem.serial,
-        orderCasingId: selectedItem.id,
-      },
+    setNewRepair({
+      type: "",
+      location: "",
     });
-  } catch (error: any) {
-    console.error(error);
 
-    alert(
-      error?.response?.data?.message ||
-        error?.response?.data ||
-        "Failed to approve with pressure test"
-    );
-  }
-};
+    setPatchRemovals([]);
 
-const handleHold = () => {
-  console.log("Status: HOLD");
-  console.log("Casing:", selectedItem?.casing);
+    setNewPatchRemoval({
+      reasonForRemoval: "",
+      location: "",
+    });
+    resetChecklist();
+    setShowChecklist(false);
+  };
+  const handleApprove = async () => {
+    try {
+      if (!isChecklistComplete) {
+        alert(
+          "Please complete all Nail Inspection checklist items before Approval",
+        );
+        return;
+      }
 
-  alert("Moved to HOLD – Awaiting Customer Approval");
+      setProcessing(true);
+      const payload = {
+        orderCasingIds: [selectedItem.id.toString()],
 
-  setSelectedItem(null);
-};
+        isApproved: true,
+
+        isPressureTestRequired: false,
+
+        patchesRemoved,
+
+        puncturesFound,
+
+        rejectionReasonCode: null,
+
+        repairOperations: repairs.map((r: any) => ({
+          repairType: r.type,
+          repairLocation: r.location,
+          quantity: 1,
+        })),
+
+        removalOperations: patchRemovals.map((item: any) => ({
+          reasonForRemoval: item.reasonForRemoval,
+          repairLocation: item.location,
+        })),
+      };
+
+      console.log("Approve Payload", payload);
+
+      await nailInspectionService.handleApprovalRejection(payload);
+
+      alert("Nail Inspection Approved Successfully");
+
+      // setSelectedItem(null);
+
+      await loadOrders();
+      resetAndCloseModal();
+    } catch (error: any) {
+      console.error(error);
+
+      alert(error?.response?.data || "Failed to approve nail inspection");
+    } finally {
+      setProcessing(false);
+    }
+  };
+  const handleReject = async () => {
+    try {
+      if (!isChecklistComplete) {
+        alert(
+          "Please complete all Nail Inspection checklist items before Rejection",
+        );
+        return;
+      }
+
+      if (!rejectionReason) {
+        alert("Please select rejection reason");
+        return;
+      }
+      setProcessing(true);
+
+      const payload = {
+        orderCasingIds: [selectedItem.id.toString()],
+
+        isApproved: false,
+
+        isPressureTestRequired: false,
+
+        patchesRemoved,
+
+        puncturesFound,
+
+        rejectionReasonCode: rejectionReason,
+
+        repairOperations: [],
+
+        removalOperations: [],
+      };
+
+      console.log("Reject Payload", payload);
+
+      await nailInspectionService.handleApprovalRejection(payload);
+
+      alert("Nail Inspection Rejected");
+
+      // setSelectedItem(null);
+
+      await loadOrders();
+      resetAndCloseModal();
+    } catch (error: any) {
+      console.error(error);
+
+      alert(error?.response?.data || "Failed to reject nail inspection");
+    } finally {
+      setProcessing(false);
+    }
+  };
+  const handleApproveWithPressureTest = async () => {
+    try {
+      if (!isChecklistComplete) {
+        alert(
+          "Please complete all Nail Inspection checklist items before Approval",
+        );
+        return;
+      }
+      setProcessing(true);
+
+      const payload = {
+        orderCasingIds: [selectedItem.id.toString()],
+
+        isApproved: true,
+
+        isPressureTestRequired: true,
+
+        patchesRemoved,
+
+        puncturesFound,
+
+        rejectionReasonCode: null,
+
+        repairOperations: repairs.map((r: any) => ({
+          repairType: r.type,
+          repairLocation: r.location,
+          quantity: 1,
+        })),
+
+        removalOperations: patchRemovals.map((item: any) => ({
+          reasonForRemoval: item.reasonForRemoval,
+          repairLocation: item.location,
+        })),
+      };
+
+      console.log("Pressure Test Payload", payload);
+
+      await nailInspectionService.handleApprovalRejection(payload);
+
+      alert("Approved With Pressure Test Successfully");
+
+      await loadOrders();
+      // setSelectedItem(null);
+      resetAndCloseModal();
+      // navigate("/pressuretest", {
+      //   state: {
+      //     casing: selectedItem.casing,
+      //     serial: selectedItem.serial,
+      //     orderCasingId: selectedItem.id,
+      //   },
+      // });
+    } catch (error: any) {
+      console.error(error);
+
+      alert(
+        error?.response?.data?.message ||
+          error?.response?.data ||
+          "Failed to approve with pressure test",
+      );
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleHold = () => {
+    console.log("Status: HOLD");
+    console.log("Casing:", selectedItem?.casing);
+
+    alert("Moved to HOLD – Awaiting Customer Approval");
+
+    // setSelectedItem(null);
+    resetAndCloseModal();
+  };
   // const handleApprove = () => {
   //   console.log("Approve");
   // };
@@ -236,7 +304,6 @@ const handleHold = () => {
   // const handleApproveWithPressureTest = () => {
   //   console.log("Approve With Pressure Test");
   // };
-  
 
   return (
     <div className="container-fluid mt-3">
@@ -248,7 +315,7 @@ const handleHold = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Search by Casing No, Serial No, or Pattern..."
+            placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -274,17 +341,13 @@ const handleHold = () => {
           <RingLoader color="#b30815" size={80} />
         </div>
       ) : (
-        <NailInspectionTable
-          data={filteredInspections}
-          onInspect={openModal}
-        />
+        <NailInspectionTable data={filteredInspections} onInspect={openModal} />
       )}
 
       {/* APPROVAL MODAL */}
       {selectedItem && (
         <NailInspectionModal
-          // onClose={() => setSelectedItem(null)}
-          onClose={closeModal}
+          onClose={resetAndCloseModal}
           selectedItem={selectedItem}
           patchesRemoved={patchesRemoved}
           setPatchesRemoved={setPatchesRemoved}
@@ -303,6 +366,14 @@ const handleHold = () => {
           handleReject={handleReject}
           handleHold={handleHold}
           handleApproveWithPressureTest={handleApproveWithPressureTest}
+          resonForRemoval={resonForRemoval}
+          location={location}
+          damageType={damageType}
+          patchRemovals={patchRemovals}
+          setPatchRemovals={setPatchRemovals}
+          newPatchRemoval={newPatchRemoval}
+          setNewPatchRemoval={setNewPatchRemoval}
+          addRemove={addRemove}
         />
       )}
 
@@ -328,6 +399,18 @@ const handleHold = () => {
       {showIncidentModal && (
         <IncidentReportModal onClose={() => setShowIncidentModal(false)} />
       )}
+      {/* LOADER */}
+      {(loadingModal || processing) && (
+  <div
+    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+    style={{
+      background: "rgba(0,0,0,0.3)",
+      zIndex: 99999,
+    }}
+  >
+    <RingLoader color="#b30815" size={80} />
+  </div>
+)}
     </div>
   );
 };

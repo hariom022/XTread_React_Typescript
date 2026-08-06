@@ -14,20 +14,20 @@ import ReceivingPage from "./features/receiving/page/ReceivingPage";
 import VisualInspectionPage from "./features/visualInspection/page/VisualInspectionPage";
 import NailInspectionPage from "./features/nailInspection/page/NailInspectionPage";
 import PressureTestPage from "./features/pressureTest/page/PressureTestPage";
-
-// Future Pages
-// import ShearographyPage from "./features/shearography/page/ShearographyPage";
-// import BuffingPage from "./features/buffing/page/BuffingPage";
-// import SkivingPage from "./features/skiving/page/SkivingPage";
-// import CementingPage from "./features/cementing/page/CementingPage";
-// import TreadBenchPage from "./features/treadBench/page/TreadBenchPage";
-// import RepairsPage from "./features/repairs/page/RepairsPage";
-// import FillUpPage from "./features/fillUp/page/FillUpPage";
-// import BuildingPage from "./features/building/page/BuildingPage";
-// import EnvelopingPage from "./features/enveloping/page/EnvelopingPage";
-// import CuringPage from "./features/curing/page/CuringPage";
-// import QualityControlPage from "./features/qualityControl/page/QualityControlPage";
-// import DispatchPage from "./features/dispatch/page/DispatchPage";
+import ShearographyPage from "./features/shearography/page/ShearographyPage";
+// import Login from "./features/auth/pages/Login";
+// import ProtectedRoute from "./shared/components/ProtectedRoute";
+import BuffingStage from "./features/buffing/page/BuffingStage";
+import SkivingStage from "./features/skiving/page/SkivingStage";
+import { CementingPage } from "./features/cementing/page/CementingPage";
+import FillUpStage from "./features/fillUp/page/FillUpStage";
+import BuildingStage from "./features/building/page/BuildingStage";
+import RepairPage from "./features/repair/page/RepairPage";
+import TreadBenchPage from "./features/treadBench/page/TreadBenchPage";
+import EnvelopingStage from "./features/enveloping/page/EnvelopingStage";
+import CuringStage from "./features/curing/page/CuringStage";
+import QualityControl from "./features/qualityControl/page/QualityControl";
+import DispatchStage from "./features/dispatch/page/DispatchStage";
 
 function AppContent() {
   const location = useLocation();
@@ -104,7 +104,7 @@ function AppContent() {
               className="w-100 h-100"
             >
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/collection" element={<CollectionPage />} />
                 <Route
                   path="/customerApproval"
@@ -120,24 +120,18 @@ function AppContent() {
                   element={<NailInspectionPage />}
                 />
                 <Route path="/pressuretest" element={<PressureTestPage />} />
-
-                {/* Future Routes */}
-
-                {/* <Route path="/shearography" element={<ShearographyPage />} />
-                <Route path="/buffing" element={<BuffingPage />} />
-                <Route path="/skiving" element={<SkivingPage />} />
+                <Route path="/shearography" element={<ShearographyPage />} />
+                <Route path="/buffing" element={<BuffingStage />} />
+                <Route path="/skiving" element={<SkivingStage />} />
                 <Route path="/cementing" element={<CementingPage />} />
-                <Route path="/treadbench" element={<TreadBenchPage />} />
-                <Route path="/repairs" element={<RepairsPage />} />
-                <Route path="/fillup" element={<FillUpPage />} />
-                <Route path="/building" element={<BuildingPage />} />
-                <Route path="/enveloping" element={<EnvelopingPage />} />
-                <Route path="/curing" element={<CuringPage />} />
-                <Route
-                  path="/qualityInspect"
-                  element={<QualityControlPage />}
-                />
-                <Route path="/dispatch" element={<DispatchPage />} /> */}
+                <Route path="/fillUp" element={<FillUpStage />} />
+                <Route path="/building" element={<BuildingStage />} />
+                <Route path="/repairs" element={<RepairPage />} />
+                <Route path="/treadBench" element={<TreadBenchPage />} />
+                <Route path="/enveloping" element={<EnvelopingStage />} />
+                <Route path="/curing" element={<CuringStage />} />
+                <Route path="/qualityControl" element={<QualityControl />} />
+                <Route path="/dispatch" element={<DispatchStage />} />
               </Routes>
             </motion.div>
           </AnimatePresence>

@@ -76,14 +76,11 @@ const CollectionTable = ({
 
               <th>DOT No</th>
               <th>Is Retreaded</th>
-
-              <th>Size</th>
-
+              <th>Tyre Size</th>
               <th>Make</th>
-
               <th>Pattern</th>
 
-              <th>Service</th>
+              <th>Service Type</th>
 
               <th>Action</th>
             </tr>
@@ -93,7 +90,7 @@ const CollectionTable = ({
             {Object.keys(groupedByCustomer).map((custId) => (
               <>
                 <tr className="table-primary">
-                  <td colSpan={12} className="fw-bold">
+                  <td colSpan={13} className="fw-bold">
                     {groupedByCustomer[custId][0]?.customerName}
                   </td>
                 </tr>
@@ -117,13 +114,10 @@ const CollectionTable = ({
                     <td>{item.otherNumber}</td>
 
                     <td>{item.dotNo}</td>
-
                     <td>{Number(item.numberOfRetreads) > 0 ? "Yes" : "No"}</td>
-
                     <td>{item.casingSize}</td>
 
                     <td>{item.make}</td>
-
                     <td>{item.treadPattern}</td>
 
                     <td>{item.serviceType}</td>
@@ -152,13 +146,13 @@ const CollectionTable = ({
           </tbody>
         </table>
       </div>
-      <div className="mb-3 d-flex gap-2 mt-2 justify-content-end">
-        <button className="btn btn-success " onClick={onReceive}>
-          Receive Selected
+      <div className="mb-3 d-flex gap-2 mt-2 p-1 justify-content-end">
+        <button className="btn btn-success" onClick={onReceive}>
+          <b>Received Casing </b>
         </button>
 
         <button className="btn btn-danger" onClick={onReject}>
-          Reject Selected
+         <b> Not Received Casing</b>
         </button>
       </div>
     </>

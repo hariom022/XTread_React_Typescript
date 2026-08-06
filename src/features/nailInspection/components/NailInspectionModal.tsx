@@ -1,6 +1,8 @@
 import { MdOutlineMargin } from "react-icons/md";
 import RepairSection from "./RepairSection";
 import RepairTable from "./RepairTable";
+import PatchesRemoveSection from "./PatchesRemoveSection";
+import PatchRemovalTable from "./PatchRemovalTable";
 
 type Props = {
   selectedItem: any;
@@ -31,6 +33,28 @@ type Props = {
   handleReject: () => void;
   handleHold: () => void;
   handleApproveWithPressureTest: () => void;
+
+  resonForRemoval: any[];
+  location: any[];
+  damageType: any[];
+
+  patchRemovals: any[];
+
+  setPatchRemovals: React.Dispatch<React.SetStateAction<any[]>>;
+
+  newPatchRemoval: {
+    reasonForRemoval: string;
+    location: string;
+  };
+
+  setNewPatchRemoval: React.Dispatch<
+    React.SetStateAction<{
+      reasonForRemoval: string;
+      location: string;
+    }>
+  >;
+
+  addRemove: () => void;
 };
 
 const NailInspectionModal = ({
@@ -63,6 +87,17 @@ const NailInspectionModal = ({
   handleReject,
   handleHold,
   handleApproveWithPressureTest,
+  resonForRemoval,
+  location,
+  damageType,
+
+  patchRemovals,
+  setPatchRemovals,
+
+  newPatchRemoval,
+  setNewPatchRemoval,
+
+  addRemove,
 }: Props) => {
   if (!selectedItem) return null;
 
@@ -74,11 +109,15 @@ const NailInspectionModal = ({
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content nail-modal">
             {/* HEADER */}
-            <div className="modal-header nail-header">
-              <h5 className="modal-title">NAIL INSPECTION – APPROVAL</h5>
+            <div className="modal-header nail-header d-flex align-items-center">
+              <h5 className="modal-title flex-grow-1 text-white text-start">
+                NAIL INSPECTION – APPROVAL
+              </h5>
               {/* STAFF NAME */}
-              <div className="me-3 text-white text-end"
-              style={{ marginLeft: "46rem !important"}}>
+              <div
+                className="text-white text-end"
+                // style={{ marginLeft: "50rem" }}
+              >
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
                 <b>John</b>
               </div>
@@ -92,39 +131,52 @@ const NailInspectionModal = ({
 
             {/* BODY */}
             <div className="modal-body">
-              {/* TOP INFO */}
-              <div className="modal-info m-0 p-1 building-top row text-nowrap">
-                <div className="col">
-                  <strong>Production No</strong>
-                  <div>{selectedItem.casing}</div>
-                </div>
+              <div className="">
+                {/* TOP INFO */}
+                <div className="modal-info m-0 building-top row text-nowrap">
+                  <div className="col">
+                    <strong>Production No</strong>
+                    <div>{selectedItem?.productionNumber}</div>
+                  </div>
 
-                <div className="col">
-                  <strong>Tyre Ref No</strong>
-                  <div>{selectedItem.serial}</div>
-                </div>
+                  <div className="col">
+                    <strong>Tyre Ref No</strong>
+                    <div>{selectedItem?.tyreReferenceNumber}</div>
+                  </div>
 
-                <div className="col">
-                  <strong>Customer Name</strong>
-                  <div>{selectedItem.customerName || "-"}</div>
-                </div>
+                  <div className="col">
+                    <strong>Customer Name</strong>
+                    <div>{selectedItem?.customerName}</div>
+                  </div>
 
-                <div className="col">
-                  <strong>Tyre Size</strong>
-                  <div>{selectedItem.tyreSize || "-"}</div>
-                </div>
+                  <div className="col">
+                    <strong>Tyre Size</strong>
+                    <div>{selectedItem?.tyreSize}</div>
+                  </div>
 
-                <div className="col">
-                  <strong>Requested Pattern</strong>
-                  <div>{selectedItem.pattern || "-"}</div>
+                  <div className="col">
+                    <strong>Requested Pattern</strong>
+                    <div>{selectedItem?.requestedPattern}</div>
+                  </div>
                 </div>
               </div>
-
-              <div className="row mt-2">
+              <div className="row mt-1">
                 {/* LEFT SIDE */}
                 <div className="col-md-8 border-end">
+                  <PatchesRemoveSection
+                    resonForRemoval={resonForRemoval}
+                    location={location}
+                    newPatchRemoval={newPatchRemoval}
+                    setNewPatchRemoval={setNewPatchRemoval}
+                    addRemove={addRemove}
+                  />
+
+                  <PatchRemovalTable
+                    patchRemovals={patchRemovals}
+                    setPatchRemovals={setPatchRemovals}
+                  />
                   {/* PATCHES & PUNCTURES */}
-                  <div className="row g-3">
+                  {/* <div className="row g-3">
                     <div className="col-md-6">
                       <label>Patches Removed</label>
 
@@ -160,25 +212,36 @@ const NailInspectionModal = ({
                         ))}
                       </select>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* REPAIR SECTION */}
                   <RepairSection
                     newRepair={newRepair}
                     setNewRepair={setNewRepair}
                     addRepair={addRepair}
+                    damageType={damageType}
+                    location={location}
                   />
 
                   {/* REPAIR TABLE */}
                   <RepairTable repairs={repairs} setRepairs={setRepairs} />
 
                   {/* BUTTONS */}
-                  <div className="row g-2 mt-2">
+                  <div className="row g-2 mt-1">
                     <div className="col-6">
                       <button
-                        className="btn btn-success w-100 btn-lg-actiond-flex align-items-center justify-content-center"
-                        style={{ height: "70px" }}
+                        className="btn btn-success w-100 btn-lg-action d-flex align-items-center justify-content-center"
+                        style={{
+                          height: "70px",
+                          opacity:
+                            selectedItem?.serviceType?.id === 2 ? 0.5 : 1,
+                          cursor:
+                            selectedItem?.serviceType?.id === 2
+                              ? "not-allowed"
+                              : "pointer",
+                        }}
                         onClick={handleApproveWithPressureTest}
+                        disabled={selectedItem?.serviceType?.id === 2}
                       >
                         <b>Approved With Pressure Test</b>
                       </button>
@@ -198,8 +261,7 @@ const NailInspectionModal = ({
 
                 {/* RIGHT SIDE */}
                 <div className="col-md-4">
-                  <div className="mb-6"
-                  style={{marginBottom:"2.5rem"}}>
+                  <div className="mb-6" style={{ marginBottom: "9.3rem" }}>
                     <label className="fw-semibold">Rejection Reason</label>
 
                     <select
@@ -253,7 +315,7 @@ const NailInspectionModal = ({
               </div>
 
               {/* HOLD */}
-              <div className="row mt-3">
+              <div className="row mt-1">
                 <div className="col">
                   <button
                     className="btn btn-warning w-100 fw-bold"

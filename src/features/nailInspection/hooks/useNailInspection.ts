@@ -24,9 +24,52 @@ export const useNailInspection = () => {
     type: "",
   });
 
+  const [resonForRemoval, setReasonForRemoval] = useState<any[]>([]);
+
+  const [location, setLocation] = useState<any[]>([]);
+
+  const [damageType, setDamageType] = useState<any[]>([]);
+  // const [patchRemovals, setPatchRemovals] = useState<any[]>([]);
+
+  // const [newPatchRemoval, setNewPatchRemoval] = useState({
+  //   reasonForRemoval: "",
+  //   location: "",
+  // });
+  const [patchRemovals, setPatchRemovals] = useState<any[]>([]);
+
+  const [newPatchRemoval, setNewPatchRemoval] = useState({
+    reasonForRemoval: "",
+    location: "",
+  });
+  const loadLocation = async () => {
+    try {
+      const locationRes = await nailInspectionService.getLocation();
+      setLocation(locationRes.data.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const loadReasonForRemoval = async () => {
+    try {
+      const removalRes = await nailInspectionService.getReasonForRemoval();
+      setReasonForRemoval(removalRes.data.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const loadDamageType = async () => {
+    try {
+      const damaeTypeRes = await nailInspectionService.getDamageType();
+      setDamageType(damaeTypeRes.data.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   // Approval / Rejection
-const [patchesRemoved, setPatchesRemoved] = useState<number>(0);
-const [puncturesFound, setPuncturesFound] = useState<number>(0);
+  const [patchesRemoved, setPatchesRemoved] = useState<number>(0);
+  const [puncturesFound, setPuncturesFound] = useState<number>(0);
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Modal
@@ -36,8 +79,7 @@ const [puncturesFound, setPuncturesFound] = useState<number>(0);
 
   const loadRejectionReasons = async () => {
     try {
-      const response =
-        await nailInspectionService.getRejectionReason();
+      const response = await nailInspectionService.getRejectionReason();
 
       setRejectionReasons(response.data.data || []);
     } catch (error) {
@@ -45,152 +87,75 @@ const [puncturesFound, setPuncturesFound] = useState<number>(0);
     }
   };
 
-  // const transformApiData = (orders: any[]) => {
-  //   const list: any[] = [];
+  
+  const transformApiData = (stages: any[]) => {
+    const transformed: any[] = [];
 
-  //   orders.forEach((order) => {
-  //     order.casings
-  //       ?.filter(
-  //         (casing: any) =>
-  //           casing.currentStage === 4 &&
-  //           casing.currentStageStatus === 1
-  //       )
-  //       .forEach((casing: any) => {
-  //         list.push({
-  //           id: casing.orderCasingId,
+    (stages || []).forEach((stage: any) => {
+      stage.batches?.forEach((batch: any) => {
+        batch.casings?.forEach((casing: any) => {
+          console.log("CASING", casing);
+          transformed.push({
+            id: casing.orderCasingId,
 
-  //           casing:
-  //             casing.productionNumber ||
-  //             casing.barcodeNumber ||
-  //             "-",
+            casing: casing.productionNumber || casing.barcodeNumber || "-",
 
-  //           date: order.createdAtUtc
-  //             ? new Date(order.createdAtUtc)
-  //                 .toISOString()
-  //                 .split("T")[0]
-  //             : "-",
+            date: casing.orderDate || "-",
 
-  //           serial:
-  //             casing.tyreReferenceNumber || "-",
+            serial: casing.tyreReferenceNumber || "-",
 
-  //           dot: casing.dotNumber || "-",
+            dot: casing.dotNumber || "-",
 
-  //           pattern:
-  //             casing.retreadDetail?.patternName ||
-  //             "-",
+            patternName: casing?.patternName || "-",
+            tyreMakeName:casing.tyreMakeName || "-",
 
-  //           tyreSize:
-  //             casing.tyreSize?.casingSize || "-",
+            tyreSize: casing.tyreSizeLabel || "-",
 
-  //           customerName:
-  //             order.customer?.customerName || "-",
+            customerName: casing.customerName || "-",
 
-  //           service:
-  //             casing.serviceType?.name || "-",
+           service: casing.serviceTypeName || "-",
 
-  //           batchNo:
-  //             casing.batchNumber || "-",
+            batchNo: batch.batchNumber || "-",
 
-  //           currentStage:
-  //             casing.currentStage,
+            currentStageStatus: casing.currentStageStatus,
 
-  //           currentStageStatus:
-  //             casing.currentStageStatus,
-  //         });
-  //       });
-  //   });
+            // modal data
+            requestedPattern: casing.patternName || "-",
 
-  //   return list;
-  // };
-const transformApiData = (stages: any[]) => {
-  const transformed: any[] = [];
+            isRetreaded: false,
 
-  (stages || []).forEach((stage: any) => {
-    stage.batches?.forEach((batch: any) => {
-      batch.casings?.forEach((casing: any) => {
-        transformed.push({
-          id: casing.orderCasingId,
+            previousPattern: "",
 
-          casing:
-            casing.productionNumber ||
-            casing.barcodeNumber ||
-            "-",
+            previousRetreader: "",
 
-          date:
-            casing.orderDate || "-",
+            noOfRetread: 0,
 
-          serial:
-            casing.tyreReferenceNumber || "-",
+            noOfExistingRepairs: 0,
 
-          dot:
-            casing.dotNumber || "-",
+            originalBatch: batch,
 
-          pattern:
-            casing.patternName || "-",
+            originalCasing: casing,
 
-          tyreSize:
-            casing.tyreSizeLabel || "-",
+            // batch summary
+            approved: batch.stageSummary?.approved || 0,
 
-          customerName:
-            casing.customerName || "-",
+            rejected: batch.stageSummary?.rejected || 0,
 
-          service:
-            batch.batchNumber?.startsWith("RT")
-              ? "Retread"
-              : "Repair",
+            pending: batch.stageSummary?.pending || 0,
 
-          batchNo:
-            batch.batchNumber || "-",
+            previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
 
-          currentStageStatus:
-            casing.currentStageStatus,
+            expectedTotal:
+              batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
-          // modal data
-          requestedPattern:
-            casing.patternName || "-",
-
-          isRetreaded: false,
-
-          previousPattern: "",
-
-          previousRetreader: "",
-
-          noOfRetread: 0,
-
-          noOfExistingRepairs: 0,
-
-          originalBatch: batch,
-
-          originalCasing: casing,
-
-          // batch summary
-          approved:
-            batch.stageSummary?.approved || 0,
-
-          rejected:
-            batch.stageSummary?.rejected || 0,
-
-          pending:
-            batch.stageSummary?.pending || 0,
-
-          previousStage:
-            batch.stageSummary
-              ?.stillAtPreviousStage || 0,
-
-          expectedTotal:
-            batch.stageSummary
-              ?.expectedTotal ||
-            batch.originalBatchSize,
-
-          arrived:
-            batch.stageSummary?.arrived || 0,
+            arrived: batch.stageSummary?.arrived || 0,
+          });
         });
       });
     });
-  });
 
-  return transformed;
-};
+    return transformed;
+  };
   // const loadOrders = async () => {
   //   try {
   //     const result =
@@ -209,33 +174,31 @@ const transformApiData = (stages: any[]) => {
   //   }
   // };
   const loadOrders = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const result =
-      await indexPageApiService.getBatchProgress(
-        4,
-        1
-      );
+      const result = await indexPageApiService.getBatchProgress(4, 1);
 
-    console.log("API Result:", result);
+      console.log("API Result:", result);
 
-    const transformed = transformApiData(
-      result.data.data
-    );
+      const transformed = transformApiData(result.data.data);
 
-    console.log("Transformed:", transformed);
+      console.log("Transformed:", transformed);
 
-    setInspectionsData(transformed);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
+      setInspectionsData(transformed);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
     loadOrders();
     loadRejectionReasons();
+    loadLocation();
+    loadReasonForRemoval();
+    loadDamageType();
   }, []);
 
   // ================= FILTER =================
@@ -244,32 +207,27 @@ const transformApiData = (stages: any[]) => {
     return inspectionsData.filter((item) =>
       `${item.casing} ${item.serial} ${item.pattern}`
         .toLowerCase()
-        .includes(search.toLowerCase())
+        .includes(search.toLowerCase()),
     );
   }, [search, inspectionsData]);
 
   // ================= CHECKLIST =================
 
   const totalChecklistItems =
-    NAIL_VISUAL_CHECKLIST.left.length +
-    NAIL_VISUAL_CHECKLIST.right.length;
+    NAIL_VISUAL_CHECKLIST.left.length + NAIL_VISUAL_CHECKLIST.right.length;
 
   const allChecklistIds = [
     ...NAIL_VISUAL_CHECKLIST.left.map((x) => x.id),
     ...NAIL_VISUAL_CHECKLIST.right.map((x) => x.id),
   ];
 
-  const isChecklistComplete =
-    checkedItems.length === totalChecklistItems;
+  const isChecklistComplete = checkedItems.length === totalChecklistItems;
 
-  const isAllSelected =
-    checkedItems.length === allChecklistIds.length;
+  const isAllSelected = checkedItems.length === allChecklistIds.length;
 
   const toggleChecklist = (id: string) => {
     setCheckedItems((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -289,18 +247,12 @@ const transformApiData = (stages: any[]) => {
   // ================= REPAIRS =================
 
   const addRepair = () => {
-    if (
-      !newRepair.location ||
-      !newRepair.type
-    ) {
+    if (!newRepair.location || !newRepair.type) {
       alert("Please select Location and Type");
       return;
     }
 
-    setRepairs((prev) => [
-      ...prev,
-      newRepair,
-    ]);
+    setRepairs((prev) => [...prev, newRepair]);
 
     setNewRepair({
       location: "",
@@ -325,6 +277,33 @@ const transformApiData = (stages: any[]) => {
     setRejectionReason("");
   };
 
+  const addRemove = () => {
+    if (!newPatchRemoval.reasonForRemoval || !newPatchRemoval.location) {
+      alert("Please select Reason For Removal and Location");
+      return;
+    }
+
+    const selectedReason = resonForRemoval.find(
+      (x: any) => x.id === Number(newPatchRemoval.reasonForRemoval),
+    );
+
+    const selectedLocation = location.find(
+      (x: any) => x.id === Number(newPatchRemoval.location),
+    );
+
+    setPatchRemovals((prev) => [
+      ...prev,
+      {
+        reasonForRemoval: selectedReason?.name || "",
+        location: selectedLocation?.name || "",
+      },
+    ]);
+
+    setNewPatchRemoval({
+      reasonForRemoval: "",
+      location: "",
+    });
+  };
   return {
     // Search
     search,
@@ -369,5 +348,20 @@ const transformApiData = (stages: any[]) => {
     // Actions
     openInspection,
     resetChecklist,
+
+    resonForRemoval,
+    setReasonForRemoval,
+    location,
+    setLocation,
+    damageType,
+    setDamageType,
+
+    patchRemovals,
+    setPatchRemovals,
+
+    newPatchRemoval,
+    setNewPatchRemoval,
+
+    addRemove,
   };
 };
