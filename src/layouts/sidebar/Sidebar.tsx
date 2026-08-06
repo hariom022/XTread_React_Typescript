@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import "../sidebar/Sidebar.css"
 
 interface SidebarProps {
   isCollapsed: boolean;

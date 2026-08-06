@@ -15,7 +15,7 @@ body {
 ========================================================= */
 
 .container-fluid.modern-form {
-  max-width: 1400px;
+  /* max-width: 1400px; */
   margin: auto;
   padding: 20px;
 }

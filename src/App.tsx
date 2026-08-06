@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
@@ -60,26 +55,45 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="d-flex h-screen overflow-hidden bg-background select-none">
+    <div
+      className="d-flex bg-background select-none"
+      style={{
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
       {/* Background Grid */}
       <div className="overlay-grid-bg" />
 
       {/* Sidebar */}
       <Sidebar
         isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() =>
-          setIsSidebarCollapsed(!isSidebarCollapsed)
-        }
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
       {/* Main Content */}
-      <main className="flex-grow-1 d-flex flex-column h-100 bg-background position-relative z-index-1 overflow-hidden">
-        <Header
-          searchText={searchText}
-          onSearchChange={setSearchText}
-        />
+      <main
+        className="d-flex flex-column"
+        style={{
+          marginLeft: isSidebarCollapsed ? "80px" : "260px",
+          width: isSidebarCollapsed
+            ? "calc(100% - 80px)"
+            : "calc(100% - 260px)",
+          height: "100vh",
+          overflow: "hidden",
+          transition: "all 0.3s ease",
+        }}
+      >
+        <Header searchText={searchText} onSearchChange={setSearchText} />
 
-        <div className="flex-grow-1 overflow-y-auto custom-scrollbar">
+        <div
+          className="custom-scrollbar"
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            overflowX: "hidden",
+          }}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -105,10 +119,7 @@ function AppContent() {
                   path="/nailinspection"
                   element={<NailInspectionPage />}
                 />
-                <Route
-                  path="/pressuretest"
-                  element={<PressureTestPage />}
-                />
+                <Route path="/pressuretest" element={<PressureTestPage />} />
 
                 {/* Future Routes */}
 
