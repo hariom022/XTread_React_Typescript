@@ -5,6 +5,7 @@ interface Autoclave {
   autoclaveId: string;
   name: string;
   sortOrder: number;
+  isMold?: boolean;
 }
 
 interface Props {
@@ -32,14 +33,38 @@ const AutoclaveModal = ({
     }
   }, [show]);
 
-  const fetchAutoclaves = async () => {
-    try {
-      const response = await curingServiceApi.loadAutoClaves();
-      setAutoclaves(response.data.data || []);
-    } catch (error) {
-      console.error("Error loading autoclaves:", error);
-    }
-  };
+ const fetchAutoclaves = async () => {
+  try {
+    const response = await curingServiceApi.loadAutoClaves();
+
+    const apiAutoclaves = response.data.data || [];
+
+    const moldOptions: Autoclave[] = [
+      {
+        autoclaveId: "-1",
+        name: "18.4-30 Mold 1",
+        sortOrder: 999,
+        isMold: true,
+      },
+      {
+        autoclaveId: "-2",
+        name: "12.4-24 Mold 1",
+        sortOrder: 1000,
+        isMold: true,
+      },
+      {
+        autoclaveId: "-3",
+        name: "9.00-16 Mold 1",
+        sortOrder: 1001,
+        isMold: true,
+      },
+    ];
+
+    setAutoclaves([...apiAutoclaves, ...moldOptions]);
+  } catch (error) {
+    console.error("Error loading autoclaves:", error);
+  }
+};
 
   if (!show) return null;
 

@@ -92,6 +92,12 @@ const Navbar = () => {
             <i className="bi bi-envelope-fill"></i> Enveloping
           </NavLink>
         </li>
+        
+        <li>
+          <NavLink to="/mounting">
+            <i className="bi bi-envelope-fill"></i> Mounting
+          </NavLink>
+        </li>
         <li>
           <NavLink to="/curing">
             <i className="bi bi-gear-fill"></i> Curing

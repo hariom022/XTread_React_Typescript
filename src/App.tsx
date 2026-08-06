@@ -25,6 +25,7 @@ import EnvelopingStage from "./features/enveloping/page/EnvelopingStage";
 import CuringStage from "./features/curing/page/CuringStage";
 import QualityControl from "./features/qualityControl/page/QualityControl";
 import DispatchStage from "./features/dispatch/page/DispatchStage";
+import MountingStage from "./features/mounting/page/MountingStage";
 
 const Layout = () => {
   return (
@@ -70,6 +71,7 @@ function App() {
           <Route path="/repairs" element={<RepairPage/>}/>
           <Route path="/treadBench" element={<TreadBenchPage />} />
           <Route path="/enveloping" element={<EnvelopingStage/>} />
+          <Route path="/mounting" element={<MountingStage/>} />
           <Route path="/curing" element={<CuringStage/>} />
           <Route path="/qualityControl" element={<QualityControl/>} />
           <Route path="/dispatch" element={<DispatchStage/>} />

@@ -9,6 +9,7 @@ import useCuringIndexTable from "../hooks/useCuringIndexTable";
 import curingServiceApi from "../service/curingServiceApi";
 import "../style/curing.css";
 import { RingLoader } from "react-spinners";
+import MoldCuringModal from "../components/MoldCuringModal";
 
 const CuringStatus = {
   Pending: 1,
@@ -135,13 +136,22 @@ const CuringStage = () => {
     setShowChamberModal(true);
   };
 
-  const handleContinue = async () => {
-    await fetchApprovedFromEnveloping();
+const handleContinue = async () => {
+  await fetchApprovedFromEnveloping();
 
-    setShowChamberModal(false);
+  setShowChamberModal(false);
 
+  // Hardcoded Mold IDs
+  if (
+    Number(selectedAutoclave) === -1 ||
+    Number(selectedAutoclave) === -2 ||
+    Number(selectedAutoclave) === -3
+  ) {
+    setShowMoldModal(true);
+  } else {
     setShowBatchModal(true);
-  };
+  }
+};
 
   /* =========================
           LOAD CURING
@@ -469,6 +479,9 @@ const CuringStage = () => {
     },
   });
 
+  const [showMoldModal, setShowMoldModal] = useState(false);
+const [showCuringModal, setShowCuringModal] = useState(false);
+
   return (
     <div className="container-fluid box">
       <div
@@ -535,6 +548,38 @@ const CuringStage = () => {
                 onClick={() => setActiveAutoclaveTab("Elgi")}
               >
                 <b>Elgi</b>
+              </button>
+            </li>
+
+            {/* Mounting  */}
+            <li className="nav-item">
+              <button
+                className={`nav-link ${
+                  activeAutoclaveTab === "Mold1-18.4-30" ? "active" : ""
+                }`}
+                onClick={() => setActiveAutoclaveTab("Mold1-18.4-30")}
+              >
+                <b>18.4-30 Mold 1</b>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${
+                  activeAutoclaveTab === "Mold1-12.4-24" ? "active" : ""
+                }`}
+                onClick={() => setActiveAutoclaveTab("Mold1-12.4-24")}
+              >
+                <b>12.4-24 Mold 1</b>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${
+                  activeAutoclaveTab === "Mold1-9.00-16" ? "active" : ""
+                }`}
+                onClick={() => setActiveAutoclaveTab("Mold1-9.00-16")}
+              >
+                <b>9.00-16 Mold 1</b>
               </button>
             </li>
           </ul>
@@ -798,7 +843,21 @@ const CuringStage = () => {
           setShowBatchModal(false);
         }}
       />
-
+    <MoldCuringModal
+      show={showMoldModal}
+      selectedAutoclave={selectedAutoclave}
+      availableRows={availableRows}
+      allocatedRows={allocatedRows}
+      selectedAllocatedRow={selectedAllocatedRow}
+      setSelectedAllocatedRow={setSelectedAllocatedRow}
+      allocatePipe={allocatePipe}
+      removeFromPipe={removeFromPipe}
+      loadCuring={handleLoadCuring}
+      onClose={() => {
+        resetModal();
+        setShowMoldModal(false);
+      }}
+    />
       {showCancelModal && (
         <>
           <div className="custom-modal-backdrop"></div>
