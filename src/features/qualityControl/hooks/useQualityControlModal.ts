@@ -34,7 +34,7 @@ const useQualityControlModal = () => {
           item.id
         );
 
-      const casing = res.data;
+      const casing = res.data.data;
 
       console.log("QUALITY CONTROL DETAILS", casing);
 
