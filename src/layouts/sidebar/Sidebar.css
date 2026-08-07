@@ -124,6 +124,8 @@
   z-index: 999;
 }
 #sidebar-navigation{
-  background-color: #ededed !important;
+  /* background:#1E293B; */
+  background: #135c44;
   color: black !important;
+  border-right:1px solid rgba(255,255,255,.08);
 }

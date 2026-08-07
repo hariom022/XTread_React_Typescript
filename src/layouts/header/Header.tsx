@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-
+import "../header/Header.css";
 import React, { useState } from "react";
 import { Bell, Settings, HelpCircle, Search, LogOut, Check, Mail, User } from "lucide-react";
 // import { Activity } from "../types";
@@ -35,6 +35,7 @@ interface HeaderProps {
         height: "64px",
         borderColor: "rgba(255, 255, 255, 0.08)",
         zIndex: 1020,
+       background:"#135c44"
       }}
     >
       {/* Search & Brand */}
@@ -46,7 +47,8 @@ interface HeaderProps {
           className="d-none d-md-block mx-2"
           style={{ width: "1px", height: "24px", backgroundColor: "rgba(255, 255, 255, 0.15)" }}
         ></div>
-        <div className="position-relative d-none d-md-block">
+
+        <div className="position-relative d-none d-md-block" style={{color:"white",border: "2px solid white",borderRadius:"19px"}}>
           <Search
             className="position-absolute text-outline"
             style={{ left: "12px", top: "50%", transform: "translateY(-50%)", width: "14px", height: "14px" }}
@@ -81,7 +83,7 @@ interface HeaderProps {
 
       {/* Actions */}
       <div className="d-flex align-items-center gap-3">
-        <div className="d-flex align-items-center gap-2 position-relative">
+        <div className="d-flex align-items-center gap-2 position-relative" style={{color: "white"}}>
           {/* Notifications Button */}
           <button
             id="notifications-button"
@@ -160,7 +162,7 @@ interface HeaderProps {
           >
             <div className="text-end d-none d-sm-block">
               <p className="fw-bold m-0 text-white" style={{ fontSize: "12px" }}>Alex Chen</p>
-              <p className="font-mono text-outline m-0" style={{ fontSize: "9px", letterSpacing: "0.5px" }}>
+              <p className="font-mono text-outline m-0 text-light" style={{ fontSize: "9px", letterSpacing: "0.5px" }}>
                 Lead Operator
               </p>
             </div>
@@ -182,6 +184,7 @@ interface HeaderProps {
                 width: "240px",
                 zIndex: 1050,
                 borderColor: "rgba(255, 255, 255, 0.15)",
+                background: "#c39d6a" 
               }}
             >
               <div className="d-flex align-items-center gap-2 pb-2 border-bottom mb-2" style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}>

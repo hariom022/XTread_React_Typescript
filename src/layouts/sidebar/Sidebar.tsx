@@ -96,14 +96,119 @@ const adminItems = [
     label: "Role Authorization",
     iconClass: "bi bi-key-fill",
   },
-];
+  {
+    path: "/employee",
+    label: "Employee Management",
+    iconClass: "bi bi-people-fill",
+  },
+  {
+    path: "/patternApproval",
+    label: "Pattern Approval",
+    iconClass: "bi bi-clipboard-check-fill",
+  },
+  {
+    path: "/tyreOnHold",
+    label: "Tyre On Hold",
+    iconClass: "bi bi-pause-circle-fill",
+  },
+  {
+    path: "/productionManager",
+    label: "Production Manager",
+    iconClass: "bi bi-gear-wide-connected",
+  },
+  {
+    path: "/notification",
+    label: "Notification Center",
+    iconClass: "bi bi-bell-fill",
+  },
+  {
+    path: "/report",
+    label: "Report",
+    iconClass: "bi bi-bar-chart-fill",
+  },
 
+  {
+    path: "/claimAdministration",
+    label: "Claim Administration",
+    iconClass: "bi bi-clipboard2-check-fill",
+  },
+  {
+    path: "/aduitLog",
+    label: "Aduit Log ",
+    iconClass: "bi bi-clock-history",
+  },
+  {
+    path: "/stockManagement",
+    label: "Stock Management ",
+    iconClass: "bi bi-box-seam-fill",
+  },
+];
+const masterItems = [
+  { path: "/customer", label: "Customer", iconClass: "bi bi-building-fill" },
+  {
+    path: "/region",
+    label: "Region",
+    iconClass: "bi bi-globe-central-south-asia",
+  },
+  { path: "/zone", label: "Zone", iconClass: "bi bi-map-fill" },
+  { path: "/collector", label: "Collector", iconClass: "bi bi-truck" },
+  {
+    path: "/employee",
+    label: "Employee",
+    iconClass: "bi bi-person-badge-fill",
+  },
+  { path: "/servicetype", label: "Service Type", iconClass: "bi bi-tools" },
+  { path: "/category", label: "Category", iconClass: "bi bi-tags-fill" },
+  { path: "/material", label: "Material", iconClass: "bi bi-box-seam-fill" },
+  {
+    path: "/tyresize",
+    label: "Tyre Size",
+    iconClass: "bi bi-aspect-ratio-fill",
+  },
+  {
+    path: "/tyremake",
+    label: "Tyre Make",
+    iconClass: "bi bi-truck-front-fill",
+  },
+  { path: "/pattern", label: "Pattern", iconClass: "bi bi-grid-3x3-gap-fill" },
+  { path: "/width", label: "Width", iconClass: "bi bi-arrows-expand" },
+  { path: "/machine", label: "Machine", iconClass: "bi bi-cpu-fill" },
+  { path: "/autoclave", label: "Autoclave", iconClass: "bi bi-gear-fill" },
+  { path: "/mold", label: "Mold", iconClass: "bi bi-circle-square" },
+  {
+    path: "/damagelevel",
+    label: "Damage Level",
+    iconClass: "bi bi-graph-up-arrow",
+  },
+  {
+    path: "/holdreason",
+    label: "Hold Reason",
+    iconClass: "bi bi-pause-circle-fill",
+  },
+  {
+    path: "/rejectionreason",
+    label: "Rejection Reason",
+    iconClass: "bi bi-x-octagon-fill",
+  },
+  { path: "/location", label: "Location", iconClass: "bi bi-geo-alt-fill" },
+  {
+    path: "/damagetype",
+    label: "Damage Type",
+    iconClass: "bi bi-exclamation-triangle-fill",
+  },
+  {
+    path: "/repairmaterial",
+    label: "Repair Material",
+    iconClass: "bi bi-wrench-adjustable-circle-fill",
+  },
+];
 const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [showTyreAction, setShowTyreAction] = useState(true);
   const [showAdminPortal, setShowAdminPortal] = useState(false);
+  const [showMasterPage, setshowMasterPage] = useState(false);
 
   const renderMenuItem = (item: any, child = false) => {
     const isActive = location.pathname === item.path;
@@ -176,15 +281,19 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
           </div>
         ) : (
           <>
-            <h1 className="fw-bold text-secondary m-0" style={{ fontSize: 21 }}>
+            <h1
+              className="fw-bold  m-0"
+              style={{ fontSize: 21, color: "white" }}
+            >
               XTread
             </h1>
 
             <p
-              className="font-mono text-outline m-0 mt-1 text-uppercase"
+              className="font-mono text-outline m-0 mt-1 text-uppercase text-light"
               style={{
                 fontSize: 10,
                 letterSpacing: 1,
+                color: "white",
               }}
             >
               Retreading Management
@@ -204,6 +313,7 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
             label: "Dashboard",
             iconClass: "bi bi-bar-chart-line-fill",
           })}
+          {/* Admin Portal */}
 
           <li>
             <button
@@ -240,9 +350,46 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
               )}
             </button>
           </li>
-
           {showAdminPortal &&
             adminItems.map((item) => renderMenuItem(item, true))}
+
+
+          {/* Master Modules */}
+          <li>
+            <button
+              onClick={() => setshowMasterPage(!showMasterPage)}
+              className="nav-link-custom"
+              style={{
+                width: "100%",
+                border: "none",
+                background: "transparent",
+              }}
+            >
+              <span className="me-3">
+                <i className="bi bi-collection-fill" style={{ fontSize: 18 }} />
+              </span>
+              {!isCollapsed && (
+                <>
+                  <span
+                    className="flex-grow-1 font-mono text-uppercase"
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: ".5px",
+                    }}
+                  >
+                    Master Modules
+                  </span>
+                  <i
+                    className={`bi ${
+                      showMasterPage ? "bi-chevron-down" : "bi-chevron-right"
+                    }`}
+                  />
+                </>
+              )}
+            </button>
+          </li>
+          {showMasterPage &&
+            masterItems.map((item) => renderMenuItem(item, true))}
           {/* Tyre Action */}
 
           <li>
@@ -283,8 +430,6 @@ const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
 
           {showTyreAction &&
             tyreActionItems.map((item) => renderMenuItem(item, true))}
-
-          {/* Admin Portal */}
         </ul>
       </nav>
 
