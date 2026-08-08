@@ -73,7 +73,7 @@ const tyreActionItems = [
   },
   { path: "/curing", label: "Curing", iconClass: "bi bi-gear-fill" },
   {
-    path: "/qualityInspect",
+    path: "/qualityControl",
     label: "Quality Control",
     iconClass: "bi bi-check-circle-fill",
   },
