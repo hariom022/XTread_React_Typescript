@@ -117,6 +117,11 @@ const adminItems = [
     iconClass: "bi bi-gear-wide-connected",
   },
   {
+    path: "/adminPortal/rejectedTyres",
+    label: "Rejected Tyres",
+    iconClass: "bi bi-x-octagon-fill",
+  },
+  {
     path: "/notification",
     label: "Notification Center",
     iconClass: "bi bi-bell-fill",
