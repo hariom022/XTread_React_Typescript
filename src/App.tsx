@@ -29,6 +29,7 @@ import CuringStage from "./features/curing/page/CuringStage";
 import QualityControl from "./features/qualityControl/page/QualityControl";
 import DispatchStage from "./features/dispatch/page/DispatchStage";
 import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
+import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
 
 function AppContent() {
   const location = useLocation();
@@ -134,6 +135,7 @@ function AppContent() {
                 <Route path="/qualityControl" element={<QualityControl />} />
                 <Route path="/dispatch" element={<DispatchStage />} />
                 <Route path="/adminPortal/rejectedTyres" element={<RejectedTyres />} /> 
+                <Route path="/adminPortal/byPassTyres" element={<ByPassTyres />} />
               </Routes>
             </motion.div>
           </AnimatePresence>

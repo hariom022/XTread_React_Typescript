@@ -117,6 +117,11 @@ const adminItems = [
     iconClass: "bi bi-gear-wide-connected",
   },
   {
+    path: "/adminPortal/byPassTyres",
+    label: "ByPass Tyres",
+    iconClass: "bi bi-gear-wide",
+  },
+  {
     path: "/adminPortal/rejectedTyres",
     label: "Rejected Tyres",
     iconClass: "bi bi-x-octagon-fill",
