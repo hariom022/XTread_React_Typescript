@@ -1,120 +1,263 @@
-// import type { Casing, ReceivingRow } from "../types/receiving.types";
-
-// import React from "react";
-
-// type Props = {
-//   groupedByCustomer: Record<string, ReceivingRow[]>;
-
-//   selectedRows: number[];
-
-//   setSelectedRows: React.Dispatch<React.SetStateAction<number[]>>;
-
-//   onReceive: () => void;
-
-//   onReject: () => void;
-
-//   onView: (row: ReceivingRow) => void;
-//   onEdit: (casing: Casing) => void;
-// };
+import { useMemo, useState } from "react";
+import useRejectedTyres from "../hooks/useRejectedTyres";
+import rejectedTyreServiceApi from "../services/rejectedTyreServiceApi";
+import type { RejectedTyre } from "../types/rejectedTyres.types";
 
 const RejectedTyresTable = () => {
-    return (
+  const {
+    result,
+    loading,
+    fetchRejectedTyres,
+  } = useRejectedTyres();
+
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [reversing, setReversing] = useState(false);
+
+  // Group records by customer
+  const groupedByCustomer = useMemo(() => {
+    return result.reduce<Record<string, RejectedTyre[]>>(
+      (groups, item) => {
+        const customer = item.customerName || "Unknown Customer";
+
+        if (!groups[customer]) {
+          groups[customer] = [];
+        }
+
+        groups[customer].push(item);
+
+        return groups;
+      },
+      {}
+    );
+  }, [result]);
+
+  // Select / unselect single row
+  const toggleRow = (id: number) => {
+    setSelectedRows((previous) =>
+      previous.includes(id)
+        ? previous.filter((x) => x !== id)
+        : [...previous, id]
+    );
+  };
+
+  // Select / unselect all
+  const toggleAll = () => {
+    if (selectedRows.length === result.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(result.map((item) => item.orderCasingId));
+    }
+  };
+
+  // Format API date
+  const formatDate = (date: string) => {
+    if (!date) return "-";
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "-";
+    }
+
+    return parsedDate.toLocaleDateString("en-GB");
+  };
+
+  // Reverse selected casings
+  const handleReverse = async () => {
+    if (selectedRows.length === 0) {
+      alert("Please select at least one casing.");
+      return;
+    }
+
+    try {
+      setReversing(true);
+
+      await rejectedTyreServiceApi.reverseRejectedTyres(selectedRows);
+
+      // Clear selection
+      setSelectedRows([]);
+
+      // Reload table
+      await fetchRejectedTyres();
+
+      alert("Casing reversed successfully.");
+    } catch (error) {
+      console.error("Error reversing casings:", error);
+      alert("Failed to reverse casing.");
+    } finally {
+      setReversing(false);
+    }
+  };
+
+  return (
     <>
-      <div className="table-responsive">
+      <div className="table-responsive m-2">
         <table className="table table-bordered table-hover align-middle bg-white">
           <thead>
             <tr>
               <th>
                 <input
                   type="checkbox"
-                  
+                  checked={
+                    result.length > 0 &&
+                    selectedRows.length === result.length
+                  }
+                  onChange={toggleAll}
                 />
               </th>
 
               <th>Date</th>
 
-              {/* <th>Customer</th> */}
-
               <th>Order No</th>
 
               <th>Tyre Ref No</th>
-              <th>Other No</th>
+
+              <th>Batch No</th>
 
               <th>DOT No</th>
+
               <th>Is Retreaded</th>
+
               <th>Tyre Size</th>
+
               <th>Make</th>
+
               <th>Pattern</th>
 
               <th>Service Type</th>
 
-              <th>Action</th>
+              <th>Rejected At</th>
+
+              <th>Rejection Reason</th>
+
+             
             </tr>
           </thead>
 
-          {/* <tbody>
-            {Object.keys(groupedByCustomer).map((custId) => (
-              <>
-                <tr className="table-primary">
-                  <td colSpan={13} className="fw-bold">
-                    {groupedByCustomer[custId][0]?.customerName}
-                  </td>
-                </tr>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={14} className="text-center py-4">
+                  Loading rejected casings...
+                </td>
+              </tr>
+            ) : result.length === 0 ? (
+              <tr>
+                <td colSpan={14} className="text-center py-4">
+                  No rejected casings found.
+                </td>
+              </tr>
+            ) : (
+              Object.entries(groupedByCustomer).map(
+                ([customerName, items]) => (
+                  <>
+                    {/* Customer Header */}
+                    <tr
+                      key={`customer-${customerName}`}
+                      className="table-primary"
+                    >
+                      <td colSpan={14} className="fw-bold">
+                        {customerName}
+                      </td>
+                    </tr>
 
-                {groupedByCustomer[custId].map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.includes(item.id)}
-                        onChange={() => toggleRow(item.id)}
-                      />
-                    </td>
+                    {/* Customer Rows */}
+                    {items.map((item) => (
+                      <tr key={item.orderCasingId}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedRows.includes(
+                              item.orderCasingId
+                            )}
+                            onChange={() =>
+                              toggleRow(item.orderCasingId)
+                            }
+                          />
+                        </td>
 
-                    <td>{item.date}</td>
+                        {/* Date */}
+                        <td>
+                          {formatDate(item.rejectedAtUtc)}
+                        </td>
 
-                    <td>{item.orderNo}</td>
+                        {/* Order No */}
+                        <td>{item.orderNumber || "-"}</td>
 
-                    <td>{item.tyreReferenceNumber}</td>
+                        {/* Tyre Reference */}
+                        <td>
+                          {item.tyreReferenceNumber || "-"}
+                        </td>
 
-                    <td>{item.otherNumber}</td>
+                        {/* Batch No */}
+                        <td>{item.batchNumber || "-"}</td>
 
-                    <td>{item.dotNo}</td>
-                    <td>{Number(item.numberOfRetreads) > 0 ? "Yes" : "No"}</td>
-                    <td>{item.casingSize}</td>
+                        {/* DOT */}
+                        <td>{item.dotNumber || "-"}</td>
 
-                    <td>{item.make}</td>
-                    <td>{item.treadPattern}</td>
+                        {/* Is Retreaded */}
+                        <td>
+                          {item.serviceTypeName?.toLowerCase() ===
+                          "retread"
+                            ? "Yes"
+                            : "No"}
+                        </td>
 
-                    <td>{item.serviceType}</td>
+                        {/* Tyre Size */}
+                        <td>-</td>
 
-                    <td>
-                      <div className="d-flex gap-1">
-                        <button
-                          className="btn btn-sm btn-primary text-white"
-                          onClick={() => onEdit(item.originalCasing)}
-                        >
-                          <i className="bi bi-pencil-square"></i>
-                        </button>
+                        {/* Make */}
+                        <td>{item.tyreMakeName || "-"}</td>
 
-                        <button
-                          className="btn btn-info btn-sm text-white"
-                          onClick={() => onView(item)}
-                        >
-                          <i className="bi bi-info-circle"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </>
-            ))}
-          </tbody> */}
+                        {/* Pattern */}
+                        <td>-</td>
+
+                        {/* Service Type */}
+                        <td>{item.serviceTypeName || "-"}</td>
+
+                        {/* Rejected At Stage */}
+                        <td>
+                          {item.rejectedAtStageName || "-"}
+                        </td>
+
+                        {/* Rejection Reason */}
+                        <td>
+                          {item.rejectionReasonName || "-"}
+                        </td>
+
+                        {/* Actions */}
+                        {/* <td>
+                          <div className="d-flex gap-1">
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-info text-white"
+                              title="View"
+                            >
+                              <i className="bi bi-info-circle"></i>
+                            </button>
+                          </div>
+                        </td> */}
+                      </tr>
+                    ))}
+                  </>
+                )
+              )
+            )}
+          </tbody>
         </table>
       </div>
+
+      {/* Reverse Button */}
       <div className="mb-3 d-flex gap-2 mt-2 p-1 justify-content-end">
-        <button className="btn btn-success" >
-          <b>Reverse Casing </b>
+        <button
+          type="button"
+          className="btn btn-success"
+          disabled={selectedRows.length === 0 || reversing}
+          onClick={handleReverse}
+        >
+          <b>
+            {reversing ? "Reversing..." : "Reverse Casing"}
+          </b>
         </button>
       </div>
     </>
