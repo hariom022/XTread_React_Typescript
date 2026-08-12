@@ -84,8 +84,8 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
 
     const getAllVisibleIds = () => {
         return data.flatMap((parent: any) =>
-            expanded.includes(parent.productionNo)
-                ? parent.children.map((c: any) => c.orderCasingId)
+            expanded.includes(parent.batchNumber)
+                ? parent.casings.map((c: any) => c.orderCasingId)
                 : []
         );
     };
@@ -148,19 +148,19 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
                     )}
 
                     {data.map((parent: any) => (
-                        <React.Fragment key={parent.productionNo}>
+                        <React.Fragment key={parent.batchNumber}>
                             <tr
                                 style={{ background: "#eee", cursor: "pointer" }}
-                                onClick={() => toggleExpand(parent.productionNo)}
+                                onClick={() => toggleExpand(parent.batchNumber)}
                             >
-                                <td>{expanded.includes(parent.productionNo) ? "▼" : "▶"}</td>
+                                <td>{expanded.includes(parent.batchNumber) ? "▼" : "▶"}</td>
                                 <td colSpan={7}>
-                                    <b>{parent.productionNo}</b>
+                                    <b>Batch Number: </b> <b>{parent.batchNumber}</b>
                                 </td>
                             </tr>
 
-                            {expanded.includes(parent.productionNo) &&
-                                parent.children.map((c: any) => (
+                            {expanded.includes(parent.batchNumber) &&
+                                parent.casings.map((c: any) => (
                                     <tr key={c.orderCasingId}>
                                         <td>
                                             <input

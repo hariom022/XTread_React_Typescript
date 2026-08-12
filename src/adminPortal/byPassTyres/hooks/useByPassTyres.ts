@@ -1,10 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import byPassTyreServiceApi from "../services/byPassTyreServiceApi";
 
 export const useByPassTyres = () => {
     const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+     // ================= SEARCH =================
+    const [search, setSearch] = useState("");
+
+    // ================= TRANSFORM DATA =================
 
     const transformData = (apiData: any[]) => {
         if (!apiData || apiData.length === 0) return [];
@@ -13,8 +17,8 @@ export const useByPassTyres = () => {
         const batches = stage.batches || [];
 
         return batches.map((batch: any) => ({
-            productionNo: batch.batchNumber,
-            children: batch.casings.map((casing: any) => ({
+            batchNumber: batch.batchNumber,
+            casings: batch.casings.map((casing: any) => ({
                 orderCasingId: casing.orderCasingId,
                 productionNo: casing.productionNumber,
                 date: casing.orderDate,
@@ -48,6 +52,7 @@ export const useByPassTyres = () => {
             setLoading(false);
         }
     };
+
     //load index page data for bypass tyres
     const loadBatchProgress = useCallback(async () => {
         try {
@@ -66,11 +71,65 @@ export const useByPassTyres = () => {
         }
     }, []);
 
+     // ================= SEARCH FILTER =================
+
+    const filteredData = useMemo(() => {
+        const searchTerm = search.trim().toLowerCase();
+
+        // If search is empty, return everything
+        if (!searchTerm) {
+            return data;
+        }
+
+        return data
+            .map((parent: any) => {
+
+                // Check batch / production number
+                const batchMatches =
+                    parent.batchNumber
+                        ?.toLowerCase()
+                        .includes(searchTerm);
+
+                // Check casing data
+                const matchingCasings =
+                    parent.casings.filter((c: any) =>
+                        `${c.productionNo || ""}
+                         ${c.tyreRefNo || ""}
+                         ${c.pattern || ""}
+                         ${c.make || ""}
+                         ${c.tyreSize || ""}
+                         ${c.service || ""}`
+                            .toLowerCase()
+                            .includes(searchTerm)
+                    );
+
+                // Keep parent if:
+                // 1. Batch number matches
+                // OR
+                // 2. At least one child matches
+                if (batchMatches || matchingCasings.length > 0) {
+                    return {
+                        ...parent,
+                        casings: batchMatches
+                            ? parent.casings
+                            : matchingCasings,
+                    };
+                }
+
+                return null;
+            })
+            .filter(Boolean);
+    }, [data, search]);
+
     return {
         data,
+        filteredData,
         loading,
         error,
         loadBatchProgress,
         skipStages,
+        // Search
+        search,
+        setSearch,
     };
 };
