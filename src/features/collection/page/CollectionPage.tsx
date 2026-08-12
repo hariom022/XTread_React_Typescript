@@ -1155,7 +1155,7 @@ const CollectionPage = ({
 
           {/* RETREAD */}
           {selectedService === "Retread" && category && (
-            <div className="card modern-card mt-4">
+            <div className="card modern-card mt-2">
               <div className="card-header modern-header">
                 {category?.categoryName} Retread
               </div>
@@ -1243,7 +1243,7 @@ const CollectionPage = ({
 
           {/* REPAIR */}
           {selectedService === "Repair" && category && (
-            <div className="card modern-card mt-4">
+            <div className="card modern-card mt-2">
               <div className="card-header modern-header">
                 {category?.categoryName} Repair
               </div>
@@ -1334,7 +1334,7 @@ const CollectionPage = ({
             // UPDATE CLAIM FORM CALL
             // =========================
 
-            <div className="card modern-card mt-4">
+            <div className="card modern-card mt-2">
               <div className="card-header modern-header">
                 {category?.categoryName} Claims
               </div>
@@ -1405,7 +1405,7 @@ const CollectionPage = ({
 
           {/* ORDER TABLE */}
           {!hideLayout && (
-            <div className="mt-4">
+            <div className="mt-2">
               <OrderTable
                 orderItems={orderItems}
                 setOrderItems={setOrderItems}
