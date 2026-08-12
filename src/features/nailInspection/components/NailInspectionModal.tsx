@@ -272,7 +272,7 @@ const NailInspectionModal = ({
                       <option value="">--- Select Reason ---</option>
 
                       {rejectionReasons.map((reason: any) => (
-                        <option key={reason.code} value={reason.code}>
+                        <option key={reason.rejectionReasonId} value={reason.rejectionReasonId}>
                           {reason.reason}
                         </option>
                       ))}

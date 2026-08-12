@@ -31,11 +31,7 @@ const useSkivingApprovalModal = ({
   ] =
     useState(false);
 
-  const [
-    rejectionReason,
-    setRejectionReason,
-  ] =
-    useState("");
+  const [rejectionReason,setRejectionReason,] =useState<number | null>(null);
 
   const [
     rejectionReasons,
@@ -95,7 +91,7 @@ const useSkivingApprovalModal = ({
       );
 
       setRejectionReason(
-        "",
+        null,
       );
     };
 
@@ -124,7 +120,7 @@ const useSkivingApprovalModal = ({
           isRepeatSkiving:
             repeatSkiving,
 
-          rejectionReasonCode:
+          rejectionReasonId:
             null,
 
           skipRepair:
@@ -196,7 +192,7 @@ const useSkivingApprovalModal = ({
           isRepeatSkiving:
             repeatSkiving,
 
-          rejectionReasonCode:
+          rejectionReasonId:
             rejectionReason,
 
           skipRepair:

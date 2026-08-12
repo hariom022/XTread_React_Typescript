@@ -17,9 +17,10 @@ interface Props {
     React.SetStateAction<boolean>
   >;
 
-  rejectionReason: string;
+  rejectionReason: number | null;
+
   setRejectionReason: React.Dispatch<
-    React.SetStateAction<string>
+    React.SetStateAction<number | null>
   >;
 
   rejectionReasons: any[];
@@ -292,12 +293,12 @@ const SkivingApprovalModal = ({
 
                     <select
                       className="form-select"
-                      value={
-                        rejectionReason
-                      }
+                      value={rejectionReason ?? ""}
                       onChange={(e) =>
                         setRejectionReason(
-                          e.target.value,
+                          e.target.value
+                            ? Number(e.target.value)
+                            : null
                         )
                       }
                     >
@@ -313,7 +314,7 @@ const SkivingApprovalModal = ({
                               item.rejectionReasonId
                             }
                             value={
-                              item.code
+                              item.rejectionReasonId
                             }
                           >
                             {item.reason}

@@ -424,7 +424,7 @@ const PostBuffingApprovalModal = ({
                   <option value="">Select Rejection Reason</option>
 
                   {postBuffingReasons.map((item) => (
-                    <option key={item.rejectionReasonId} value={item.code}>
+                    <option key={item.rejectionReasonId} value={item.rejectionReasonId}>
                       {item.reason}
                     </option>
                   ))}

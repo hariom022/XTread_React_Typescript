@@ -285,7 +285,7 @@ alert(message);
 
         skipCircumferenceValidation: override,
 
-        rejectionReasonCode: postRejectReason,
+        rejectionReasonId: postRejectReason,
       };
 
       await buffingStageServiceApi.approveRejectPostBuffing(payload);

@@ -191,7 +191,7 @@ const NailInspectionPage = () => {
 
         puncturesFound,
 
-        rejectionReasonCode: rejectionReason,
+        rejectionReasonId: rejectionReason,
 
         repairOperations: [],
 

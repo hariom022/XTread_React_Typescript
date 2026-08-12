@@ -114,7 +114,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       const payload = {
         orderCasingIds: [selectedItem.orderCasingId.toString()],
         isApproved: false,
-        rejectionReasonCode: reason,
+        rejectionReasonId: reason,
       };
 
       await pressureTestServiceApi.handleApprovalRejection(payload);
@@ -217,7 +217,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                             {rejectionReasons.map((item) => (
                               <option
                                 key={item.rejectionReasonId}
-                                value={item.code}
+                                value={item.rejectionReasonId}
                               >
                                 {item.reason}
                               </option>

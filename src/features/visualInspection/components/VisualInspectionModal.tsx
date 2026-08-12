@@ -87,7 +87,7 @@ const VisualInspectionModal = ({
         return;
       }
 
-      if (!isApproved && !reason?.code) {
+      if (!isApproved && !reason?.rejectionReasonId) {
         alert("Please select rejection reason");
         return;
       }
@@ -99,7 +99,7 @@ const VisualInspectionModal = ({
 
         isApproved,
 
-        rejectionReasonCode: isApproved ? null : reason?.code,
+        rejectionReasonId: isApproved ? null : reason?.rejectionReasonId,
       };
 
       console.log("Approval Payload", payload);

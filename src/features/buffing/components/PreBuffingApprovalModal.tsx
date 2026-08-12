@@ -296,7 +296,7 @@ const PreBuffingApprovalModal = ({
                           {holdReasons.map((item) => (
                             <option
                               key={item.rejectionReasonId}
-                              value={item.code}
+                              value={item.rejectionReasonId}
                             >
                               {item.reason}
                             </option>
@@ -416,7 +416,7 @@ const PreBuffingApprovalModal = ({
                   <option value="">Select Rejection Reason</option>
 
                   {rejectionReasons.map((item) => (
-                    <option key={item.rejectionReasonId} value={item.code}>
+                    <option key={item.rejectionReasonId} value={item.rejectionReasonId}>
                       {item.reason}
                     </option>
                   ))}

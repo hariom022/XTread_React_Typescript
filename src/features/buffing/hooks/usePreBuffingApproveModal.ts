@@ -151,7 +151,7 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
       const payload = {
         orderCasingIds: [selectedItem.id],
         action: 4,
-        reasonCode: reason,
+        rejectionReasonId: reason,
         suggestedTreadPatternVariantId: null,
       };
 

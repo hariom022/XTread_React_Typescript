@@ -110,7 +110,7 @@ const ShearographyModal = ({
 
     formData.append("isApproved", "false");
 
-    formData.append("rejectionReasonCode", reason);
+    formData.append("rejectionReasonId", reason);
 
     pdfFiles.forEach((pdf) => {
       formData.append("pdfs", pdf.file);
@@ -220,7 +220,7 @@ const ShearographyModal = ({
                     {rejectionReasons.map((reasonItem: any) => (
                       <option
                         key={reasonItem.rejectionReasonId}
-                        value={reasonItem.code}
+                        value={reasonItem.rejectionReasonId}
                       >
                         {reasonItem.reason}
                       </option>

@@ -18,8 +18,8 @@ export interface SaveSkivingStage1Payload {
   isApproved: boolean;
 
   machineId: string | number;
-
-  rejectionReasonCode: string | null;
+  
+  rejectionReasonId: number | null;
 
   repairOperations: {
     repairType: string;
@@ -39,7 +39,7 @@ export interface SaveSkivingApprovalPayload {
 
   isRepeatSkiving: boolean;
 
-  rejectionReasonCode: string | null;
+  rejectionReasonId: number | null;
 
   skipRepair: boolean;
 }
