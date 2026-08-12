@@ -915,7 +915,7 @@ const RepairForm = ({
       </div>
 
       {/* FOOTER */}
-      <div className="footer-actions">
+      <div className="d-flex justify-content-end mt-3">
         {isEditMode ? (
           <>
             <button
@@ -931,17 +931,14 @@ const RepairForm = ({
             </button>
           </>
         ) : (
-          <div
-            className="mx-10 d-flex justify-content-end"
-            style={{ marginLeft: "70.3rem" }}
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={handleAddCasing}
           >
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={handleAddCasing}
-            >
-              Add Casing to Order
-            </button>
-          </div>
+            Add Casing to Order
+          </button>
+
         )}
       </div>
     </div>

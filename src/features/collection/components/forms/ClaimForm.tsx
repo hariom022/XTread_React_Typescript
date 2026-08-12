@@ -1,5 +1,6 @@
 // src/features/collection/components/forms/ClaimForm.tsx
 
+import { div } from "framer-motion/client";
 import type {
   Category,
   RimSize,
@@ -984,12 +985,12 @@ const ClaimForm = ({
           </div>
 
           {/* DIVIDER */}
-          <div className="col-12">
+          {/* <div className="col-12">
             <hr className="mt-2 mb-0" />
-          </div>
+          </div> */}
 
           {/* FOOTER */}
-          <div className="footer-actions">
+          <div className="d-flex justify-content-end mt-3">
             {isEditMode ? (
               <>
                 <button
@@ -1009,17 +1010,13 @@ const ClaimForm = ({
                 </button>
               </>
             ) : (
-              <div
-                className="mx-10 d-flex justify-content-end"
-                style={{ marginLeft: "70.3rem" }}
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={handleAddCasing}
               >
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={handleAddCasing}
-                >
-                  Add Casing to Order
-                </button>
-              </div>
+                Add Casing to Order
+              </button>
             )}
           </div>
         </>
