@@ -28,6 +28,17 @@ import EnvelopingStage from "./features/enveloping/page/EnvelopingStage";
 import CuringStage from "./features/curing/page/CuringStage";
 import QualityControl from "./features/qualityControl/page/QualityControl";
 import DispatchStage from "./features/dispatch/page/DispatchStage";
+import CustomersPage from "./master-modules/customers/page/CustomerPage";
+import ServiceTypesPage from "./master-modules/service-types/page/ServiceTypePage";
+import TyreMakesPage from "./master-modules/tyre-make/page/TyreMakesPage";
+import MachinesPage from "./master-modules/machines/page/MachinesPage";
+import RejectionReasonsPage from "./master-modules/rejection-reason/page/RejectionReasonsPage";
+import AutoclavesPage from "./master-modules/autoclaves/page/AutoclavesPage";
+import DamageLevelsPage from "./master-modules/damage-level/page/DamageLevelsPage";
+import DamageTypesPage from "./master-modules/damage-types/page/DamageTypesPage";
+import RepairMaterialsPage from "./master-modules/repair-materials/page/RepairMaterialsPage";
+import TyreSizesPage from "./master-modules/tyre-sizes/page/TyreSizesPage";
+import CategoriesPage from "./master-modules/categories/page/CategoriesPage";
 
 function AppContent() {
   const location = useLocation();
@@ -132,6 +143,20 @@ function AppContent() {
                 <Route path="/curing" element={<CuringStage />} />
                 <Route path="/qualityControl" element={<QualityControl />} />
                 <Route path="/dispatch" element={<DispatchStage />} />
+                {/* MASTER MODULES */}
+                <Route path="/customer" element={<CustomersPage />} />
+                <Route path="/serviceType" element={<ServiceTypesPage />} />
+                <Route path="/tyreMake" element={<TyreMakesPage />} />
+                <Route path="/machine" element={<MachinesPage />} />
+                <Route path="/rejectionReason" element={<RejectionReasonsPage />} />
+                <Route path="/Autoclave" element={<AutoclavesPage/>} />
+                <Route path="/damageLevel" element={<DamageLevelsPage/>} />
+                <Route path="/damageType" element={<DamageTypesPage/>} />
+                <Route path="/repairMaterial" element={<RepairMaterialsPage/>} />
+                <Route path="/tyreSize" element={<TyreSizesPage/>} />
+                <Route path="/category" element={<CategoriesPage/>} />
+                
+
               </Routes>
             </motion.div>
           </AnimatePresence>
