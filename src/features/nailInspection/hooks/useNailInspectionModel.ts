@@ -14,9 +14,7 @@ export const useNailInspectionModal = () => {
 
       const res = await indexPageApiService.getOrderCasingDetails(item.id);
 
-      console.log("NAIL CASING DETAILS", res.data);
-
-      const casing = res.data;
+      const casing = res.data.data;
       console.log("CASING DETAILS", casing);
 
       const modalData = {

@@ -108,7 +108,7 @@ const BuffingStage = () => {
       setLoading(true);
       const response = await buffingStageServiceApi.getOrderCasingById(item.id);
 
-      const casing = response.data;
+      const casing = response.data.data;
 
       setSelectedPreCasing(casing);
 
@@ -135,7 +135,7 @@ const BuffingStage = () => {
       setLoading(true);
       const response = await buffingStageServiceApi.getOrderCasingById(item.id);
 
-      const casing = response.data;
+      const casing = response.data.data;
 
       setSelectedPostCasing(casing);
 

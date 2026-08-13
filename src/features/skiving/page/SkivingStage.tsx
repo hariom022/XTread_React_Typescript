@@ -111,9 +111,9 @@ useEffect(() => {
       console.log("Loading:", loading);
       const response = await indexPageApiService.getOrderCasingDetails(item.id);
 
-      console.log("CASING DETAILS", response.data);
+      console.log("CASING DETAILS", response.data.data);
 
-      const casing = response.data;
+      const casing = response.data.data;
 
       const updatedItem: SkivingStage1Row = {
         ...item,
@@ -182,7 +182,7 @@ useEffect(() => {
       setLoading(true);
       const response = await indexPageApiService.getOrderCasingDetails(item.id);
 
-      const casing = response.data;
+      const casing = response.data.data;
 
       const updatedItem: SkivingApprovalRow = {
         ...item,

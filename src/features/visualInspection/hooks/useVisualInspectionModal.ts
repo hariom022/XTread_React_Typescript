@@ -13,8 +13,8 @@ export const useVisualInspectionModal = () => {
       setLoadingModal(true);
 
       const res = await indexPageApiService.getOrderCasingDetails(item.id);
-
-      const casing = res.data;
+      console.log("VISUAL INSPECT API", res.data);
+      const casing = res.data.data;
 
       const modalData = {
         ...item,

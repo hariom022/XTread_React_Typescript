@@ -56,7 +56,7 @@ const FillUpStage = () => {
       setLoadingModal(true);
       const response = await indexPageApiService.getOrderCasingDetails(item.id);
 
-      const casing = response.data;
+      const casing = response.data.data;
 
       const updatedItem = {
         ...item,

@@ -48,7 +48,7 @@ const PressureTestPage = () => {
 
       console.log("DETAIL API RESPONSE", result);
 
-      setSelectedItem(result.data);
+      setSelectedItem(result.data.data);
 
       console.log("SETTING SHOW MODAL TRUE");
 
