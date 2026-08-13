@@ -1,26 +1,33 @@
-import { useState, useEffect } from "react";
-
-// import type {
-//   AllocatedRailRow,
-//   EnvelopingRow,
-//   Rail,
-//   RailPipe,
-// } from "../type/mounting.type";
-import type { AllocatedMountingRow,MountingRow,MountingSize } from "../types/mounting.type";
-// import envelopingServiceApi from "../services/envelopingServiceApi";
+import { useState } from "react";
+import type {
+  AllocatedMountingRow,
+  MountingRow,
+} from "../types/mounting.type";
 import mountingServiceApi from "../service/mountingServiceApi";
 
 interface Props {
   refreshTable: () => void;
 }
+
 const useMountingBatchModal = ({ refreshTable }: Props) => {
   const [loading, setLoading] = useState(false);
+
+  const [availableRows, setAvailableRows] = useState<MountingRow[]>([]);
+
+  const [allocatedRows, setAllocatedRows] = useState<
+    AllocatedMountingRow[]
+  >([]);
+
+  /* ===========================
+        LOAD AVAILABLE CASINGS
+  ============================ */
 
   const fetchApprovedFromPreviousStage = async () => {
     try {
       setLoading(true);
 
-      const response = await mountingServiceApi.getmountingOrders();
+      const response =
+        await mountingServiceApi.getmountingOrders();
 
       const stage = response.data.data?.[0];
 
@@ -34,133 +41,153 @@ const useMountingBatchModal = ({ refreshTable }: Props) => {
 
       setAvailableRows(rows);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load mounting casings", error);
     } finally {
       setLoading(false);
     }
   };
 
+  /* ===========================
+        SELECT / MOUNT CASING
+  ============================ */
 
-  const [selectedMountingSizeId, setSelectedMountingSizeId] = useState<number | null>(null);
+  const allocateMounting = (row: MountingRow) => {
+    // Only ONE casing can be mounted
+    if (allocatedRows.length > 0) {
+      return;
+    }
 
-  const [availableRows, setAvailableRows] = useState<MountingRow[]>([]);
+    const newRow: AllocatedMountingRow = {
+      ...row,
+      mountingSize: row.tyreSizeLabel,
+    };
 
-  const [allocatedRows, setAllocatedRows] = useState<AllocatedMountingRow[]>([]);
+    // Add to mounted table
+    setAllocatedRows([newRow]);
 
-  const [pipes, setPipes] = useState<MountingSize[]>([]);
+    // Remove from available table
+    setAvailableRows((prev) =>
+      prev.filter(
+        (item) => item.orderCasingId !== row.orderCasingId,
+      ),
+    );
+  };
+
+  /* ===========================
+        DISMOUNT CASING
+  ============================ */
+
+  const removeFromMounting = (
+    row: AllocatedMountingRow,
+  ) => {
+    // Remove from mounted table
+    setAllocatedRows((prev) =>
+      prev.filter(
+        (item) => item.orderCasingId !== row.orderCasingId,
+      ),
+    );
+
+    // Add back to available table
+    setAvailableRows((prev) => [
+      ...prev,
+      row as MountingRow,
+    ]);
+  };
+
+  /* ===========================
+        PROCESS MOUNTING
+  ============================ */
+
+const processMounting = async () => {
+  try {
+    if (allocatedRows.length === 0) {
+      alert("Please select a casing");
+      return false;
+    }
+
+    const payload = {
+      orderCasingIds: allocatedRows.map(
+        (row) => row.orderCasingId
+      ),
+    };
+
+    console.log(
+      "Mounting Assign Payload:",
+      payload
+    );
+
+    const response =
+      await mountingServiceApi.assignMounting(
+        payload
+      );
+
+    console.log(
+      "Mounting Assign Response:",
+      response.data
+    );
+
+    return true;
+  } catch (error: any) {
+    console.error(
+      "Failed to assign mounting:",
+      error
+    );
+
+    console.error(
+      "API Error Response:",
+      error?.response?.data
+    );
+
+    let message = "Failed to process mounting";
+
+    if (error?.response?.data?.message) {
+      message = error.response.data.message;
+    } else if (
+      typeof error?.response?.data === "string"
+    ) {
+      message = error.response.data;
+    } else if (error?.response?.data) {
+      message = JSON.stringify(
+        error.response.data,
+        null,
+        2
+      );
+    } else if (error?.message) {
+      message = error.message;
+    }
+
+    alert(message);
+
+    return false;
+  }
+};
+
+  /* ===========================
+        RESET MODAL
+  ============================ */
+
   const resetModal = () => {
-    setSelectedMountingSizeId(null);
-
     setAvailableRows([]);
-
     setAllocatedRows([]);
   };
 
-  
-  const allocateRail = (row: MountingRow, pipe: MountingSize) => {
-    const selectedRail = rails.find((x) => x.mountingSizeId === selectedMountingSizeId);
-
-    const newRow = {
-      ...row,
-      mountingSize: selectedRail?.mountingSize ?? "",
-      mountingSizeId: pipe.mountingSizeId,
-    };
-
-    setAllocatedRows((prev) => [...prev, newRow]);
-
-    setAvailableRows((prev) =>
-      prev.filter((x) => x.orderCasingId !== row.orderCasingId),
-    );
-  };
-  const removeFromRail = (row: AllocatedMountingRow) => {
-    setAllocatedRows((prev) =>
-      prev.filter((x) => x.orderCasingId !== row.orderCasingId),
-    );
-
-    setAvailableRows((prev) => [...prev, row]);
-  };
-
-  const [rails, setRails] = useState<MountingSize[]>([]);
-  const processMounting = async () => {
-    try {
-      if (!allocatedRows.length) {
-        alert("Please allocate at least one casing");
-        return false;
-      }
-
-      const payload = {
-        casings: allocatedRows.map((row) => ({
-          orderCasingId: String(row.orderCasingId),
-          mountingSizeId: String(selectedMountingSizeId),
-          
-        })),
-      };
-      console.log("Assign Payload", payload);
-      // await mountingServiceApi.assignMounting(payload);
-
-      // await refreshTable();
-      // resetModal();
-
-      return true;
-    } catch (error: any) {
-      console.error(error);
-
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data ||
-        error?.message ||
-        "Failed to assign envelope";
-
-      alert(message);
-
-      return false;
-    }
-  };
-
-  
-  // const loadPipes = async (railId: number) => {
-  //   try {
-  //     const {
-  //       data: { data },
-  //     } = await envelopingServiceApi.getRailPipes(railId);
-
-  //     setPipes(data);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   if (selectedRailId) {
-  //     loadPipes(selectedRailId);
-  //   } else {
-  //     setPipes([]);
-  //   }
-  // }, [selectedRailId]);
-  // useEffect(() => {
-  //   if (allocatedRows.length > 0) {
-  //     console.log("First Allocated Row", allocatedRows[0]);
-  //   }
-  // }, [allocatedRows]);
-
   return {
-    // selectedRailId,
-    // setSelectedRailId,
+    loading,
 
     availableRows,
     setAvailableRows,
 
     allocatedRows,
 
-    allocateRail,
+    allocateMounting,
 
-    removeFromRail,
+    removeFromMounting,
 
     processMounting,
-    loading,
+
     fetchApprovedFromPreviousStage,
+
     resetModal,
-    rails,
-    pipes,
   };
 };
 

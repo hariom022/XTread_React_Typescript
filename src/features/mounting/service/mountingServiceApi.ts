@@ -7,58 +7,37 @@ const mountingServiceApi = {
 
   getmountingOrders: () =>
     api.get(
-      "/batches/progress?currentStage=13&currentStageStatus=1"
+      "/batches/progress?currentStage=17&currentStageStatus=1"
     ),
-    getMountingOrdersLoaded: () =>
-    api.get(
-      "/batches/progress?currentStage=13&currentStageStatus=5"
-    ),
-  
-  getAgriTyreSizePipes : (tyreSizeId: number) =>
-  api.get(`/agriTyreSize/${tyreSizeId}/mounting`),
 
-   
+  getMountingOrdersLoaded: () =>
+    api.get(
+      "/batches/progress?currentStage=17&currentStageStatus=5"
+    ),
+
   /* ==========================
-      API PENDING
+      MOUNTING ASSIGN
   ========================== */
 
-assignMounting(payload: {
-  casings: {
-    orderCasingId: string;
-    railId: string;
-    railPipeId: string;
-  }[];
-}) {
-  return api.post("/enveloping/assign", payload);
-},
-approveRejectMounting: async (
-  payload: any
-) => {
-  return api.post(
-    "/mounting/approve-reject",
-    payload
-  );
-},
-  approveMounting: async (
-    payload: any,
-  ) => {
-    console.log(
-      "APPROVE mounting PAYLOAD",
-      payload,
-    );
-
-    return Promise.resolve();
+  assignMounting(payload: {
+    orderCasingIds: number[];
+  }) {
+    return api.post("/mounting/assign", payload);
   },
 
-  rejectMounting: async (
-    payload: any,
-  ) => {
-    console.log(
-      "REJECT mounting PAYLOAD",
-      payload,
-    );
+  /* ==========================
+      APPROVE / REJECT MOUNTING
+  ========================== */
 
-    return Promise.resolve();
+  approveRejectMounting(payload: {
+    isApproved: boolean;
+    rejectionReasonId: number | null;
+    orderCasingIds: number[];
+  }) {
+    return api.post(
+      "/mounting/approve-reject",
+      payload
+    );
   },
 };
 

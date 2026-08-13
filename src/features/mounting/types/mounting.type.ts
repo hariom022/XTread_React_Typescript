@@ -25,7 +25,7 @@ export interface MountingRow {
 
   currentSubstage: number | null;
   mountingSize :string;
-
+ tyreSizeLabel:string;
   
 }
 

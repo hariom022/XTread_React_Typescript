@@ -1,22 +1,16 @@
 import { useMemo, useState } from "react";
-import type {
-  AllocatedMountingRow,
-  MountingRow,
-
-} from "../types/mounting.type";
+import type { AllocatedMountingRow, MountingRow } from "../types/mounting.type";
 
 interface Props {
   show: boolean;
 
-  
- selectedMountingSizeId: number | null;
+  selectedMountingSizeId: number | null;
 
-  
   availableRows: MountingRow[];
 
   allocatedRows: AllocatedMountingRow[];
 
-  // allocateMounting: (row: MountingRow) => void;
+  allocateMounting: (row: MountingRow) => void;
 
   removeFromMounting: (row: AllocatedMountingRow) => void;
 
@@ -27,27 +21,21 @@ interface Props {
 
 const MountingBatchModal = ({
   show,
-  // mountSize,
   availableRows,
   allocatedRows,
-
-  // allocateMounting,
-
+  allocateMounting,
   removeFromMounting,
-
   processMounting,
-
   onClose,
 }: Props) => {
+  
   console.log("Allocated Rows", allocatedRows);
   const [searchTerm, setSearchTerm] = useState("");
-// const selectedMount = mountSize.find(
-//   (x) => x.mountSize === selectedMountSizeId
-// );
+  // const selectedMount = mountSize.find(
+  //   (x) => x.mountSize === selectedMountSizeId
+  // );
   const [selectedAllocatedRow, setSelectedAllocatedRow] =
     useState<AllocatedMountingRow | null>(null);
-
-  const usedRailNumbers = allocatedRows.map((x) => String(x.mountingSize));
 
   const filteredRows = availableRows.filter(
     (item) =>
@@ -57,6 +45,9 @@ const MountingBatchModal = ({
         .includes(searchTerm.toLowerCase()),
   );
   if (!show) return null;
+
+  // Only one casing can be mounted at a time
+  const hasAllocatedRow = allocatedRows.length > 0;
 
   return (
     <>
@@ -128,6 +119,14 @@ const MountingBatchModal = ({
                 <table className="table table-bordered table-hover">
                   <thead className="table-light">
                     <tr>
+                      <th
+                        style={{
+                          width: "50px",
+                          textAlign: "center",
+                        }}
+                      >
+                        Select
+                      </th>
                       <th>Production Number</th>
 
                       <th>Date</th>
@@ -145,58 +144,61 @@ const MountingBatchModal = ({
                   </thead>
 
                   <tbody>
-                    {filteredRows.map((item: MountingRow) => (
-                      <tr key={item.orderCasingId}>
-                        <td>{item.productionNumber}</td>
-
-                        <td>{new Date(item.orderDate).toLocaleDateString()}</td>
-
-                        <td>{item.batchNumber}</td>
-
-                        <td>{item.tyreReferenceNumber}</td>
-
-                        <td>Building</td>
-
-                        <td>--</td>
-
-                        <td
-                          style={{
-                            width: "120px",
-                          }}
-                        >
-                          {/* <select
-                            className="form-select form-select-sm"
-                            defaultValue=""
-                            onChange={(e) => {
-  const pipe = pipes.find(
-    (p) => p.railPipeId === Number(e.target.value)
-  );
-
-  if (pipe) {
-    allocateRail(item, pipe);
-  }
-}}
-                          >
-                            <option value="">Select</option>
-
-                            {pipes
-  .filter(
-    (pipe) =>
-      pipe.isActive &&
-      !usedRailNumbers.includes(pipe.pipeName)
-  )
-  .map((pipe) => (
-    <option
-      key={pipe.railPipeId}
-      value={pipe.railPipeId}
-    >
-      {pipe.pipeName}
-    </option>
-  ))}
-                          </select> */}
+                    {filteredRows.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="text-center text-muted">
+                          No casings available
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      filteredRows.map((item: MountingRow) => {
+                        // Check if this particular item is already allocated
+                        const isAllocated = allocatedRows.some(
+                          (allocated) =>
+                            allocated.orderCasingId === item.orderCasingId,
+                        );
+
+                        return (
+                          <tr key={item.orderCasingId}>
+                            {/* CHECKBOX */}
+                            <td className="text-center">
+                              <input
+                                type="checkbox"
+                                checked={isAllocated}
+                                disabled={hasAllocatedRow && !isAllocated}
+                                onChange={() => {
+                                  if (!isAllocated) {
+                                    allocateMounting(item);
+                                  }
+                                }}
+                              />
+                            </td>
+
+                            <td>{item.productionNumber}</td>
+
+                            <td>
+                              {new Date(item.orderDate).toLocaleDateString()}
+                            </td>
+
+                            <td>{item.batchNumber}</td>
+
+                            <td>{item.tyreReferenceNumber}</td>
+
+                            <td>Building</td>
+
+                            <td>--</td>
+
+                            <td
+                              style={{
+                                width: "120px",
+                              }}
+                            >
+                              {item.tyreSizeLabel}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -211,10 +213,11 @@ const MountingBatchModal = ({
                     <tr>
                       <th
                         style={{
-                          width: "40px",
+                          width: "50px",
+                          textAlign: "center",
                         }}
                       >
-                        <input type="checkbox" />
+                        Select
                       </th>
 
                       <th>Production Number</th>
@@ -230,29 +233,37 @@ const MountingBatchModal = ({
                       <th>TimeSinceBuilding</th>
 
                       <th>Mounting Size</th>
-
-                      
                     </tr>
                   </thead>
 
                   <tbody>
                     {allocatedRows.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="text-center text-muted">
+                        <td colSpan={8} className="text-center text-muted">
                           No casings allocated yet
                         </td>
                       </tr>
                     ) : (
                       allocatedRows.map((item: AllocatedMountingRow) => (
                         <tr key={item.orderCasingId}>
-                          <td>
+                          {/* SECOND TABLE CHECKBOX */}
+                          <td className="text-center">
                             <input
                               type="checkbox"
                               checked={
                                 selectedAllocatedRow?.orderCasingId ===
                                 item.orderCasingId
                               }
-                              onChange={() => setSelectedAllocatedRow(item)}
+                              onChange={() => {
+                                if (
+                                  selectedAllocatedRow?.orderCasingId ===
+                                  item.orderCasingId
+                                ) {
+                                  setSelectedAllocatedRow(null);
+                                } else {
+                                  setSelectedAllocatedRow(item);
+                                }
+                              }}
                             />
                           </td>
 
@@ -266,13 +277,11 @@ const MountingBatchModal = ({
 
                           <td>{item.tyreReferenceNumber}</td>
 
-                          <td>Building</td>
+                          <td>Mounting</td>
 
                           <td>--</td>
 
                           <td>{item.mountingSize}</td>
-
-                          
                         </tr>
                       ))
                     )}
