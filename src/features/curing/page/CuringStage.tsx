@@ -10,6 +10,7 @@ import curingServiceApi from "../service/curingServiceApi";
 import "../style/curing.css";
 import { RingLoader } from "react-spinners";
 import MoldCuringModal from "../components/MoldCuringModal";
+import CuringBatchMoldModal from "../components/CuringBatchMoldModal";
 
 const CuringStatus = {
   Pending: 1,
@@ -42,6 +43,9 @@ const CuringStage = () => {
     selectedAutoclave,
     setSelectedAutoclave,
 
+    selectedMold,
+    setSelectedMold,
+
     availableRows,
     allocatedRows,
 
@@ -51,10 +55,11 @@ const CuringStage = () => {
     fetchApprovedFromEnveloping,
 
     allocatePipe,
-
     removeFromPipe,
 
     loadCuring,
+    loadMoldCuring,
+
     rejectionReasons,
 
     resetModal,
@@ -94,23 +99,6 @@ const CuringStage = () => {
 
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
-  /* =========================
-          FILTER
-    ========================= */
-
-  // const [statusTab, setStatusTab] = useState<number>(CuringStatus.Loaded);
-
-  // const filteredRows = useMemo(() => {
-  //   return curingRows.filter((x: any) => {
-  //     const matchesSearch =
-  //       x.productionNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       x.tyreReferenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
-
-  //     const matchesStatus = Number(x.currentStageStatus) === Number(statusTab);
-
-  //     return matchesSearch && matchesStatus;
-  //   });
-  // }, [curingRows, searchTerm, statusTab]);
   const filteredRows = useMemo(() => {
     return curingRows.filter((x: any) => {
       const matchesSearch =
@@ -119,11 +107,33 @@ const CuringStage = () => {
 
       const matchesStatus = Number(x.currentStageStatus) === Number(statusTab);
 
-      const selectedAutoclaveId = activeAutoclaveTab === "Marangoni" ? 1 : 2;
+      // =========================
+      // AUTOCLAVE TABS
+      // =========================
+      if (activeAutoclaveTab === "Marangoni" || activeAutoclaveTab === "Elgi") {
+        const selectedAutoclaveId = activeAutoclaveTab === "Marangoni" ? 1 : 2;
 
-      const matchesAutoclave = Number(x.autoclaveId) === selectedAutoclaveId;
+        const matchesAutoclave = Number(x.autoclaveId) === selectedAutoclaveId;
 
-      return matchesSearch && matchesStatus && matchesAutoclave;
+        return matchesSearch && matchesStatus && matchesAutoclave;
+      }
+
+      // =========================
+      // MOLD TABS
+      // =========================
+
+      const moldIdMap: Record<string, number> = {
+        "Mold1-18.4-30": 1,
+        "Mold1-12.4-24": 2,
+        "Mold1-9.00-16": 3,
+      };
+
+      const selectedMoldId = moldIdMap[activeAutoclaveTab];
+
+      const matchesMold =
+        selectedMoldId !== undefined && Number(x.moldId) === selectedMoldId;
+
+      return matchesSearch && matchesStatus && matchesMold;
     });
   }, [curingRows, searchTerm, statusTab, activeAutoclaveTab]);
 
@@ -133,65 +143,66 @@ const CuringStage = () => {
 
   const handleCreateBatch = () => {
     setSelectedAutoclave("");
+    setSelectedMold("");
+
     setShowChamberModal(true);
   };
 
-const handleContinue = async () => {
-  await fetchApprovedFromEnveloping();
+  const handleContinue = async () => {
+    await fetchApprovedFromEnveloping();
 
-  setShowChamberModal(false);
+    setShowChamberModal(false);
 
-  // Hardcoded Mold IDs
-  if (
-    Number(selectedAutoclave) === -1 ||
-    Number(selectedAutoclave) === -2 ||
-    Number(selectedAutoclave) === -3
-  ) {
-    setShowMoldModal(true);
-  } else {
+    if (selectedAutoclave !== "") {
+      setShowBatchModal(true);
+      return;
+    }
+
+    if (selectedMold !== "") {
+      setShowMoldModal(true);
+    }
+  };
+
+  const handleAutoclaveChange = async (value: number | "") => {
+    if (value === "") return;
+
+    setSelectedAutoclave(value);
+    setSelectedMold("");
+
+    await fetchApprovedFromEnveloping();
+
+    setShowChamberModal(false);
     setShowBatchModal(true);
-  }
-};
+  };
 
-  /* =========================
-          LOAD CURING
-    ========================= */
+  const handleMoldChange = async (value: number | "") => {
+    if (value === "") return;
 
-  // const handleLoadCuring = async () => {
-  //   const rowsToLoad = [...allocatedRows];
+    setSelectedMold(value);
+    setSelectedAutoclave("");
 
-  //   console.log("Rows To Load", rowsToLoad);
+    await fetchApprovedFromEnveloping();
 
-  //   await loadCuring();
+    setShowChamberModal(false);
+    setShowMoldModal(true);
+  };
 
-  //   setCuringRows((prev) => {
-  //     const updated = [...prev, ...rowsToLoad];
-
-  //     console.log("Updated Curing Rows", updated);
-
-  //     return updated;
-  //   });
-
-  //   setShowBatchModal(false);
-
-  //   resetModal();
-  // };
   const handleLoadCuring = async () => {
-  try {
-    setProcessing(true); // Optional loader
+    try {
+      setProcessing(true); // Optional loader
 
-    await loadCuring();
-    await loadData();
+      await loadCuring();
+      await loadData();
 
-    setShowBatchModal(false);
-    resetModal();
-  } catch (error) {
-    console.error("Load Curing Error:", error);
-    alert("Failed to load curing.");
-  } finally {
-    setProcessing(false); // Hide loader
-  }
-};
+      setShowBatchModal(false);
+      resetModal();
+    } catch (error) {
+      console.error("Load Curing Error:", error);
+      alert("Failed to load curing.");
+    } finally {
+      setProcessing(false); // Hide loader
+    }
+  };
 
   /* =========================
           APPROVAL ACTIONS
@@ -281,55 +292,6 @@ const handleContinue = async () => {
     }
   };
 
-  // const handleCancelCure = async () => {
-  //   const current = cancelData[activeAutoclaveTab];
-
-  //   if (
-  //     !current?.reason ||
-  //     (current.reason === "Other" && !current.other.trim()) ||
-  //     !current.comment.trim()
-  //   ) {
-  //     alert("All fields are required");
-  //     return;
-  //   }
-
-  //   try {
-  //     const payload = {
-  //       orderCasingIds: selectedRows.map(String),
-
-  //       // include these only if your API expects them
-  //       reason: current.reason === "Other" ? current.other : current.reason,
-
-  //       comment: current.comment,
-  //     };
-
-  //     console.log("CANCEL CURE PAYLOAD", payload);
-
-  //     await curingServiceApi.cancelCure(payload);
-
-  //     await loadData();
-
-  //     setSelectedRows([]);
-
-  //     setStatusTab(CuringStatus.Cancelled);
-
-  //     alert("Cancel Cure Successful");
-
-  //     setCancelData((prev) => ({
-  //       ...prev,
-  //       [activeAutoclaveTab]: {
-  //         reason: "",
-  //         other: "",
-  //         comment: "",
-  //       },
-  //     }));
-
-  //     setShowCancelModal(false);
-  //   } catch (error) {
-  //     console.error(error);
-  //     alert("Failed to Cancel Cure");
-  //   }
-  // };
   const handleCancelCure = async () => {
     const current = cancelData[activeAutoclaveTab];
 
@@ -375,26 +337,6 @@ const handleContinue = async () => {
       setProcessing(false);
     }
   };
-
-  // const handleSendToQA = () => {
-  //   if (selectedRows.length === 0) {
-  //     alert("Select casing first");
-
-  //     return;
-  //   }
-
-  //   alert("Send To QA API Pending");
-  // };
-
-  // const handleSendToEnvelope = () => {
-  //   if (selectedRows.length === 0) {
-  //     alert("Select casing first");
-
-  //     return;
-  //   }
-
-  //   alert("Send To Envelope API Pending");
-  // };
 
   const handleSendToQA = async () => {
     if (selectedRows.length === 0) {
@@ -480,7 +422,23 @@ const handleContinue = async () => {
   });
 
   const [showMoldModal, setShowMoldModal] = useState(false);
-const [showCuringModal, setShowCuringModal] = useState(false);
+  const [showCuringModal, setShowCuringModal] = useState(false);
+
+  const agricultureRows = useMemo(() => {
+    return availableRows.filter(
+      (item: any) => item.categoryName?.toLowerCase() === "agriculture",
+    );
+  }, [availableRows]);
+
+  const nonAgricultureRows = useMemo(() => {
+    return availableRows.filter(
+      (item: any) => item.categoryName?.toLowerCase() !== "agriculture",
+    );
+  }, [availableRows]);
+
+  const isAutoclaveTab =
+  activeAutoclaveTab === "Marangoni" ||
+  activeAutoclaveTab === "Elgi";
 
   return (
     <div className="container-fluid box">
@@ -605,15 +563,6 @@ const [showCuringModal, setShowCuringModal] = useState(false);
               </button>
             </li>
 
-            {/* <li className="nav-item ms-2">
-            <button
-              className={`nav-link ${statusTab === CuringStatus.Unloaded ? "active" : ""}`}
-              onClick={() => setStatusTab(CuringStatus.Unloaded)}
-            >
-              Finished Cure
-            </button>
-          </li> */}
-
             <li className="nav-item ms-2">
               <button
                 className={`nav-link ${
@@ -661,22 +610,6 @@ const [showCuringModal, setShowCuringModal] = useState(false);
               </div>
             </div>
 
-            {/* <div className="col-md-3">
-            <div className="card shadow-sm border-0">
-              <div className="card-body text-center">
-                <h6>Finished</h6>
-                <h2>
-                  {
-                    curingRows.filter(
-                      (x: any) =>
-                        x.currentStageStatus === CuringStatus.Cancelled,
-                    ).length
-                  }
-                </h2>
-              </div>
-            </div>
-          </div> */}
-
             <div className="col-md-4">
               <div className="card shadow-sm border-0 curing-card-data">
                 <div className="card-body text-center">
@@ -693,19 +626,7 @@ const [showCuringModal, setShowCuringModal] = useState(false);
               </div>
             </div>
           </div>
-          {/* <div className="card mb-4 shadow-sm">
-          <div className="card-body text-center">
-            <h5 className="mb-4">Curing Workflow</h5>
 
-            <div className="d-flex justify-content-center align-items-center flex-wrap gap-3">
-              <span className="badge bg-secondary p-3">Enveloping</span>➜
-              <span className="badge bg-primary p-3">Loaded</span>➜
-              <span className="badge bg-warning text-dark p-3">Running</span>➜
-              <span className="badge bg-success p-3">Finished</span>➜
-              <span className="badge bg-info p-3">QC</span>
-            </div>
-          </div>
-        </div> */}
           <div className="row">
             <div className="col-lg-9">
               {/* SEARCH */}
@@ -725,6 +646,7 @@ const [showCuringModal, setShowCuringModal] = useState(false);
                 data={filteredRows}
                 selectedRows={selectedRows}
                 setSelectedRows={setSelectedRows}
+                showPipeNo={isAutoclaveTab}
               />
             </div>
 
@@ -780,15 +702,6 @@ const [showCuringModal, setShowCuringModal] = useState(false);
                     </>
                   )}
 
-                  {/* {statusTab === CuringStatus.Unloaded && (
-                  <button
-                    className="btn btn-info w-100"
-                    onClick={handleSendToQA}
-                  >
-                    Send To QC
-                  </button>
-                )} */}
-
                   {statusTab === CuringStatus.Cancelled && (
                     <>
                       <button
@@ -820,17 +733,19 @@ const [showCuringModal, setShowCuringModal] = useState(false);
       <AutoclaveModal
         show={showChamberModal}
         selectedAutoclave={selectedAutoclave}
-        setSelectedAutoclave={setSelectedAutoclave}
-        onContinue={handleContinue}
-        onClose={() => setShowChamberModal(false)}
+        selectedMold={selectedMold}
+        setSelectedAutoclave={handleAutoclaveChange}
+        setSelectedMold={handleMoldChange}
+        onClose={() => {
+          setShowChamberModal(false);
+        }}
       />
-
       {/* BATCH MODAL */}
 
       <CuringBatchModal
         show={showBatchModal}
         selectedAutoclave={selectedAutoclave}
-        availableRows={availableRows}
+        availableRows={nonAgricultureRows}
         allocatedRows={allocatedRows}
         selectedAllocatedRow={selectedAllocatedRow}
         setSelectedAllocatedRow={setSelectedAllocatedRow}
@@ -843,30 +758,26 @@ const [showCuringModal, setShowCuringModal] = useState(false);
           setShowBatchModal(false);
         }}
       />
-    <MoldCuringModal
-      show={showMoldModal}
-      selectedAutoclave={selectedAutoclave}
-      availableRows={availableRows}
-      allocatedRows={allocatedRows}
-      selectedAllocatedRow={selectedAllocatedRow}
-      setSelectedAllocatedRow={setSelectedAllocatedRow}
-      allocatePipe={allocatePipe}
-      removeFromPipe={removeFromPipe}
-      loadCuring={handleLoadCuring}
-      onClose={() => {
-        resetModal();
-        setShowMoldModal(false);
-      }}
-    />
+      <CuringBatchMoldModal
+        show={showMoldModal}
+        selectedmold={selectedMold}
+        availableRows={agricultureRows}
+        allocatedRows={allocatedRows}
+        selectedAllocatedRow={selectedAllocatedRow}
+        setSelectedAllocatedRow={setSelectedAllocatedRow}
+        removeFromPipe={removeFromPipe}
+        loadCuring={handleLoadCuring}
+        loadMoldCuring={loadMoldCuring}
+        onClose={() => {
+          resetModal();
+          setShowMoldModal(false);
+        }}
+      />
+
       {showCancelModal && (
         <>
           <div className="custom-modal-backdrop"></div>
-          {/* <div className="modal fade show d-block">
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-              </div>
-            </div>
-          </div> */}
+
           <div className="modal fade show d-block">
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content">
@@ -911,32 +822,6 @@ const [showCuringModal, setShowCuringModal] = useState(false);
                       ))}
                     </select>
                   </div>
-
-                  {/* {cancelData[activeAutoclaveTab]?.reason ===
-                            "Other" && (
-                            <div className="mb-3">
-                              <label className="form-label fw-semibold">
-                                Specify Reason
-                              </label>
-
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={
-                                  cancelData[activeAutoclaveTab]?.other || ""
-                                }
-                                onChange={(e) =>
-                                  setCancelData((prev) => ({
-                                    ...prev,
-                                    [activeAutoclaveTab]: {
-                                      ...prev[activeAutoclaveTab],
-                                      other: e.target.value,
-                                    },
-                                  }))
-                                }
-                              />
-                            </div>
-                          )} */}
 
                   <div>
                     <label className="form-label fw-semibold">Comment</label>

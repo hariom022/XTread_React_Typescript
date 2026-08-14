@@ -20,7 +20,8 @@ const useCuringBatchModal = ({ refreshTable }: Props) => {
   ========================= */
 
   const [selectedAutoclave, setSelectedAutoclave] = useState<number | "">("");
-
+const [selectedMold, setSelectedMold] =
+  useState<number | "">("");
   /* =========================
         AVAILABLE
   ========================= */
@@ -179,25 +180,65 @@ useEffect(() => {
     }
   };
 
+  const loadMoldCuring = async (
+  rows: CuringRow[],
+  moldId: number,
+) => {
+  try {
+    if (!rows.length) {
+      alert("Select at least one casing.");
+      return;
+    }
+
+    const payload = {
+      casings: rows.map((row) => ({
+        orderCasingId: String(row.orderCasingId),
+
+        // Mold curing does not use Autoclave
+        autoclaveId: "0",
+
+        // Mold curing does not use Pipe
+        autoclavePipeId: "0",
+
+        // Selected Mold
+        moldId: String(moldId),
+      })),
+    };
+
+    console.log("MOLD CURING PAYLOAD", payload);
+
+    await curingServiceApi.loadCuring(payload);
+
+    alert("Mold Curing Assigned Successfully");
+
+    refreshTable();
+  } catch (error) {
+    console.error("Mold Curing Error:", error);
+    alert("Failed To Assign Mold Curing");
+  }
+};
+
   /* =========================
         RESET
   ========================= */
 
-  const resetModal = () => {
-    setSelectedAutoclave("");
+ const resetModal = () => {
+  setSelectedAutoclave("");
+  setSelectedMold("");
 
-    setAvailableRows([]);
-
-    setAllocatedRows([]);
-
-    setSelectedAllocatedRow(null);
-  };
+  setAvailableRows([]);
+  setAllocatedRows([]);
+  setSelectedAllocatedRow(null);
+};
 
   return {
     loading,
 
     selectedAutoclave,
     setSelectedAutoclave,
+
+    selectedMold,
+  setSelectedMold,
 
     availableRows,
     allocatedRows,
@@ -212,6 +253,8 @@ useEffect(() => {
     removeFromPipe,
 
     loadCuring,
+    loadMoldCuring,
+    
     rejectionReasons,
     loadRejectionReasons,
 
