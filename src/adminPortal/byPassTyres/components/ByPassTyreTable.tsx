@@ -4,12 +4,16 @@ const STAGES = [
     { id: 4, name: "NAIL INSPECTION" },
     { id: 5, name: "PRESSURE TEST" },
     { id: 6, name: "SHEAROGRAPHY" },
+    { id: 7, name: "PRE BUFFING" },
 ];
 
 const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
     const [expanded, setExpanded] = useState<string[]>([]);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
-    const [selectedStages, setSelectedStages] = useState<number[]>([]);
+
+    // Only one stage can be selected
+    const [selectedStage, setSelectedStage] = useState<number | null>(null);
+
     const [showModal, setShowModal] = useState(false);
 
     const toggleExpand = (key: string) => {
@@ -21,17 +25,9 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
     };
 
     const toggleRow = (id: number, e: any) => {
-        e.stopPropagation(); // 🔥 IMPORTANT FIX
+        e.stopPropagation();
 
         setSelectedIds((prev) =>
-            prev.includes(id)
-                ? prev.filter((x) => x !== id)
-                : [...prev, id]
-        );
-    };
-
-    const toggleStage = (id: number) => {
-        setSelectedStages((prev) =>
             prev.includes(id)
                 ? prev.filter((x) => x !== id)
                 : [...prev, id]
@@ -43,20 +39,22 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
             alert("Select at least one row");
             return;
         }
+
         setShowModal(true);
     };
 
     const handleBypass = async () => {
-        if (!selectedStages.length) {
-            alert("Select at least one stage");
+        if (selectedStage === null) {
+            alert("Please select a stage");
             return;
         }
 
         try {
-            await skipStages(selectedIds, selectedStages);
+            // selectedStage contains the selected stage ID
+            await skipStages(selectedIds, selectedStage);
 
             setSelectedIds([]);
-            setSelectedStages([]);
+            setSelectedStage(null);
             setShowModal(false);
         } catch (err) {
             alert("Failed to bypass stages");
@@ -69,6 +67,14 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
 
     const selectAllRef = useRef<HTMLInputElement>(null);
 
+    const getAllVisibleIds = () => {
+        return data.flatMap((parent: any) =>
+            expanded.includes(parent.batchNumber)
+                ? parent.casings.map((c: any) => c.orderCasingId)
+                : []
+        );
+    };
+
     useEffect(() => {
         const allIds = getAllVisibleIds();
 
@@ -80,30 +86,20 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
             selectAllRef.current.indeterminate =
                 selectedCount > 0 && selectedCount < allIds.length;
         }
-    }, [selectedIds, expanded]);
-
-    const getAllVisibleIds = () => {
-        return data.flatMap((parent: any) =>
-            expanded.includes(parent.batchNumber)
-                ? parent.casings.map((c: any) => c.orderCasingId)
-                : []
-        );
-    };
+    }, [selectedIds, expanded, data]);
 
     const handleSelectAll = () => {
         const allIds = getAllVisibleIds();
 
-        const allSelected = allIds.every((id: number) =>
-            selectedIds.includes(id)
-        );
+        const allSelected =
+            allIds.length > 0 &&
+            allIds.every((id: number) => selectedIds.includes(id));
 
         if (allSelected) {
-            // unselect all
             setSelectedIds((prev) =>
                 prev.filter((id) => !allIds.includes(id))
             );
         } else {
-            // select all
             setSelectedIds((prev) => [
                 ...new Set([...prev, ...allIds]),
             ]);
@@ -128,6 +124,7 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
                                 }
                             />
                         </th>
+
                         <th>Production No</th>
                         <th>Date</th>
                         <th>Tyre Ref</th>
@@ -150,12 +147,23 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
                     {data.map((parent: any) => (
                         <React.Fragment key={parent.batchNumber}>
                             <tr
-                                style={{ background: "#eee", cursor: "pointer" }}
-                                onClick={() => toggleExpand(parent.batchNumber)}
+                                style={{
+                                    background: "#eee",
+                                    cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                    toggleExpand(parent.batchNumber)
+                                }
                             >
-                                <td>{expanded.includes(parent.batchNumber) ? "▼" : "▶"}</td>
+                                <td>
+                                    {expanded.includes(parent.batchNumber)
+                                        ? "▼"
+                                        : "▶"}
+                                </td>
+
                                 <td colSpan={7}>
-                                    <b>Batch Number: </b> <b>{parent.batchNumber}</b>
+                                    <b>Batch Number: </b>
+                                    <b>{parent.batchNumber}</b>
                                 </td>
                             </tr>
 
@@ -165,12 +173,18 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
                                         <td>
                                             <input
                                                 type="checkbox"
-                                                checked={selectedIds.includes(c.orderCasingId)}
+                                                checked={selectedIds.includes(
+                                                    c.orderCasingId
+                                                )}
                                                 onChange={(e) =>
-                                                    toggleRow(c.orderCasingId, e)
+                                                    toggleRow(
+                                                        c.orderCasingId,
+                                                        e
+                                                    )
                                                 }
                                             />
                                         </td>
+
                                         <td>{c.productionNo}</td>
                                         <td>{formatDate(c.date)}</td>
                                         <td>{c.tyreRefNo}</td>
@@ -184,6 +198,7 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
                     ))}
                 </tbody>
             </table>
+
             <div className="btn d-flex justify-content-end">
                 <button
                     className="btn btn-primary"
@@ -203,29 +218,54 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
 
                                 {/* HEADER */}
                                 <div className="modal-header bg-danger text-white">
-                                    <h5 className="modal-title">Skip Stages</h5>
+                                    <h5 className="modal-title">
+                                        Select Stage
+                                    </h5>
+
                                     <button
                                         type="button"
                                         className="btn-close btn-close-white"
-                                        onClick={() => setShowModal(false)}
+                                        onClick={() => {
+                                            setShowModal(false);
+                                            setSelectedStage(null);
+                                        }}
                                     ></button>
                                 </div>
 
                                 {/* BODY */}
                                 <div className="modal-body">
-                                    {STAGES.map((s) => (
-                                        <div key={s.id} className="form-check mb-2">
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                checked={selectedStages.includes(s.id)}
-                                                onChange={() => toggleStage(s.id)}
-                                            />
-                                            <label className="form-check-label">
-                                                {s.name}
-                                            </label>
-                                        </div>
-                                    ))}
+
+                                    <label className="form-label fw-bold">
+                                        Select Stage
+                                    </label>
+
+                                    <select
+                                        className="form-select"
+                                        value={selectedStage ?? ""}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+
+                                            setSelectedStage(
+                                                value === ""
+                                                    ? null
+                                                    : Number(value)
+                                            );
+                                        }}
+                                    >
+                                        <option value="">
+                                            -- Select Stage --
+                                        </option>
+
+                                        {STAGES.map((stage) => (
+                                            <option
+                                                key={stage.id}
+                                                value={stage.id}
+                                            >
+                                                {stage.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
                                 </div>
 
                                 {/* FOOTER */}
@@ -233,9 +273,14 @@ const ByPassTyreTable = ({ data, skipStages, loading }: any) => {
                                     <button
                                         className="btn btn-danger"
                                         onClick={handleBypass}
-                                        disabled={loading}
+                                        disabled={
+                                            loading ||
+                                            selectedStage === null
+                                        }
                                     >
-                                        {loading ? "Processing..." : "Bypass"}
+                                        {loading
+                                            ? "Processing..."
+                                            : "Bypass"}
                                     </button>
                                 </div>
 

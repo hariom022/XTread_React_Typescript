@@ -54,10 +54,10 @@ const byPassTyreServiceApi = {
     //Skip stages API for Bypassing the stages from visual inspection//
     skipStages: async (data: {
         orderCasingIds: number[];
-        skippedStages: number[];
+        targetStage: number;
     }) => {
         try {
-            return await api.post("/visual-inspection/skip-stages", data);
+            return await api.post("/visual-inspection/select-stage", data);
         } catch (error) {
             throw error;
         }

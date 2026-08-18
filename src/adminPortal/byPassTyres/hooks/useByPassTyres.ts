@@ -33,20 +33,20 @@ export const useByPassTyres = () => {
         }));
     };
     // Function to skip stages for selected casings
-    const skipStages = async (orderCasingIds: number[], skippedStages: number[]) => {
+    const skipStages = async (orderCasingIds: number[], targetStage: number) => {
         try {
             setLoading(true);
             setError(null);
 
             await byPassTyreServiceApi.skipStages({
                 orderCasingIds,
-                skippedStages,
+                targetStage,
             });
 
             await loadBatchProgress(); // refresh
 
         } catch (err: any) {
-            setError(err?.response?.data?.error?.message || "Skip failed");
+            setError(err?.response?.data?.error?.message || "Failed");
             throw err; // 🔥 important for UI
         } finally {
             setLoading(false);
