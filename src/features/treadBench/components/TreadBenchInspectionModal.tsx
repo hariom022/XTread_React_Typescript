@@ -23,7 +23,7 @@ const TreadBenchInspectionModal = ({
       const payload = {
         orderCasingIds: [selectedItem.id.toString()],
         cementTypeId: Number(cementType),
-        consumptionEstimateKgs:consumptionKg,
+        consumptionEstimateKgs: consumptionKg,
       };
 
       console.log("SAVE PAYLOAD", payload);
@@ -110,45 +110,60 @@ const TreadBenchInspectionModal = ({
 
             <div className="container-fluid my-4">
               <div
-                className="border rounded p-3 mb-3"
+                className="border rounded-3 p-3 mb-3"
                 style={{
-                  backgroundColor: "#f8f8f8",
-                  border: "1px solid #d6d6d6",
+                  backgroundColor: "#f8f9fa",
+                  borderColor: "#dee2e6",
                 }}
               >
-                <h5 className="fw-bold mb-3">Record [1 of 1]</h5>
-
-                <div className="row mb-3">
-                  <div className="col-md-4">
-                    <span className="fw-bold">Tyre Size:</span>{" "}
-                    {selectedItem.tyreSize || "-"}
+                {/* Production Number */}
+                <div className="text-center mb-3">
+                  <div
+                    className="fw-bold text-dark"
+                    style={{ fontSize: "16px" }}
+                  >
+                    Production No
                   </div>
 
-                  <div className="col-md-4">
-                    <span className="fw-bold">Circumference:</span>{" "}
-                    {selectedItem.circumference || "-"}
-                  </div>
-
-                  <div className="col-md-4">
-                    <span className="fw-bold">Service:</span>{" "}
-                    {selectedItem.service || "-"}
+                  <div
+                    className="fw-bold text-dark"
+                    style={{ fontSize: "18px" }}
+                  >
+                    {selectedItem.casing || "-"}
                   </div>
                 </div>
 
-                <div className="row">
-                  <div className="col-md-4">
-                    <span className="fw-bold">Brand:</span>{" "}
-                    {selectedItem.brand || "-"}
+                {/* Divider */}
+                <hr className="my-2" />
+
+                {/* Details */}
+                <div className="row g-3 mt-1">
+                  <div className="col-md-6">
+                    <div>
+                      <span className="fw-bold">Brand:</span>{" "}
+                      <span>{selectedItem.brand || "-"}</span>
+                    </div>
                   </div>
 
-                  <div className="col-md-4">
-                    <span className="fw-bold">Pattern:</span>{" "}
-                    {selectedItem.requestedPattern || "-"}
+                  <div className="col-md-6">
+                    <div>
+                      <span className="fw-bold">Circumference:</span>{" "}
+                      <span>{selectedItem.circumference || "-"}</span>
+                    </div>
                   </div>
 
-                  <div className="col-md-4">
-                    <span className="fw-bold">Width:</span>{" "}
-                    {selectedItem.width || "-"}
+                  <div className="col-md-6">
+                    <div>
+                      <span className="fw-bold">Pattern:</span>{" "}
+                      <span>{selectedItem.requestedPattern || "-"}</span>
+                    </div>
+                  </div>
+
+                  <div className="col-md-6">
+                    <div>
+                      <span className="fw-bold">Width:</span>{" "}
+                      <span>{selectedItem.width || "-"}</span>
+                    </div>
                   </div>
                 </div>
               </div>
