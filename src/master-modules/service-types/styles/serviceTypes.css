@@ -1,0 +1,310 @@
+/* =========================================================
+   SERVICE TYPE MASTER PAGE
+   ========================================================= */
+
+.service-type-page {
+  padding: 20px;
+  background: #f6f8fb;
+  min-height: 100%;
+}
+
+/* =========================
+   PAGE HEADER
+   ========================= */
+
+.service-type-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.service-type-page-title {
+  margin: 0;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  color: #1f2937;
+}
+
+.service-type-page-subtitle {
+  margin-top: 4px;
+  margin-bottom: 0;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* =========================
+   MAIN CARD
+   ========================= */
+
+.service-type-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e9f2;
+
+  border-radius: 10px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  overflow: hidden;
+}
+
+/* =========================
+   FILTER SECTION
+   ========================= */
+
+.service-type-filter-section {
+  padding: 16px 18px;
+
+  border-bottom: 1px solid #e5e9f2;
+
+  background: #ffffff;
+}
+
+.service-type-search-wrapper {
+  position: relative;
+
+  width: 320px;
+}
+
+.service-type-search-icon {
+  position: absolute;
+
+  left: 12px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #7b8494;
+
+  font-size: 14px;
+
+  pointer-events: none;
+}
+
+.service-type-search {
+  width: 100%;
+
+  height: 38px;
+
+  padding: 0 12px 0 36px;
+
+  border: 1px solid #dce2eb;
+
+  border-radius: 6px;
+
+  outline: none;
+
+  font-size: 13px;
+
+  transition: all 0.2s ease;
+}
+
+.service-type-search:focus {
+  border-color: #1b4f9c;
+
+  box-shadow: 0 0 0 3px rgba(27, 79, 156, 0.08);
+}
+
+/* =========================
+   COUNT
+   ========================= */
+
+.service-type-count {
+  font-size: 12px;
+
+  color: #667085;
+
+  font-weight: 500;
+}
+
+/* =========================
+   TABLE
+   ========================= */
+
+.service-type-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.service-type-table {
+  width: 100%;
+
+  border-collapse: separate;
+
+  border-spacing: 0;
+}
+
+/* TABLE HEADER */
+
+.service-type-table thead th {
+  background: #edf4ff;
+
+  color: #344054;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  padding: 12px 15px;
+
+  border-bottom: 1px solid #dbe4f0;
+
+  vertical-align: middle;
+}
+
+/* TABLE BODY */
+
+.service-type-table tbody td {
+  padding: 13px 15px;
+
+  font-size: 13px;
+
+  color: #475467;
+
+  border-bottom: 1px solid #edf0f5;
+
+  vertical-align: middle;
+}
+
+/* ROW HOVER */
+
+.service-type-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.service-type-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+/* =========================
+   SERVICE TYPE ID
+   ========================= */
+
+.service-type-id {
+  color: #667085;
+
+  font-weight: 600;
+
+  font-size: 12px;
+}
+
+/* =========================
+   SERVICE TYPE NAME
+   ========================= */
+
+.service-type-name {
+  color: #1f2937;
+
+  font-weight: 600;
+}
+
+/* =========================
+   SERVICE TYPE CODE
+   ========================= */
+
+.service-type-code {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 42px;
+
+  padding: 4px 10px;
+
+  border-radius: 5px;
+
+  background: #edf4ff;
+
+  color: #1b4f9c;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.3px;
+}
+
+/* =========================
+   EMPTY STATE
+   ========================= */
+
+.service-type-empty-state {
+  height: 180px;
+
+  text-align: center;
+
+  vertical-align: middle !important;
+
+  color: #98a2b3 !important;
+
+  font-size: 14px !important;
+
+  font-weight: 500;
+}
+
+/* =========================
+   LOADER
+   ========================= */
+
+.service-type-loader {
+  min-height: 220px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+/* =========================
+   ERROR
+   ========================= */
+
+.service-type-error {
+  margin: 16px;
+
+  padding: 12px 15px;
+
+  border-radius: 6px;
+
+  background: #fff1f2;
+
+  border: 1px solid #fecdd3;
+
+  color: #be123c;
+
+  font-size: 13px;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 768px) {
+  .service-type-page {
+    padding: 12px;
+  }
+
+  .service-type-search-wrapper {
+    width: 100%;
+  }
+
+  .service-type-filter-section
+    > .d-flex {
+    flex-direction: column;
+
+    align-items: stretch !important;
+
+    gap: 12px;
+  }
+}

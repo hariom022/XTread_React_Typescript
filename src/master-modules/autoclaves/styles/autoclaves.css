@@ -1,0 +1,415 @@
+/* =========================================================
+   AUTOCLAVE MASTER PAGE
+   ========================================================= */
+
+.autoclave-page {
+  padding: 20px;
+  background: #f6f8fb;
+  min-height: 100%;
+}
+
+/* =========================
+   PAGE HEADER
+   ========================= */
+
+.autoclave-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.autoclave-page-title {
+  margin: 0;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  color: #1f2937;
+}
+
+.autoclave-page-subtitle {
+  margin-top: 4px;
+  margin-bottom: 0;
+
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* =========================
+   MAIN CARD
+   ========================= */
+
+.autoclave-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e9f2;
+
+  border-radius: 10px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  overflow: hidden;
+}
+
+/* =========================
+   FILTER SECTION
+   ========================= */
+
+.autoclave-filter-section {
+  padding: 16px 18px;
+
+  border-bottom: 1px solid #e5e9f2;
+
+  background: #ffffff;
+}
+
+.autoclave-search-wrapper {
+  position: relative;
+
+  width: 320px;
+}
+
+.autoclave-search-icon {
+  position: absolute;
+
+  left: 12px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #7b8494;
+
+  font-size: 14px;
+
+  pointer-events: none;
+}
+
+.autoclave-search {
+  width: 100%;
+
+  height: 38px;
+
+  padding: 0 12px 0 36px;
+
+  border: 1px solid #dce2eb;
+
+  border-radius: 6px;
+
+  outline: none;
+
+  font-size: 13px;
+
+  transition: all 0.2s ease;
+}
+
+.autoclave-search:focus {
+  border-color: #1b4f9c;
+
+  box-shadow: 0 0 0 3px rgba(27, 79, 156, 0.08);
+}
+
+/* =========================
+   COUNT
+   ========================= */
+
+.autoclave-count {
+  font-size: 12px;
+
+  color: #667085;
+
+  font-weight: 500;
+}
+
+/* =========================
+   TABLE
+   ========================= */
+
+.autoclave-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.autoclave-table {
+  width: 100%;
+
+  border-collapse: separate;
+
+  border-spacing: 0;
+}
+
+/* HEADER */
+
+.autoclave-table thead th {
+  background: #edf4ff;
+
+  color: #344054;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  padding: 12px 15px;
+
+  border-bottom: 1px solid #dbe4f0;
+
+  vertical-align: middle;
+}
+
+/* BODY */
+
+.autoclave-table tbody td {
+  padding: 13px 15px;
+
+  font-size: 13px;
+
+  color: #475467;
+
+  border-bottom: 1px solid #edf0f5;
+
+  vertical-align: middle;
+}
+
+/* ROW HOVER */
+
+.autoclave-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.autoclave-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+/* =========================
+   AUTOCLAVE ID
+   ========================= */
+
+.autoclave-id {
+  color: #667085;
+
+  font-weight: 600;
+
+  font-size: 12px;
+}
+
+/* =========================
+   AUTOCLAVE NAME
+   ========================= */
+
+.autoclave-name {
+  color: #1f2937;
+
+  font-weight: 600;
+}
+
+/* =========================
+   SORT ORDER
+   ========================= */
+
+.autoclave-sort-order {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 28px;
+
+  padding: 3px 7px;
+
+  border-radius: 4px;
+
+  background: #f1f5f9;
+
+  color: #475467;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+/* =========================
+   EMPTY STATE
+   ========================= */
+
+.autoclave-empty-state {
+  height: 180px;
+
+  text-align: center;
+
+  vertical-align: middle !important;
+
+  color: #98a2b3 !important;
+
+  font-size: 14px !important;
+
+  font-weight: 500;
+}
+
+/* =========================
+   LOADER
+   ========================= */
+
+.autoclave-loader {
+  min-height: 250px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+/* =========================
+   ERROR
+   ========================= */
+
+.autoclave-error {
+  margin: 16px;
+
+  padding: 12px 15px;
+
+  border-radius: 6px;
+
+  background: #fff1f2;
+
+  border: 1px solid #fecdd3;
+
+  color: #be123c;
+
+  font-size: 13px;
+}
+
+/* =========================
+   PAGINATION
+   ========================= */
+
+.autoclave-pagination {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 12px 18px;
+
+  border-top: 1px solid #e5e9f2;
+
+  background: #ffffff;
+}
+
+.autoclave-pagination-info {
+  font-size: 12px;
+
+  color: #667085;
+}
+
+.autoclave-pagination-info strong {
+  color: #344054;
+
+  font-weight: 600;
+}
+
+.autoclave-pagination-buttons {
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+}
+
+.autoclave-page-button {
+  min-width: 30px;
+
+  height: 30px;
+
+  padding: 0 8px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px solid #dce2eb;
+
+  border-radius: 5px;
+
+  background: #ffffff;
+
+  color: #475467;
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: all 0.15s ease;
+}
+
+.autoclave-page-button:hover:not(:disabled) {
+  background: #f1f5f9;
+
+  border-color: #b9c5d6;
+}
+
+.autoclave-page-button.active {
+  background: #1b4f9c;
+
+  border-color: #1b4f9c;
+
+  color: #ffffff;
+
+  font-weight: 600;
+}
+
+.autoclave-page-button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+
+  background: #f8f9fa;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 768px) {
+  .autoclave-page {
+    padding: 12px;
+  }
+
+  .autoclave-search-wrapper {
+    width: 100%;
+  }
+
+  .autoclave-filter-section > .d-flex {
+    flex-direction: column;
+
+    align-items: stretch !important;
+
+    gap: 12px;
+  }
+
+  .autoclave-pagination {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 10px;
+  }
+
+  .autoclave-pagination-buttons {
+    width: 100%;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+  }
+}
