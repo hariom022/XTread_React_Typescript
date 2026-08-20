@@ -1,0 +1,189 @@
+/* ======================================================
+   PAGE BACKGROUND
+====================================================== */
+body {
+  background: #f8f9fa;
+}
+/* ===== MAIN CONTAINER ===== */
+.stage-container {
+  padding: 20px;
+  background: #f5f6f8;
+  min-height: 100vh;
+}
+
+/* ===== TABS ===== */
+.stage-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stage-tabs button {
+  padding: 10px 20px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.stage-tabs .active {
+  background: oklch(63.7% 0.237 25.331);
+  color: #fff;
+}
+
+/* ===== BOX ===== */
+.stage-box {
+  background: #fff;
+  padding-bottom: 10px;
+}
+
+/* ===== TITLE ===== */
+.stage-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* ===== TABLE ===== */
+.stage-table-wrapper {
+  overflow-x: auto;
+}
+
+.stage-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stage-table thead {
+  background: oklch(63.7% 0.237 25.331);
+  color: #fff;
+}
+
+.stage-table th,
+.stage-table td {
+  padding: 12px;
+  border: 1px solid #e1e1e1;
+  text-align: left;
+  font-size: 14px;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 40px 0;
+  color: #777;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.stage-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.approve-btn {
+  padding: 12px 30px;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #28a745, #26a369, #28a745);
+}
+
+.reject-btn {
+  padding: 12px 30px;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  background: oklch(63.7% 0.237 25.331);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .stage-container {
+    padding: 20px;
+  }
+
+  .stage-actions {
+    flex-direction: column;
+  }
+
+  .approve-btn,
+  .reject-btn {
+    width: 100%;
+  }
+}
+
+/* ===== INNER LAYOUT ===== */
+.stage-inner-layout {
+  display: flex;
+  gap: 20px;
+}
+
+/* LEFT PANEL */
+.create-panel {
+  width: 220px;
+  background: #f2f2f2;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.panel-heading {
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #1a1a1a;
+}
+
+/* CREATE BUTTON */
+.create-batch-btn {
+  width: 100%;
+  padding: 20px 10px;
+  background: #f0ce23;
+  color: black;
+  border: none;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* RIGHT TABLE PANEL */
+.table-panel {
+  flex: 1;
+  border: none !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  .stage-inner-layout {
+    flex-direction: column;
+  }
+
+  .create-panel {
+    width: 100%;
+  }
+}
+.modal-header-custom {
+  background-color: #656A6C;
+  color: white;
+}
+.sortable{
+cursor:pointer;
+user-select:none;
+white-space:nowrap;
+}
+
+.sort-icon{
+font-size:10px;
+margin-left:6px;
+opacity:0.4;
+}
+
+.sort-icon.active{
+opacity:1;
+color:#000;
+font-weight:bold;
+}

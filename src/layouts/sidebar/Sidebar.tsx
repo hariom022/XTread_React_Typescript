@@ -71,6 +71,11 @@ const tyreActionItems = [
     label: "Enveloping",
     iconClass: "bi bi-envelope-fill",
   },
+  {
+    path: "/mounting",
+    label: "Mounting",
+    iconClass: "bi bi-gpu-card",
+  },
   { path: "/curing", label: "Curing", iconClass: "bi bi-gear-fill" },
   {
     path: "/qualityControl",

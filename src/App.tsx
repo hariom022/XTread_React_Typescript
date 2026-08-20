@@ -41,6 +41,7 @@ import TyreSizesPage from "./master-modules/tyre-sizes/page/TyreSizesPage";
 import CategoriesPage from "./master-modules/categories/page/CategoriesPage";
 import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
 import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
+import MountingStage from "./features/mounting/page/MountingStage";
 
 function AppContent() {
   const location = useLocation();
@@ -142,6 +143,7 @@ function AppContent() {
                 <Route path="/repairs" element={<RepairPage />} />
                 <Route path="/treadBench" element={<TreadBenchPage />} />
                 <Route path="/enveloping" element={<EnvelopingStage />} />
+                 <Route path="/mounting" element={<MountingStage />} />
                 <Route path="/curing" element={<CuringStage />} />
                 <Route path="/qualityControl" element={<QualityControl />} />
                 <Route path="/dispatch" element={<DispatchStage />} />
