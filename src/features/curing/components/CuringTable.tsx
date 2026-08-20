@@ -6,9 +6,10 @@ interface Props {
   selectedRows: number[];
 
   setSelectedRows: React.Dispatch<React.SetStateAction<number[]>>;
+  showPipeNo?: boolean;
 }
 
-const CuringTable = ({ data, selectedRows, setSelectedRows }: Props) => {
+const CuringTable = ({ data, selectedRows, setSelectedRows ,showPipeNo = false,}: Props) => {
   const toggleRow = (id: number) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
@@ -36,7 +37,7 @@ const CuringTable = ({ data, selectedRows, setSelectedRows }: Props) => {
 
             <th>Service</th>
 
-            <th>Pipe No</th>
+           {showPipeNo && <th>Pipe No</th>}
 
             <th>Comment</th>
           </tr>
@@ -68,7 +69,7 @@ const CuringTable = ({ data, selectedRows, setSelectedRows }: Props) => {
 
                 <td>{item.serviceTypeName}</td>
 
-                <td>{item.autoclavePipeName ?? "-"}</td>
+                {showPipeNo && <td>{item.autoclavePipeName}</td>}
 
                 <td>{item.comment ?? "-"}</td>
               </tr>

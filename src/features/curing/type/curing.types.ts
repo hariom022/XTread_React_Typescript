@@ -25,6 +25,7 @@ export interface CuringRow {
 
   chamber?: string;
   autoclavePipeName?:string;
+  tyreSizeLabel:string;
 }
 
 export interface AllocatedPipeRow extends CuringRow {
@@ -39,4 +40,5 @@ export interface AutoclavePipe {
   pipeName: string;
   isActive: boolean;
   sortOrder: number;
+  
 }

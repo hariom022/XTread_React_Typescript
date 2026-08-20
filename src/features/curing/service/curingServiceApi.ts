@@ -15,6 +15,8 @@ const curingServiceApi = {
   loadCuring: (payload: any) => api.post("/curing/assign", payload),
 
   loadAutoClaves: () => api.get("/autoclaves"),
+  
+  loadMold: () => api.get("/molds"),
 
   loadAutoClavePipes: (autoclaveId: number) =>
     api.get(`/autoclaves/${autoclaveId}/pipes`),
