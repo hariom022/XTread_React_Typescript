@@ -1,27 +1,46 @@
-export const login = (
-  username: string,
-  password: string
-): boolean => {
-  const dummyUser = {
-    username: "admin",
-    password: "!Ad9#min@20@26$",
-  };
+import { apiRequest } from "../../../shared/services/apiClient";
 
-  if (
-    username === dummyUser.username &&
-    password === dummyUser.password
-  ) {
-    localStorage.setItem("isLoggedIn", "true");
-    return true;
-  }
+import type {
+  LoginRequest,
+  LoginResponse,
+  User,
+  MyPermissionsApiResponse,
+} from "../types/authTypes";
 
-  return false;
+const authService = {
+  /**
+   * Login
+   */
+  async login(
+    data: LoginRequest
+  ): Promise<LoginResponse> {
+    return apiRequest<LoginResponse>(
+      "/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  },
+
+  /**
+   * Get currently logged-in user
+   */
+  async getMe(): Promise<User> {
+    return apiRequest<User>(
+      "/auth/me"
+    );
+  },
+
+  /**
+   * Get modules assigned to
+   * currently logged-in user's role
+   */
+  async getMyPermission(): Promise<MyPermissionsApiResponse> {
+    return apiRequest<MyPermissionsApiResponse>(
+      "/auth/my-permissions"
+    );
+  },
 };
 
-export const logout = () => {
-  localStorage.removeItem("isLoggedIn");
-};
-
-export const isAuthenticated = () => {
-  return localStorage.getItem("isLoggedIn") === "true";
-};
+export default authService;

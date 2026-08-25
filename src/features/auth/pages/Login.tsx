@@ -1,35 +1,73 @@
-import { useState,useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login ,isAuthenticated} from "../services/authService";
+
+import { useAuthStore } from "../store/authStore";
+
 import "../styles/Login.css";
 
 const Login = () => {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
+  const login = useAuthStore(
+    (state) => state.login
+  );
+
+  const isAuthenticated = useAuthStore(
+    (state) => state.isAuthenticated
+  );
+
+  const isLoading = useAuthStore(
+    (state) => state.isLoading
+  );
+
+  const [emailOrUserName, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
 
+  /**
+   * If already logged in,
+   * don't show Login page.
+   */
   useEffect(() => {
-    if (isAuthenticated()) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [navigate]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const isValid = login(username, password);
-
-    if (isValid) {
+    if (isAuthenticated) {
       navigate("/dashboard", {
         replace: true,
       });
-    } else {
-      setError("Invalid Username or Password");
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+
+    setError("");
+
+    if (!emailOrUserName.trim()) {
+      setError("Please enter username.");
+      return;
+    }
+
+    if (!password.trim()) {
+      setError("Please enter password.");
+      return;
+    }
+
+    try {
+      await login(emailOrUserName, password);
+
+      navigate("/dashboard", {
+        replace: true,
+      });
+    } catch (error) {
+      console.error("Login failed:", error);
+
+      setError(
+        "Invalid username or password."
+      );
     }
   };
-
 
   return (
     <div className="login-container">
@@ -49,10 +87,11 @@ const Login = () => {
                 type="text"
                 className="form-control"
                 placeholder="Enter Username"
-                value={username}
+                value={emailOrUserName}
                 onChange={(e) =>
                   setUsername(e.target.value)
                 }
+                disabled={isLoading}
               />
             </div>
 
@@ -69,6 +108,7 @@ const Login = () => {
                 onChange={(e) =>
                   setPassword(e.target.value)
                 }
+                disabled={isLoading}
               />
             </div>
 
@@ -81,16 +121,12 @@ const Login = () => {
             <button
               type="submit"
               className="btn btn-primary w-100"
+              disabled={isLoading}
             >
-              Login
+              {isLoading
+                ? "Logging in..."
+                : "Login"}
             </button>
-
-            {/* <div className="mt-3 text-center">
-              <small>
-                Username: admin <br />
-                Password: 12345
-              </small>
-            </div> */}
           </form>
         </div>
       </div>

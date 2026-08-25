@@ -1,11 +1,9 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+
 import "../header/Header.css";
 import React, { useState } from "react";
 import { Bell, Settings, HelpCircle, Search, LogOut, Check, Mail, User } from "lucide-react";
-// import { Activity } from "../types";
+import { useAuthStore } from "../../features/auth/store/authStore";
+// import { Activity } from "../types"
 
 interface HeaderProps {
   searchText: string;
@@ -27,6 +25,9 @@ interface HeaderProps {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+
+  const user = useAuthStore((state) => state.user);
+const logout = useAuthStore((state) => state.logout);
 
   return (
     <header
@@ -161,9 +162,9 @@ interface HeaderProps {
             style={{ borderColor: "rgba(255, 255, 255, 0.15)" }}
           >
             <div className="text-end d-none d-sm-block">
-              <p className="fw-bold m-0 text-white" style={{ fontSize: "12px" }}>Alex Chen</p>
+              <p className="fw-bold m-0 text-white" style={{ fontSize: "12px" }}>{user?.userName}</p>
               <p className="font-mono text-outline m-0 text-light" style={{ fontSize: "9px", letterSpacing: "0.5px" }}>
-                Lead Operator
+                {user?.roleName}
               </p>
             </div>
             <img
@@ -213,7 +214,7 @@ interface HeaderProps {
               <button
                 onClick={() => {
                   setShowUserDropdown(false);
-                  alert(`Operator log-out simulated. Active User Session: ${userEmail}`);
+                  logout();
                 }}
                 className="btn btn-outline-danger btn-sm w-100 mt-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
                 style={{ fontSize: "11px" }}
