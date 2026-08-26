@@ -104,6 +104,7 @@ import CategoriesPage from "./master-modules/categories/page/CategoriesPage";
 import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
 
 import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
+import RoleModuleMapping from "./master-modules/roleModuleMapping/page/RoleModuleMapping";
 
 /* =========================================================
    AUTH INITIALIZER
@@ -383,6 +384,10 @@ function AppContent() {
                 <Route path="/tyreSize" element={<TyreSizesPage />} />
 
                 <Route path="/category" element={<CategoriesPage />} />
+                <Route
+                  path="/roleModuleMapping"
+                  element={<RoleModuleMapping />}
+                />
 
                 {/* =====================================
                     ACCESS DENIED

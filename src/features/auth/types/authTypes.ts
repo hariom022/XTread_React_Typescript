@@ -8,6 +8,7 @@ export interface User {
 
   isSuperAdmin: boolean;
   isActive: boolean;
+  fullName?:string;
 }
 
 export interface ModulePermission {

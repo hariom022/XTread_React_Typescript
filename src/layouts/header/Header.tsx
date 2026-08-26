@@ -196,15 +196,15 @@ const logout = useAuthStore((state) => state.logout);
                   <User style={{ width: "16px", height: "16px" }} />
                 </div>
                 <div>
-                  <h4 className="fw-bold m-0 text-white" style={{ fontSize: "12px" }}>Alex Chen</h4>
-                  <p className="text-outline m-0" style={{ fontSize: "10px" }}>Lead Station Op</p>
+                  <h4 className="fw-bold m-0 text-white" style={{ fontSize: "12px" }}>{user?.fullName}</h4>
+                  <p className="text-outline m-0" style={{ fontSize: "10px" }}> {user?.roleName}</p>
                 </div>
               </div>
               <div className="py-2" style={{ fontSize: "11px" }}>
                 <div className="d-flex align-items-center gap-2 mb-1">
                   <Mail className="text-outline" style={{ width: "12px", height: "12px" }} />
                   <span className="text-truncate text-outline" title={userEmail} style={{ maxWidth: "160px" }}>
-                    {userEmail}
+                    {user?.email}
                   </span>
                 </div>
                 <div className="font-mono text-outline-variant text-[9px] mt-1">

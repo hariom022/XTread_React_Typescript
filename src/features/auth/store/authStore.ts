@@ -1,8 +1,9 @@
 import { create } from "zustand";
 
 import authService from "../services/authService";
-
+import moduleService from "../../modules/services/moduleService";
 import type { User, ModulePermission } from "../types/authTypes";
+import type { ModuleItem } from "../../modules/types/moduleTypes";
 
 interface AuthState {
   token: string | null;
@@ -10,6 +11,8 @@ interface AuthState {
   user: User | null;
 
   modules: ModulePermission[];
+
+  moduleTree: ModuleItem[];
 
   isAuthenticated: boolean;
 
@@ -40,7 +43,7 @@ interface AuthState {
    * Update modules
    */
   setModules: (modules: ModulePermission[]) => void;
-
+  setModuleTree:(modules: ModuleItem[]) => void;   
   /**
    * Logout
    */
@@ -69,6 +72,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
    */
   modules: [],
 
+  moduleTree: [],
   /**
    * If token exists,
    * application will try to restore user.
@@ -134,7 +138,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const modules = permissionResponse?.data.modules ?? [];
 
-      console.log("Modules loaded:", modules);
+      const moduleTreeResponse = await moduleService.getModuleTree();
+
+      console.log("Module Tree API Response:", moduleTreeResponse);
+
+      const moduleTree = moduleTreeResponse?.data?.modules ?? [];
+
+      console.log("Module Tree loaded:", moduleTree);
 
       set({
         token: loginResponse.token,
@@ -142,6 +152,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user,
 
         modules,
+        moduleTree,
 
         isAuthenticated: true,
 
@@ -233,7 +244,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       console.log("Restored permissions:", permissionResponse);
 
-      const modules = permissionResponse?.data.modules ?? [];
+      const modules = permissionResponse?.data?.modules ?? [];
+
+      const moduleTreeResponse = await moduleService.getModuleTree();
+
+      console.log("Restored module tree:", moduleTreeResponse);
+
+      const moduleTree = moduleTreeResponse?.data?.modules ?? [];
 
       set({
         token,
@@ -241,6 +258,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user,
 
         modules,
+
+        moduleTree,
 
         isAuthenticated: true,
 
@@ -310,7 +329,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       modules,
     });
   },
-
+setModuleTree: (modules) => {
+  set({
+    moduleTree: modules,
+  });
+},
   /**
    * ========================================
    * LOGOUT
@@ -325,6 +348,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       user: null,
 
       modules: [],
+      moduleTree: [],
 
       isAuthenticated: false,
 
@@ -353,4 +377,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
      */
     return (modules ?? []).some((module) => module.moduleCode === moduleCode);
   },
+  
 }));
