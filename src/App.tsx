@@ -42,6 +42,7 @@ import CategoriesPage from "./master-modules/categories/page/CategoriesPage";
 import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
 import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
 import MountingStage from "./features/mounting/page/MountingStage";
+import RolesPage from "./master-modules/roles/page/RolesPage";
 
 function AppContent() {
   const location = useLocation();
@@ -161,6 +162,7 @@ function AppContent() {
                 <Route path="/repairMaterial" element={<RepairMaterialsPage/>} />
                 <Route path="/tyreSize" element={<TyreSizesPage/>} />
                 <Route path="/category" element={<CategoriesPage/>} />
+                <Route path="/roles" element={<RolesPage/>} />
                 
 
               </Routes>
