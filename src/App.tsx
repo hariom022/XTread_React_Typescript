@@ -105,7 +105,7 @@ import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
 
 import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
 import RoleModuleMapping from "./master-modules/roleModuleMapping/page/RoleModuleMapping";
-
+import UserRegistrationPage from "./adminPortal/users/page/UserManagementPage";
 /* =========================================================
    AUTH INITIALIZER
 ========================================================= */
@@ -352,7 +352,10 @@ function AppContent() {
                   path="/adminPortal/byPassTyres"
                   element={<ByPassTyres />}
                 />
-
+                <Route
+                  path="/users"
+                  element={<UserRegistrationPage />}
+                />
                 {/* =====================================
                     MASTER MODULES
                 ===================================== */}
