@@ -2,6 +2,7 @@ import useDispatchFinalizationModal from "../hooks/useDispatchFinallizationModal
 import { useState } from "react";
 import DispatchDocumentFinalization from "./DispatchDocumentFinalization";
 import type { DispatchFinalizationRow } from "../type/dispatch.types";
+import dispatchServiceApi from "../service/dispatchServiceApi";
 
 interface Props {
   show: boolean;
@@ -21,8 +22,6 @@ const DispatchFinalizationModal = ({
 }: Props) => {
   const modal = useDispatchFinalizationModal(rows);
 
-  
-
   const groupedRows = modal.dispatchRows.reduce(
     (acc, item) => {
       if (!acc[item.vehicle]) {
@@ -41,7 +40,74 @@ const DispatchFinalizationModal = ({
   const [selectedRow, setSelectedRow] =
     useState<DispatchFinalizationRow | null>(null);
 
-    if (!show) return null;
+  const [processing, setProcessing] = useState(false);
+
+  const handleProcess = async () => {
+    if (!selectedRow) {
+      alert("Please select a delivery sheet");
+
+      return;
+    }
+
+    // ==========================================
+    // deliverySheetId
+    // ==========================================
+
+    const deliverySheetId = selectedRow.id;
+
+    console.log("Dispatch Delivery Sheet ID:", deliverySheetId);
+
+    try {
+      setProcessing(true);
+
+      // ==========================================
+      // POST DISPATCH API
+      // ==========================================
+
+      const response =
+        await dispatchServiceApi.dispatchDeliverySheet(deliverySheetId);
+
+      console.log("Dispatch Finalization API Response:", response.data);
+
+      if (!response.data?.success) {
+        alert(response.data?.error || "Failed to finalize dispatch");
+
+        return;
+      }
+
+      // ==========================================
+      // API SUCCESS
+      // ==========================================
+
+      alert("Dispatch finalized successfully");
+
+      // ==========================================
+      // UPDATE PARENT
+      // ==========================================
+
+      onFinalize({
+        ...selectedRow,
+
+        status: "Finalized",
+      });
+
+      // ==========================================
+      // CLOSE DOCUMENT MODAL
+      // ==========================================
+
+      setShowDocumentModal(false);
+
+      setSelectedRow(null);
+    } catch (error) {
+      console.error("Error finalizing dispatch:", error);
+
+      alert("Failed to finalize dispatch");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (!show) return null;
   return (
     <>
       <div className="modal fade show d-block">
@@ -171,23 +237,17 @@ const DispatchFinalizationModal = ({
       <div className="modal-backdrop fade show"></div>
       <DispatchDocumentFinalization
         show={showDocumentModal}
+        deliverySheetId={selectedRow?.id ?? null}
         onClose={() => {
-          setShowDocumentModal(false);
-          setSelectedRow(null);
-        }}
-        onProcess={() => {
-          if (!selectedRow) return;
-
-        //   modal.handleFinalize(selectedRow.id);
-
-          onFinalize({
-            ...selectedRow,
-            status: "Finalized",
-          });
+          if (processing) {
+            return;
+          }
 
           setShowDocumentModal(false);
+
           setSelectedRow(null);
         }}
+        onProcess={handleProcess}
       />
     </>
   );

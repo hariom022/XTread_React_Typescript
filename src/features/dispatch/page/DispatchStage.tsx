@@ -9,6 +9,7 @@ import DispatchTeamModal from "../components/DispatchTeamModal";
 // import DispatchDetails from "../components/DispatchDetails";
 import ProductionSuccessModal from "../components/ProductionSuccessModal";
 import CustomerDeliveryOrderModal from "../components/CustomerDeliveryOrderModal";
+import DispatchDetailsModal from "../components/DispatchDetailsModal";
 
 import type {
   DispatchTeam,
@@ -17,6 +18,7 @@ import type {
   DispatchFinalizationRow,
 } from "../type/dispatch.types";
 import DispatchFinalizationModal from "../components/DispatchFinallizationModal";
+import dispatchServiceApi from "../service/dispatchServiceApi";
 
 const DispatchStage = () => {
   const { rows, loading } = useDispatchIndexTable();
@@ -41,17 +43,20 @@ const DispatchStage = () => {
   const [productionData, setProductionData] =
     useState<ProductionSuccessData | null>(null);
 
-    const [showDispatchDetails, setShowDispatchDetails] = useState(false);
+  const [showDispatchDetails, setShowDispatchDetails] = useState(false);
+  const [loadingDeliverySheets, setLoadingDeliverySheets] = useState(false);
 
-const [selectedDispatch, setSelectedDispatch] =
-  useState<DispatchFinalizationRow | null>(null);
-  
+  const [selectedDeliverySheetId, setSelectedDeliverySheetId] = useState<
+    number | null
+  >(null);
+
   const [dispatchTeam, setDispatchTeam] = useState<DispatchTeam>({
     salesRep: "",
     courierName: "",
     regNo: "",
     driverName: "",
     driverId: "",
+    courierServiceId: 0,
   });
   const [isInternal, setIsInternal] = useState(false);
   const filteredData = useMemo(() => {
@@ -66,6 +71,74 @@ const [selectedDispatch, setSelectedDispatch] =
     );
   }, [rows, search]);
 
+  const loadDeliverySheets = async () => {
+    try {
+      setLoadingDeliverySheets(true);
+
+      console.log("Getting Delivery Sheets...");
+
+      const response = await dispatchServiceApi.getDeliverySheets();
+
+      console.log("Delivery Sheets API Response:", response.data);
+
+      if (!response.data?.success) {
+        console.error("Delivery Sheets API failed:", response.data?.error);
+
+        setFinalDispatchList([]);
+
+        return;
+      }
+
+      const deliverySheets = Array.isArray(response.data.data)
+        ? response.data.data
+        : [];
+
+      // ==========================================
+      // MAP API RESPONSE
+      // TO DispatchFinalizationRow
+      // ==========================================
+
+      const mappedRows: DispatchFinalizationRow[] = deliverySheets.map(
+        (item: any) => ({
+          id: item.deliverySheetId,
+
+          date: item.createdAtUtc
+            ? new Date(item.createdAtUtc).toLocaleDateString("en-GB")
+            : "",
+
+          deliveryNo: item.deliverySheetNumber ?? "",
+
+          salesRep: "",
+
+          customerName: "",
+
+          courierName: item.courierName ?? "",
+
+          driverName: item.driverName ?? "",
+
+          zone: "",
+
+          vehicle: item.vehicleRegNo ?? "",
+
+          status: "Pending",
+
+          casings: [],
+        }),
+      );
+
+      console.log("Mapped Delivery Sheets:", mappedRows);
+
+      setFinalDispatchList(mappedRows);
+
+      setShowFinalizationModal(true);
+    } catch (error) {
+      console.error("Error fetching delivery sheets:", error);
+
+      alert("Failed to load delivery sheets");
+    } finally {
+      setLoadingDeliverySheets(false);
+    }
+  };
   return (
     <div className="container-fluid box mt-3">
       <div className="col">
@@ -96,9 +169,14 @@ const [selectedDispatch, setSelectedDispatch] =
           <div className="d-flex justify-content-end">
             <button
               className="btn btn-success p-3"
-              onClick={() => setShowFinalizationModal(true)}
+              onClick={loadDeliverySheets}
+              disabled={loadingDeliverySheets}
             >
-              <h3>🚚 Dispatch Initialisation</h3>
+              <h3>
+                {loadingDeliverySheets
+                  ? "Loading..."
+                  : "🚚 Dispatch Initialisation"}
+              </h3>
             </button>
           </div>
         </div>
@@ -117,8 +195,26 @@ const [selectedDispatch, setSelectedDispatch] =
             <RingLoader color="#b30815" size={80} />
           </div>
         ) : (
-          <DispatchIndexTable data={dispatchIndexRows}  />
+          <DispatchIndexTable
+            data={rows}
+            onDetails={(deliverySheetId) => {
+              console.log("Selected Delivery Sheet ID:", deliverySheetId);
+
+              setSelectedDeliverySheetId(deliverySheetId);
+
+              setShowDispatchDetails(true);
+            }}
+          />
         )}
+        <DispatchDetailsModal
+          show={showDispatchDetails}
+          deliverySheetId={selectedDeliverySheetId}
+          onClose={() => {
+            setShowDispatchDetails(false);
+
+            setSelectedDeliverySheetId(null);
+          }}
+        />
       </div>
       {/* NEXT STEP */}
       <DispatchTeamModal
@@ -133,6 +229,7 @@ const [selectedDispatch, setSelectedDispatch] =
           setShowCustomerDeliveryModal(true);
         }}
       />
+
       <CustomerDeliveryOrderModal
         show={showCustomerDeliveryModal}
         dispatchTeam={dispatchTeam}
@@ -150,6 +247,7 @@ const [selectedDispatch, setSelectedDispatch] =
             regNo: "",
             driverName: "",
             driverId: "",
+            courierServiceId: 0,
           });
           setFinalDispatchList((prev) => [
             ...prev,

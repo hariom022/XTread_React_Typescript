@@ -1,76 +1,102 @@
 import CommonTable from "../../../shared/components/CommonTable";
 
-import type { DispatchRow} from "../type/dispatch.types";
-import DispatchTeamModal from "./DispatchTeamModal";
+import type { DispatchRow } from "../type/dispatch.types";
 
 interface Props {
   data: DispatchRow[];
+
+  onDetails: (deliverySheetId: number) => void;
 }
 
-const DispatchIndexTable =
-  ({
-    data,
-  }: Props) => {
-    const columns = [
-      {
-        header: "Date",
+const DispatchIndexTable = ({ data, onDetails }: Props) => {
+  const columns = [
+    // ==========================================
+    // DATE
+    // ==========================================
 
-        render: (
-          row: DispatchRow,
-        ) =>
-          new Date(
-            row.date,
-          ).toLocaleDateString(),
-      },
+    {
+      header: "Date",
 
-      {
-        header:"Delivery No#",
+      render: (row: DispatchRow) =>
+        row.date ? new Date(row.date).toLocaleDateString("en-GB") : "",
+    },
 
-        accessor: "deliveryNo",
-      },
+    // ==========================================
+    // DELIVERY NO
+    // ==========================================
 
-      {
-        header:"Sales Rep",
+    {
+      header: "Delivery No#",
 
-        accessor: "salesRep",
-      },
+      accessor: "deliveryNo",
+    },
 
-      {
-        header:"Customer",
+    // ==========================================
+    // SALES REP
+    // ==========================================
 
-        accessor: "customerName",
-      },
+    {
+      header: "Sales Rep",
 
-      {
-        header:"Courier Name",
+      accessor: "salesRep",
+    },
 
-        accessor:"courierName",
-      },
+    // ==========================================
+    // CUSTOMER
+    // ==========================================
 
-      {
-        header:"Driver",
+    {
+      header: "Customer",
 
-        accessor: "driverName",
-      },
+      accessor: "customerName",
+    },
 
-      {
-        header:"Action",
+    // ==========================================
+    // COURIER
+    // ==========================================
 
-        render: () => (
-          <button className="btn btn-primary btn-sm">
-            Details
-          </button>
-        ),
-      },
-    ];
+    {
+      header: "Courier Name",
 
-    return (
-      <CommonTable
-        columns={columns}
-        data={data}
-        emptyMessage="No Dispatch Records Found"
-      />
-    );
-  };
+      accessor: "courierName",
+    },
+
+    // ==========================================
+    // DRIVER
+    // ==========================================
+
+    {
+      header: "Driver",
+
+      accessor: "driverName",
+    },
+
+    // ==========================================
+    // ACTION
+    // ==========================================
+
+    {
+      header: "Action",
+
+      render: (row: DispatchRow) => (
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={() => onDetails(row.id)}
+        >
+          Details
+        </button>
+      ),
+    },
+  ];
+
+  return (
+    <CommonTable
+      columns={columns}
+      data={data}
+      emptyMessage="No Dispatch Records Found"
+    />
+  );
+};
 
 export default DispatchIndexTable;

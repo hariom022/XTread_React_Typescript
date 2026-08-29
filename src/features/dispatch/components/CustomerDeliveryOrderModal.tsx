@@ -1,788 +1,579 @@
 import useCustomerDeliveryOrderModal from "../hooks/useCustomerDeliveryOrderModal";
+import dispatchServiceApi from "../service/dispatchServiceApi";
 
-import type {
-    DispatchTeam,
-    CustomerCasing,
-} from "../type/dispatch.types";
+import type { DispatchTeam, CustomerCasing } from "../type/dispatch.types";
 
 interface Props {
-    show: boolean;
+  show: boolean;
 
-    dispatchTeam: DispatchTeam;
+  dispatchTeam: DispatchTeam;
 
-    setDispatchTeam: React.Dispatch<
-        React.SetStateAction<DispatchTeam>
-    >;
+  setDispatchTeam: React.Dispatch<React.SetStateAction<DispatchTeam>>;
 
-    isInternal: boolean;
+  isInternal: boolean;
 
-    onClose: () => void;
+  onClose: () => void;
 
-    onSave?: (data: any) => void;
+  onSave?: (data: any) => void;
 }
 
 const CustomerDeliveryOrderModal = ({
-    show,
-    dispatchTeam,
-    setDispatchTeam,
-    isInternal,
-    onClose,
-    onSave,
+  show,
+  dispatchTeam,
+  setDispatchTeam,
+  isInternal,
+  onClose,
+  onSave,
 }: Props) => {
+  const modal = useCustomerDeliveryOrderModal(dispatchTeam);
 
-    const modal =
-        useCustomerDeliveryOrderModal(
-            dispatchTeam,
-        );
+  // ==========================================
+  // DON'T RENDER IF MODAL IS CLOSED
+  // ==========================================
 
+  if (!show) {
+    return null;
+  }
 
+  // ==========================================
+  // SAVE CUSTOMER DELIVERY
+  // ==========================================
+
+  const handleSave = async () => {
     // ==========================================
-    // DON'T RENDER IF MODAL IS CLOSED
+    // CUSTOMER VALIDATION
     // ==========================================
 
-    if (!show) {
-        return null;
+    if (!modal.selectedCustomerId) {
+      alert("Please select customer");
+
+      return;
     }
 
+    // ==========================================
+    // SERVICE TYPE VALIDATION
+    // ==========================================
+
+    if (!modal.serviceType) {
+      alert("Please select service type");
+
+      return;
+    }
 
     // ==========================================
-    // SAVE CUSTOMER DELIVERY
+    // CASING VALIDATION
     // ==========================================
 
-    const handleSave = () => {
+    if (!modal.selectedCasings || modal.selectedCasings.length === 0) {
+      alert("Please add at least one casing");
 
-        // Customer validation
-        if (!modal.selectedCustomerId) {
+      return;
+    }
 
-            alert(
-                "Please select customer",
-            );
+    // ==========================================
+    // GET ORDER CASING IDS
+    // ==========================================
 
-            return;
-        }
+    const orderCasingIds = modal.selectedCasings.map(
+      (casing) => casing.orderCasingId,
+    );
 
+    // ==========================================
+    // COURIER TYPE
+    //
+    // External = 1
+    // Internal = 2
+    // ==========================================
 
-        // Service type validation
-        if (!modal.serviceType) {
+    const courierType = isInternal ? 2 : 1;
 
-            alert(
-                "Please select service type",
-            );
+    // ==========================================
+    // COURIER SERVICE ID
+    //
+    // Internal = "0"
+    // External = selected courier service ID
+    // ==========================================
 
-            return;
-        }
+    const courierServiceId = isInternal
+      ? "0"
+      : (dispatchTeam.courierServiceId ?? "0");
 
+    // ==========================================
+    // VALIDATION FOR EXTERNAL
+    // ==========================================
 
-        const payload = {
+    if (
+      !isInternal &&
+      (!dispatchTeam.courierName ||
+        !dispatchTeam.regNo ||
+        !dispatchTeam.driverName ||
+        !dispatchTeam.driverId)
+    ) {
+      alert("Please select courier details");
 
-            deliveryNo:
-                modal.generateDONumber(),
+      return;
+    }
 
-            customer:
-                modal.selectedCustomer
-                    ?.customerName,
+    // ==========================================
+    // VALIDATION FOR INTERNAL
+    // ==========================================
 
-            salesRep:
-                dispatchTeam.salesRep,
+    if (
+      isInternal &&
+      (!dispatchTeam.courierName.trim() ||
+        !dispatchTeam.regNo.trim() ||
+        !dispatchTeam.driverName.trim() ||
+        !dispatchTeam.driverId.trim())
+    ) {
+      alert("Please enter all dispatch team details");
 
-            courier:
-                dispatchTeam.courierName,
+      return;
+    }
 
-            vehicle:
-                dispatchTeam.regNo,
+    // ==========================================
+    // DELIVERY SHEET PAYLOAD
+    // ==========================================
 
-            casings:
-                modal.selectedCasings,
-        };
+    const payload = {
+      orderCasingIds: orderCasingIds,
 
+      courierType: courierType,
 
-        console.log(
-            "Customer Delivery Payload:",
-            payload,
-        );
+      courierServiceId: courierServiceId,
 
+      courierName: dispatchTeam.courierName,
 
-        onSave?.(payload);
+      vehicleRegNo: dispatchTeam.regNo,
 
-        modal.reset();
+      driverName: dispatchTeam.driverName,
+
+      driverIdNo: dispatchTeam.driverId,
+
+      remarks: "",
     };
 
+    console.log("SAVE DELIVERY SHEET PAYLOAD:", payload);
 
     // ==========================================
-    // CLOSE MODAL
+    // CALL API
     // ==========================================
 
-    const handleClose = () => {
+    try {
+      const response = await dispatchServiceApi.saveDeliverySheet(payload);
 
+      console.log("Delivery Sheet API Response:", response.data);
+
+      if (response.data?.success) {
+        alert("Customer delivery saved successfully");
+
+        // Parent callback if required
+        onSave?.(response.data);
+
+        // Reset modal
         modal.reset();
 
         onClose();
-    };
 
+        return;
+      }
 
-    return (
-        <>
-            <div className="modal fade show d-block">
+      alert(response.data?.error || "Failed to save customer delivery");
+    } catch (error) {
+      console.error("Error saving delivery sheet:", error);
 
-                <div className="modal-dialog modal-xl modal-dialog-centered">
+      alert("Failed to save customer delivery");
+    }
+  };
 
-                    <div className="modal-content">
+  // ==========================================
+  // CLOSE MODAL
+  // ==========================================
 
+  const handleClose = () => {
+    modal.reset();
 
-                        {/* ======================================
+    onClose();
+  };
+
+  return (
+    <>
+      <div className="modal fade show d-block">
+        <div className="modal-dialog modal-xl modal-dialog-centered">
+          <div className="modal-content">
+            {/* ======================================
                             HEADER
                         ====================================== */}
 
-                        <div className="modal-header">
+            <div className="modal-header">
+              <h5 className="modal-title text-white">
+                Customer Delivery Order
+              </h5>
 
-                            <h5 className="modal-title text-white">
-                                Customer Delivery Order
-                            </h5>
+              <button
+                className="btn-close btn-close-white"
+                onClick={handleClose}
+              />
+            </div>
 
-                            <button
-                                className="btn-close btn-close-white"
-                                onClick={handleClose}
-                            />
-
-                        </div>
-
-
-                        {/* ======================================
+            {/* ======================================
                             BODY
                         ====================================== */}
 
-                        <div className="modal-body text-start">
-
-
-                            {/* ==================================
+            <div className="modal-body text-start">
+              {/* ==================================
                                 TOP SECTION
                             ================================== */}
 
-                            <div className="row mb-1">
-
-
-                                {/* ==================================
+              <div className="row mb-1">
+                {/* ==================================
                                     LEFT SIDE
                                 ================================== */}
 
-                                <div className="col-md-6 border p-2">
+                <div className="col-md-6 border p-2">
+                  <h6>Delivery Order Details</h6>
 
-                                    <h6>
-                                        Delivery Order Details
-                                    </h6>
+                  {/* DATE */}
 
+                  <div className="row">
+                    <div className="col-md-12">
+                      <label>Date</label>
 
-                                    {/* DATE */}
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={modal.deliveryDate}
+                        onChange={(e) => modal.setDeliveryDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
 
-                                    <div className="row">
+                  {/* CUSTOMER */}
 
-                                        <div className="col-md-12">
+                  <div className="mt-2">
+                    <label>Customer Name</label>
 
-                                            <label>
-                                                Date
-                                            </label>
+                    <select
+                      className="form-select"
+                      value={modal.selectedCustomerId}
+                      onChange={(e) =>
+                        modal.setSelectedCustomerId(e.target.value)
+                      }
+                      disabled={modal.loadingCustomers}
+                    >
+                      <option value="">
+                        {modal.loadingCustomers
+                          ? "Loading Customers..."
+                          : "-- Select Customer --"}
+                      </option>
 
-                                            <input
-                                                type="date"
-                                                className="form-control"
-                                                value={
-                                                    modal.deliveryDate
-                                                }
-                                                onChange={(e) =>
-                                                    modal.setDeliveryDate(
-                                                        e.target.value,
-                                                    )
-                                                }
-                                            />
+                      {modal.customers.map((customer) => (
+                        <option
+                          key={customer.customerNumber}
+                          value={customer.customerNumber}
+                        >
+                          {customer.customerName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                                        </div>
+                  {/* SERVICE TYPE */}
 
-                                    </div>
+                  <div className="mt-2">
+                    <label>Service Type</label>
 
+                    <select
+                      className="form-select"
+                      value={modal.serviceType}
+                      onChange={(e) => modal.setServiceType(e.target.value)}
+                      disabled={modal.loadingServiceTypes}
+                    >
+                      <option value="">
+                        {modal.loadingServiceTypes
+                          ? "Loading Service Types..."
+                          : "-- Select Service Type --"}
+                      </option>
 
-                                    {/* CUSTOMER */}
+                      {modal.serviceTypes.map((serviceType) => (
+                        <option
+                          key={serviceType.serviceTypeId}
+                          value={serviceType.serviceTypeId}
+                        >
+                          {serviceType.serviceTypeName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-                                    <div className="mt-2">
-
-                                        <label>
-                                            Customer Name
-                                        </label>
-
-                                        <select
-                                            className="form-select"
-                                            value={
-                                                modal.selectedCustomerId
-                                            }
-                                            onChange={(e) =>
-                                                modal.setSelectedCustomerId(
-                                                    e.target.value,
-                                                )
-                                            }
-                                            disabled={
-                                                modal.loadingCustomers
-                                            }
-                                        >
-
-                                            <option value="">
-
-                                                {modal.loadingCustomers
-                                                    ? "Loading Customers..."
-                                                    : "-- Select Customer --"}
-
-                                            </option>
-
-
-                                            {modal.customers.map(
-                                                (customer) => (
-
-                                                    <option
-                                                        key={
-                                                            customer.customerNumber
-                                                        }
-                                                        value={
-                                                            customer.customerNumber
-                                                        }
-                                                    >
-                                                        {
-                                                            customer.customerName
-                                                        }
-                                                    </option>
-
-                                                ),
-                                            )}
-
-                                        </select>
-
-                                    </div>
-
-
-                                    {/* SERVICE TYPE */}
-
-                                    <div className="mt-2">
-
-                                        <label>
-                                            Service Type
-                                        </label>
-
-                                        <select
-                                            className="form-select"
-                                            value={modal.serviceType}
-                                            onChange={(e) =>
-                                                modal.setServiceType(
-                                                    e.target.value,
-                                                )
-                                            }
-                                            disabled={
-                                                modal.loadingServiceTypes
-                                            }
-                                        >
-
-                                            <option value="">
-                                                {modal.loadingServiceTypes
-                                                    ? "Loading Service Types..."
-                                                    : "-- Select Service Type --"}
-                                            </option>
-
-                                            {modal.serviceTypes.map(
-                                                (serviceType) => (
-
-                                                    <option
-                                                        key={
-                                                            serviceType.serviceTypeId
-                                                        }
-                                                        value={
-                                                            serviceType.serviceTypeId
-                                                        }
-                                                    >
-                                                        {
-                                                            serviceType.serviceTypeName
-                                                        }
-                                                    </option>
-
-                                                ),
-                                            )}
-
-                                        </select>
-
-                                    </div>
-
-                                </div>
-
-
-                                {/* ==================================
+                {/* ==================================
                                     RIGHT SIDE
                                 ================================== */}
 
-                                <div className="col-md-6 border p-2">
+                <div className="col-md-6 border p-2">
+                  <h6>Dispatch Team</h6>
 
-                                    <h6>
-                                        Dispatch Team
-                                    </h6>
+                  {/* SALES REP */}
 
+                  <div className="row">
+                    <div className="col-md-12">
+                      <label>Sales Rep</label>
 
-                                    {/* SALES REP */}
+                      <input
+                        className="form-control"
+                        value={dispatchTeam.salesRep}
+                        readOnly
+                        placeholder="Auto-filled based on customer"
+                      />
+                    </div>
+                  </div>
 
-                                    <div className="row">
+                  {/* COURIER + REG NO */}
 
-                                        <div className="col-md-12">
+                  <div className="row mt-2">
+                    {/* COURIER */}
 
-                                            <label>
-                                                Sales Rep
-                                            </label>
+                    <div className="col-md-6">
+                      <label>Courier Service</label>
 
-                                            <input
-                                                className="form-control"
-                                                value={
-                                                    dispatchTeam.salesRep
-                                                }
-                                                readOnly
-                                                placeholder="Auto-filled based on customer"
-                                            />
+                      <input
+                        className="form-control"
+                        value={dispatchTeam.courierName}
+                        readOnly={!isInternal}
+                        onChange={(e) =>
+                          setDispatchTeam((prev) => ({
+                            ...prev,
 
-                                        </div>
+                            courierName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
 
-                                    </div>
+                    {/* REG NO */}
 
+                    <div className="col-md-6">
+                      <label>Reg No#</label>
 
-                                    {/* COURIER + REG NO */}
+                      <input
+                        className="form-control"
+                        value={dispatchTeam.regNo}
+                        readOnly={!isInternal}
+                        onChange={(e) =>
+                          setDispatchTeam((prev) => ({
+                            ...prev,
 
-                                    <div className="row mt-2">
+                            regNo: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
 
+                  {/* DRIVER + ID */}
 
-                                        {/* COURIER */}
+                  <div className="row mt-2">
+                    {/* DRIVER NAME */}
 
-                                        <div className="col-md-6">
+                    <div className="col-md-6">
+                      <label>Driver Name</label>
 
-                                            <label>
-                                                Courier Service
-                                            </label>
+                      <input
+                        className="form-control"
+                        value={dispatchTeam.driverName}
+                        readOnly={!isInternal}
+                        onChange={(e) =>
+                          setDispatchTeam((prev) => ({
+                            ...prev,
 
-                                            <input
-                                                className="form-control"
-                                                value={
-                                                    dispatchTeam.courierName
-                                                }
-                                                readOnly={
-                                                    !isInternal
-                                                }
-                                                onChange={(e) =>
-                                                    setDispatchTeam(
-                                                        (prev) => ({
-                                                            ...prev,
+                            driverName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
 
-                                                            courierName:
-                                                                e.target.value,
-                                                        }),
-                                                    )
-                                                }
-                                            />
+                    {/* DRIVER ID */}
 
-                                        </div>
+                    <div className="col-md-6">
+                      <label>ID No#</label>
 
+                      <input
+                        className="form-control"
+                        value={dispatchTeam.driverId}
+                        readOnly={!isInternal}
+                        onChange={(e) =>
+                          setDispatchTeam((prev) => ({
+                            ...prev,
 
-                                        {/* REG NO */}
+                            driverId: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                                        <div className="col-md-6">
-
-                                            <label>
-                                                Reg No#
-                                            </label>
-
-                                            <input
-                                                className="form-control"
-                                                value={
-                                                    dispatchTeam.regNo
-                                                }
-                                                readOnly={
-                                                    !isInternal
-                                                }
-                                                onChange={(e) =>
-                                                    setDispatchTeam(
-                                                        (prev) => ({
-                                                            ...prev,
-
-                                                            regNo:
-                                                                e.target.value,
-                                                        }),
-                                                    )
-                                                }
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {/* DRIVER + ID */}
-
-                                    <div className="row mt-2">
-
-
-                                        {/* DRIVER NAME */}
-
-                                        <div className="col-md-6">
-
-                                            <label>
-                                                Driver Name
-                                            </label>
-
-                                            <input
-                                                className="form-control"
-                                                value={
-                                                    dispatchTeam.driverName
-                                                }
-                                                readOnly={
-                                                    !isInternal
-                                                }
-                                                onChange={(e) =>
-                                                    setDispatchTeam(
-                                                        (prev) => ({
-                                                            ...prev,
-
-                                                            driverName:
-                                                                e.target.value,
-                                                        }),
-                                                    )
-                                                }
-                                            />
-
-                                        </div>
-
-
-                                        {/* DRIVER ID */}
-
-                                        <div className="col-md-6">
-
-                                            <label>
-                                                ID No#
-                                            </label>
-
-                                            <input
-                                                className="form-control"
-                                                value={
-                                                    dispatchTeam.driverId
-                                                }
-                                                readOnly={
-                                                    !isInternal
-                                                }
-                                                onChange={(e) =>
-                                                    setDispatchTeam(
-                                                        (prev) => ({
-                                                            ...prev,
-
-                                                            driverId:
-                                                                e.target.value,
-                                                        }),
-                                                    )
-                                                }
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {/* ==================================
+              {/* ==================================
                                 TABLE SECTION
                             ================================== */}
 
-                            <div className="row">
-
-
-                                {/* ==================================
+              <div className="row">
+                {/* ==================================
                                     CUSTOMER CASING orders
                                 ================================== */}
 
-                                <div className="col-md-6 border p-2">
+                <div className="col-md-6 border p-2">
+                  <h6>Customer Casing Orders</h6>
 
-                                    <h6>
-                                        Customer Casing Orders
-                                    </h6>
+                  <table className="table table-sm table-bordered">
+                    <thead>
+                      <tr className="bg-new">
+                        <th>Batch No</th>
 
+                        <th>Production No</th>
 
-                                    <table className="table table-sm table-bordered">
+                        <th>Tyre Size</th>
 
-                                        <thead>
+                        <th>+</th>
+                      </tr>
+                    </thead>
 
-                                            <tr className="bg-new">
+                    <tbody>
+                      {modal.availableCasings.length > 0 ? (
+                        modal.availableCasings.map((item: CustomerCasing) => (
+                          <tr key={item.orderCasingId}>
+                            <td>{item.batchNo}</td>
 
-                                                <th>
-                                                    Batch No
-                                                </th>
+                            <td>{item.productionNo}</td>
 
-                                                <th>
-                                                    Production No
-                                                </th>
+                            <td>{item.tyreSize}</td>
 
-                                                <th>
-                                                    Tyre Size
-                                                </th>
+                            <td>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-primary"
+                                onClick={() => modal.handleAddCasing(item)}
+                              >
+                                +
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="text-center text-muted">
+                            {modal.loadingBatchCasings
+                              ? "Loading Customer Casing Orders..."
+                              : "No casings available"}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
 
-                                                <th>
-                                                    +
-                                                </th>
-
-                                            </tr>
-
-                                        </thead>
-
-                                        <tbody>
-
-                                            {modal.availableCasings.length > 0 ? (
-
-                                                modal.availableCasings.map(
-                                                    (
-                                                        item: CustomerCasing,
-                                                    ) => (
-
-                                                        <tr
-                                                            key={item.orderCasingId}
-                                                        >
-
-                                                            <td>
-                                                                {item.batchNo}
-                                                            </td>
-
-                                                            <td>
-                                                                {item.productionNo}
-                                                            </td>
-
-                                                            <td>
-                                                                {item.tyreSize}
-                                                            </td>
-
-                                                            <td>
-
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-sm btn-primary"
-                                                                    onClick={() =>
-                                                                        modal.handleAddCasing(
-                                                                            item,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    +
-                                                                </button>
-
-                                                            </td>
-
-                                                        </tr>
-
-                                                    ),
-                                                )
-
-                                            ) : (
-
-                                                <tr>
-
-                                                    <td
-                                                        colSpan={4}
-                                                        className="text-center text-muted"
-                                                    >
-
-                                                        {modal.loadingBatchCasings
-                                                            ? "Loading Customer Casing Orders..."
-                                                            : "No casings available"}
-
-                                                    </td>
-
-                                                </tr>
-
-                                            )}
-
-                                        </tbody>
-
-                                    </table>
-
-                                </div>
-
-
-                                {/* ==================================
+                {/* ==================================
                                     SELECTED CASINGS
                                 ================================== */}
 
-                                <div className="col-md-6">
+                <div className="col-md-6">
+                  <div className="border p-2 mb-2">
+                    <h6>
+                      Repaired & Retreaded Casings (
+                      {modal.selectedCasings.length})
+                    </h6>
 
-                                    <div className="border p-2 mb-2">
+                    <table className="table table-sm table-bordered">
+                      <thead>
+                        <tr className="bg-new">
+                          <th>Service</th>
 
-                                        <h6>
-                                            Repaired & Retreaded Casings
-                                            {" "}
-                                            (
-                                            {
-                                                modal
-                                                    .selectedCasings
-                                                    .length
-                                            }
-                                            )
-                                        </h6>
+                          <th>Batch No</th>
 
+                          <th>Production No</th>
 
-                                        <table className="table table-sm table-bordered">
+                          <th>Tyre Size</th>
 
-                                            <thead>
+                          <th>Tyre Make</th>
+                          <th>-</th>
+                        </tr>
+                      </thead>
 
-                                                <tr className="bg-new">
+                      <tbody>
+                        {modal.selectedCasings.length > 0 ? (
+                          modal.selectedCasings.map((item: CustomerCasing) => (
+                            <tr key={item.orderCasingId}>
+                              <td>{item.service}</td>
 
-                                                    <th>
-                                                        Service
-                                                    </th>
+                              <td>{item.batchNo}</td>
 
-                                                    <th>
-                                                        Batch No
-                                                    </th>
+                              <td>{item.productionNo}</td>
 
-                                                    <th>
-                                                        Production No
-                                                    </th>
+                              <td>{item.tyreSize}</td>
 
-                                                    <th>
-                                                        Tyre Size
-                                                    </th>
+                              <td>{item.tyreMake}</td>
 
-                                                    <th>
-                                                        Tyre Make
-                                                    </th>
-                                                    <th>
-                                                        -
-                                                    </th>
-                                                </tr>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-danger"
+                                  onClick={() => modal.handleRemoveCasing(item)}
+                                >
+                                  -
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={6} className="text-center text-muted">
+                              No casings selected
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
 
-                                            </thead>
-
-                                            <tbody>
-
-                                                {modal.selectedCasings.length > 0 ? (
-
-                                                    modal.selectedCasings.map(
-                                                        (
-                                                            item: CustomerCasing,
-                                                        ) => (
-
-                                                            <tr
-                                                                key={item.orderCasingId}
-                                                            >
-
-                                                                <td>
-                                                                    {item.service}
-                                                                </td>
-
-                                                                <td>
-                                                                    {item.batchNo}
-                                                                </td>
-
-                                                                <td>
-                                                                    {item.productionNo}
-                                                                </td>
-
-                                                                <td>
-                                                                    {item.tyreSize}
-                                                                </td>
-
-                                                                <td>
-                                                                    {item.tyreMake}
-                                                                </td>
-
-                                                                <td>
-
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-sm btn-danger"
-                                                                        onClick={() =>
-                                                                            modal.handleRemoveCasing(
-                                                                                item,
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        -
-                                                                    </button>
-
-                                                                </td>
-
-                                                            </tr>
-
-                                                        ),
-                                                    )
-
-                                                ) : (
-
-                                                    <tr>
-
-                                                        <td
-                                                            colSpan={6}
-                                                            className="text-center text-muted"
-                                                        >
-                                                            No casings selected
-                                                        </td>
-
-                                                    </tr>
-
-                                                )}
-
-                                            </tbody>
-
-                                        </table>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {/* ==================================
+              {/* ==================================
                                 FOOTER BUTTONS
                             ================================== */}
 
-                            <div className="d-flex justify-content-between mt-3">
+              <div className="d-flex justify-content-between mt-3">
+                {/* CLOSE */}
 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleClose}
+                >
+                  ← Close
+                </button>
 
-                                {/* CLOSE */}
+                {/* SAVE */}
 
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={handleClose}
-                                >
-                                    ← Close
-                                </button>
-
-
-                                {/* SAVE */}
-
-                                <button
-                                    type="button"
-                                    className="btn btn-success px-4"
-                                    onClick={handleSave}
-                                    disabled={
-                                        modal.loadingCustomers ||
-                                        modal.loadingServiceTypes
-                                    }
-                                >
-                                    ✔ Save Customer Delivery
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <button
+                  type="button"
+                  className="btn btn-success px-4"
+                  onClick={handleSave}
+                  disabled={modal.loadingCustomers || modal.loadingServiceTypes}
+                >
+                  ✔ Save Customer Delivery
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
 
+      {/* BACKDROP */}
 
-            {/* BACKDROP */}
-
-            <div className="modal-backdrop fade show"></div>
-        </>
-    );
+      <div className="modal-backdrop fade show"></div>
+    </>
+  );
 };
 
 export default CustomerDeliveryOrderModal;

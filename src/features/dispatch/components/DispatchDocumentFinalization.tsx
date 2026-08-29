@@ -2,28 +2,42 @@ import { useState } from "react";
 
 interface Props {
     show: boolean;
+
+    deliverySheetId: number | null;
+
     onClose: () => void;
+
     onProcess: () => void;
 }
 
 const DispatchDocumentFinalization = ({
     show,
+    deliverySheetId,
     onClose,
     onProcess,
 }: Props) => {
 
-    const [verified, setVerified] = useState(false);
+    const [verified, setVerified] =
+        useState(false);
 
-    const [printed, setPrinted] = useState(false);
+    const [printed, setPrinted] =
+        useState(false);
 
-    const [signed, setSigned] = useState(false);
+    const [signed, setSigned] =
+        useState(false);
 
-    if (!show) return null;
+
+    if (!show) {
+        return null;
+    }
+
 
     const canProcess =
         verified &&
         printed &&
-        signed;
+        signed &&
+        deliverySheetId !== null;
+
 
     return (
         <>
@@ -46,9 +60,13 @@ const DispatchDocumentFinalization = ({
 
                         </div>
 
+
                         <div className="modal-body">
 
-                            <h5>Dispatch Verification</h5>
+                            <h5>
+                                Dispatch Verification
+                            </h5>
+
 
                             <div className="form-check mt-3">
 
@@ -57,7 +75,9 @@ const DispatchDocumentFinalization = ({
                                     type="checkbox"
                                     checked={verified}
                                     onChange={(e) =>
-                                        setVerified(e.target.checked)
+                                        setVerified(
+                                            e.target.checked
+                                        )
                                     }
                                 />
 
@@ -67,6 +87,7 @@ const DispatchDocumentFinalization = ({
 
                             </div>
 
+
                             <div className="form-check">
 
                                 <input
@@ -74,7 +95,9 @@ const DispatchDocumentFinalization = ({
                                     type="checkbox"
                                     checked={printed}
                                     onChange={(e) =>
-                                        setPrinted(e.target.checked)
+                                        setPrinted(
+                                            e.target.checked
+                                        )
                                     }
                                 />
 
@@ -84,6 +107,7 @@ const DispatchDocumentFinalization = ({
 
                             </div>
 
+
                             <div className="form-check">
 
                                 <input
@@ -91,7 +115,9 @@ const DispatchDocumentFinalization = ({
                                     type="checkbox"
                                     checked={signed}
                                     onChange={(e) =>
-                                        setSigned(e.target.checked)
+                                        setSigned(
+                                            e.target.checked
+                                        )
                                     }
                                 />
 
@@ -103,6 +129,7 @@ const DispatchDocumentFinalization = ({
 
                         </div>
 
+
                         <div className="modal-footer justify-content-between">
 
                             <button
@@ -111,6 +138,7 @@ const DispatchDocumentFinalization = ({
                             >
                                 ← Cancel
                             </button>
+
 
                             <button
                                 className="btn btn-success"
@@ -127,6 +155,7 @@ const DispatchDocumentFinalization = ({
                 </div>
 
             </div>
+
 
             <div className="modal-backdrop fade show"></div>
         </>

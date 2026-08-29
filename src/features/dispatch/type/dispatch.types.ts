@@ -33,6 +33,7 @@ export interface DispatchTeam {
     regNo: string;
     driverName: string;
     driverId: string;
+    courierServiceId :number;
 }
 
 
@@ -152,4 +153,15 @@ export interface CustomerCasing {
     tyreMake: string;
 
     service: string;
+}
+
+export interface DeliverySheetPayload {
+    orderCasingIds: number[];
+    courierType: number;
+    courierServiceId: number | string;
+    courierName: string;
+    vehicleRegNo: string;
+    driverName: string;
+    driverIdNo: string;
+    remarks: string;
 }

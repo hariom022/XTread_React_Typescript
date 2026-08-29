@@ -1,30 +1,56 @@
 import api from "../../../shared/services/api";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
-import type { AddCourierPayload } from "../type/dispatch.types";
+import type {
+  AddCourierPayload,
+  DeliverySheetPayload,
+} from "../type/dispatch.types";
 
 const dispatchServiceApi = {
-    /* casing comes from QC */
-    getApprovedFromQC : () => indexPageApiService.getBatchProgress(16, 1),
+  /* casing comes from QC */
+  getApprovedFromQC: () => indexPageApiService.getBatchProgress(16, 1),
 
-    /**GET Courier Services */
-    getCourierServices : () => api.get(`/courier-services`),
+  /**GET Courier Services */
+  getCourierServices: () => api.get(`/courier-services`),
 
-    /**Get Courier Services By ID */
-    getCourierServiceById : (courierServiceId: number) => 
-        api.get(`/courier-services?courierServiceId=${courierServiceId}`),
+  /**Get Courier Services By ID */
+  getCourierServiceById: (courierServiceId: number) =>
+    api.get(`/courier-services?courierServiceId=${courierServiceId}`),
 
-    /**Get Vehicle by courier service id */
-    getVehicleByCourierServiceId : (courierServiceId: number) =>
-        api.get(`/courier-services/${courierServiceId}/vehicles`),
-    /**Post Api for ADD COURIER */
-    saveCourier: (payload:AddCourierPayload, courierServiceId:number)=> 
-        api.post(`/courier-services/${courierServiceId}/vehicles`, payload),
+  /**Get Vehicle by courier service id */
+  getVehicleByCourierServiceId: (courierServiceId: number) =>
+    api.get(`/courier-services/${courierServiceId}/vehicles`),
+  /**Post Api for ADD COURIER */
+  saveCourier: (payload: AddCourierPayload, courierServiceId: number) =>
+    api.post(`/courier-services/${courierServiceId}/vehicles`, payload),
 
-    /**Get Customers */
-    getCustomerName : () => api.get(`/customers`),
+  /**Get Customers */
+  getCustomerName: () => api.get(`/customers`),
 
-    /**Get Service Type */
-    getServiceTypeName : () => api.get(`/service-types`),
+  /**Get Service Type */
+  getServiceTypeName: () => api.get(`/service-types`),
 
+  /** POST Delivery Sheet */
+  saveDeliverySheet: (payload: DeliverySheetPayload) =>
+    api.post(`/delivery-sheets`, payload),
+
+  /** GET Delivery Sheets */
+  getDeliverySheets: () => api.get(`/delivery-sheets?isApproved=false`),
+
+  /** POST Dispatch / Finalize Delivery Sheet */
+  dispatchDeliverySheet: (deliverySheetId: number) =>
+    api.post(`/delivery-sheets/${deliverySheetId}/dispatch`),
+
+  // ==========================================
+  // DISPATCH INDEX TABLE
+  // Stage 16 / Status 2
+  // ==========================================
+
+  /** GET Approved Delivery Sheets */
+  getApprovedCasingOnDispatch: () =>
+    api.get(`/delivery-sheets?isApproved=true`),
+
+  /** GET Delivery Sheet Details */
+getDeliverySheetById: (deliverySheetId: number) =>
+  api.get(`/delivery-sheets/${deliverySheetId}`),
 };
 export default dispatchServiceApi;
