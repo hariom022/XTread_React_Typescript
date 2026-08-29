@@ -101,6 +101,7 @@ import CategoriesPage from "./master-modules/categories/page/CategoriesPage";
    ADMIN PORTAL
 ========================================= */
 
+import TyreOnHold from "./adminPortal/tyreOnHold/pages/TyreOnHold";
 import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
 
 import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
@@ -343,6 +344,10 @@ function AppContent() {
                     ADMIN PORTAL
                 ===================================== */}
 
+                <Route
+                  path="/tyreOnHold"
+                  element={<TyreOnHold />}
+                />
                 <Route
                   path="/adminPortal/rejectedTyres"
                   element={<RejectedTyres />}
