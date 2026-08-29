@@ -1,124 +1,353 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import type {Courier,ExistingCourier,} from "../type/dispatch.types";
+import type {
+  CourierService,
+  CourierVehicle,
+  AddCourierPayload,
+} from "../type/dispatch.types";
 
-const useDispatchTeamModal =
-  () => {
-    const [activeTab,setActiveTab,] = useState<"add" | "select">("add");
+import dispatchServiceApi from "../service/dispatchServiceApi";
 
-    const [courierType,setCourierType,] = useState("");
+const useDispatchTeamModal = () => {
 
-    const [selectedCourierId,setSelectedCourierId,] =useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<"add" | "select">("add");
 
-    const [selectedVehicle,setSelectedVehicle,] = useState("");
+  const [courierType, setCourierType] = useState("");
 
-    const [driverName, setDriverName,] = useState("");
+  // Courier services
+  const [courierList, setCourierList] = useState<CourierService[]>([]);
 
-    const [driverId,setDriverId,] = useState("");
+  // Selected courier service
+  const [selectedCourierId, setSelectedCourierId] = useState<number | null>(null);
 
-    const [selectedCourier,setSelectedCourier,] = useState< Courier | null>(null);
+  // Vehicles belonging to selected courier service
+  const [vehicleList, setVehicleList] = useState<CourierVehicle[]>([]);
 
-    const courierList: Courier[] =
-      [
-        {
-          id: 1,
-          name: "DHL Express",
-          vehicles: [
-            "UP78 AB1234",
-            "UP78 XY5678",
-          ],
-        },
+  // Selected vehicle
+  const [selectedVehicle, setSelectedVehicle] = useState<CourierVehicle | null>(null);
 
-        {
-          id: 2,
-          name: "Blue Dart",
-          vehicles: [
-            "DL01 XY5678",
-            "DL01 ZZ9999",
-          ],
-        },
+  // Add Courier fields
+  const [driverName, setDriverName] = useState("");
 
-        {
-          id: 3,
-          name: "FedEx",
-          vehicles: ["MH12 CD9012",],
-        },
+  const [driverId, setDriverId] = useState("");
 
-        {
-          id: 4,
-          name: "DTDC",
-          vehicles: ["KA05 EF3456",],
-        },
-      ];
+  const [vehicleRegNo, setVehicleRegNo] = useState("");
 
-    const existingCouriers: ExistingCourier[] =
-      [
-        {
-          id: 1,
-          name: "DHL Express",
-          regNo:"UP78 AB1234",
-          driver:"Ravi Kumar",
-        },
+  const [loadingCourierServices, setLoadingCourierServices] = useState(false);
 
-        {
-          id: 2,
-          name: "Blue Dart",
-          regNo:"DL01 XY5678",
-          driver:"Arun",
-        },
+  const [loadingVehicles, setLoadingVehicles] = useState(false);
 
-        {
-          id: 3,
-          name: "FedEx",
-          regNo:"MH12 CD9012",
-          driver:"Suresh",
-        },
-      ];
+  const [savingCourier, setSavingCourier] = useState(false);
 
-    const reset =
-      () => {
-        setActiveTab("add");
 
-        setCourierType("");
+  // ==========================================
+  // GET COURIER SERVICES
+  // ==========================================
 
-        setSelectedCourierId(null);
+  useEffect(() => {
+    courierServiceList();
+  }, []);
 
-        setSelectedCourier(null);
+  const courierServiceList = async () => {
+    try {
+      setLoadingCourierServices(true);
 
-        setSelectedVehicle("");
+      const response =
+        await dispatchServiceApi.getCourierServices();
 
-        setDriverName("");
+      console.log("========== COURIER SERVICE API ==========");
 
-        setDriverId("");
-      };
+      console.log(
+        "Full response:",
+        response
+      );
 
-    return {
-      activeTab,
-      setActiveTab,
+      console.log(
+        "response.data:",
+        response?.data
+      );
 
-      courierType,
-      setCourierType,
+      console.log(
+        "response.data.data:",
+        response?.data?.data
+      );
 
-      selectedCourierId,
-      setSelectedCourierId,
+      console.log(
+        "=========================================="
+      );
 
-      selectedCourier,
-      setSelectedCourier,
+      const apiData = response?.data;
 
-      selectedVehicle,
-      setSelectedVehicle,
+      if (apiData?.success === true) {
 
-      driverName,
-      setDriverName,
+        setCourierList(
+          Array.isArray(apiData.data)
+            ? apiData.data
+            : []
+        );
 
-      driverId,
-      setDriverId,
+      } else {
 
-      courierList,
-      existingCouriers,
+        console.error(
+          "Courier Service API did not return success=true",
+          apiData
+        );
 
-      reset,
-    };
+        setCourierList([]);
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Error fetching courier services:",
+        error
+      );
+
+      setCourierList([]);
+
+    } finally {
+
+      setLoadingCourierServices(false);
+    }
   };
+
+  // ==========================================
+  // GET VEHICLES BY COURIER SERVICE
+  // ==========================================
+
+  const getVehicles = async (
+    courierServiceId: number
+  ) => {
+
+    try {
+
+      setLoadingVehicles(true);
+
+      setVehicleList([]);
+      setSelectedVehicle(null);
+
+      const response =
+        await dispatchServiceApi
+          .getVehicleByCourierServiceId(
+            courierServiceId
+          );
+
+      console.log(
+        "Vehicle API Response:",
+        response.data
+      );
+
+      if (response.data?.success) {
+
+        setVehicleList(
+          response.data.data ?? []
+        );
+
+      } else {
+
+        setVehicleList([]);
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Error fetching courier vehicles:",
+        error
+      );
+
+      setVehicleList([]);
+
+    } finally {
+
+      setLoadingVehicles(false);
+    }
+  };
+
+
+  // ==========================================
+  // COURIER SERVICE CHANGE
+  // ==========================================
+
+  const handleCourierServiceChange = async (
+    courierServiceId: number | null
+  ) => {
+
+    setSelectedCourierId(courierServiceId);
+
+    setSelectedVehicle(null);
+
+    setVehicleList([]);
+
+    if (!courierServiceId) {
+      return;
+    }
+
+    await getVehicles(courierServiceId);
+  };
+
+
+  // ==========================================
+  // ADD COURIER
+  // ==========================================
+  const addCourier = async () => {
+
+    if (!selectedCourierId) {
+      alert("Please select Courier Service");
+      return false;
+    }
+
+    if (!selectedVehicle) {
+      alert("Please select Vehicle Reg No");
+      return false;
+    }
+
+    if (!driverName.trim()) {
+      alert("Please enter Driver Name");
+      return false;
+    }
+
+    if (!driverId.trim()) {
+      alert("Please enter Driver ID");
+      return false;
+    }
+
+    const payload: AddCourierPayload = {
+
+      // Vehicle Reg No comes from selected dropdown vehicle
+      vehicleRegNo: selectedVehicle.vehicleRegNo,
+
+      // Driver details are entered manually by user
+      driverName: driverName.trim(),
+
+      driverIdNo: driverId.trim(),
+    };
+
+    console.log(
+      "ADD COURIER PAYLOAD:",
+      payload
+    );
+
+    try {
+
+      setSavingCourier(true);
+
+      const response =
+        await dispatchServiceApi.saveCourier(
+          payload,
+          selectedCourierId
+        );
+
+      console.log(
+        "ADD COURIER RESPONSE:",
+        response.data
+      );
+
+      if (response.data?.success) {
+
+        alert("Courier added successfully");
+
+        // Refresh vehicles
+        await getVehicles(
+          selectedCourierId
+        );
+
+        // Clear selected vehicle
+        setSelectedVehicle(null);
+
+        // Clear manually entered driver details
+        setDriverName("");
+        setDriverId("");
+
+        return true;
+      }
+
+      alert(
+        response.data?.error ||
+        "Failed to add courier"
+      );
+
+      return false;
+
+    } catch (error) {
+
+      console.error(
+        "Error adding courier:",
+        error
+      );
+
+      alert("Failed to add courier");
+
+      return false;
+
+    } finally {
+
+      setSavingCourier(false);
+    }
+  };
+  // ==========================================
+  // RESET
+  // ==========================================
+
+  const reset = () => {
+
+    setActiveTab("add");
+
+    setCourierType("");
+
+    setSelectedCourierId(null);
+
+    setVehicleList([]);
+
+    setSelectedVehicle(null);
+
+    setVehicleRegNo("");
+
+    setDriverName("");
+
+    setDriverId("");
+  };
+
+
+  return {
+
+    activeTab,
+    setActiveTab,
+
+    courierType,
+    setCourierType,
+
+    courierList,
+
+    selectedCourierId,
+    setSelectedCourierId,
+
+    vehicleList,
+    setVehicleList,
+
+    selectedVehicle,
+    setSelectedVehicle,
+
+    vehicleRegNo,
+    setVehicleRegNo,
+
+    driverName,
+    setDriverName,
+
+    driverId,
+    setDriverId,
+
+    loadingCourierServices,
+
+    loadingVehicles,
+
+    savingCourier,
+
+    handleCourierServiceChange,
+
+    addCourier,
+
+    reset,
+  };
+};
 
 export default useDispatchTeamModal;

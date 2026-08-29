@@ -119,255 +119,229 @@ const DispatchTeamModal =
 
                                 {/* ADD COURIER */}
 
-                                {modal.activeTab ===
-                                    "add" && (
-                                        <>
-                                            <div className="row">
+                                {modal.activeTab === "add" && (
+                                    <>
+                                        <div className="row">
 
-                                                <div className="col-md-6 mb-3">
+                                            {/* COURIER SERVICE */}
+                                            <div className="col-md-6 mb-3">
 
-                                                    <label>
-                                                        Courier Service
-                                                    </label>
+                                                <label className="form-label">
+                                                    Courier Service
+                                                </label>
 
-                                                    <select
-                                                        className="form-select"
-                                                        value={
-                                                            modal
-                                                                .selectedCourier
-                                                                ?.id ||
-                                                            ""
-                                                        }
-                                                        onChange={(
-                                                            e,
-                                                        ) => {
-                                                            const courier =
-                                                                modal.courierList.find(
-                                                                    (
-                                                                        c,
-                                                                    ) =>
-                                                                        c.id ===
-                                                                        Number(
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                        ),
-                                                                ) ||
-                                                                null;
+                                                <select
+                                                    className="form-select"
+                                                    value={modal.selectedCourierId ?? ""}
+                                                    onChange={(e) => {
 
-                                                            modal.setSelectedCourier(
-                                                                courier,
-                                                            );
+                                                        const id = e.target.value
+                                                            ? Number(e.target.value)
+                                                            : null;
 
-                                                            modal.setSelectedVehicle(
-                                                                "",
-                                                            );
-                                                        }}
-                                                    >
-                                                        <option value="">
-                                                            Select
+                                                        modal.handleCourierServiceChange(id);
+                                                    }}
+                                                    disabled={modal.loadingCourierServices}
+                                                >
+
+                                                    <option value="">
+                                                        {modal.loadingCourierServices
+                                                            ? "Loading..."
+                                                            : "Select Courier Service"}
+                                                    </option>
+
+                                                    {modal.courierList.map((courier) => (
+                                                        <option
+                                                            key={courier.courierServiceId}
+                                                            value={courier.courierServiceId}
+                                                        >
+                                                            {courier.courierName}
                                                         </option>
+                                                    ))}
 
-                                                        {modal.courierList.map(
-                                                            (
-                                                                courier,
-                                                            ) => (
-                                                                <option
-                                                                    key={
-                                                                        courier.id
-                                                                    }
-                                                                    value={
-                                                                        courier.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        courier.name
-                                                                    }
-                                                                </option>
-                                                            ),
-                                                        )}
-                                                    </select>
-
-                                                </div>
-
-                                                <div className="col-md-6 mb-3">
-
-                                                    <label>
-                                                        Vehicle Reg No
-                                                    </label>
-
-                                                    <select
-                                                        className="form-select"
-                                                        value={
-                                                            modal.selectedVehicle
-                                                        }
-                                                        onChange={(
-                                                            e,
-                                                        ) =>
-                                                            modal.setSelectedVehicle(
-                                                                e
-                                                                    .target
-                                                                    .value,
-                                                            )
-                                                        }
-                                                    >
-                                                        <option value="">
-                                                            Select
-                                                        </option>
-
-                                                        {modal.selectedCourier?.vehicles.map(
-                                                            (
-                                                                vehicle,
-                                                                index,
-                                                            ) => (
-                                                                <option
-                                                                    key={
-                                                                        index
-                                                                    }
-                                                                    value={
-                                                                        vehicle
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        vehicle
-                                                                    }
-                                                                </option>
-                                                            ),
-                                                        )}
-                                                    </select>
-
-                                                </div>
+                                                </select>
 
                                             </div>
 
-                                            <div className="row">
 
-                                                <div className="col-md-6 mb-3">
+                                            {/* VEHICLE REG NO */}
 
-                                                    <label>
-                                                        Driver Name
-                                                    </label>
+                                            <div className="col-md-6 mb-3">
 
-                                                    <input
-                                                        className="form-control"
-                                                        value={
-                                                            modal.driverName
-                                                        }
-                                                        onChange={(
-                                                            e,
-                                                        ) =>
-                                                            modal.setDriverName(
-                                                                e
-                                                                    .target
-                                                                    .value,
-                                                            )
-                                                        }
-                                                    />
+                                                <label className="form-label">
+                                                    Vehicle Reg No
+                                                </label>
 
-                                                </div>
+                                                <select
+                                                    className="form-select"
+                                                    value={
+                                                        modal.selectedVehicle?.courierVehicleId ?? ""
+                                                    }
+                                                    disabled={
+                                                        !modal.selectedCourierId ||
+                                                        modal.loadingVehicles
+                                                    }
+                                                    onChange={(e) => {
 
-                                                <div className="col-md-6 mb-3">
+                                                        const vehicleId = e.target.value
+                                                            ? Number(e.target.value)
+                                                            : null;
 
-                                                    <label>
-                                                        Driver ID
-                                                    </label>
+                                                        const vehicle =
+                                                            modal.vehicleList.find(
+                                                                (item) =>
+                                                                    item.courierVehicleId === vehicleId
+                                                            ) ?? null;
 
-                                                    <input
-                                                        className="form-control"
-                                                        value={
-                                                            modal.driverId
-                                                        }
-                                                        onChange={(
-                                                            e,
-                                                        ) =>
-                                                            modal.setDriverId(
-                                                                e
-                                                                    .target
-                                                                    .value,
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-                                            </div>
+                                                        modal.setSelectedVehicle(vehicle);
 
-                                            <div className="text-end">
-
-                                                <button
-                                                    className="btn btn-primary"
-                                                    onClick={() => {
-
-                                                        if (
-                                                            modal.courierType === "Internal"
-                                                        ) {
-
-                                                            setDispatchTeam({
-                                                                salesRep: "",
-                                                                courierName: "",
-                                                                regNo: "",
-                                                                driverName: "",
-                                                                driverId: "",
-                                                            });
-
-                                                            setIsInternal(true);
-
-                                                        } else {
-
-                                                            const selected =
-                                                                modal.existingCouriers.find(
-                                                                    (x) =>
-                                                                        x.id ===
-                                                                        modal.selectedCourierId,
-                                                                );
-
-                                                            if (!selected) return;
-
-                                                            setDispatchTeam({
-                                                                salesRep: "",
-                                                                courierName:
-                                                                    selected.name,
-                                                                regNo:
-                                                                    selected.regNo,
-                                                                driverName:
-                                                                    selected.driver,
-                                                                driverId:
-                                                                    "AUTO123",
-                                                            });
-
-                                                            setIsInternal(false);
-                                                        }
-
-                                                        modal.reset();
-
-                                                        onContinue();
                                                     }}
                                                 >
 
-                                                    Continue to Dispatch →
-                                                </button>
+                                                    <option value="">
+                                                        {modal.loadingVehicles
+                                                            ? "Loading..."
+                                                            : modal.selectedCourierId
+                                                                ? "Select Vehicle Reg No"
+                                                                : "Select Courier Service First"}
+                                                    </option>
+
+                                                    {modal.vehicleList.map((vehicle) => (
+
+                                                        <option
+                                                            key={vehicle.courierVehicleId}
+                                                            value={vehicle.courierVehicleId}
+                                                        >
+                                                            {vehicle.vehicleRegNo}
+                                                        </option>
+
+                                                    ))}
+
+                                                </select>
 
                                             </div>
-                                        </>
-                                    )}
 
+                                        </div>
+
+
+                                        <div className="row">
+
+                                            {/* DRIVER NAME */}
+                                            <div className="col-md-6 mb-3">
+
+                                                <label className="form-label">
+                                                    Driver Name
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="Enter Driver Name"
+                                                    value={modal.driverName}
+                                                    onChange={(e) =>
+                                                        modal.setDriverName(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+
+                                            </div>
+
+
+                                            {/* DRIVER ID */}
+                                            <div className="col-md-6 mb-3">
+
+                                                <label className="form-label">
+                                                    Driver ID
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    placeholder="Enter Driver ID"
+                                                    value={modal.driverId}
+                                                    onChange={(e) =>
+                                                        modal.setDriverId(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div className="text-end">
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary"
+                                                disabled={
+                                                    modal.savingCourier ||
+                                                    !modal.selectedCourierId ||
+                                                    // !modal.vehicleRegNo.trim() ||
+                                                    !modal.selectedVehicle ||
+                                                    !modal.driverName.trim() ||
+                                                    !modal.driverId.trim()
+                                                }
+                                                onClick={async () => {
+
+                                                    const success =
+                                                        await modal.addCourier();
+
+                                                    if (success) {
+
+                                                        // Don't close the modal.
+                                                        // User can continue working.
+
+                                                    }
+                                                }}
+                                            >
+
+                                                {modal.savingCourier
+                                                    ? "Adding..."
+                                                    : "ADD COURIER"}
+
+                                            </button>
+
+                                        </div>
+                                    </>
+                                )}
                                 {/* SELECT COURIER */}
 
-                                {modal.activeTab ===
-                                    "select" && (
-                                        <>
+                                {modal.activeTab === "select" && (
+                                    <>
+                                        {/* COURIER TYPE */}
+
+                                        <div className="mb-3">
+
+                                            <label className="form-label">
+                                                Courier Type
+                                            </label>
+
                                             <select
-                                                className="form-select mb-3"
-                                                value={
-                                                    modal.courierType
-                                                }
-                                                onChange={(
-                                                    e,
-                                                ) =>
-                                                    modal.setCourierType(
-                                                        e.target
-                                                            .value,
-                                                    )
-                                                }
+                                                className="form-select"
+                                                value={modal.courierType}
+                                                onChange={(e) => {
+
+                                                    const value =
+                                                        e.target.value;
+
+                                                    modal.setCourierType(value);
+
+                                                    // Clear previous external selection
+                                                    if (value === "Internal") {
+
+                                                        modal.setSelectedCourierId(null);
+
+                                                        modal.setVehicleList([]);
+
+                                                        modal.setSelectedVehicle(null);
+                                                    }
+                                                }}
                                             >
+
                                                 <option value="">
                                                     Select Type
                                                 </option>
@@ -379,125 +353,244 @@ const DispatchTeamModal =
                                                 <option value="External">
                                                     External
                                                 </option>
+
                                             </select>
 
-                                            <table className="table table-bordered">
+                                        </div>
 
-                                                <thead>
 
-                                                    <tr>
-                                                        <th>✔</th>
+                                        {/* EXTERNAL ONLY */}
 
-                                                        <th>Courier</th>
+                                        {modal.courierType === "External" && (
+                                            <>
 
-                                                        <th>Reg No</th>
+                                                {/* COURIER SERVICE */}
 
-                                                        <th>Driver</th>
-                                                    </tr>
+                                                <div className="col mb-3">
 
-                                                </thead>
+                                                    <label className="form-label">
+                                                        Courier Service
+                                                    </label>
 
-                                                <tbody>
+                                                    <select
+                                                        className="form-select"
+                                                        value={modal.selectedCourierId ?? ""}
+                                                        onChange={(e) => {
 
-                                                    {modal.existingCouriers.map(
-                                                        (
-                                                            item,
-                                                        ) => (
-                                                            <tr
-                                                                key={item.id}
+                                                            const id = e.target.value
+                                                                ? Number(e.target.value)
+                                                                : null;
+
+                                                            modal.handleCourierServiceChange(id);
+                                                        }}
+                                                        disabled={modal.loadingCourierServices}
+                                                    >
+
+                                                        <option value="">
+                                                            {modal.loadingCourierServices
+                                                                ? "Loading..."
+                                                                : "Select Courier Service"}
+                                                        </option>
+
+                                                        {modal.courierList.map((courier) => (
+                                                            <option
+                                                                key={courier.courierServiceId}
+                                                                value={courier.courierServiceId}
                                                             >
-                                                                <td>
-                                                                    <input
-                                                                        type="radio"
-                                                                        checked={
-                                                                            modal.selectedCourierId === item.id
-                                                                        }
-                                                                        disabled={
-                                                                            modal.courierType === "Internal"
-                                                                        }
-                                                                        onChange={() =>
-                                                                            modal.setSelectedCourierId(item.id)
-                                                                        }
-                                                                    />
-                                                                </td>
+                                                                {courier.courierName}
+                                                            </option>
+                                                        ))}
 
-                                                                <td>
-                                                                    {item.name}
-                                                                </td>
+                                                    </select>
 
-                                                                <td>
-                                                                    {item.regNo}
-                                                                </td>
+                                                </div>
 
-                                                                <td>
-                                                                    {item.driver}
-                                                                </td>
-                                                            </tr>
-                                                        ),
-                                                    )}
 
-                                                </tbody>
+                                                {/* VEHICLE TABLE */}
 
-                                            </table>
+                                                {modal.selectedCourierId && (
+                                                    <>
 
-                                            <div className="text-end">
+                                                        {modal.loadingVehicles ? (
+                                                            <div className="text-center p-3">
+                                                                Loading vehicles...
+                                                            </div>
+                                                        ) : (
+                                                            <table className="table table-bordered">
 
-                                                <button
-                                                    className="btn btn-success"
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>✔</th>
+                                                                        <th>Courier</th>
+                                                                        <th>Reg No</th>
+                                                                        <th>Driver</th>
+                                                                    </tr>
+                                                                </thead>
 
-                                                    onClick={() => {
+                                                                <tbody>
 
-                                                        if (
-                                                            modal.courierType === "Internal"
-                                                        ) {
+                                                                    {modal.vehicleList.length === 0 ? (
 
-                                                            setDispatchTeam({
-                                                                salesRep: "",
-                                                                courierName: "",
-                                                                regNo: "",
-                                                                driverName: "",
-                                                                driverId: "",
-                                                            });
+                                                                        <tr>
+                                                                            <td
+                                                                                colSpan={4}
+                                                                                className="text-center"
+                                                                            >
+                                                                                No vehicles found
+                                                                            </td>
+                                                                        </tr>
 
-                                                            setIsInternal(true);
+                                                                    ) : (
 
-                                                        } else {
+                                                                        modal.vehicleList.map(
+                                                                            (vehicle) => {
 
-                                                            const selected =
-                                                                modal.existingCouriers.find(
-                                                                    (x) =>
-                                                                        x.id ===
-                                                                        modal.selectedCourierId,
-                                                                );
+                                                                                const courier =
+                                                                                    modal.courierList.find(
+                                                                                        (c) =>
+                                                                                            c.courierServiceId ===
+                                                                                            vehicle.courierServiceId
+                                                                                    );
 
-                                                            if (!selected) return;
+                                                                                return (
+                                                                                    <tr
+                                                                                        key={
+                                                                                            vehicle.courierVehicleId
+                                                                                        }
+                                                                                    >
 
-                                                            setDispatchTeam({
-                                                                salesRep: "",
-                                                                courierName:
-                                                                    selected.name,
-                                                                regNo:
-                                                                    selected.regNo,
-                                                                driverName:
-                                                                    selected.driver,
-                                                                driverId:
-                                                                    "AUTO123",
-                                                            });
+                                                                                        <td>
 
-                                                            setIsInternal(false);
+                                                                                            <input
+                                                                                                type="radio"
+                                                                                                name="selectedCourierVehicle"
+                                                                                                checked={
+                                                                                                    modal.selectedVehicle
+                                                                                                        ?.courierVehicleId ===
+                                                                                                    vehicle.courierVehicleId
+                                                                                                }
+                                                                                                onChange={() =>
+                                                                                                    modal.setSelectedVehicle(
+                                                                                                        vehicle
+                                                                                                    )
+                                                                                                }
+                                                                                            />
+
+                                                                                        </td>
+
+                                                                                        <td>
+                                                                                            {
+                                                                                                courier?.courierName
+                                                                                            }
+                                                                                        </td>
+
+                                                                                        <td>
+                                                                                            {
+                                                                                                vehicle.vehicleRegNo
+                                                                                            }
+                                                                                        </td>
+
+                                                                                        <td>
+                                                                                            {
+                                                                                                vehicle.driverName
+                                                                                            }
+                                                                                        </td>
+
+                                                                                    </tr>
+                                                                                );
+                                                                            }
+                                                                        )
+
+                                                                    )}
+
+                                                                </tbody>
+
+                                                            </table>
+                                                        )}
+
+                                                    </>
+                                                )}
+
+                                            </>
+                                        )}
+
+
+                                        {/* CONTINUE */}
+
+                                        <div className="text-end">
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-success"
+                                                disabled={
+                                                    !modal.courierType ||
+                                                    (
+                                                        modal.courierType === "External" &&
+                                                        !modal.selectedVehicle
+                                                    )
+                                                }
+                                                onClick={() => {
+
+                                                    if (
+                                                        modal.courierType ===
+                                                        "Internal"
+                                                    ) {
+
+                                                        setDispatchTeam({
+                                                            salesRep: "",
+                                                            courierName: "",
+                                                            regNo: "",
+                                                            driverName: "",
+                                                            driverId: "",
+                                                        });
+
+                                                        setIsInternal(true);
+
+                                                    } else {
+
+                                                        const selected =
+                                                            modal.selectedVehicle;
+
+                                                        if (!selected) {
+                                                            return;
                                                         }
 
-                                                        modal.reset();
+                                                        const courier =
+                                                            modal.courierList.find(
+                                                                (c) =>
+                                                                    c.courierServiceId ===
+                                                                    selected.courierServiceId
+                                                            );
 
-                                                        onContinue();
-                                                    }}
-                                                >
-                                                    Continue to Dispatch →
-                                                </button>
+                                                        setDispatchTeam({
+                                                            salesRep: "",
+                                                            courierName:
+                                                                courier?.courierName ?? "",
+                                                            regNo:
+                                                                selected.vehicleRegNo,
+                                                            driverName:
+                                                                selected.driverName,
+                                                            driverId:
+                                                                selected.driverIdNo,
+                                                        });
 
-                                            </div>
-                                        </>
-                                    )}
+                                                        setIsInternal(false);
+                                                    }
+
+                                                    modal.reset();
+
+                                                    onContinue();
+                                                }}
+                                            >
+
+                                                Continue to Dispatch →
+
+                                            </button>
+
+                                        </div>
+
+                                    </>
+                                )}
 
                             </div>
 
