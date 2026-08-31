@@ -1,663 +1,877 @@
 import {
-    useEffect,
-    useState,
+  useEffect,
+  useState,
 } from "react";
 
 import type {
-    Customer,
-    CustomerCasing,
-    DispatchTeam,
-    ServiceType,
+  Customer,
+  CustomerCasing,
+  DispatchTeam,
+  ServiceType,
 } from "../type/dispatch.types";
 
 import dispatchServiceApi from "../service/dispatchServiceApi";
 
 
 const useCustomerDeliveryOrderModal = (
-    dispatchTeam: DispatchTeam,
+  dispatchTeam: DispatchTeam,
 ) => {
 
-    // ==========================================
-    // DELIVERY DATE
-    // ==========================================
+  // ==========================================
+  // DELIVERY DATE
+  // ==========================================
 
-    const [deliveryDate, setDeliveryDate] =
-        useState(
-            new Date()
-                .toISOString()
-                .split("T")[0],
+  const [deliveryDate, setDeliveryDate] =
+    useState(
+      new Date()
+        .toISOString()
+        .split("T")[0],
+    );
+
+
+  // ==========================================
+  // SERVICE TYPE
+  // ==========================================
+
+  const [serviceType, setServiceType] =
+    useState("");
+
+
+  const [serviceTypes, setServiceTypes] =
+    useState<ServiceType[]>([]);
+
+
+  const [loadingServiceTypes, setLoadingServiceTypes] =
+    useState(false);
+
+
+  // ==========================================
+  // CUSTOMER
+  // ==========================================
+
+  const [customers, setCustomers] =
+    useState<Customer[]>([]);
+
+
+  const [selectedCustomerId, setSelectedCustomerId] =
+    useState("");
+
+
+  const [loadingCustomers, setLoadingCustomers] =
+    useState(false);
+
+
+  // ==========================================
+  // QC CASINGS
+  // ==========================================
+
+  const [batchCasings, setBatchCasings] =
+    useState<CustomerCasing[]>([]);
+
+
+  const [loadingBatchCasings, setLoadingBatchCasings] =
+    useState(false);
+
+
+  // ==========================================
+  // LEFT TABLE
+  // ==========================================
+
+  const [availableCasings, setAvailableCasings] =
+    useState<CustomerCasing[]>([]);
+
+
+  // ==========================================
+  // RIGHT TABLE
+  // ==========================================
+
+  const [selectedCasings, setSelectedCasings] =
+    useState<CustomerCasing[]>([]);
+
+
+  // ==========================================
+  // ORIGINAL EDIT CASING IDS
+  //
+  // Example:
+  // Existing = [3,4]
+  //
+  // User removes 3
+  // User adds 5
+  //
+  // PUT:
+  // add = [5]
+  // remove = [3]
+  // ==========================================
+
+  const [originalEditCasingIds, setOriginalEditCasingIds] =
+    useState<number[]>([]);
+
+
+  // ==========================================
+  // GET CUSTOMERS
+  // ==========================================
+
+  const getCustomers = async () => {
+
+    try {
+
+      setLoadingCustomers(true);
+
+      const response =
+        await dispatchServiceApi.getCustomerName();
+
+
+      console.log(
+        "Customers API Response:",
+        response.data,
+      );
+
+
+      if (response.data?.success) {
+
+        setCustomers(
+          Array.isArray(response.data.data)
+            ? response.data.data
+            : [],
         );
 
+      } else {
 
-    // ==========================================
-    // SERVICE TYPE
-    // ==========================================
+        setCustomers([]);
 
-    const [serviceType, setServiceType] =
-        useState("");
+        console.error(
+          "Customers API failed:",
+          response.data?.error,
+        );
 
+      }
 
-    const [serviceTypes, setServiceTypes] =
-        useState<ServiceType[]>([]);
+    } catch (error) {
 
+      console.error(
+        "Error fetching customers:",
+        error,
+      );
 
-    const [loadingServiceTypes, setLoadingServiceTypes] =
-        useState(false);
+      setCustomers([]);
 
+    } finally {
 
-    // ==========================================
-    // CUSTOMER
-    // ==========================================
+      setLoadingCustomers(false);
 
-    const [customers, setCustomers] =
-        useState<Customer[]>([]);
+    }
 
-
-    const [selectedCustomerId, setSelectedCustomerId] =
-        useState("");
-
-
-    const [loadingCustomers, setLoadingCustomers] =
-        useState(false);
+  };
 
 
-    // ==========================================
-    // QC BATCH CASINGS
-    // ==========================================
+  // ==========================================
+  // GET SERVICE TYPES
+  // ==========================================
 
-    const [batchCasings, setBatchCasings] =
-        useState<CustomerCasing[]>([]);
+  const getServiceTypes = async () => {
 
+    try {
 
-    const [loadingBatchCasings, setLoadingBatchCasings] =
-        useState(false);
+      setLoadingServiceTypes(true);
 
-
-    // ==========================================
-    // CUSTOMER CASING ORDERS
-    // ==========================================
-
-    const [availableCasings, setAvailableCasings] =
-        useState<CustomerCasing[]>([]);
+      const response =
+        await dispatchServiceApi.getServiceTypeName();
 
 
-    // ==========================================
-    // SELECTED CASINGS
-    // ==========================================
-
-    const [selectedCasings, setSelectedCasings] =
-        useState<CustomerCasing[]>([]);
+      console.log(
+        "Service Types API Response:",
+        response.data,
+      );
 
 
-    // ==========================================
-    // GET CUSTOMERS
-    // ==========================================
+      if (response.data?.success) {
 
-    const getCustomers = async () => {
+        setServiceTypes(
+          Array.isArray(response.data.data)
+            ? response.data.data
+            : [],
+        );
 
-        try {
+      } else {
 
-            setLoadingCustomers(true);
+        setServiceTypes([]);
 
-            const response =
-                await dispatchServiceApi.getCustomerName();
+        console.error(
+          "Service Types API failed:",
+          response.data?.error,
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Error fetching service types:",
+        error,
+      );
+
+      setServiceTypes([]);
+
+    } finally {
+
+      setLoadingServiceTypes(false);
+
+    }
+
+  };
 
 
-            console.log(
-                "Customers API Response:",
-                response.data,
-            );
+  // ==========================================
+  // GET APPROVED CASINGS FROM QC
+  // ==========================================
+
+  const getApprovedCasingsFromQC = async () => {
+
+    try {
+
+      setLoadingBatchCasings(true);
+
+      console.log(
+        "Getting approved casings from QC...",
+      );
 
 
-            if (response.data?.success) {
+      const response =
+        await dispatchServiceApi.getApprovedFromQC();
 
-                setCustomers(
-                    Array.isArray(response.data.data)
-                        ? response.data.data
-                        : [],
-                );
 
-            } else {
+      console.log(
+        "Approved From QC API Response:",
+        response.data,
+      );
 
-                setCustomers([]);
 
-                console.error(
-                    "Customers API failed:",
-                    response.data?.error,
-                );
+      if (!response.data?.success) {
+
+        setBatchCasings([]);
+
+        return;
+
+      }
+
+
+      const stages =
+        Array.isArray(response.data.data)
+          ? response.data.data
+          : [];
+
+
+      const casings: CustomerCasing[] =
+        stages.flatMap(
+          (stage: any) => {
+
+            if (
+              !Array.isArray(
+                stage.batches,
+              )
+            ) {
+              return [];
             }
 
-        } catch (error) {
 
-            console.error(
-                "Error fetching customers:",
-                error,
-            );
+            return stage.batches.flatMap(
+              (batch: any) => {
 
-            setCustomers([]);
-
-        } finally {
-
-            setLoadingCustomers(false);
-        }
-    };
+                if (
+                  !Array.isArray(
+                    batch.casings,
+                  )
+                ) {
+                  return [];
+                }
 
 
-    // ==========================================
-    // GET SERVICE TYPES
-    // ==========================================
+                return batch.casings.map(
+                  (casing: any) => ({
 
-    const getServiceTypes = async () => {
+                    orderCasingId:
+                      casing.orderCasingId,
 
-        try {
+                    customerName:
+                      casing.customerName ??
+                      "",
 
-            setLoadingServiceTypes(true);
+                    batchNo:
+                      casing.batchNumber ??
+                      batch.batchNumber ??
+                      "",
 
-            const response =
-                await dispatchServiceApi.getServiceTypeName();
+                    productionNo:
+                      casing.productionNumber ??
+                      "",
 
+                    tyreSize:
+                      casing.tyreSizeLabel ??
+                      "",
 
-            console.log(
-                "Service Types API Response:",
-                response.data,
-            );
+                    tyreMake:
+                      casing.tyreMakeName ??
+                      "",
 
+                    service:
+                      casing.serviceType ??
+                      casing.serviceTypeName ??
+                      "",
 
-            if (response.data?.success) {
-
-                setServiceTypes(
-                    Array.isArray(response.data.data)
-                        ? response.data.data
-                        : [],
+                  }),
                 );
 
-            } else {
-
-                setServiceTypes([]);
-
-                console.error(
-                    "Service Types API failed:",
-                    response.data?.error,
-                );
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Error fetching service types:",
-                error,
+              },
             );
 
-            setServiceTypes([]);
-
-        } finally {
-
-            setLoadingServiceTypes(false);
-        }
-    };
-
-    // ==========================================
-    // GET APPROVED CASINGS FROM QC
-    // ==========================================
-
-    const getApprovedCasingsFromQC = async () => {
-
-        try {
-
-            setLoadingBatchCasings(true);
-
-            const response =
-                await dispatchServiceApi.getApprovedFromQC();
-
-            console.log(
-                "Approved From QC API Response:",
-                response.data
-            );
-
-            if (!response.data?.success) {
-
-                console.error(
-                    "Approved From QC API failed:",
-                    response.data?.error
-                );
-
-                setBatchCasings([]);
-
-                return;
-            }
-
-            const stages =
-                Array.isArray(response.data.data)
-                    ? response.data.data
-                    : [];
-
-
-            const casings: CustomerCasing[] =
-                stages.flatMap(
-                    (stage: any) => {
-
-                        if (!Array.isArray(stage.batches)) {
-                            return [];
-                        }
-
-                        return stage.batches.flatMap(
-                            (batch: any) => {
-
-                                if (
-                                    !Array.isArray(
-                                        batch.casings
-                                    )
-                                ) {
-                                    return [];
-                                }
-
-                                return batch.casings.map(
-                                    (casing: any) => ({
-
-                                        orderCasingId:
-                                            casing.orderCasingId,
-
-                                        customerName:
-                                            casing.customerName,
-
-                                        batchNo:
-                                            batch.batchNumber,
-
-                                        productionNo:
-                                            casing.productionNumber,
-
-                                        tyreSize:
-                                            casing.tyreSizeLabel,
-
-                                        tyreMake:
-                                            casing.tyreMakeName,
-
-                                        service:
-                                            casing.serviceTypeName,
-
-                                    })
-                                );
-                            }
-                        );
-                    }
-                );
-
-
-            console.log(
-                "Flattened QC Casings:",
-                casings
-            );
-
-            setBatchCasings(casings);
-
-        } catch (error) {
-
-            console.error(
-                "Error fetching approved casings from QC:",
-                error
-            );
-
-            setBatchCasings([]);
-
-        } finally {
-
-            setLoadingBatchCasings(false);
-        }
-    };
-
-
-    // ==========================================
-    // LOAD DATA
-    // ==========================================
-
-    useEffect(() => {
-
-        getCustomers();
-
-        getServiceTypes();
-
-        getApprovedCasingsFromQC();
-
-    }, []);
-
-    // ==========================================
-    // LOAD ALL MASTER + QC DATA
-    // ==========================================
-
-    useEffect(() => {
-
-        getCustomers();
-
-        getServiceTypes();
-
-        getApprovedCasingsFromQC();
-
-    }, []);
-
-
-    // ==========================================
-    // SELECTED CUSTOMER
-    // ==========================================
-
-    const selectedCustomer =
-        customers.find(
-            (customer) =>
-                customer.customerNumber ===
-                selectedCustomerId,
+          },
         );
 
 
-    // ==========================================
-    // SELECTED SERVICE TYPE
-    // ==========================================
-
-    const selectedServiceType =
-        serviceTypes.find(
-            (item) =>
-                item.serviceTypeId.toString() ===
-                serviceType,
-        );
+      console.log(
+        "Flattened QC Casings:",
+        casings,
+      );
 
 
-    // ==========================================
-    // FILTER CUSTOMER CASING ORDERS
-    // ==========================================
+      setBatchCasings(
+        casings,
+      );
 
-    useEffect(() => {
+    } catch (error) {
 
-        // ==========================================
-        // CUSTOMER OR SERVICE TYPE NOT SELECTED
-        // ==========================================
+      console.error(
+        "Error fetching approved casings from QC:",
+        error,
+      );
 
-        if (
-            !selectedCustomer ||
-            !selectedServiceType
-        ) {
+      setBatchCasings([]);
 
-            setAvailableCasings([]);
+    } finally {
 
-            return;
-        }
+      setLoadingBatchCasings(false);
 
+    }
 
-        // ==========================================
-        // SELECTED CUSTOMER NAME
-        // ==========================================
-
-        const customerName =
-            selectedCustomer.customerName
-                .trim()
-                .toLowerCase();
+  };
 
 
-        // ==========================================
-        // SELECTED SERVICE TYPE NAME
-        // ==========================================
+  // ==========================================
+  // LOAD DATA
+  // ==========================================
 
-        const serviceTypeName =
-            selectedServiceType.serviceTypeName
-                .trim()
-                .toLowerCase();
+  useEffect(() => {
 
+    getCustomers();
 
-        // ==========================================
-        // FILTER
-        // ==========================================
+    getServiceTypes();
 
-        const filteredCasings =
-            batchCasings.filter(
-                (casing) => {
+    getApprovedCasingsFromQC();
 
-                    const casingCustomerName =
-                        casing.customerName
-                            ?.trim()
-                            .toLowerCase();
+  }, []);
 
 
-                    const casingServiceType =
-                        casing.service
-                            ?.trim()
-                            .toLowerCase();
+  // ==========================================
+  // SELECTED CUSTOMER
+  // ==========================================
 
-
-                    return (
-                        casingCustomerName ===
-                        customerName
-
-                        &&
-
-                        casingServiceType ===
-                        serviceTypeName
-                    );
-                },
-            );
-
-
-        console.log(
-            "Selected Customer:",
-            customerName,
-        );
-
-
-        console.log(
-            "Selected Service Type:",
-            serviceTypeName,
-        );
-
-
-        console.log(
-            "QC Batch Casings:",
-            batchCasings,
-        );
-
-
-        console.log(
-            "Filtered Customer Casings:",
-            filteredCasings,
-        );
-
-
-        setAvailableCasings(
-            filteredCasings,
-        );
-
-    }, [
-        selectedCustomer,
+  const selectedCustomer =
+    customers.find(
+      (customer) =>
+        customer.customerNumber ===
         selectedCustomerId,
-        selectedServiceType,
+    );
+
+
+  // ==========================================
+  // SELECTED SERVICE TYPE
+  // ==========================================
+
+  const selectedServiceType =
+    serviceTypes.find(
+      (item) =>
+        item.serviceTypeId.toString() ===
         serviceType,
-        batchCasings,
-    ]);
+    );
 
 
-    // ==========================================
-    // ADD CASING
-    // ==========================================
+  // ==========================================
+  // FILTER LEFT TABLE
+  // ==========================================
 
-    const handleAddCasing = (
-        item: CustomerCasing,
-    ) => {
+  useEffect(() => {
 
-        console.log(
-            "ADDING CASING:",
-            item,
-        );
+    if (
+      !selectedCustomer ||
+      !selectedServiceType
+    ) {
 
+      setAvailableCasings([]);
 
-        // Add to selected list
-        setSelectedCasings(
-            (prev) => {
+      return;
 
-                // Prevent duplicate
-                const alreadyExists =
-                    prev.some(
-                        (x) =>
-                            x.orderCasingId ===
-                            item.orderCasingId,
-                    );
+    }
 
 
-                if (alreadyExists) {
-                    return prev;
-                }
+    const customerName =
+      selectedCustomer.customerName
+        ?.trim()
+        .toLowerCase();
 
 
-                return [
-                    ...prev,
-                    item,
-                ];
-            },
-        );
+    const serviceTypeName =
+      selectedServiceType.serviceTypeName
+        ?.trim()
+        .toLowerCase();
 
 
-        // Remove from available list
-        setAvailableCasings(
-            (prev) =>
-                prev.filter(
-                    (x) =>
-                        x.orderCasingId !==
-                        item.orderCasingId,
-                ),
-        );
-    };
+    const filteredCasings =
+      batchCasings.filter(
+        (casing) => {
+
+          const casingCustomerName =
+            casing.customerName
+              ?.trim()
+              .toLowerCase();
 
 
-    // ==========================================
-    // REMOVE CASING
-    // ==========================================
-
-    const handleRemoveCasing = (
-        item: CustomerCasing,
-    ) => {
-
-        console.log(
-            "REMOVING CASING:",
-            item,
-        );
+          const casingServiceType =
+            casing.service
+              ?.trim()
+              .toLowerCase();
 
 
-        // Remove from selected
-        setSelectedCasings(
-            (prev) =>
-                prev.filter(
-                    (x) =>
-                        x.orderCasingId !==
-                        item.orderCasingId,
-                ),
-        );
-
-
-        // Add back to available
-        setAvailableCasings(
-            (prev) => {
-
-                const exists =
-                    prev.some(
-                        (x) =>
-                            x.orderCasingId ===
-                            item.orderCasingId,
-                    );
-
-
-                if (exists) {
-                    return prev;
-                }
-
-
-                return [
-                    ...prev,
-                    item,
-                ];
-            },
-        );
-    };
-
-
-    // ==========================================
-    // GENERATE DELIVERY ORDER NUMBER
-    // ==========================================
-
-    const generateDONumber = () => {
-
-        const random =
-            Math.floor(
-                100 +
-                Math.random() * 900,
+          const alreadySelected =
+            selectedCasings.some(
+              (selected) =>
+                selected.orderCasingId ===
+                casing.orderCasingId,
             );
 
 
-        return `DEV-${new Date()
-            .toISOString()
-            .slice(0, 10)
-            .replace(/-/g, "")}-${random}`;
-    };
+          return (
+            casingCustomerName ===
+              customerName &&
+
+            casingServiceType ===
+              serviceTypeName &&
+
+            !alreadySelected
+          );
+
+        },
+      );
+
+
+    console.log(
+      "Available Casings:",
+      filteredCasings,
+    );
+
+
+    setAvailableCasings(
+      filteredCasings,
+    );
+
+  }, [
+    selectedCustomer,
+    selectedCustomerId,
+    selectedServiceType,
+    serviceType,
+    batchCasings,
+    selectedCasings,
+  ]);
+
+
+  // ==========================================
+  // ADD CASING
+  // LEFT -> RIGHT
+  // ==========================================
+
+  const handleAddCasing = (
+    item: CustomerCasing,
+  ) => {
+
+    console.log(
+      "ADDING CASING:",
+      item,
+    );
+
+
+    setSelectedCasings(
+      (prev) => {
+
+        const exists =
+          prev.some(
+            (x) =>
+              x.orderCasingId ===
+              item.orderCasingId,
+          );
+
+
+        if (exists) {
+          return prev;
+        }
+
+
+        return [
+          ...prev,
+          item,
+        ];
+
+      },
+    );
+
+
+    // Immediately remove from left table
+    setAvailableCasings(
+      (prev) =>
+        prev.filter(
+          (x) =>
+            x.orderCasingId !==
+            item.orderCasingId,
+        ),
+    );
+
+  };
+
+
+  // ==========================================
+  // REMOVE CASING
+  // RIGHT -> LEFT
+  // ==========================================
+
+  const handleRemoveCasing = (
+    item: CustomerCasing,
+  ) => {
+
+    console.log(
+      "REMOVING CASING:",
+      item,
+    );
+
+
+    // Remove from right table
+    setSelectedCasings(
+      (prev) =>
+        prev.filter(
+          (x) =>
+            x.orderCasingId !==
+            item.orderCasingId,
+        ),
+    );
+
+
+    // IMPORTANT:
+    // Put it directly back into LEFT TABLE.
+    //
+    // Do not depend only on useEffect.
+    //
+
+    setAvailableCasings(
+      (prev) => {
+
+        const exists =
+          prev.some(
+            (x) =>
+              x.orderCasingId ===
+              item.orderCasingId,
+          );
+
+
+        if (exists) {
+          return prev;
+        }
+
+
+        return [
+          ...prev,
+          item,
+        ];
+
+      },
+    );
+
+  };
+
+
+  // ==========================================
+  // LOAD EXISTING CASINGS FOR EDIT
+  // ==========================================
+
+  const loadEditCasings = (
+    casings: any[],
+  ) => {
+
+    if (
+      !Array.isArray(casings)
+    ) {
+
+      setSelectedCasings([]);
+
+      setOriginalEditCasingIds([]);
+
+      return;
+
+    }
 
 
     // ==========================================
-    // RESET
+    // MAP API CASINGS
     // ==========================================
 
-    const reset = () => {
+    const mappedCasings:
+      CustomerCasing[] =
+      casings.map(
+        (casing: any) => ({
 
-        setDeliveryDate(
-            new Date()
-                .toISOString()
-                .split("T")[0],
-        );
+          orderCasingId:
+            casing.orderCasingId,
 
+          customerName:
+            casing.customerName ??
+            "",
 
-        setSelectedCustomerId("");
+          service:
+            casing.serviceType ??
+            casing.serviceTypeName ??
+            "",
 
-        setServiceType("");
+          batchNo:
+            casing.batchNumber ??
+            "",
 
-        setAvailableCasings([]);
+          productionNo:
+            casing.productionNumber ??
+            "",
 
-        setSelectedCasings([]);
-    };
+          tyreSize:
+            casing.tyreSizeLabel ??
+            "",
+
+          tyreMake:
+            casing.tyreMakeName ??
+            "",
+
+        }),
+      );
 
 
     // ==========================================
-    // RETURN
+    // SAVE ORIGINAL IDS
     // ==========================================
+
+    const originalIds =
+      mappedCasings.map(
+        (item) =>
+          item.orderCasingId,
+      );
+
+
+    console.log(
+      "ORIGINAL EDIT CASING IDS:",
+      originalIds,
+    );
+
+
+    setOriginalEditCasingIds(
+      originalIds,
+    );
+
+
+    // ==========================================
+    // IMPORTANT FIX
+    //
+    // Merge edit casings into batchCasings.
+    //
+    // This allows a removed casing to come
+    // back to the left table.
+    // ==========================================
+
+    setBatchCasings(
+      (prev) => {
+
+        const existingIds =
+          new Set(
+            prev.map(
+              (x) =>
+                x.orderCasingId,
+            ),
+          );
+
+
+        const newCasings =
+          mappedCasings.filter(
+            (item) =>
+              !existingIds.has(
+                item.orderCasingId,
+              ),
+          );
+
+
+        return [
+          ...prev,
+          ...newCasings,
+        ];
+
+      },
+    );
+
+
+    // ==========================================
+    // SHOW EXISTING CASINGS ON RIGHT
+    // ==========================================
+
+    setSelectedCasings(
+      mappedCasings,
+    );
+
+  };
+
+
+  // ==========================================
+  // GET ADD / REMOVE IDS FOR UPDATE
+  // ==========================================
+
+  const getUpdateCasingIds = () => {
+
+    const currentIds =
+      selectedCasings.map(
+        (item) =>
+          item.orderCasingId,
+      );
+
+
+    // ==========================================
+    // ADD
+    //
+    // Current but not originally present
+    // ==========================================
+
+    const addOrderCasingIds =
+      currentIds.filter(
+        (id) =>
+          !originalEditCasingIds.includes(
+            id,
+          ),
+      );
+
+
+    // ==========================================
+    // REMOVE
+    //
+    // Originally present but no longer current
+    // ==========================================
+
+    const removeOrderCasingIds =
+      originalEditCasingIds.filter(
+        (id) =>
+          !currentIds.includes(
+            id,
+          ),
+      );
+
 
     return {
-
-        // Date
-        deliveryDate,
-        setDeliveryDate,
-
-        // Service Type
-        serviceType,
-        setServiceType,
-        serviceTypes,
-        loadingServiceTypes,
-
-        // Customer
-        selectedCustomerId,
-        setSelectedCustomerId,
-        customers,
-        selectedCustomer,
-        loadingCustomers,
-
-        // QC Batch
-        batchCasings,
-        loadingBatchCasings,
-
-        // Available
-        availableCasings,
-
-        // Selected
-        selectedCasings,
-
-        // Actions
-        handleAddCasing,
-        handleRemoveCasing,
-
-        // Other
-        generateDONumber,
-        reset,
-        dispatchTeam,
+      addOrderCasingIds,
+      removeOrderCasingIds,
     };
+
+  };
+
+
+  // ==========================================
+  // GENERATE DELIVERY ORDER NUMBER
+  // ==========================================
+
+  const generateDONumber = () => {
+
+    const random =
+      Math.floor(
+        100 +
+        Math.random() * 900,
+      );
+
+
+    return `DEV-${new Date()
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "")}-${random}`;
+
+  };
+
+
+  // ==========================================
+  // RESET
+  // ==========================================
+
+  const reset = () => {
+
+    setDeliveryDate(
+      new Date()
+        .toISOString()
+        .split("T")[0],
+    );
+
+
+    setSelectedCustomerId("");
+
+    setServiceType("");
+
+    setAvailableCasings([]);
+
+    setSelectedCasings([]);
+
+    setOriginalEditCasingIds([]);
+
+  };
+
+
+  // ==========================================
+  // RETURN
+  // ==========================================
+
+  return {
+
+    deliveryDate,
+    setDeliveryDate,
+
+    serviceType,
+    setServiceType,
+
+    serviceTypes,
+    loadingServiceTypes,
+
+    selectedCustomerId,
+    setSelectedCustomerId,
+
+    customers,
+    selectedCustomer,
+    loadingCustomers,
+
+    batchCasings,
+    loadingBatchCasings,
+
+    availableCasings,
+
+    selectedCasings,
+
+    handleAddCasing,
+
+    handleRemoveCasing,
+
+    loadEditCasings,
+
+    getUpdateCasingIds,
+
+    generateDONumber,
+
+    reset,
+
+    dispatchTeam,
+
+  };
+
 };
 
 

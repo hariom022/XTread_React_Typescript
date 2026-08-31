@@ -240,7 +240,7 @@ const DispatchDetailsModal = ({ show, deliverySheetId, onClose }: Props) => {
                               <td>{casing.tyreReferenceNumber}</td>
 
                               <td>{casing.productionNumber}</td>
-
+ 
                               <td>{casing.tyreSizeLabel}</td>
 
                               <td>{casing.tyreMakeName}</td>

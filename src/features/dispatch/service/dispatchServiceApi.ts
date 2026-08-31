@@ -29,7 +29,7 @@ const dispatchServiceApi = {
   /**Get Service Type */
   getServiceTypeName: () => api.get(`/service-types`),
 
-  /** POST Delivery Sheet */
+  /** POST Save Customer Delivery Sheet */
   saveDeliverySheet: (payload: DeliverySheetPayload) =>
     api.post(`/delivery-sheets`, payload),
 
@@ -50,7 +50,34 @@ const dispatchServiceApi = {
     api.get(`/delivery-sheets?isApproved=true`),
 
   /** GET Delivery Sheet Details */
-getDeliverySheetById: (deliverySheetId: number) =>
-  api.get(`/delivery-sheets/${deliverySheetId}`),
+  getDeliverySheetById: (deliverySheetId: number) =>
+    api.get(`/delivery-sheets/${deliverySheetId}`),
+
+  /* ==========================================
+     UPDATE DELIVERY SHEET
+     ========================================== */
+
+  updateDeliverySheet: (
+    deliverySheetId: number,
+    payload: {
+      courierType: number;
+
+      courierServiceId: string;
+
+      courierName: string | null;
+
+      vehicleRegNo: string | null;
+
+      driverName: string | null;
+
+      driverIdNo: string | null;
+
+      remarks: string;
+
+      addOrderCasingIds: number[];
+
+      removeOrderCasingIds: number[];
+    },
+  ) => api.put(`/delivery-sheets/${deliverySheetId}`, payload),
 };
 export default dispatchServiceApi;

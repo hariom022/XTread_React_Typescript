@@ -3,6 +3,7 @@ import { useState } from "react";
 import DispatchDocumentFinalization from "./DispatchDocumentFinalization";
 import type { DispatchFinalizationRow } from "../type/dispatch.types";
 import dispatchServiceApi from "../service/dispatchServiceApi";
+import CustomerDeliveryOrderModal from "./CustomerDeliveryOrderModal";
 
 interface Props {
   show: boolean;
@@ -12,6 +13,8 @@ interface Props {
   onClose: () => void;
 
   onFinalize: (row: DispatchFinalizationRow) => void;
+
+  onEdit: (deliverySheetId: number) => void;
 }
 
 const DispatchFinalizationModal = ({
@@ -19,6 +22,7 @@ const DispatchFinalizationModal = ({
   rows,
   onClose,
   onFinalize,
+  onEdit,
 }: Props) => {
   const modal = useDispatchFinalizationModal(rows);
 
@@ -41,6 +45,12 @@ const DispatchFinalizationModal = ({
     useState<DispatchFinalizationRow | null>(null);
 
   const [processing, setProcessing] = useState(false);
+
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const [editDeliverySheet, setEditDeliverySheet] = useState<any>(null);
+
+  const [loadingEdit, setLoadingEdit] = useState(false);
 
   const handleProcess = async () => {
     if (!selectedRow) {
@@ -107,6 +117,35 @@ const DispatchFinalizationModal = ({
     }
   };
 
+  const handleEdit = async (deliverySheetId: number) => {
+    try {
+      setLoadingEdit(true);
+
+      console.log("✏ Editing Delivery Sheet:", deliverySheetId);
+
+      const response =
+        await dispatchServiceApi.getDeliverySheetById(deliverySheetId);
+
+      console.log("✏ Delivery Sheet Edit Response:", response.data);
+
+      if (!response.data?.success) {
+        alert(response.data?.error || "Failed to load delivery sheet");
+
+        return;
+      }
+
+      setEditDeliverySheet(response.data.data);
+
+      setShowEditModal(true);
+    } catch (error) {
+      console.error("Error loading delivery sheet:", error);
+
+      alert("Failed to load delivery sheet");
+    } finally {
+      setLoadingEdit(false);
+    }
+  };
+
   if (!show) return null;
   return (
     <>
@@ -146,7 +185,7 @@ const DispatchFinalizationModal = ({
 
                       <th>Finalize</th>
 
-                      <th>Cancel</th>
+                      <th>Edit</th>
                     </tr>
                   </thead>
 
@@ -209,10 +248,12 @@ const DispatchFinalizationModal = ({
 
                               <td>
                                 <button
+                                  type="button"
                                   className="btn btn-danger btn-sm"
-                                  onClick={() => modal.handleCancel(row.id)}
+                                  disabled={loadingEdit}
+                                  onClick={() => handleEdit(row.id)}
                                 >
-                                  ✖
+                                  <i className="bi bi-pencil"></i>
                                 </button>
                               </td>
                             </tr>
@@ -248,6 +289,25 @@ const DispatchFinalizationModal = ({
           setSelectedRow(null);
         }}
         onProcess={handleProcess}
+      />
+      <CustomerDeliveryOrderModal
+        show={showEditModal}
+        dispatchTeam={{
+          salesRep: "",
+          courierName: editDeliverySheet?.courierName ?? "",
+          regNo: editDeliverySheet?.vehicleRegNo ?? "",
+          driverName: editDeliverySheet?.driverName ?? "",
+          driverId: editDeliverySheet?.driverIdNo ?? "",
+          courierServiceId: editDeliverySheet?.courierServiceId ?? 0,
+        }}
+        setDispatchTeam={() => {}}
+        isInternal={editDeliverySheet?.courierType === 2}
+        editDeliverySheet={editDeliverySheet}
+        onClose={() => {
+          setShowEditModal(false);
+
+          setEditDeliverySheet(null);
+        }}
       />
     </>
   );

@@ -1,4 +1,7 @@
+import { useEffect } from "react";
+
 import useCustomerDeliveryOrderModal from "../hooks/useCustomerDeliveryOrderModal";
+
 import dispatchServiceApi from "../service/dispatchServiceApi";
 
 import type { DispatchTeam, CustomerCasing } from "../type/dispatch.types";
@@ -15,6 +18,10 @@ interface Props {
   onClose: () => void;
 
   onSave?: (data: any) => void;
+
+  // Existing delivery sheet
+  // when editing
+  editDeliverySheet?: any;
 }
 
 const CustomerDeliveryOrderModal = ({
@@ -24,11 +31,114 @@ const CustomerDeliveryOrderModal = ({
   isInternal,
   onClose,
   onSave,
+  editDeliverySheet,
 }: Props) => {
   const modal = useCustomerDeliveryOrderModal(dispatchTeam);
 
   // ==========================================
-  // DON'T RENDER IF MODAL IS CLOSED
+  // LOAD EDIT DATA
+  // ==========================================
+
+  useEffect(() => {
+    if (!show || !editDeliverySheet) {
+      return;
+    }
+
+    console.log("EDIT DELIVERY SHEET DATA:", editDeliverySheet);
+
+    // ==========================================
+    // DATE
+    // ==========================================
+
+    if (editDeliverySheet.createdAtUtc) {
+      const date = new Date(editDeliverySheet.createdAtUtc)
+        .toISOString()
+        .split("T")[0];
+
+      modal.setDeliveryDate(date);
+    }
+
+    // ==========================================
+    // EXISTING CASINGS
+    // ==========================================
+
+    if (Array.isArray(editDeliverySheet.casings)) {
+      modal.loadEditCasings(editDeliverySheet.casings);
+    }
+
+    // ==========================================
+    // COURIER DETAILS
+    // ==========================================
+
+    setDispatchTeam((prev) => ({
+      ...prev,
+
+      courierName: editDeliverySheet.courierName ?? "",
+
+      regNo: editDeliverySheet.vehicleRegNo ?? "",
+
+      driverName: editDeliverySheet.driverName ?? "",
+
+      driverId: editDeliverySheet.driverIdNo ?? "",
+
+      courierServiceId: editDeliverySheet.courierServiceId ?? 0,
+    }));
+  }, [show, editDeliverySheet]);
+
+  // ==========================================
+  // SET CUSTOMER + SERVICE AFTER MASTER APIs
+  // ==========================================
+
+  useEffect(() => {
+    if (!show || !editDeliverySheet) {
+      return;
+    }
+
+    const firstCasing = editDeliverySheet.casings?.[0];
+
+    // ==========================================
+    // CUSTOMER
+    // ==========================================
+
+    const customerName = firstCasing?.customerName;
+
+    if (customerName && modal.customers.length > 0) {
+      const customer = modal.customers.find(
+        (item: any) =>
+          item.customerName?.trim().toLowerCase() ===
+          customerName.trim().toLowerCase(),
+      );
+
+      if (customer) {
+        console.log("EDIT CUSTOMER:", customer);
+
+        modal.setSelectedCustomerId(customer.customerNumber);
+      }
+    }
+
+    // ==========================================
+    // SERVICE TYPE
+    // ==========================================
+
+    const serviceName = firstCasing?.serviceType;
+
+    if (serviceName && modal.serviceTypes.length > 0) {
+      const service = modal.serviceTypes.find(
+        (item: any) =>
+          item.serviceTypeName?.trim().toLowerCase() ===
+          serviceName.trim().toLowerCase(),
+      );
+
+      if (service) {
+        console.log("EDIT SERVICE TYPE:", service);
+
+        modal.setServiceType(service.serviceTypeId.toString());
+      }
+    }
+  }, [show, editDeliverySheet, modal.customers, modal.serviceTypes]);
+
+  // ==========================================
+  // DON'T RENDER
   // ==========================================
 
   if (!show) {
@@ -36,12 +146,12 @@ const CustomerDeliveryOrderModal = ({
   }
 
   // ==========================================
-  // SAVE CUSTOMER DELIVERY
+  // SAVE / UPDATE
   // ==========================================
 
   const handleSave = async () => {
     // ==========================================
-    // CUSTOMER VALIDATION
+    // CUSTOMER
     // ==========================================
 
     if (!modal.selectedCustomerId) {
@@ -51,7 +161,7 @@ const CustomerDeliveryOrderModal = ({
     }
 
     // ==========================================
-    // SERVICE TYPE VALIDATION
+    // SERVICE
     // ==========================================
 
     if (!modal.serviceType) {
@@ -61,85 +171,123 @@ const CustomerDeliveryOrderModal = ({
     }
 
     // ==========================================
-    // CASING VALIDATION
+    // CASINGS
     // ==========================================
 
-    if (!modal.selectedCasings || modal.selectedCasings.length === 0) {
+    if (modal.selectedCasings.length === 0) {
       alert("Please add at least one casing");
 
       return;
     }
 
     // ==========================================
-    // GET ORDER CASING IDS
+    // COURIER TYPE
+    // ==========================================
+
+    const courierType = isInternal ? 2 : 1;
+
+    // ==========================================
+    // COURIER SERVICE
+    // ==========================================
+
+    const courierServiceId = isInternal
+      ? "0"
+      : (dispatchTeam.courierServiceId?.toString() ?? "0");
+
+    // ==========================================
+    // VALIDATE COURIER
+    // ==========================================
+
+    if (
+      !dispatchTeam.courierName ||
+      !dispatchTeam.regNo ||
+      !dispatchTeam.driverName ||
+      !dispatchTeam.driverId
+    ) {
+      alert("Please enter/select all dispatch team details");
+
+      return;
+    }
+
+    // ==========================================
+    // EDIT MODE
+    // ==========================================
+
+    if (editDeliverySheet?.deliverySheetId) {
+      const { addOrderCasingIds, removeOrderCasingIds } =
+        modal.getUpdateCasingIds();
+
+      const updatePayload = {
+        courierType,
+
+        courierServiceId,
+
+        courierName: dispatchTeam.courierName || null,
+
+        vehicleRegNo: dispatchTeam.regNo || null,
+
+        driverName: dispatchTeam.driverName || null,
+
+        driverIdNo: dispatchTeam.driverId || null,
+
+        remarks: editDeliverySheet.remarks ?? "",
+
+        addOrderCasingIds,
+
+        removeOrderCasingIds,
+      };
+
+      console.log(
+        "UPDATE DELIVERY SHEET ID:",
+        editDeliverySheet.deliverySheetId,
+      );
+
+      console.log("UPDATE DELIVERY SHEET PAYLOAD:", updatePayload);
+
+      try {
+        const response = await dispatchServiceApi.updateDeliverySheet(
+          editDeliverySheet.deliverySheetId,
+          updatePayload,
+        );
+
+        console.log("UPDATE DELIVERY SHEET RESPONSE:", response.data);
+
+        if (response.data?.success) {
+          alert("Customer delivery updated successfully");
+
+          onSave?.(response.data);
+
+          modal.reset();
+
+          onClose();
+
+          return;
+        }
+
+        alert(response.data?.error || "Failed to update customer delivery");
+      } catch (error) {
+        console.error("Error updating delivery sheet:", error);
+
+        alert("Failed to update customer delivery");
+      }
+
+      return;
+    }
+
+    // ==========================================
+    // CREATE MODE
     // ==========================================
 
     const orderCasingIds = modal.selectedCasings.map(
       (casing) => casing.orderCasingId,
     );
 
-    // ==========================================
-    // COURIER TYPE
-    //
-    // External = 1
-    // Internal = 2
-    // ==========================================
-
-    const courierType = isInternal ? 2 : 1;
-
-    // ==========================================
-    // COURIER SERVICE ID
-    //
-    // Internal = "0"
-    // External = selected courier service ID
-    // ==========================================
-
-    const courierServiceId = isInternal
-      ? "0"
-      : (dispatchTeam.courierServiceId ?? "0");
-
-    // ==========================================
-    // VALIDATION FOR EXTERNAL
-    // ==========================================
-
-    if (
-      !isInternal &&
-      (!dispatchTeam.courierName ||
-        !dispatchTeam.regNo ||
-        !dispatchTeam.driverName ||
-        !dispatchTeam.driverId)
-    ) {
-      alert("Please select courier details");
-
-      return;
-    }
-
-    // ==========================================
-    // VALIDATION FOR INTERNAL
-    // ==========================================
-
-    if (
-      isInternal &&
-      (!dispatchTeam.courierName.trim() ||
-        !dispatchTeam.regNo.trim() ||
-        !dispatchTeam.driverName.trim() ||
-        !dispatchTeam.driverId.trim())
-    ) {
-      alert("Please enter all dispatch team details");
-
-      return;
-    }
-
-    // ==========================================
-    // DELIVERY SHEET PAYLOAD
-    // ==========================================
-
     const payload = {
-      orderCasingIds: orderCasingIds,
+      orderCasingIds,
 
-      courierType: courierType,
+      courierType,
 
-      courierServiceId: courierServiceId,
+      courierServiceId,
 
       courierName: dispatchTeam.courierName,
 
@@ -152,24 +300,18 @@ const CustomerDeliveryOrderModal = ({
       remarks: "",
     };
 
-    console.log("SAVE DELIVERY SHEET PAYLOAD:", payload);
-
-    // ==========================================
-    // CALL API
-    // ==========================================
+    console.log("CREATE DELIVERY SHEET PAYLOAD:", payload);
 
     try {
       const response = await dispatchServiceApi.saveDeliverySheet(payload);
 
-      console.log("Delivery Sheet API Response:", response.data);
+      console.log("CREATE DELIVERY SHEET RESPONSE:", response.data);
 
       if (response.data?.success) {
         alert("Customer delivery saved successfully");
 
-        // Parent callback if required
         onSave?.(response.data);
 
-        // Reset modal
         modal.reset();
 
         onClose();
@@ -186,7 +328,7 @@ const CustomerDeliveryOrderModal = ({
   };
 
   // ==========================================
-  // CLOSE MODAL
+  // CLOSE
   // ==========================================
 
   const handleClose = () => {
@@ -200,13 +342,15 @@ const CustomerDeliveryOrderModal = ({
       <div className="modal fade show d-block">
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content">
-            {/* ======================================
-                            HEADER
-                        ====================================== */}
+            {/* ==================================
+                HEADER
+            ================================== */}
 
             <div className="modal-header">
               <h5 className="modal-title text-white">
-                Customer Delivery Order
+                {editDeliverySheet
+                  ? "Edit Customer Delivery Order"
+                  : "Customer Delivery Order"}
               </h5>
 
               <button
@@ -215,36 +359,30 @@ const CustomerDeliveryOrderModal = ({
               />
             </div>
 
-            {/* ======================================
-                            BODY
-                        ====================================== */}
+            {/* ==================================
+                BODY
+            ================================== */}
 
             <div className="modal-body text-start">
-              {/* ==================================
-                                TOP SECTION
-                            ================================== */}
-
-              <div className="row mb-1">
+              <div className="row mb-2">
                 {/* ==================================
-                                    LEFT SIDE
-                                ================================== */}
+                    LEFT
+                ================================== */}
 
                 <div className="col-md-6 border p-2">
                   <h6>Delivery Order Details</h6>
 
                   {/* DATE */}
 
-                  <div className="row">
-                    <div className="col-md-12">
-                      <label>Date</label>
+                  <div className="mt-2">
+                    <label>Date</label>
 
-                      <input
-                        type="date"
-                        className="form-control"
-                        value={modal.deliveryDate}
-                        onChange={(e) => modal.setDeliveryDate(e.target.value)}
-                      />
-                    </div>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={modal.deliveryDate}
+                      onChange={(e) => modal.setDeliveryDate(e.target.value)}
+                    />
                   </div>
 
                   {/* CUSTOMER */}
@@ -258,7 +396,7 @@ const CustomerDeliveryOrderModal = ({
                       onChange={(e) =>
                         modal.setSelectedCustomerId(e.target.value)
                       }
-                      disabled={modal.loadingCustomers}
+                      disabled={modal.loadingCustomers || !!editDeliverySheet}
                     >
                       <option value="">
                         {modal.loadingCustomers
@@ -286,7 +424,9 @@ const CustomerDeliveryOrderModal = ({
                       className="form-select"
                       value={modal.serviceType}
                       onChange={(e) => modal.setServiceType(e.target.value)}
-                      disabled={modal.loadingServiceTypes}
+                      disabled={
+                        modal.loadingServiceTypes || !!editDeliverySheet
+                      }
                     >
                       <option value="">
                         {modal.loadingServiceTypes
@@ -294,12 +434,12 @@ const CustomerDeliveryOrderModal = ({
                           : "-- Select Service Type --"}
                       </option>
 
-                      {modal.serviceTypes.map((serviceType) => (
+                      {modal.serviceTypes.map((service) => (
                         <option
-                          key={serviceType.serviceTypeId}
-                          value={serviceType.serviceTypeId}
+                          key={service.serviceTypeId}
+                          value={service.serviceTypeId}
                         >
-                          {serviceType.serviceTypeName}
+                          {service.serviceTypeName}
                         </option>
                       ))}
                     </select>
@@ -307,107 +447,105 @@ const CustomerDeliveryOrderModal = ({
                 </div>
 
                 {/* ==================================
-                                    RIGHT SIDE
-                                ================================== */}
+                    RIGHT - DISPATCH TEAM
+                ================================== */}
 
                 <div className="col-md-6 border p-2">
                   <h6>Dispatch Team</h6>
 
                   {/* SALES REP */}
 
-                  <div className="row">
-                    <div className="col-md-12">
-                      <label>Sales Rep</label>
+                  <div className="mt-2">
+                    <label>Sales Rep</label>
 
-                      <input
-                        className="form-control"
-                        value={dispatchTeam.salesRep}
-                        readOnly
-                        placeholder="Auto-filled based on customer"
-                      />
-                    </div>
+                    <input
+                      className="form-control"
+                      value={dispatchTeam.salesRep}
+                      readOnly
+                      placeholder="Auto-filled based on customer"
+                    />
                   </div>
 
-                  {/* COURIER + REG NO */}
+                  {/* COURIER + REG */}
 
                   <div className="row mt-2">
-                    {/* COURIER */}
-
+                    {/* COURIER SERVICE */}
                     <div className="col-md-6">
                       <label>Courier Service</label>
 
                       <input
+                        type="text"
                         className="form-control"
-                        value={dispatchTeam.courierName}
-                        readOnly={!isInternal}
-                        onChange={(e) =>
+                        value={dispatchTeam.courierName ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
                           setDispatchTeam((prev) => ({
                             ...prev,
-
-                            courierName: e.target.value,
-                          }))
-                        }
+                            courierName: value,
+                          }));
+                        }}
                       />
                     </div>
 
                     {/* REG NO */}
-
                     <div className="col-md-6">
                       <label>Reg No#</label>
 
                       <input
+                        type="text"
                         className="form-control"
-                        value={dispatchTeam.regNo}
-                        readOnly={!isInternal}
-                        onChange={(e) =>
+                        value={dispatchTeam.regNo ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
                           setDispatchTeam((prev) => ({
                             ...prev,
-
-                            regNo: e.target.value,
-                          }))
-                        }
+                            regNo: value,
+                          }));
+                        }}
                       />
                     </div>
                   </div>
 
-                  {/* DRIVER + ID */}
+                  {/* DRIVER */}
 
                   <div className="row mt-2">
                     {/* DRIVER NAME */}
-
                     <div className="col-md-6">
                       <label>Driver Name</label>
 
                       <input
+                        type="text"
                         className="form-control"
-                        value={dispatchTeam.driverName}
-                        readOnly={!isInternal}
-                        onChange={(e) =>
+                        value={dispatchTeam.driverName ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
                           setDispatchTeam((prev) => ({
                             ...prev,
-
-                            driverName: e.target.value,
-                          }))
-                        }
+                            driverName: value,
+                          }));
+                        }}
                       />
                     </div>
 
-                    {/* DRIVER ID */}
-
+                    {/* ID NO */}
                     <div className="col-md-6">
                       <label>ID No#</label>
 
                       <input
+                        type="text"
                         className="form-control"
-                        value={dispatchTeam.driverId}
-                        readOnly={!isInternal}
-                        onChange={(e) =>
+                        value={dispatchTeam.driverId ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
                           setDispatchTeam((prev) => ({
                             ...prev,
-
-                            driverId: e.target.value,
-                          }))
-                        }
+                            driverId: value,
+                          }));
+                        }}
                       />
                     </div>
                   </div>
@@ -415,13 +553,13 @@ const CustomerDeliveryOrderModal = ({
               </div>
 
               {/* ==================================
-                                TABLE SECTION
-                            ================================== */}
+                  CASING TABLES
+              ================================== */}
 
-              <div className="row">
+              <div className="row mt-2">
                 {/* ==================================
-                                    CUSTOMER CASING orders
-                                ================================== */}
+                    LEFT TABLE
+                ================================== */}
 
                 <div className="col-md-6 border p-2">
                   <h6>Customer Casing Orders</h6>
@@ -474,11 +612,11 @@ const CustomerDeliveryOrderModal = ({
                 </div>
 
                 {/* ==================================
-                                    SELECTED CASINGS
-                                ================================== */}
+                    RIGHT TABLE
+                ================================== */}
 
                 <div className="col-md-6">
-                  <div className="border p-2 mb-2">
+                  <div className="border p-2">
                     <h6>
                       Repaired & Retreaded Casings (
                       {modal.selectedCasings.length})
@@ -496,6 +634,7 @@ const CustomerDeliveryOrderModal = ({
                           <th>Tyre Size</th>
 
                           <th>Tyre Make</th>
+
                           <th>-</th>
                         </tr>
                       </thead>
@@ -539,12 +678,10 @@ const CustomerDeliveryOrderModal = ({
               </div>
 
               {/* ==================================
-                                FOOTER BUTTONS
-                            ================================== */}
+                  FOOTER
+              ================================== */}
 
               <div className="d-flex justify-content-between mt-3">
-                {/* CLOSE */}
-
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -553,15 +690,19 @@ const CustomerDeliveryOrderModal = ({
                   ← Close
                 </button>
 
-                {/* SAVE */}
-
                 <button
                   type="button"
                   className="btn btn-success px-4"
                   onClick={handleSave}
-                  disabled={modal.loadingCustomers || modal.loadingServiceTypes}
+                  disabled={
+                    modal.loadingCustomers ||
+                    modal.loadingServiceTypes ||
+                    modal.loadingBatchCasings
+                  }
                 >
-                  ✔ Save Customer Delivery
+                  {editDeliverySheet
+                    ? "✔ Update Customer Delivery"
+                    : "✔ Save Customer Delivery"}
                 </button>
               </div>
             </div>

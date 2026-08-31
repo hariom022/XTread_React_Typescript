@@ -59,6 +59,11 @@ const DispatchStage = () => {
     courierServiceId: 0,
   });
   const [isInternal, setIsInternal] = useState(false);
+
+  const [showEditDeliveryModal, setShowEditDeliveryModal] = useState(false);
+
+  const [editDeliverySheet, setEditDeliverySheet] = useState<any>(null);
+
   const filteredData = useMemo(() => {
     return rows.filter((item) =>
       `${item.deliveryNo}
@@ -137,6 +142,50 @@ const DispatchStage = () => {
       alert("Failed to load delivery sheets");
     } finally {
       setLoadingDeliverySheets(false);
+    }
+  };
+  const handleEditDeliverySheet = async (deliverySheetId: number) => {
+    try {
+      console.log("✏ Getting Delivery Sheet:", deliverySheetId);
+
+      const response =
+        await dispatchServiceApi.getDeliverySheetById(deliverySheetId);
+
+      console.log("✏ Delivery Sheet Details:", response.data);
+
+      if (!response.data?.success) {
+        alert(response.data?.error || "Failed to load delivery sheet");
+
+        return;
+      }
+
+      const sheet = response.data.data;
+
+      setEditDeliverySheet(sheet);
+
+      // ==========================================
+      // SET COURIER / DRIVER DETAILS
+      // ==========================================
+
+      setDispatchTeam({
+        salesRep: "",
+
+        courierName: sheet.courierName ?? "",
+
+        regNo: sheet.vehicleRegNo ?? "",
+
+        driverName: sheet.driverName ?? "",
+
+        driverId: sheet.driverIdNo ?? "",
+
+        courierServiceId: sheet.courierServiceId ?? 0,
+      });
+
+      setShowEditDeliveryModal(true);
+    } catch (error) {
+      console.error("Error loading delivery sheet:", error);
+
+      alert("Failed to load delivery sheet");
     }
   };
   return (
@@ -298,6 +347,7 @@ const DispatchStage = () => {
         show={showFinalizationModal}
         rows={finalDispatchList}
         onClose={() => setShowFinalizationModal(false)}
+        onEdit={handleEditDeliverySheet}
         onFinalize={(row) => {
           // Add to main Dispatch table
           setDispatchIndexRows((prev) => [
