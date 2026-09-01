@@ -69,6 +69,8 @@ import QualityControl from "./features/qualityControl/page/QualityControl";
 
 import DispatchStage from "./features/dispatch/page/DispatchStage";
 
+import CustomerDispatchApprovePage from "./features/customerDispatchApproval/pages/CustomerDispatchApprovePage";
+
 import MountingStage from "./features/mounting/page/MountingStage";
 
 /* =========================================
@@ -339,6 +341,8 @@ function AppContent() {
                 <Route path="/qualityControl" element={<QualityControl />} />
 
                 <Route path="/dispatch" element={<DispatchStage />} />
+
+                <Route path="/customerDeliveryApproval" element={<CustomerDispatchApprovePage/>}/>
 
                 {/* =====================================
                     ADMIN PORTAL
