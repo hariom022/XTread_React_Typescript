@@ -88,6 +88,8 @@ const DispatchTeamModal = ({
 
               {/* ADD COURIER */}
 
+              {/* ADD COURIER */}
+
               {modal.activeTab === "add" && (
                 <>
                   <div className="row">
@@ -97,13 +99,13 @@ const DispatchTeamModal = ({
 
                       <select
                         className="form-select"
-                        value={modal.selectedCourierId ?? ""}
+                        value={modal.addCourierId ?? ""}
                         onChange={(e) => {
                           const id = e.target.value
                             ? Number(e.target.value)
                             : null;
 
-                          modal.handleCourierServiceChange(id);
+                          modal.handleAddCourierServiceChange(id);
                         }}
                         disabled={modal.loadingCourierServices}
                       >
@@ -125,15 +127,14 @@ const DispatchTeamModal = ({
                     </div>
 
                     {/* VEHICLE REG NO */}
-
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Vehicle Reg No</label>
 
                       <select
                         className="form-select"
-                        value={modal.selectedVehicle?.courierVehicleId ?? ""}
+                        value={modal.addSelectedVehicle?.courierVehicleId ?? ""}
                         disabled={
-                          !modal.selectedCourierId || modal.loadingVehicles
+                          !modal.addCourierId || modal.loadingAddVehicles
                         }
                         onChange={(e) => {
                           const vehicleId = e.target.value
@@ -141,22 +142,22 @@ const DispatchTeamModal = ({
                             : null;
 
                           const vehicle =
-                            modal.vehicleList.find(
+                            modal.addVehicleList.find(
                               (item) => item.courierVehicleId === vehicleId,
                             ) ?? null;
 
-                          modal.setSelectedVehicle(vehicle);
+                          modal.setAddSelectedVehicle(vehicle);
                         }}
                       >
                         <option value="">
-                          {modal.loadingVehicles
+                          {modal.loadingAddVehicles
                             ? "Loading..."
-                            : modal.selectedCourierId
+                            : modal.addCourierId
                               ? "Select Vehicle Reg No"
                               : "Select Courier Service First"}
                         </option>
 
-                        {modal.vehicleList.map((vehicle) => (
+                        {modal.addVehicleList.map((vehicle) => (
                           <option
                             key={vehicle.courierVehicleId}
                             value={vehicle.courierVehicleId}
@@ -196,15 +197,15 @@ const DispatchTeamModal = ({
                     </div>
                   </div>
 
+                  {/* ADD COURIER BUTTON */}
                   <div className="text-end">
                     <button
                       type="button"
                       className="btn btn-primary"
                       disabled={
                         modal.savingCourier ||
-                        !modal.selectedCourierId ||
-                        // !modal.vehicleRegNo.trim() ||
-                        !modal.selectedVehicle ||
+                        !modal.addCourierId ||
+                        !modal.addSelectedVehicle ||
                         !modal.driverName.trim() ||
                         !modal.driverId.trim()
                       }
@@ -212,8 +213,7 @@ const DispatchTeamModal = ({
                         const success = await modal.addCourier();
 
                         if (success) {
-                          // Don't close the modal.
-                          // User can continue working.
+                          console.log("Courier added successfully");
                         }
                       }}
                     >
@@ -375,50 +375,74 @@ const DispatchTeamModal = ({
                           !modal.selectedVehicle)
                       }
                       onClick={() => {
+                        // ==========================================
+                        // INTERNAL
+                        // ==========================================
+
                         if (modal.courierType === "Internal") {
                           setDispatchTeam({
                             salesRep: "",
-
                             courierName: "",
-
                             courierServiceId: 0,
-
                             regNo: "",
-
                             driverName: "",
-
                             driverId: "",
                           });
 
                           setIsInternal(true);
-                        } else {
-                          const selected = modal.selectedVehicle;
 
-                          if (!selected) {
-                            return;
-                          }
+                          modal.reset();
 
-                          const courier = modal.courierList.find(
-                            (c) =>
-                              c.courierServiceId === selected.courierServiceId,
-                          );
+                          onContinue();
 
-                          setDispatchTeam({
-                            salesRep: "",
-
-                            courierName: courier?.courierName ?? "",
-
-                            courierServiceId: selected.courierServiceId,
-
-                            regNo: selected.vehicleRegNo,
-
-                            driverName: selected.driverName,
-
-                            driverId: selected.driverIdNo,
-                          });
-
-                          setIsInternal(false);
+                          return;
                         }
+
+                        // ==========================================
+                        // EXTERNAL
+                        // ==========================================
+
+                        const selected = modal.selectedVehicle;
+
+                        if (!selected) {
+                          alert("Please select a vehicle");
+                          return;
+                        }
+
+                        const courier = modal.courierList.find(
+                          (c) =>
+                            c.courierServiceId === selected.courierServiceId,
+                        );
+
+                        const newDispatchTeam = {
+                          salesRep: "",
+
+                          courierName: courier?.courierName ?? "",
+
+                          courierServiceId: selected.courierServiceId,
+
+                          regNo: selected.vehicleRegNo ?? "",
+
+                          driverName: selected.driverName ?? "",
+
+                          driverId: selected.driverIdNo ?? "",
+                        };
+
+                        console.log("========== SELECTED VEHICLE ==========");
+
+                        console.log("Selected Vehicle:", selected);
+
+                        console.log("Courier:", courier);
+
+                        console.log("Dispatch Team:", newDispatchTeam);
+
+                        // ==========================================
+                        // SEND DATA TO CUSTOMER DELIVERY MODAL
+                        // ==========================================
+
+                        setDispatchTeam(newDispatchTeam);
+
+                        setIsInternal(false);
 
                         modal.reset();
 
