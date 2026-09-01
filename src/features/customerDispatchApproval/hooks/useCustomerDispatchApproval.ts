@@ -1,168 +1,288 @@
+// src/features/customerDispatchApproval/hooks/useCustomerDispatchApproval.ts
+
 import {
   useCallback,
   useEffect,
   useState,
 } from "react";
 
-import customerDispatchApprovalServiceApi from "../services/customerDispatchApprovalServiceApi";
+import customerDispatchApprovalServiceApi
+  from "../services/customerDispatchApprovalServiceApi";
 
 import type {
   CustomerApprovalRequest,
-  CustomerDispatchApprovalData,
+  CustomerDispatchCasing,
+  CustomerDispatchOrderGroup,
 } from "../types/customerDispatchApproval.type";
 
-const useCustomerDispatchApproval = (
-  orderNo?: string
-) => {
-  const [data, setData] =
-    useState<CustomerDispatchApprovalData | null>(
-      null
-    );
 
-  const [loading, setLoading] =
-    useState<boolean>(true);
+const useCustomerDispatchApproval = () => {
 
-  const [approving, setApproving] =
-    useState<boolean>(false);
+  const [
+    orders,
+    setOrders,
+  ] = useState<CustomerDispatchOrderGroup[]>([]);
 
-  const [customerRepresentative, setCustomerRepresentative] =
-    useState<string>("");
 
-  const [mobileNumber, setMobileNumber] =
-    useState<string>("256771454408");
+  const [
+    loading,
+    setLoading,
+  ] = useState<boolean>(true);
 
-  const [emailAddress, setEmailAddress] =
-    useState<string>("");
 
-  const [condition, setCondition] =
-    useState<string>(
-      "Received in Good Condition"
-    );
+  const [
+    error,
+    setError,
+  ] = useState<string>("");
 
-  const [remarks, setRemarks] =
-    useState<string>("");
 
-  const [signature, setSignature] =
-    useState<string>("");
+  /*
+   * ==========================================================
+   * LOAD API DATA
+   * ==========================================================
+   */
 
-  const [message, setMessage] =
-    useState<string>("");
-
-  const loadApprovalData =
+  const loadDispatchedCasings =
     useCallback(async () => {
+
       try {
+
         setLoading(true);
 
+        setError("");
+
+
         const response =
-          await customerDispatchApprovalServiceApi.getCustomerApproval(
-            orderNo
+          await customerDispatchApprovalServiceApi
+            .getDispatchedCasings();
+
+
+        if (!response.success) {
+
+          setError(
+            response.error ||
+            "Unable to load dispatched casings."
           );
 
-        setData(response);
-      } catch (error) {
-        console.error(
-          "Error loading customer approval:",
-          error
+          return;
+        }
+
+
+        /*
+         * API structure:
+         *
+         * data[]
+         *   batches[]
+         *      casings[]
+         */
+
+        const allCasingData: {
+          casing: CustomerDispatchCasing;
+          batchNumber: string;
+        }[] = [];
+
+
+        response.data.forEach((stage) => {
+
+          stage.batches.forEach((batch) => {
+
+            batch.casings.forEach((casing) => {
+
+              allCasingData.push({
+                casing,
+                batchNumber:
+                  batch.batchNumber,
+              });
+
+            });
+
+          });
+
+        });
+
+
+        /*
+         * ======================================================
+         * GROUP BY CUSTOMER + ORDER DATE
+         *
+         * Since API currently does not provide orderNo,
+         * we use customer + date as temporary grouping.
+         *
+         * Once orderNo is returned by API, change groupId to:
+         *
+         * const groupId = casing.orderNo;
+         * ======================================================
+         */
+
+        const groupedMap =
+          new Map<
+            string,
+            CustomerDispatchOrderGroup
+          >();
+
+
+        allCasingData.forEach(
+          ({
+            casing,
+            batchNumber,
+          }) => {
+
+            const orderDate =
+              casing.orderDate
+                ? casing.orderDate.substring(
+                    0,
+                    10
+                  )
+                : "";
+
+
+            const groupId =
+              `${casing.customerName}_${orderDate}`;
+
+
+            if (!groupedMap.has(groupId)) {
+
+              groupedMap.set(
+                groupId,
+                {
+                  groupId,
+
+                  customerName:
+                    casing.customerName,
+
+                  /*
+                   * API does not currently return orderNo.
+                   */
+                  orderNo: "N/A",
+
+                  orderDate,
+
+                  totalCasings: 0,
+
+                  casings: [],
+
+                  batchNumbers: [],
+                }
+              );
+
+            }
+
+
+            const group =
+              groupedMap.get(groupId)!;
+
+
+            /*
+             * Avoid duplicate casing
+             */
+
+            const alreadyExists =
+              group.casings.some(
+                (item) =>
+                  item.orderCasingId ===
+                  casing.orderCasingId
+              );
+
+
+            if (!alreadyExists) {
+
+              group.casings.push(
+                casing
+              );
+
+              group.totalCasings += 1;
+
+            }
+
+
+            /*
+             * Add batch number only once
+             */
+
+            if (
+              !group.batchNumbers.includes(
+                batchNumber
+              )
+            ) {
+
+              group.batchNumbers.push(
+                batchNumber
+              );
+
+            }
+
+          }
         );
+
+
+        setOrders(
+          Array.from(
+            groupedMap.values()
+          )
+        );
+
+      } catch (err) {
+
+        console.error(
+          "Error loading dispatched casings:",
+          err
+        );
+
+        setError(
+          "Unable to load dispatched casings."
+        );
+
       } finally {
+
         setLoading(false);
+
       }
-    }, [orderNo]);
+
+    }, []);
+
+
+  /*
+   * Load when component mounts
+   */
 
   useEffect(() => {
-    loadApprovalData();
-  }, [loadApprovalData]);
 
-  const approveCustomer = async () => {
-    if (!customerRepresentative.trim()) {
-      setMessage(
-        "Please enter customer representative name."
-      );
+    loadDispatchedCasings();
 
-      return;
-    }
+  }, [loadDispatchedCasings]);
 
-    if (!signature) {
-      setMessage(
-        "Please provide customer signature."
-      );
 
-      return;
-    }
+  /*
+   * ==========================================================
+   * APPROVE CUSTOMER
+   * ==========================================================
+   */
 
-    if (!data) {
-      return;
-    }
+  const approveCustomer = async (
+    request: CustomerApprovalRequest
+  ) => {
 
-    try {
-      setApproving(true);
-      setMessage("");
+    return await customerDispatchApprovalServiceApi
+      .approveCustomer(request);
 
-      const request: CustomerApprovalRequest = {
-        orderNo: data.orderNo,
-        customerRepresentative:
-          customerRepresentative,
-        mobileNumber: mobileNumber,
-        emailAddress: emailAddress,
-        condition: condition,
-        remarks: remarks,
-        signature: signature,
-      };
-
-      const response =
-        await customerDispatchApprovalServiceApi.approveCustomer(
-          request
-        );
-
-      setMessage(response.message);
-
-      console.log(
-        "Customer approval response:",
-        response
-      );
-    } catch (error) {
-      console.error(
-        "Error approving customer order:",
-        error
-      );
-
-      setMessage(
-        "Something went wrong while approving the order."
-      );
-    } finally {
-      setApproving(false);
-    }
   };
 
+
   return {
-    data,
+
+    orders,
 
     loading,
 
-    approving,
+    error,
 
-    customerRepresentative,
-    setCustomerRepresentative,
-
-    mobileNumber,
-    setMobileNumber,
-
-    emailAddress,
-    setEmailAddress,
-
-    condition,
-    setCondition,
-
-    remarks,
-    setRemarks,
-
-    signature,
-    setSignature,
-
-    message,
+    reload:
+      loadDispatchedCasings,
 
     approveCustomer,
+
   };
 };
+
 
 export default useCustomerDispatchApproval;
