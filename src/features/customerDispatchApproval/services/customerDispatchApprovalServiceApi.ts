@@ -1,5 +1,3 @@
-// src/features/customerDispatchApproval/services/customerDispatchApprovalServiceApi.ts
-
 import { apiRequest } from "../../../shared/services/apiClient";
 
 import type {

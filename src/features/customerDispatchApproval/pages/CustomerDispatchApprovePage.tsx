@@ -1,5 +1,3 @@
-// src/features/customerDispatchApproval/pages/CustomerDispatchApprovePage.tsx
-
 import CustomerDispatchIndex
   from "../components/CustomerDispatchIndex";
 

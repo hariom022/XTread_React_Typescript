@@ -1,5 +1,3 @@
-// src/features/customerDispatchApproval/components/CustomerDispatchApprovalModal.tsx
-
 import { useEffect, useRef, useState } from "react";
 
 import type {

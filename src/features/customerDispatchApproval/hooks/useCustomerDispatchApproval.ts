@@ -1,5 +1,3 @@
-// src/features/customerDispatchApproval/hooks/useCustomerDispatchApproval.ts
-
 import {
   useCallback,
   useEffect,

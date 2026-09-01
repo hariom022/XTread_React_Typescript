@@ -1,5 +1,3 @@
-// src/features/customerDispatchApproval/components/CustomerDispatchIndex.tsx
-
 import { useMemo, useState } from "react";
 
 import useCustomerDispatchApproval from "../hooks/useCustomerDispatchApproval";
