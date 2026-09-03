@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { RingLoader } from "react-spinners";
 
 import type {
   CustomerApprovalRequest,
@@ -383,15 +384,19 @@ const CustomerDispatchApprovalModal = ({
 
   return (
     <>
+      {approving && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      )}
       {/* BACKDROP */}
-
-      <div
-        className="modal-backdrop fade show"
-        style={{
-          zIndex: 1040,
-        }}
-      />
-
+      <div className="modal-backdrop fade show" />
 
       {/* MODAL */}
 
@@ -399,101 +404,48 @@ const CustomerDispatchApprovalModal = ({
         className="modal fade show d-block"
         tabIndex={-1}
         role="dialog"
-        style={{
-          zIndex: 1050,
-          overflowY: "auto",
-        }}
       >
+        <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
 
-        <div
-          className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
-          style={{
-            maxWidth: "1500px",
-          }}
-        >
-
-          <div
-            className="modal-content border-0"
-            style={{
-              borderRadius: "12px",
-              overflow: "hidden",
-            }}
-          >
+          <div className="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
 
             {/* =================================================
-                HEADER
+              HEADER
             ================================================== */}
 
-            <div
-              className="d-flex align-items-center justify-content-between px-3 px-md-4"
-              style={{
-                minHeight: "68px",
+            <div className="modal-header bg-danger text-white px-3 px-md-4 d-flex justify-content-between align-items-center">
 
-                background:
-                  "linear-gradient(90deg, #df2638, #e52d3d, #d92135)",
-
-                color: "#ffffff",
-              }}
-            >
-
-              <div
-                className="d-flex align-items-center gap-2"
-              >
+              <div className="d-flex align-items-center gap-2">
 
                 <div
-                  className="d-flex align-items-center justify-content-center"
+                  className="d-flex align-items-center justify-content-center border border-2 border-white rounded-3 flex-shrink-0"
                   style={{
                     width: "38px",
                     height: "38px",
-                    border:
-                      "2px solid rgba(255,255,255,0.85)",
-                    borderRadius: "9px",
-                    fontSize: "18px",
                   }}
                 >
-                  <i className="bi bi-shield-check" />
+                  <i className="bi bi-shield-check fs-5" />
                 </div>
-
 
                 <div>
 
-                  <h4
-                    className="mb-0 fw-bold"
-                    style={{
-                      fontSize: "20px",
-                    }}
-                  >
+                  <h4 className="mb-0 fw-bold fs-5">
                     Customer Approval
                   </h4>
 
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      opacity: 0.9,
-                    }}
-                  >
-                    Verify and approve dispatched
-                    casings
+                  <div className="small opacity-75">
+                    Verify and approve dispatched casings
                   </div>
 
                 </div>
 
               </div>
 
-
               <button
                 type="button"
-                className="btn"
+                className="btn btn-light text-danger rounded-2"
                 onClick={onClose}
-                style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "7px",
-                  background: "#ffffff",
-                  color: "#df2638",
-                  border: "0",
-                  padding: 0,
-                }}
+                aria-label="Close"
               >
                 <i className="bi bi-x-lg" />
               </button>
@@ -502,87 +454,49 @@ const CustomerDispatchApprovalModal = ({
 
 
             {/* =================================================
-                BODY
-            ================================================== */}
+             BODY
+             ================================================== */}
 
-            <div
-              className="modal-body p-2 p-md-3"
-              style={{
-                background: "#f5f7fa",
-              }}
-            >
+            <div className="modal-body p-2 p-md-3 bg-light">
 
               {/* =================================================
                   ORDER INFORMATION
               ================================================== */}
+              <div className="card border-0 shadow-sm mb-3">
 
-              <div
-                className="card border-0 shadow-sm mb-3"
-                style={{
-                  borderRadius: "10px",
-                }}
-              >
+                <div className="card-body p-3">
 
-                <div
-                  className="card-body p-3"
-                >
-
-                  <div
-                    className="d-flex align-items-center gap-2 mb-3"
-                  >
+                  <div className="d-flex align-items-center gap-2 mb-3">
 
                     <div
-                      className="d-flex align-items-center justify-content-center"
+                      className="d-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-3 flex-shrink-0"
                       style={{
                         width: "32px",
                         height: "32px",
-                        borderRadius: "8px",
-                        background: "#fff0f2",
-                        color: "#e52d3d",
-                        fontSize: "14px",
                       }}
                     >
                       <i className="bi bi-file-earmark-text" />
                     </div>
 
-                    <h5
-                      className="mb-0 fw-bold"
-                      style={{
-                        fontSize: "17px",
-                      }}
-                    >
+                    <h5 className="mb-0 fw-bold fs-6">
                       Order Information
                     </h5>
 
                   </div>
 
-
                   <div className="row g-2">
 
-                    {/* Order */}
+                    {/* Delivery Sheet */}
 
                     <div className="col-12 col-lg-4">
 
-                      <div
-                        className="border rounded-3 p-2 h-100"
-                      >
+                      <div className="border rounded-3 p-2 h-100">
 
-                        <small
-                          className="fw-semibold d-block"
-                          style={{
-                            color: "#697586",
-                            fontSize: "11px",
-                          }}
-                        >
+                        <small className="fw-semibold d-block text-secondary">
                           Delivery Sheet No
                         </small>
 
-                        <strong
-                          style={{
-                            color: "#e52d3d",
-                            fontSize: "14px",
-                          }}
-                        >
+                        <strong className="text-danger">
                           {order.deliverySheetNo}
                         </strong>
 
@@ -595,25 +509,13 @@ const CustomerDispatchApprovalModal = ({
 
                     <div className="col-12 col-lg-5">
 
-                      <div
-                        className="border rounded-3 p-2 h-100"
-                      >
+                      <div className="border rounded-3 p-2 h-100">
 
-                        <small
-                          className="fw-semibold d-block"
-                          style={{
-                            color: "#697586",
-                            fontSize: "11px",
-                          }}
-                        >
+                        <small className="fw-semibold d-block text-secondary">
                           Customer Name
                         </small>
 
-                        <strong
-                          style={{
-                            fontSize: "14px",
-                          }}
-                        >
+                        <strong>
                           {order.customerName}
                         </strong>
 
@@ -626,59 +528,31 @@ const CustomerDispatchApprovalModal = ({
 
                     <div className="col-12 col-lg-3">
 
-                      <div
-                        className="border rounded-3 p-2 h-100"
-                      >
+                      <div className="border rounded-3 p-2 h-100">
 
                         <div className="row">
 
                           <div className="col-7">
 
-                            <small
-                              className="fw-semibold d-block"
-                              style={{
-                                color: "#697586",
-                                fontSize: "11px",
-                              }}
-                            >
+                            <small className="fw-semibold d-block text-secondary">
                               Order Date
                             </small>
 
-                            <strong
-                              className="d-flex align-items-center gap-1"
-                              style={{
-                                fontSize: "12px",
-                              }}
-                            >
+                            <strong className="d-flex align-items-center gap-1">
                               <i className="bi bi-calendar3" />
-
                               {order.orderDate}
-
                             </strong>
 
                           </div>
 
 
-                          <div
-                            className="col-5 border-start"
-                          >
+                          <div className="col-5 border-start">
 
-                            <small
-                              className="fw-semibold d-block ms-2"
-                              style={{
-                                color: "#697586",
-                                fontSize: "11px",
-                              }}
-                            >
+                            <small className="fw-semibold d-block ms-2 text-secondary">
                               Total
                             </small>
 
-                            <strong
-                              className="ms-2"
-                              style={{
-                                fontSize: "14px",
-                              }}
-                            >
+                            <strong className="d-block ms-2">
                               {order.totalCasings}
                             </strong>
 
@@ -696,164 +570,77 @@ const CustomerDispatchApprovalModal = ({
 
               </div>
 
-
               {/* =================================================
                   DISPATCHED ITEMS
               ================================================== */}
+              <div className="card border-0 shadow-sm mb-3">
 
-              <div
-                className="card border-0 shadow-sm mb-3"
-                style={{
-                  borderRadius: "10px",
-                }}
-              >
+                <div className="card-body p-3">
 
-                <div
-                  className="card-body p-3"
-                >
-
-                  <div
-                    className="d-flex align-items-center gap-2 mb-3"
-                  >
+                  <div className="d-flex align-items-center gap-2 mb-3">
 
                     <div
-                      className="d-flex align-items-center justify-content-center"
+                      className="d-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-3 flex-shrink-0"
                       style={{
                         width: "32px",
                         height: "32px",
-                        borderRadius: "8px",
-                        background: "#fff0f2",
-                        color: "#e52d3d",
-                        fontSize: "14px",
                       }}
                     >
                       <i className="bi bi-truck" />
                     </div>
 
-
                     <div>
-
-                      <h5
-                        className="mb-0 fw-bold"
-                        style={{
-                          fontSize: "17px",
-                        }}
-                      >
+                      <h5 className="mb-0 fw-bold fs-6">
                         Dispatched Items
                       </h5>
 
-                      <small
-                        style={{
-                          color: "#667085",
-                          fontSize: "11px",
-                        }}
-                      >
-                        {order.totalCasings}
-                        {" "}
-                        casing(s) dispatched
+                      <small className="text-secondary">
+                        {order.totalCasings} casing(s) dispatched
                       </small>
-
                     </div>
 
                   </div>
 
-
-                  <div
-                    className="table-responsive border rounded-3"
-                  >
+                  <div className="table-responsive border rounded-3">
 
                     <table
                       className="table table-sm mb-0 align-middle"
-                      style={{
-                        minWidth: "950px",
-                        fontSize: "12px",
-                      }}
+                      style={{ minWidth: "950px" }}
                     >
 
                       <thead>
 
-                        <tr
-                          style={{
-                            background:
-                              "linear-gradient(90deg, #e52d3d, #f02d3d)",
-                          }}
-                        >
+                        <tr className="bg-danger">
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                              whiteSpace:
-                                "nowrap",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white text-nowrap">
                             Tyre Ref No
                           </th>
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white">
                             Other No
                           </th>
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white">
                             DOT No
                           </th>
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                              whiteSpace:
-                                "nowrap",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white text-nowrap">
                             Tyre Size
                           </th>
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white">
                             Make
                           </th>
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white">
                             Brand
                           </th>
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white">
                             Pattern
                           </th>
 
-                          <th
-                            className="px-2 py-2"
-                            style={{
-                              color: "#ffffff",
-                              whiteSpace:
-                                "nowrap",
-                            }}
-                          >
+                          <th className="px-2 py-2 text-white text-nowrap">
                             Service Type
                           </th>
 
@@ -861,87 +648,49 @@ const CustomerDispatchApprovalModal = ({
 
                       </thead>
 
-
                       <tbody>
 
-                        {order.casings.map(
-                          (casing) => (
+                        {order.casings.map((casing) => (
 
-                            <tr
-                              key={
-                                casing.orderCasingId
-                              }
-                            >
+                          <tr key={casing.orderCasingId}>
 
-                              <td className="px-2 py-2">
-                                {
-                                  casing.tyreReferenceNumber
-                                }
-                              </td>
+                            <td className="px-2 py-2">
+                              {casing.tyreReferenceNumber}
+                            </td>
 
-                              <td className="px-2 py-2">
-                                {
-                                  casing.tyreReferenceNumber
-                                }
-                              </td>
+                            <td className="px-2 py-2">
+                              {casing.tyreReferenceNumber}
+                            </td>
 
-                              <td className="px-2 py-2">
-                                {
-                                  casing.dotNumber
-                                }
-                              </td>
+                            <td className="px-2 py-2">
+                              {casing.dotNumber}
+                            </td>
 
-                              <td className="px-2 py-2">
-                                {
-                                  casing.tyreSizeLabel
-                                }
-                              </td>
+                            <td className="px-2 py-2">
+                              {casing.tyreSizeLabel}
+                            </td>
 
-                              <td className="px-2 py-2">
-                                {
-                                  casing.tyreMakeName
-                                }
-                              </td>
+                            <td className="px-2 py-2">
+                              {casing.tyreMakeName}
+                            </td>
 
-                              <td className="px-2 py-2">
-                                {
-                                  casing.tyreMakeName
-                                }
-                              </td>
+                            <td className="px-2 py-2">
+                              {casing.tyreMakeName}
+                            </td>
 
-                              <td className="px-2 py-2">
-                                {
-                                  casing.patternName ||
-                                  "-"
-                                }
-                              </td>
+                            <td className="px-2 py-2">
+                              {casing.patternName || "-"}
+                            </td>
 
-                              <td className="px-2 py-2">
+                            <td className="px-2 py-2">
+                              <span className="badge rounded-pill bg-info-subtle text-primary">
+                                {casing.serviceTypeName}
+                              </span>
+                            </td>
 
-                                <span
-                                  className="badge rounded-pill"
-                                  style={{
-                                    background:
-                                      "#eef7ff",
-                                    color:
-                                      "#1670d2",
-                                    border:
-                                      "1px solid #77b5ff",
-                                    fontSize:
-                                      "10px",
-                                  }}
-                                >
-                                  {
-                                    casing.serviceTypeName
-                                  }
-                                </span>
+                          </tr>
 
-                              </td>
-
-                            </tr>
-
-                          )
-                        )}
+                        ))}
 
                       </tbody>
 
@@ -958,59 +707,30 @@ const CustomerDispatchApprovalModal = ({
                   CUSTOMER VERIFICATION
               ================================================== */}
 
-              <div
-                className="card border-0 shadow-sm"
-                style={{
-                  borderRadius: "10px",
-                }}
-              >
+              <div className="card border-0 shadow-sm">
 
-                <div
-                  className="card-body p-3"
-                >
-
-                  <div
-                    className="d-flex align-items-center gap-2 mb-1"
-                  >
+                <div className="card-body p-3">
+                  <div className="d-flex align-items-center gap-2 mb-1">
 
                     <div
-                      className="d-flex align-items-center justify-content-center"
+                      className="d-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-3 flex-shrink-0"
                       style={{
                         width: "32px",
                         height: "32px",
-                        borderRadius: "8px",
-                        background: "#fff0f2",
-                        color: "#e52d3d",
-                        fontSize: "14px",
                       }}
                     >
                       <i className="bi bi-shield-check" />
                     </div>
 
-
-                    <h5
-                      className="mb-0 fw-bold"
-                      style={{
-                        fontSize: "17px",
-                      }}
-                    >
+                    <h5 className="mb-0 fw-bold fs-6">
                       Customer Verification & Approval
                     </h5>
 
                   </div>
 
-
-                  <p
-                    className="mb-3"
-                    style={{
-                      color: "#667085",
-                      fontSize: "11px",
-                    }}
-                  >
-                    Please verify the above
-                    dispatched casing(s) and confirm
-                    if they are received in good
-                    condition.
+                  <p className="mb-3 text-secondary small">
+                    Please verify the above dispatched casing(s) and confirm
+                    if they are received in good condition.
                   </p>
 
 
@@ -1019,105 +739,55 @@ const CustomerDispatchApprovalModal = ({
                   <div className="row g-2 mb-3">
 
                     {/* Representative */}
-
                     <div className="col-12 col-md-4">
 
-                      <label
-                        className="form-label fw-semibold mb-1"
-                        style={{
-                          fontSize: "12px",
-                        }}
-                      >
+                      <label className="form-label fw-semibold mb-1 small">
                         Customer Representative
                       </label>
 
                       <input
                         type="text"
                         className="form-control"
-                        value={
-                          customerRepresentative
-                        }
+                        value={customerRepresentative}
                         onChange={(e) =>
-                          setCustomerRepresentative(
-                            e.target.value
-                          )
+                          setCustomerRepresentative(e.target.value)
                         }
                         placeholder="Enter representative name"
-                        style={{
-                          height: "42px",
-                          borderRadius: "8px",
-                          fontSize: "13px",
-                        }}
                       />
 
                     </div>
 
-
                     {/* Mobile */}
-
                     <div className="col-12 col-md-4">
 
-                      <label
-                        className="form-label fw-semibold mb-1"
-                        style={{
-                          fontSize: "12px",
-                        }}
-                      >
+                      <label className="form-label fw-semibold mb-1 small">
                         Mobile Number
                       </label>
 
                       <input
                         type="text"
                         className="form-control"
-                        value={
-                          mobileNumber
-                        }
-                        onChange={(e) =>
-                          setMobileNumber(
-                            e.target.value
-                          )
-                        }
+                        value={mobileNumber}
+                        onChange={(e) => setMobileNumber(e.target.value)}
                         placeholder="Enter mobile number"
-                        style={{
-                          height: "42px",
-                          borderRadius: "8px",
-                          fontSize: "13px",
-                        }}
                       />
 
                     </div>
 
 
                     {/* Email */}
-
                     <div className="col-12 col-md-4">
 
-                      <label
-                        className="form-label fw-semibold mb-1"
-                        style={{
-                          fontSize: "12px",
-                        }}
-                      >
+                      <label className="form-label fw-semibold mb-1 small">
                         Email Address
                       </label>
 
                       <input
                         type="email"
                         className="form-control"
-                        value={
-                          emailAddress
-                        }
-                        onChange={(e) =>
-                          setEmailAddress(
-                            e.target.value
-                          )
-                        }
+                        value={emailAddress}
+                        onChange={(e) => setEmailAddress(e.target.value)}
                         placeholder="Enter email address"
-                        style={{
-                          height: "42px",
-                          borderRadius: "8px",
-                          fontSize: "13px",
-                        }}
                       />
 
                     </div>
@@ -1126,232 +796,106 @@ const CustomerDispatchApprovalModal = ({
 
 
                   {/* CONDITION / REMARKS / SIGNATURE */}
+                  <div>
+                    <div className="row g-2">
 
-                  <div className="row g-2">
+                      {/* Condition */}
+                      <div className="col-12 col-lg-4">
 
-                    {/* Condition */}
+                        <label className="form-label fw-semibold mb-1 small">
+                          Casing Condition
+                        </label>
 
-                    <div className="col-12 col-lg-4">
-
-                      <label
-                        className="form-label fw-semibold mb-1"
-                        style={{
-                          fontSize: "12px",
-                        }}
-                      >
-                        Casing Condition
-                      </label>
-
-                      <select
-                        className="form-select"
-                        value={
-                          condition
-                        }
-                        onChange={(e) =>
-                          setCondition(
-                            e.target.value
-                          )
-                        }
-                        style={{
-                          height: "42px",
-                          borderRadius: "8px",
-                          fontSize: "13px",
-                        }}
-                      >
-
-                        <option value="Received in Good Condition">
-                          Received in Good Condition
-                        </option>
-
-                        <option value="Received with Minor Damage">
-                          Received with Minor Damage
-                        </option>
-
-                        <option value="Received with Damage">
-                          Received with Damage
-                        </option>
-
-                        <option value="Not Received">
-                          Not Received
-                        </option>
-
-                      </select>
-
-                    </div>
-
-
-                    {/* Remarks */}
-
-                    <div className="col-12 col-lg-4">
-
-                      <label
-                        className="form-label fw-semibold mb-1"
-                        style={{
-                          fontSize: "12px",
-                        }}
-                      >
-
-                        Remarks{" "}
-
-                        <span
-                          className="fw-normal"
-                          style={{
-                            color:
-                              "#98a2b3",
-                          }}
+                        <select
+                          className="form-select"
+                          value={condition}
+                          onChange={(e) => setCondition(e.target.value)}
                         >
-                          (Optional)
-                        </span>
+                          <option value="Received in Good Condition">
+                            Received in Good Condition
+                          </option>
 
-                      </label>
+                          <option value="Received with Minor Damage">
+                            Received with Minor Damage
+                          </option>
 
-                      <textarea
-                        className="form-control"
-                        value={remarks}
-                        onChange={(e) =>
-                          setRemarks(
-                            e.target.value
-                          )
-                        }
-                        placeholder="Enter any remarks..."
-                        rows={3}
-                        style={{
-                          minHeight:
-                            "85px",
-                          borderRadius:
-                            "8px",
-                          resize:
-                            "vertical",
-                          fontSize:
-                            "13px",
-                        }}
-                      />
+                          <option value="Received with Damage">
+                            Received with Damage
+                          </option>
+
+                          <option value="Not Received">
+                            Not Received
+                          </option>
+                        </select>
+
+                      </div>
+
+                      {/* Remarks */}
+                      <div className="col-12 col-lg-8">
+
+                        <label className="form-label fw-semibold mb-1 small">
+                          Remarks{" "}
+                          <span className="text-muted fw-normal">
+                            (Optional)
+                          </span>
+                        </label>
+
+                        <textarea
+                          className="form-control"
+                          value={remarks}
+                          onChange={(e) => setRemarks(e.target.value)}
+                          placeholder="Enter any remarks..."
+                          rows={3}
+                        />
+
+                      </div>
 
                     </div>
-
 
                     {/* Signature */}
 
-                    <div className="col-12 col-lg-4">
+                    <div className="col-12">
+                      <label className="form-label fw-semibold small">
+                        Customer Signature
+                      </label>
 
                       <div
-                        className="d-flex justify-content-between align-items-center"
+                        className="position-relative border border-danger-subtle rounded-3 bg-white overflow-hidden"
+                        style={{ height: "150px" }}
                       >
-
-                        <label
-                          className="form-label fw-semibold mb-1"
+                        <canvas
+                          ref={canvasRef}
+                          width={1200}
+                          height={300}
+                          className="w-100 h-100"
                           style={{
-                            fontSize:
-                              "12px",
+                            display: "block",
+                            touchAction: "none",
+                            cursor: "crosshair",
                           }}
-                        >
-                          Customer Signature
-                        </label>
+                          onPointerDown={startDrawing}
+                          onPointerMove={draw}
+                          onPointerUp={stopDrawing}
+                          onPointerCancel={stopDrawing}
+                          onPointerLeave={stopDrawing}
+                        />
 
+                        {!hasSignature && (
+                          <div className="position-absolute top-50 start-50 translate-middle text-muted small">
+                            Sign here
+                          </div>
+                        )}
 
                         {hasSignature && (
-
                           <button
                             type="button"
-                            className="btn btn-sm mb-1"
-                            onClick={
-                              clearSignature
-                            }
-                            style={{
-                              background:
-                                "#fff0f2",
-                              color:
-                                "#df2638",
-                              border:
-                                "0",
-                              fontSize:
-                                "11px",
-                              padding:
-                                "2px 8px",
-                            }}
+                            className="btn btn-sm btn-danger position-absolute bottom-0 end-0 m-2"
+                            onClick={clearSignature}
                           >
                             Clear
                           </button>
-
                         )}
-
                       </div>
-
-
-                      <div
-                        className="position-relative"
-                        style={{
-                          height: "85px",
-                          border:
-                            "1.5px solid #e52d3d",
-                          borderRadius:
-                            "8px",
-                          background:
-                            "#ffffff",
-                          overflow:
-                            "hidden",
-                        }}
-                      >
-
-                        <canvas
-                          ref={
-                            canvasRef
-                          }
-                          width={600}
-                          height={160}
-                          className="w-100 h-100"
-                          style={{
-                            display:
-                              "block",
-                            cursor:
-                              "crosshair",
-                            touchAction:
-                              "none",
-                          }}
-                          onMouseDown={
-                            startDrawing
-                          }
-                          onMouseMove={
-                            draw
-                          }
-                          onMouseUp={
-                            stopDrawing
-                          }
-                          onMouseLeave={
-                            stopDrawing
-                          }
-                          onTouchStart={
-                            startDrawing
-                          }
-                          onTouchMove={
-                            draw
-                          }
-                          onTouchEnd={
-                            stopDrawing
-                          }
-                        />
-
-
-                        {!hasSignature && (
-
-                          <div
-                            className="position-absolute top-50 start-50 translate-middle"
-                            style={{
-                              pointerEvents:
-                                "none",
-                              color:
-                                "#c3c8d0",
-                              fontSize:
-                                "12px",
-                            }}
-                          >
-                            Sign here
-                          </div>
-
-                        )}
-
-                      </div>
-
                     </div>
 
                   </div>
@@ -1371,21 +915,7 @@ const CustomerDispatchApprovalModal = ({
                     }}
                   >
 
-                    <div
-                      className="d-flex align-items-center justify-content-center flex-shrink-0"
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius:
-                          "50%",
-                        background:
-                          "#159447",
-                        color:
-                          "#ffffff",
-                        fontSize:
-                          "13px",
-                      }}
-                    >
+                    <div className="d-flex align-items-center justify-content-center flex-shrink-0">
                       <i className="bi bi-check-lg" />
                     </div>
 
@@ -1429,8 +959,8 @@ const CustomerDispatchApprovalModal = ({
                       className={`alert mt-2 mb-0 py-2 ${message.includes(
                         "successfully"
                       )
-                          ? "alert-success"
-                          : "alert-danger"
+                        ? "alert-success"
+                        : "alert-danger"
                         }`}
                       style={{
                         fontSize: "12px",
@@ -1452,15 +982,7 @@ const CustomerDispatchApprovalModal = ({
                 FOOTER
             ================================================== */}
 
-            <div
-              className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between gap-2 px-3 py-2"
-              style={{
-                background:
-                  "#ffffff",
-                borderTop:
-                  "1px solid #e1e5ea",
-              }}
-            >
+            <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between gap-2 px-3 py-2">
 
               {/* Back */}
 
@@ -1468,13 +990,6 @@ const CustomerDispatchApprovalModal = ({
                 type="button"
                 className="btn btn-outline-secondary"
                 onClick={onClose}
-                style={{
-                  minWidth: "100px",
-                  height: "40px",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  fontSize: "13px",
-                }}
               >
 
                 <i className="bi bi-arrow-left me-2" />
@@ -1484,35 +999,7 @@ const CustomerDispatchApprovalModal = ({
               </button>
 
 
-              <div
-                className="d-flex flex-column flex-sm-row gap-2"
-              >
-
-                {/* Save Draft */}
-
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() => {
-                    console.log(
-                      "Save Draft"
-                    );
-                  }}
-                  style={{
-                    height: "40px",
-                    minWidth: "120px",
-                    borderRadius: "8px",
-                    fontWeight: 600,
-                    fontSize: "13px",
-                  }}
-                >
-
-                  <i className="bi bi-floppy me-2" />
-
-                  Save Draft
-
-                </button>
-
+              <div className="d-flex flex-column flex-sm-row gap-2">
 
                 {/* Approve */}
 
@@ -1522,9 +1009,7 @@ const CustomerDispatchApprovalModal = ({
                   onClick={
                     handleApprove
                   }
-                  disabled={
-                    approving
-                  }
+                  disabled={approving}
                   style={{
                     height: "40px",
                     minWidth: "190px",
@@ -1541,12 +1026,8 @@ const CustomerDispatchApprovalModal = ({
                   {approving ? (
 
                     <>
-                      <span
-                        className="spinner-border spinner-border-sm me-2"
-                      />
-
+                      <span className="spinner-border spinner-border-sm me-2" />
                       Approving...
-
                     </>
 
                   ) : (
@@ -1570,7 +1051,7 @@ const CustomerDispatchApprovalModal = ({
 
         </div>
 
-      </div>
+      </div >
     </>
   );
 };
