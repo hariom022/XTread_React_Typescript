@@ -93,6 +93,7 @@ export interface CustomerDispatchOrderGroup {
 
   customerName: string;
 
+  deliverySheetNo: string;
   orderNo: string;
 
   orderDate: string;
@@ -112,6 +113,7 @@ export interface CustomerDispatchOrderGroup {
  * so this will currently be logged.
  */
 export interface CustomerApprovalRequest {
+  deliverySheetNo: string;
   orderNo: string;
 
   casingIds: number[];

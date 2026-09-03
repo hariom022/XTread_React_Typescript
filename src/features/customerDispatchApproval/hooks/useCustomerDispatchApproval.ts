@@ -128,9 +128,9 @@ const useCustomerDispatchApproval = () => {
             const orderDate =
               casing.orderDate
                 ? casing.orderDate.substring(
-                    0,
-                    10
-                  )
+                  0,
+                  10
+                )
                 : "";
 
 
@@ -148,6 +148,7 @@ const useCustomerDispatchApproval = () => {
                   customerName:
                     casing.customerName,
 
+                  deliverySheetNo:"N/A",
                   /*
                    * API does not currently return orderNo.
                    */

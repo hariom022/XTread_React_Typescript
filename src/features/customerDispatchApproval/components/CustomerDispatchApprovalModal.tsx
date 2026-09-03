@@ -317,8 +317,8 @@ const CustomerDispatchApprovalModal = ({
 
       const request:
         CustomerApprovalRequest = {
-        orderNo:
-          order.orderNo,
+        orderNo: order.orderNo,
+        deliverySheetNo: order.deliverySheetNo,
 
         casingIds:
           order.casings.map(
@@ -574,7 +574,7 @@ const CustomerDispatchApprovalModal = ({
                             fontSize: "11px",
                           }}
                         >
-                          Order No
+                          Delivery Sheet No
                         </small>
 
                         <strong
@@ -583,7 +583,7 @@ const CustomerDispatchApprovalModal = ({
                             fontSize: "14px",
                           }}
                         >
-                          {order.orderNo}
+                          {order.deliverySheetNo}
                         </strong>
 
                       </div>
@@ -1426,13 +1426,12 @@ const CustomerDispatchApprovalModal = ({
                   {message && (
 
                     <div
-                      className={`alert mt-2 mb-0 py-2 ${
-                        message.includes(
-                          "successfully"
-                        )
+                      className={`alert mt-2 mb-0 py-2 ${message.includes(
+                        "successfully"
+                      )
                           ? "alert-success"
                           : "alert-danger"
-                      }`}
+                        }`}
                       style={{
                         fontSize: "12px",
                       }}
