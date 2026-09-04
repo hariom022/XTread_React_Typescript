@@ -1,7 +1,7 @@
 import { RingLoader } from "react-spinners";
 
 import DamageTypeTable from "../components/DamageTypeTable";
-import useDamageTypes from "../hooks/useDamagetypes";
+import useDamageTypes from "../hooks/useDamageTypes";
 
 import "../styles/damageTypes.css";
 
