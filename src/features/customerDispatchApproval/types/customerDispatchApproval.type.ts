@@ -107,26 +107,35 @@ export interface CustomerDispatchOrderGroup {
 
 
 /*
- * Customer approval request.
- *
- * Actual API is not available yet,
- * so this will currently be logged.
+ * Customer approval request payload that will be sent to the backend.
  */
 export interface CustomerApprovalRequest {
   deliverySheetNo: string;
-  orderNo: string;
-
   casingIds: number[];
-
   customerRepresentative: string;
-
   mobileNumber: string;
-
   emailAddress: string;
-
   condition: string;
-
   remarks: string;
-
   signature: string;
+}
+
+export interface CustomerApprovalData {
+  customerDispatchApprovalId: number;
+  deliverySheetNo: string;
+  customerRepresentative: string;
+  mobileNumber: string;
+  emailAddress: string;
+  condition: string;
+  remarks: string;
+  signatureFileName: string;
+  signatureContentType: string;
+  createdAtUtc: string;
+  casingIds: number[];
+}
+
+export interface CustomerApprovalResponse {
+  success: boolean;
+  data: CustomerApprovalData | null;
+  error: string | null;
 }

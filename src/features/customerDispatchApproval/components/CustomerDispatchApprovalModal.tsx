@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { RingLoader } from "react-spinners";
-
 import type {
   CustomerApprovalRequest,
+  CustomerApprovalResponse,
   CustomerDispatchOrderGroup,
 } from "../types/customerDispatchApproval.type";
 
@@ -13,10 +13,7 @@ interface Props {
 
   approveCustomer: (
     request: CustomerApprovalRequest
-  ) => Promise<{
-    success: boolean;
-    message: string;
-  }>;
+  ) => Promise<CustomerApprovalResponse>;
 }
 
 const CustomerDispatchApprovalModal = ({
@@ -287,81 +284,60 @@ const CustomerDispatchApprovalModal = ({
   // ==========================================================
 
   const handleApprove = async () => {
+    // Validate customer representative
+    if (!customerRepresentative.trim()) {
+      setMessage("Please enter customer representative name.");
+      return;
+    }
+
+    // Validate mobile number
+    if (!mobileNumber.trim()) {
+      setMessage("Please enter mobile number.");
+      return;
+    }
+
+    // Validate signature
+    if (!hasSignature || !signature) {
+      setMessage("Please provide customer signature.");
+      return;
+    }
+
+    setApproving(true);
     setMessage("");
 
-    if (!customerRepresentative.trim()) {
-      setMessage(
-        "Please enter customer representative name."
-      );
-
-      return;
-    }
-
-    if (!mobileNumber.trim()) {
-      setMessage(
-        "Please enter mobile number."
-      );
-
-      return;
-    }
-
-    if (!hasSignature) {
-      setMessage(
-        "Please provide customer signature."
-      );
-
-      return;
-    }
-
     try {
-      setApproving(true);
-
-      const request:
-        CustomerApprovalRequest = {
-        orderNo: order.orderNo,
+      const request: CustomerApprovalRequest = {
         deliverySheetNo: order.deliverySheetNo,
-
-        casingIds:
-          order.casings.map(
-            (casing) =>
-              casing.orderCasingId
-          ),
-
-        customerRepresentative:
-          customerRepresentative,
-
-        mobileNumber:
-          mobileNumber,
-
-        emailAddress:
-          emailAddress,
-
-        condition:
-          condition,
-
-        remarks:
-          remarks,
-
-        signature:
-          signature,
+        casingIds: order.casings.map(
+          (casing) => casing.orderCasingId
+        ),
+        customerRepresentative,
+        mobileNumber,
+        emailAddress,
+        condition,
+        remarks,
+        signature,
       };
 
-      const response =
-        await approveCustomer(
-          request
-        );
+      console.log("Customer Approval Request:", request);
 
-      setMessage(
-        response.message
-      );
+      const response = await approveCustomer(request);
 
       if (response.success) {
+        setMessage(
+          "Customer approval completed successfully."
+        );
+
         console.log(
-          "Approved successfully:",
-          request
+          "Customer approval successful:",
+          response.data
+        );
+      } else {
+        setMessage(
+          response.error ||
+          "Customer approval failed."
         );
       }
-
     } catch (error) {
       console.error(
         "Customer approval error:",
@@ -369,14 +345,14 @@ const CustomerDispatchApprovalModal = ({
       );
 
       setMessage(
-        "Something went wrong while approving."
+        error instanceof Error
+          ? error.message
+          : "Failed to complete customer approval."
       );
-
     } finally {
       setApproving(false);
     }
   };
-
 
   // ==========================================================
   // MODAL
