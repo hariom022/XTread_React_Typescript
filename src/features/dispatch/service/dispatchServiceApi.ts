@@ -9,8 +9,14 @@ const dispatchServiceApi = {
   /* casing comes from QC */
   getApprovedFromQC: () => indexPageApiService.getBatchProgress(16, 1),
 
-  /**GET Courier Services */
-  getCourierServices: () => api.get(`/courier-services`),
+
+/** GET Courier Services by Courier Type
+ *  Internal = 2
+ *  External = 1
+ */
+getCourierServices: (courierType: number) =>
+  api.get(`/courier-services?courierType=${courierType}`),
+
 
   /**Get Courier Services By ID */
   getCourierServiceById: (courierServiceId: number) =>
@@ -79,5 +85,9 @@ const dispatchServiceApi = {
       removeOrderCasingIds: number[];
     },
   ) => api.put(`/delivery-sheets/${deliverySheetId}`, payload),
+
+  /** GET Drivers by Courier Service */
+getDriversByCourierServiceId: (courierServiceId: number) =>
+  api.get(`/drivers?courierServiceId=${courierServiceId}`),
 };
 export default dispatchServiceApi;

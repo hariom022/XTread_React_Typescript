@@ -1,7 +1,10 @@
 import useDispatchFinalizationModal from "../hooks/useDispatchFinallizationModal";
 import { useState } from "react";
 import DispatchDocumentFinalization from "./DispatchDocumentFinalization";
-import type { DispatchFinalizationRow } from "../type/dispatch.types";
+import type {
+  DispatchFinalizationRow,
+  DispatchTeam,
+} from "../type/dispatch.types";
 import dispatchServiceApi from "../service/dispatchServiceApi";
 import CustomerDeliveryOrderModal from "./CustomerDeliveryOrderModal";
 
@@ -9,6 +12,10 @@ interface Props {
   show: boolean;
 
   rows: DispatchFinalizationRow[];
+
+  dispatchTeam: DispatchTeam;
+
+  setDispatchTeam: React.Dispatch<React.SetStateAction<DispatchTeam>>;
 
   onClose: () => void;
 
@@ -20,6 +27,8 @@ interface Props {
 const DispatchFinalizationModal = ({
   show,
   rows,
+  dispatchTeam,
+  setDispatchTeam,
   onClose,
   onFinalize,
   onEdit,
@@ -292,15 +301,8 @@ const DispatchFinalizationModal = ({
       />
       <CustomerDeliveryOrderModal
         show={showEditModal}
-        dispatchTeam={{
-          salesRep: "",
-          courierName: editDeliverySheet?.courierName ?? "",
-          regNo: editDeliverySheet?.vehicleRegNo ?? "",
-          driverName: editDeliverySheet?.driverName ?? "",
-          driverId: editDeliverySheet?.driverIdNo ?? "",
-          courierServiceId: editDeliverySheet?.courierServiceId ?? 0,
-        }}
-        setDispatchTeam={() => {}}
+        dispatchTeam={dispatchTeam}
+        setDispatchTeam={setDispatchTeam}
         isInternal={editDeliverySheet?.courierType === 2}
         editDeliverySheet={editDeliverySheet}
         onClose={() => {

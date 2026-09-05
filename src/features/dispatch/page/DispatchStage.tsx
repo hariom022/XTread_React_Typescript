@@ -55,9 +55,11 @@ const DispatchStage = () => {
     courierName: "",
     regNo: "",
     driverName: "",
-    driverId: "",
+    driverId: 0,
+    driverIdNo: "",
     courierServiceId: 0,
   });
+
   const [isInternal, setIsInternal] = useState(false);
 
   const [showEditDeliveryModal, setShowEditDeliveryModal] = useState(false);
@@ -176,9 +178,13 @@ const DispatchStage = () => {
 
         driverName: sheet.driverName ?? "",
 
-        driverId: sheet.driverIdNo ?? "",
+        // Actual Driver table ID
+        driverId: Number(sheet.driverId ?? 0),
 
-        courierServiceId: sheet.courierServiceId ?? 0,
+        // Driver ID number
+        driverIdNo: sheet.driverIdNo ?? "",
+
+        courierServiceId: Number(sheet.courierServiceId ?? 0),
       });
 
       setShowEditDeliveryModal(true);
@@ -295,7 +301,8 @@ const DispatchStage = () => {
             courierName: "",
             regNo: "",
             driverName: "",
-            driverId: "",
+            driverId: 0,
+            driverIdNo: "",
             courierServiceId: 0,
           });
           setFinalDispatchList((prev) => [
@@ -346,6 +353,8 @@ const DispatchStage = () => {
       <DispatchFinalizationModal
         show={showFinalizationModal}
         rows={finalDispatchList}
+        dispatchTeam={dispatchTeam}
+        setDispatchTeam={setDispatchTeam}
         onClose={() => setShowFinalizationModal(false)}
         onEdit={handleEditDeliverySheet}
         onFinalize={(row) => {

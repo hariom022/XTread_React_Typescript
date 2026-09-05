@@ -31,9 +31,16 @@ export interface DispatchTeam {
     salesRep: string;
     courierName: string;
     regNo: string;
+
     driverName: string;
-    driverId: string;
-    courierServiceId :number;
+
+    // Actual Driver table ID
+    driverId: number;
+
+    // Driver ID / License / Employee ID number
+    driverIdNo: string;
+
+    courierServiceId: number;
 }
 
 
@@ -80,9 +87,15 @@ export interface DispatchFinalizationRow {
 
 
 export interface CourierService {
-    courierServiceId: number;
-    courierName: string;
-    isActive: boolean;
+  courierServiceId: number;
+  courierName: string;
+  courierType: number;
+  code: string;
+  contactPerson: string | null;
+  contactNumber: string | null;
+  email: string | null;
+  address: string | null;
+  isActive: boolean;
 }
 
 
@@ -164,4 +177,12 @@ export interface DeliverySheetPayload {
     driverName: string;
     driverIdNo: string;
     remarks: string;
+}
+export interface CourierDriver {
+  driverId: number;
+  courierServiceId: number;
+  driverName: string;
+  driverIdNo: string;
+  contactNumber: string;
+  isActive: boolean;
 }

@@ -33,7 +33,11 @@ const CustomerDeliveryOrderModal = ({
   onSave,
   editDeliverySheet,
 }: Props) => {
-  const modal = useCustomerDeliveryOrderModal(dispatchTeam);
+  const modal = useCustomerDeliveryOrderModal(
+    dispatchTeam,
+    isInternal,
+    setDispatchTeam,
+  );
 
   // ==========================================
   // LOAD EDIT DATA
@@ -44,27 +48,19 @@ const CustomerDeliveryOrderModal = ({
       return;
     }
 
-    console.log("EDIT DELIVERY SHEET DATA:", editDeliverySheet);
+    console.log("========================================");
 
-    // ==========================================
-    // DATE
-    // ==========================================
+    console.log("EDIT DELIVERY SHEET:", editDeliverySheet);
 
-    if (editDeliverySheet.createdAtUtc) {
-      const date = new Date(editDeliverySheet.createdAtUtc)
-        .toISOString()
-        .split("T")[0];
+    console.log("EDIT COURIER SERVICE ID:", editDeliverySheet.courierServiceId);
 
-      modal.setDeliveryDate(date);
-    }
+    console.log("EDIT DRIVER ID:", editDeliverySheet.driverId);
 
-    // ==========================================
-    // EXISTING CASINGS
-    // ==========================================
+    console.log("EDIT DRIVER NAME:", editDeliverySheet.driverName);
 
-    if (Array.isArray(editDeliverySheet.casings)) {
-      modal.loadEditCasings(editDeliverySheet.casings);
-    }
+    console.log("EDIT DRIVER ID NO:", editDeliverySheet.driverIdNo);
+
+    console.log("========================================");
 
     // ==========================================
     // COURIER DETAILS
@@ -79,11 +75,13 @@ const CustomerDeliveryOrderModal = ({
 
       driverName: editDeliverySheet.driverName ?? "",
 
-      driverId: editDeliverySheet.driverIdNo ?? "",
+      driverId: Number(editDeliverySheet.driverId ?? 0),
 
-      courierServiceId: editDeliverySheet.courierServiceId ?? 0,
+      driverIdNo: editDeliverySheet.driverIdNo ?? "",
+
+      courierServiceId: Number(editDeliverySheet.courierServiceId ?? 0),
     }));
-  }, [show, editDeliverySheet]);
+  }, [show, editDeliverySheet, setDispatchTeam]);
 
   // ==========================================
   // SET CUSTOMER + SERVICE AFTER MASTER APIs
@@ -190,24 +188,26 @@ const CustomerDeliveryOrderModal = ({
     // COURIER SERVICE
     // ==========================================
 
-    const courierServiceId = isInternal
-      ? "0"
-      : (dispatchTeam.courierServiceId?.toString() ?? "0");
+    const courierServiceId = dispatchTeam.courierServiceId?.toString() ?? "0";
 
     // ==========================================
     // VALIDATE COURIER
     // ==========================================
 
-    if (
-      !dispatchTeam.courierName ||
-      !dispatchTeam.regNo ||
-      !dispatchTeam.driverName ||
-      !dispatchTeam.driverId
-    ) {
-      alert("Please enter/select all dispatch team details");
-
+    if (!dispatchTeam.courierServiceId) {
+      alert("Please select Courier Service");
       return;
     }
+
+    // if (
+    //   !dispatchTeam.regNo ||
+    //   !dispatchTeam.driverName ||
+    //   !dispatchTeam.driverId
+    // ) {
+    //   alert("Please enter/select all dispatch team details");
+
+    //   return;
+    // }
 
     // ==========================================
     // EDIT MODE
@@ -228,7 +228,8 @@ const CustomerDeliveryOrderModal = ({
 
         driverName: dispatchTeam.driverName || null,
 
-        driverIdNo: dispatchTeam.driverId || null,
+        driverId: dispatchTeam.driverId || null,
+        driverIdNo: dispatchTeam.driverIdNo || null,
 
         remarks: editDeliverySheet.remarks ?? "",
 
@@ -295,7 +296,8 @@ const CustomerDeliveryOrderModal = ({
 
       driverName: dispatchTeam.driverName,
 
-      driverIdNo: dispatchTeam.driverId,
+      driverId: dispatchTeam.driverId,
+      driverIdNo: dispatchTeam.driverIdNo,
 
       remarks: "",
     };
@@ -473,19 +475,78 @@ const CustomerDeliveryOrderModal = ({
                     <div className="col-md-6">
                       <label>Courier Service</label>
 
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={dispatchTeam.courierName ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
+                      <select
+                        className="form-select"
+                        value={modal.selectedCourierServiceId ?? ""}
+                        disabled={modal.loadingCourierServices}
+                        onChange={async (e) => {
+                          const id = e.target.value
+                            ? Number(e.target.value)
+                            : null;
+
+                          console.log("Selected Courier Service ID:", id);
+
+                          modal.setSelectedCourierServiceId(id);
+
+                          const selectedCourier = modal.courierServices.find(
+                            (item) =>
+                              Number(item.courierServiceId) === Number(id),
+                          );
+
+                          console.log(
+                            "Selected Courier Service:",
+                            selectedCourier,
+                          );
+
+                          // ==========================================
+                          // UPDATE COURIER SERVICE
+                          // ==========================================
 
                           setDispatchTeam((prev) => ({
                             ...prev,
-                            courierName: value,
+
+                            courierServiceId: id ?? 0,
+
+                            courierName: selectedCourier?.courierName ?? "",
+
+                            // Clear previous driver
+                            driverId: 0,
+
+                            driverName: "",
+
+                            driverIdNo: "",
                           }));
+
+                          // ==========================================
+                          // INTERNAL
+                          // LOAD DRIVERS
+                          // ==========================================
+
+                          if (isInternal && id) {
+                            console.log(
+                              "Loading drivers for Courier Service:",
+                              id,
+                            );
+
+                            await modal.getDrivers(id);
+                          }
                         }}
-                      />
+                      >
+                        <option value="">
+                          {modal.loadingCourierServices
+                            ? "Loading Courier Services..."
+                            : "-- Select Courier Service --"}
+                        </option>
+
+                        {modal.courierServices.map((courier) => (
+                          <option
+                            key={courier.courierServiceId}
+                            value={courier.courierServiceId}
+                          >
+                            {courier.courierName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     {/* REG NO */}
@@ -512,38 +573,83 @@ const CustomerDeliveryOrderModal = ({
 
                   <div className="row mt-2">
                     {/* DRIVER NAME */}
+                    {/* DRIVER NAME */}
                     <div className="col-md-6">
                       <label>Driver Name</label>
 
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={dispatchTeam.driverName ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
+                      {isInternal ? (
+                        <select
+                          className="form-select"
+                          value={modal.selectedDriverId ?? ""}
+                          disabled={
+                            !modal.selectedCourierServiceId ||
+                            modal.loadingDrivers
+                          }
+                          onChange={(e) => {
+                            const driverId = e.target.value
+                              ? Number(e.target.value)
+                              : null;
 
-                          setDispatchTeam((prev) => ({
-                            ...prev,
-                            driverName: value,
-                          }));
-                        }}
-                      />
+                            console.log("DRIVER DROPDOWN VALUE:", driverId);
+
+                            modal.handleDriverChange(driverId);
+                          }}
+                        >
+                          <option value="">
+                            {modal.loadingDrivers
+                              ? "Loading Drivers..."
+                              : !modal.selectedCourierServiceId
+                                ? "Select Courier Service First"
+                                : "-- Select Driver --"}
+                          </option>
+
+                          {modal.drivers.map((driver) => (
+                            <option
+                              key={driver.driverId}
+                              value={driver.driverId}
+                            >
+                              {driver.driverName}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Enter Driver Name"
+                          value={dispatchTeam.driverName ?? ""}
+                          onChange={(e) => {
+                            setDispatchTeam((prev) => ({
+                              ...prev,
+                              driverName: e.target.value,
+                            }));
+                          }}
+                        />
+                      )}
                     </div>
-
                     {/* ID NO */}
+
                     <div className="col-md-6">
                       <label>ID No#</label>
 
                       <input
                         type="text"
                         className="form-control"
-                        value={dispatchTeam.driverId ?? ""}
+                        value={dispatchTeam.driverIdNo ?? ""}
+                        readOnly={isInternal}
+                        placeholder={
+                          isInternal
+                            ? "Auto-filled from selected driver"
+                            : "Enter Driver ID"
+                        }
                         onChange={(e) => {
-                          const value = e.target.value;
+                          if (isInternal) {
+                            return;
+                          }
 
                           setDispatchTeam((prev) => ({
                             ...prev,
-                            driverId: value,
+                            driverIdNo: e.target.value,
                           }));
                         }}
                       />
