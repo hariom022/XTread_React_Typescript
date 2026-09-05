@@ -109,6 +109,7 @@ import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
 import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
 import RoleModuleMapping from "./master-modules/roleModuleMapping/page/RoleModuleMapping";
 import UserRegistrationPage from "./adminPortal/users/page/UserManagementPage";
+import Drivers from "./master-modules/drivers/page/Drivers";
 /* =========================================================
    AUTH INITIALIZER
 ========================================================= */
@@ -342,16 +343,16 @@ function AppContent() {
 
                 <Route path="/dispatch" element={<DispatchStage />} />
 
-                <Route path="/customerDeliveryApproval" element={<CustomerDispatchApprovePage/>}/>
+                <Route
+                  path="/customerDeliveryApproval"
+                  element={<CustomerDispatchApprovePage />}
+                />
 
                 {/* =====================================
                     ADMIN PORTAL
                 ===================================== */}
 
-                <Route
-                  path="/tyreOnHold"
-                  element={<TyreOnHold />}
-                />
+                <Route path="/tyreOnHold" element={<TyreOnHold />} />
                 <Route
                   path="/adminPortal/rejectedTyres"
                   element={<RejectedTyres />}
@@ -361,10 +362,7 @@ function AppContent() {
                   path="/adminPortal/byPassTyres"
                   element={<ByPassTyres />}
                 />
-                <Route
-                  path="/users"
-                  element={<UserRegistrationPage />}
-                />
+                <Route path="/users" element={<UserRegistrationPage />} />
                 {/* =====================================
                     MASTER MODULES
                 ===================================== */}
@@ -400,7 +398,7 @@ function AppContent() {
                   path="/roleModuleMapping"
                   element={<RoleModuleMapping />}
                 />
-
+                <Route path="/drivers" element={<Drivers />} />
                 {/* =====================================
                     ACCESS DENIED
                 ===================================== */}
