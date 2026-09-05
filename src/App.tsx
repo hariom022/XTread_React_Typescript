@@ -109,6 +109,7 @@ import RejectedTyres from "./adminPortal/rejectedTyres/pages/RejectedTyres";
 import ByPassTyres from "./adminPortal/byPassTyres/pages/ByPassTyres";
 import RoleModuleMapping from "./master-modules/roleModuleMapping/page/RoleModuleMapping";
 import UserRegistrationPage from "./adminPortal/users/page/UserManagementPage";
+import CourierServices from "./master-modules/courier-services/pages/CourierServices";
 /* =========================================================
    AUTH INITIALIZER
 ========================================================= */
@@ -400,6 +401,7 @@ function AppContent() {
                   path="/roleModuleMapping"
                   element={<RoleModuleMapping />}
                 />
+                <Route path="/courierService" element={<CourierServices/>}/>
 
                 {/* =====================================
                     ACCESS DENIED
