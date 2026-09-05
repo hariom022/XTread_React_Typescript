@@ -234,6 +234,7 @@ const [repairLocations, setRepairLocations] =
 
           rejectionReasonCode:
             null,
+          rejectionReasonId: null,
 
           repairOperations:
             skivingRepairs.length > 0
