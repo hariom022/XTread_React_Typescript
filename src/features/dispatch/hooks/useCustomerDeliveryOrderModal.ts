@@ -14,42 +14,81 @@ import dispatchServiceApi from "../service/dispatchServiceApi";
 const useCustomerDeliveryOrderModal = (
   dispatchTeam: DispatchTeam,
   isInternal: boolean,
-  setDispatchTeam: React.Dispatch<React.SetStateAction<DispatchTeam>>,
+  setDispatchTeam: React.Dispatch<
+    React.SetStateAction<DispatchTeam>
+  >,
 ) => {
-  // Load courier service
-  const [courierServices, setCourierServices] = useState<CourierService[]>([]);
+  // ==========================================
+  // COURIER SERVICES
+  // ==========================================
 
-  const [loadingCourierServices, setLoadingCourierServices] = useState(false);
+  const [courierServices, setCourierServices] =
+    useState<CourierService[]>([]);
 
-  const [selectedCourierServiceId, setSelectedCourierServiceId] = useState<
-    number | null
-  >(dispatchTeam.courierServiceId || null);
+  const [loadingCourierServices, setLoadingCourierServices] =
+    useState(false);
 
-  const getCourierServices = async (courierType: number) => {
+  const [
+    selectedCourierServiceId,
+    setSelectedCourierServiceId,
+  ] = useState<number | null>(
+    dispatchTeam.courierServiceId
+      ? Number(dispatchTeam.courierServiceId)
+      : null,
+  );
+
+  // ==========================================
+  // GET COURIER SERVICES
+  // ==========================================
+
+  const getCourierServices = async (
+    courierType: number,
+  ) => {
     try {
       setLoadingCourierServices(true);
 
-      console.log("Loading courier services for type:", courierType);
+      console.log(
+        "Loading Courier Services. Type:",
+        courierType,
+      );
 
-      const response = await dispatchServiceApi.getCourierServices(courierType);
+      const response =
+        await dispatchServiceApi.getCourierServices(
+          courierType,
+        );
 
-      console.log("Courier Services Response:", response.data);
+      console.log(
+        "Courier Services Response:",
+        response.data,
+      );
 
       if (response.data?.success) {
-        setCourierServices(
-          Array.isArray(response.data.data) ? response.data.data : [],
-        );
+        const data = Array.isArray(
+          response.data.data,
+        )
+          ? response.data.data
+          : [];
+
+        setCourierServices(data);
       } else {
         setCourierServices([]);
       }
     } catch (error) {
-      console.error("Error fetching courier services:", error);
+      console.error(
+        "Error fetching courier services:",
+        error,
+      );
 
       setCourierServices([]);
     } finally {
       setLoadingCourierServices(false);
     }
   };
+
+  // ==========================================
+  // LOAD COURIER SERVICES
+  // ==========================================
+
   useEffect(() => {
     const courierType = isInternal ? 2 : 1;
 
@@ -57,42 +96,104 @@ const useCustomerDeliveryOrderModal = (
   }, [isInternal]);
 
   // ==========================================
-  // COURIER DRIVERS
+  // SYNC COURIER SERVICE FROM PARENT
+  //
+  // IMPORTANT FOR EDIT
   // ==========================================
 
-  const [drivers, setDrivers] = useState<CourierDriver[]>([]);
+  useEffect(() => {
+    const courierServiceId =
+      Number(
+        dispatchTeam.courierServiceId,
+      ) || 0;
 
-  const [loadingDrivers, setLoadingDrivers] = useState(false);
+    console.log(
+      "Sync Courier Service ID:",
+      courierServiceId,
+    );
 
-  const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null);
-  const selectedDriver = drivers.find(
-    (driver) => Number(driver.driverId) === Number(selectedDriverId),
-  );
+    if (courierServiceId > 0) {
+      setSelectedCourierServiceId(
+        courierServiceId,
+      );
+    } else {
+      setSelectedCourierServiceId(null);
+    }
+  }, [
+    dispatchTeam.courierServiceId,
+  ]);
+
   // ==========================================
-  // GET DRIVERS BY COURIER SERVICE
+  // DRIVERS
   // ==========================================
 
-  const getDrivers = async (courierServiceId: number) => {
+  const [drivers, setDrivers] =
+    useState<CourierDriver[]>([]);
+
+  const [loadingDrivers, setLoadingDrivers] =
+    useState(false);
+
+  const [selectedDriverId, setSelectedDriverId] =
+    useState<number | null>(null);
+
+  // ==========================================
+  // GET DRIVERS
+  // ==========================================
+
+  const getDrivers = async (
+    courierServiceId: number,
+  ) => {
     try {
       setLoadingDrivers(true);
 
-      setDrivers([]);
-      setSelectedDriverId(null);
+      console.log(
+        "========================================",
+      );
 
-      console.log("Loading drivers for Courier Service:", courierServiceId);
+      console.log(
+        "GET DRIVERS",
+      );
+
+      console.log(
+        "Courier Service ID:",
+        courierServiceId,
+      );
+
+      console.log(
+        "========================================",
+      );
 
       const response =
-        await dispatchServiceApi.getDriversByCourierServiceId(courierServiceId);
+        await dispatchServiceApi.getDriversByCourierServiceId(
+          courierServiceId,
+        );
 
-      console.log("Drivers API Response:", response.data);
+      console.log(
+        "Drivers API Response:",
+        response.data,
+      );
 
       if (response.data?.success) {
-        setDrivers(Array.isArray(response.data.data) ? response.data.data : []);
+        const data = Array.isArray(
+          response.data.data,
+        )
+          ? response.data.data
+          : [];
+
+        console.log(
+          "Drivers Loaded:",
+          data,
+        );
+
+        setDrivers(data);
       } else {
         setDrivers([]);
       }
     } catch (error) {
-      console.error("Error fetching drivers:", error);
+      console.error(
+        "Error fetching drivers:",
+        error,
+      );
 
       setDrivers([]);
     } finally {
@@ -101,163 +202,329 @@ const useCustomerDeliveryOrderModal = (
   };
 
   // ==========================================
-  // SELECT DRIVER
+  // LOAD DRIVERS WHEN:
+  //
+  // 1. Internal Courier
+  // 2. Courier Service Selected
+  //
+  // This also works during EDIT.
   // ==========================================
 
-  // ==========================================
-  // SELECT DRIVER
-  // ==========================================
+  useEffect(() => {
+    if (
+      !isInternal ||
+      !selectedCourierServiceId
+    ) {
+      setDrivers([]);
+
+      setSelectedDriverId(null);
+
+      return;
+    }
+
+    console.log(
+      "Auto loading drivers for Courier Service:",
+      selectedCourierServiceId,
+    );
+
+    getDrivers(
+      selectedCourierServiceId,
+    );
+  }, [
+    isInternal,
+    selectedCourierServiceId,
+  ]);
 
   // ==========================================
-  // SELECT DRIVER
+  // SELECT EXISTING DRIVER DURING EDIT
   // ==========================================
 
-  const handleDriverChange = (driverId: number | null) => {
-    console.log("Selected Driver ID:", driverId);
+  useEffect(() => {
+    if (
+      !isInternal ||
+      drivers.length === 0
+    ) {
+      return;
+    }
 
-    setSelectedDriverId(driverId);
+    const existingDriverId =
+      Number(
+        dispatchTeam.driverId,
+      ) || 0;
 
-    // No driver selected
+    const existingDriverIdNo =
+      dispatchTeam.driverIdNo
+        ?.trim()
+        .toLowerCase() || "";
+
+    const existingDriverName =
+      dispatchTeam.driverName
+        ?.trim()
+        .toLowerCase() || "";
+
+    console.log(
+      "========================================",
+    );
+
+    console.log(
+      "SEARCHING EXISTING DRIVER",
+    );
+
+    console.log(
+      "Existing Driver ID:",
+      existingDriverId,
+    );
+
+    console.log(
+      "Existing Driver ID No:",
+      existingDriverIdNo,
+    );
+
+    console.log(
+      "Existing Driver Name:",
+      existingDriverName,
+    );
+
+    console.log(
+      "Available Drivers:",
+      drivers,
+    );
+
+    console.log(
+      "========================================",
+    );
+
+    // ==========================================
+    // FIRST: FIND BY DRIVER ID
+    // ==========================================
+
+    let existingDriver =
+      drivers.find(
+        (driver) =>
+          Number(driver.driverId) ===
+          existingDriverId,
+      );
+
+    // ==========================================
+    // SECOND: FIND BY DRIVER ID NO
+    // ==========================================
+
+    if (
+      !existingDriver &&
+      existingDriverIdNo
+    ) {
+      existingDriver =
+        drivers.find(
+          (driver) =>
+            driver.driverIdNo
+              ?.trim()
+              .toLowerCase() ===
+            existingDriverIdNo,
+        );
+    }
+
+    // ==========================================
+    // THIRD: FIND BY DRIVER NAME
+    // ==========================================
+
+    if (
+      !existingDriver &&
+      existingDriverName
+    ) {
+      existingDriver =
+        drivers.find(
+          (driver) =>
+            driver.driverName
+              ?.trim()
+              .toLowerCase() ===
+            existingDriverName,
+        );
+    }
+
+    console.log(
+      "Existing Driver Found:",
+      existingDriver,
+    );
+
+    if (!existingDriver) {
+      return;
+    }
+
+    // ==========================================
+    // SELECT DRIVER
+    // ==========================================
+
+    setSelectedDriverId(
+      Number(existingDriver.driverId),
+    );
+
+    // ==========================================
+    // ENSURE DISPATCH TEAM IS CORRECT
+    // ==========================================
+
+    setDispatchTeam((prev) => ({
+      ...prev,
+
+      driverId:
+        Number(
+          existingDriver!.driverId,
+        ),
+
+      driverName:
+        existingDriver!.driverName ?? "",
+
+      driverIdNo:
+        existingDriver!.driverIdNo ?? "",
+    }));
+  }, [
+    isInternal,
+    drivers,
+    dispatchTeam.driverId,
+    dispatchTeam.driverIdNo,
+    dispatchTeam.driverName,
+    setDispatchTeam,
+  ]);
+
+  // ==========================================
+  // SELECT DRIVER MANUALLY
+  // ==========================================
+
+  const handleDriverChange = (
+    driverId: number | null,
+  ) => {
+    console.log(
+      "Selected Driver ID:",
+      driverId,
+    );
+
+    setSelectedDriverId(
+      driverId,
+    );
+
     if (!driverId) {
       setDispatchTeam((prev) => ({
         ...prev,
+
         driverId: 0,
+
         driverName: "",
+
         driverIdNo: "",
       }));
 
       return;
     }
 
-    // Find selected driver
-    const selectedDriver = drivers.find(
-      (driver) => Number(driver.driverId) === Number(driverId),
+    const selectedDriver =
+      drivers.find(
+        (driver) =>
+          Number(driver.driverId) ===
+          Number(driverId),
+      );
+
+    console.log(
+      "Selected Driver:",
+      selectedDriver,
     );
 
-    console.log("Selected Driver Object:", selectedDriver);
-
     if (!selectedDriver) {
-      console.error("Selected driver not found:", driverId);
       return;
     }
-
-    console.log("Driver Database ID:", selectedDriver.driverId);
-    console.log("Driver Name:", selectedDriver.driverName);
-    console.log("Driver ID No:", selectedDriver.driverIdNo);
-
-    // ==========================================
-    // BIND DRIVER DETAILS
-    // ==========================================
 
     setDispatchTeam((prev) => ({
       ...prev,
 
-      // Actual Driver table ID
-      driverId: Number(selectedDriver.driverId),
+      driverId:
+        Number(
+          selectedDriver.driverId,
+        ),
 
-      // Driver name
-      driverName: selectedDriver.driverName ?? "",
+      driverName:
+        selectedDriver.driverName ??
+        "",
 
-      // Driver ID number
-      driverIdNo: selectedDriver.driverIdNo ?? "",
+      driverIdNo:
+        selectedDriver.driverIdNo ??
+        "",
     }));
   };
+
   // ==========================================
   // DELIVERY DATE
   // ==========================================
 
-  const [deliveryDate, setDeliveryDate] = useState(
-    new Date().toISOString().split("T")[0],
-  );
+  const [deliveryDate, setDeliveryDate] =
+    useState(
+      new Date()
+        .toISOString()
+        .split("T")[0],
+    );
 
   // ==========================================
   // SERVICE TYPE
   // ==========================================
 
-  const [serviceType, setServiceType] = useState("");
+  const [serviceType, setServiceType] =
+    useState("");
 
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [serviceTypes, setServiceTypes] =
+    useState<ServiceType[]>([]);
 
-  const [loadingServiceTypes, setLoadingServiceTypes] = useState(false);
+  const [loadingServiceTypes, setLoadingServiceTypes] =
+    useState(false);
 
   // ==========================================
   // CUSTOMER
   // ==========================================
 
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customers, setCustomers] =
+    useState<Customer[]>([]);
 
-  const [selectedCustomerId, setSelectedCustomerId] = useState("");
+  const [
+    selectedCustomerId,
+    setSelectedCustomerId,
+  ] = useState("");
 
-  const [loadingCustomers, setLoadingCustomers] = useState(false);
+  const [loadingCustomers, setLoadingCustomers] =
+    useState(false);
 
   // ==========================================
   // QC CASINGS
   // ==========================================
 
-  const [batchCasings, setBatchCasings] = useState<CustomerCasing[]>([]);
+  const [batchCasings, setBatchCasings] =
+    useState<CustomerCasing[]>([]);
 
-  const [loadingBatchCasings, setLoadingBatchCasings] = useState(false);
-
-  // ==========================================
-  // LEFT TABLE
-  // ==========================================
-
-  const [availableCasings, setAvailableCasings] = useState<CustomerCasing[]>(
-    [],
-  );
+  const [loadingBatchCasings, setLoadingBatchCasings] =
+    useState(false);
 
   // ==========================================
-  // RIGHT TABLE
+  // AVAILABLE CASINGS
   // ==========================================
 
-  const [selectedCasings, setSelectedCasings] = useState<CustomerCasing[]>([]);
+  const [
+    availableCasings,
+    setAvailableCasings,
+  ] = useState<CustomerCasing[]>([]);
+
+  // ==========================================
+  // SELECTED CASINGS
+  // ==========================================
+
+  const [
+    selectedCasings,
+    setSelectedCasings,
+  ] = useState<CustomerCasing[]>([]);
 
   // ==========================================
   // ORIGINAL EDIT CASING IDS
-  //
-  // Example:
-  // Existing = [3,4]
-  //
-  // User removes 3
-  // User adds 5
-  //
-  // PUT:
-  // add = [5]
-  // remove = [3]
   // ==========================================
 
-  const [originalEditCasingIds, setOriginalEditCasingIds] = useState<number[]>(
-    [],
-  );
+  const [
+    originalEditCasingIds,
+    setOriginalEditCasingIds,
+  ] = useState<number[]>([]);
 
-  // ==========================================
-// LOAD DRIVERS FOR INTERNAL COURIER
-// ==========================================
-
-useEffect(() => {
-  if (
-    !isInternal ||
-    !selectedCourierServiceId
-  ) {
-    setDrivers([]);
-    setSelectedDriverId(null);
-
-    return;
-  }
-
-  console.log(
-    "Loading drivers for edit/internal courier:",
-    selectedCourierServiceId,
-  );
-
-  getDrivers(selectedCourierServiceId);
-}, [
-  isInternal,
-  selectedCourierServiceId,
-]);
-
-
-  
   // ==========================================
   // GET CUSTOMERS
   // ==========================================
@@ -266,21 +533,30 @@ useEffect(() => {
     try {
       setLoadingCustomers(true);
 
-      const response = await dispatchServiceApi.getCustomerName();
+      const response =
+        await dispatchServiceApi.getCustomerName();
 
-      console.log("Customers API Response:", response.data);
+      console.log(
+        "Customers API Response:",
+        response.data,
+      );
 
       if (response.data?.success) {
         setCustomers(
-          Array.isArray(response.data.data) ? response.data.data : [],
+          Array.isArray(
+            response.data.data,
+          )
+            ? response.data.data
+            : [],
         );
       } else {
         setCustomers([]);
-
-        console.error("Customers API failed:", response.data?.error);
       }
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error(
+        "Error fetching customers:",
+        error,
+      );
 
       setCustomers([]);
     } finally {
@@ -296,21 +572,30 @@ useEffect(() => {
     try {
       setLoadingServiceTypes(true);
 
-      const response = await dispatchServiceApi.getServiceTypeName();
+      const response =
+        await dispatchServiceApi.getServiceTypeName();
 
-      console.log("Service Types API Response:", response.data);
+      console.log(
+        "Service Types API Response:",
+        response.data,
+      );
 
       if (response.data?.success) {
         setServiceTypes(
-          Array.isArray(response.data.data) ? response.data.data : [],
+          Array.isArray(
+            response.data.data,
+          )
+            ? response.data.data
+            : [],
         );
       } else {
         setServiceTypes([]);
-
-        console.error("Service Types API failed:", response.data?.error);
       }
     } catch (error) {
-      console.error("Error fetching service types:", error);
+      console.error(
+        "Error fetching service types:",
+        error,
+      );
 
       setServiceTypes([]);
     } finally {
@@ -322,68 +607,114 @@ useEffect(() => {
   // GET APPROVED CASINGS FROM QC
   // ==========================================
 
-  const getApprovedCasingsFromQC = async () => {
-    try {
-      setLoadingBatchCasings(true);
+  const getApprovedCasingsFromQC =
+    async () => {
+      try {
+        setLoadingBatchCasings(true);
 
-      console.log("Getting approved casings from QC...");
+        console.log(
+          "Getting approved casings from QC...",
+        );
 
-      const response = await dispatchServiceApi.getApprovedFromQC();
+        const response =
+          await dispatchServiceApi.getApprovedFromQC();
 
-      console.log("Approved From QC API Response:", response.data);
+        console.log(
+          "Approved From QC API Response:",
+          response.data,
+        );
 
-      if (!response.data?.success) {
-        setBatchCasings([]);
+        if (!response.data?.success) {
+          setBatchCasings([]);
 
-        return;
-      }
-
-      const stages = Array.isArray(response.data.data)
-        ? response.data.data
-        : [];
-
-      const casings: CustomerCasing[] = stages.flatMap((stage: any) => {
-        if (!Array.isArray(stage.batches)) {
-          return [];
+          return;
         }
 
-        return stage.batches.flatMap((batch: any) => {
-          if (!Array.isArray(batch.casings)) {
-            return [];
-          }
+        const stages =
+          Array.isArray(
+            response.data.data,
+          )
+            ? response.data.data
+            : [];
 
-          return batch.casings.map((casing: any) => ({
-            orderCasingId: casing.orderCasingId,
+        const casings: CustomerCasing[] =
+          stages.flatMap(
+            (stage: any) => {
+              if (
+                !Array.isArray(
+                  stage.batches,
+                )
+              ) {
+                return [];
+              }
 
-            customerName: casing.customerName ?? "",
+              return stage.batches.flatMap(
+                (batch: any) => {
+                  if (
+                    !Array.isArray(
+                      batch.casings,
+                    )
+                  ) {
+                    return [];
+                  }
 
-            batchNo: casing.batchNumber ?? batch.batchNumber ?? "",
+                  return batch.casings.map(
+                    (casing: any) => ({
+                      orderCasingId:
+                        casing.orderCasingId,
 
-            productionNo: casing.productionNumber ?? "",
+                      customerName:
+                        casing.customerName ??
+                        "",
 
-            tyreSize: casing.tyreSizeLabel ?? "",
+                      batchNo:
+                        casing.batchNumber ??
+                        batch.batchNumber ??
+                        "",
 
-            tyreMake: casing.tyreMakeName ?? "",
+                      productionNo:
+                        casing.productionNumber ??
+                        "",
 
-            service: casing.serviceType ?? casing.serviceTypeName ?? "",
-          }));
-        });
-      });
+                      tyreSize:
+                        casing.tyreSizeLabel ??
+                        "",
 
-      console.log("Flattened QC Casings:", casings);
+                      tyreMake:
+                        casing.tyreMakeName ??
+                        "",
 
-      setBatchCasings(casings);
-    } catch (error) {
-      console.error("Error fetching approved casings from QC:", error);
+                      service:
+                        casing.serviceType ??
+                        casing.serviceTypeName ??
+                        "",
+                    }),
+                  );
+                },
+              );
+            },
+          );
 
-      setBatchCasings([]);
-    } finally {
-      setLoadingBatchCasings(false);
-    }
-  };
+        console.log(
+          "Flattened QC Casings:",
+          casings,
+        );
+
+        setBatchCasings(casings);
+      } catch (error) {
+        console.error(
+          "Error fetching approved casings from QC:",
+          error,
+        );
+
+        setBatchCasings([]);
+      } finally {
+        setLoadingBatchCasings(false);
+      }
+    };
 
   // ==========================================
-  // LOAD DATA
+  // INITIAL LOAD
   // ==========================================
 
   useEffect(() => {
@@ -398,54 +729,81 @@ useEffect(() => {
   // SELECTED CUSTOMER
   // ==========================================
 
-  const selectedCustomer = customers.find(
-    (customer) => customer.customerNumber === selectedCustomerId,
-  );
+  const selectedCustomer =
+    customers.find(
+      (customer) =>
+        customer.customerNumber ===
+        selectedCustomerId,
+    );
 
   // ==========================================
   // SELECTED SERVICE TYPE
   // ==========================================
 
-  const selectedServiceType = serviceTypes.find(
-    (item) => item.serviceTypeId.toString() === serviceType,
-  );
+  const selectedServiceType =
+    serviceTypes.find(
+      (item) =>
+        item.serviceTypeId.toString() ===
+        serviceType,
+    );
 
   // ==========================================
   // FILTER LEFT TABLE
   // ==========================================
 
   useEffect(() => {
-    if (!selectedCustomer || !selectedServiceType) {
+    if (
+      !selectedCustomer ||
+      !selectedServiceType
+    ) {
       setAvailableCasings([]);
 
       return;
     }
 
-    const customerName = selectedCustomer.customerName?.trim().toLowerCase();
+    const customerName =
+      selectedCustomer.customerName
+        ?.trim()
+        .toLowerCase();
 
-    const serviceTypeName = selectedServiceType.serviceTypeName
-      ?.trim()
-      .toLowerCase();
+    const serviceTypeName =
+      selectedServiceType.serviceTypeName
+        ?.trim()
+        .toLowerCase();
 
-    const filteredCasings = batchCasings.filter((casing) => {
-      const casingCustomerName = casing.customerName?.trim().toLowerCase();
+    const filteredCasings =
+      batchCasings.filter(
+        (casing) => {
+          const casingCustomerName =
+            casing.customerName
+              ?.trim()
+              .toLowerCase();
 
-      const casingServiceType = casing.service?.trim().toLowerCase();
+          const casingServiceType =
+            casing.service
+              ?.trim()
+              .toLowerCase();
 
-      const alreadySelected = selectedCasings.some(
-        (selected) => selected.orderCasingId === casing.orderCasingId,
+          const alreadySelected =
+            selectedCasings.some(
+              (selected) =>
+                selected.orderCasingId ===
+                casing.orderCasingId,
+            );
+
+          return (
+            casingCustomerName ===
+              customerName &&
+            casingServiceType ===
+              serviceTypeName &&
+            !alreadySelected
+          );
+        },
       );
 
-      return (
-        casingCustomerName === customerName &&
-        casingServiceType === serviceTypeName &&
-        !alreadySelected
-      );
-    });
-
-    console.log("Available Casings:", filteredCasings);
-
-    setAvailableCasings(filteredCasings);
+    setAvailableCasings(
+      filteredCasings,
+    );
   }, [
     selectedCustomer,
     selectedCustomerId,
@@ -457,14 +815,17 @@ useEffect(() => {
 
   // ==========================================
   // ADD CASING
-  // LEFT -> RIGHT
   // ==========================================
 
-  const handleAddCasing = (item: CustomerCasing) => {
-    console.log("ADDING CASING:", item);
-
+  const handleAddCasing = (
+    item: CustomerCasing,
+  ) => {
     setSelectedCasings((prev) => {
-      const exists = prev.some((x) => x.orderCasingId === item.orderCasingId);
+      const exists = prev.some(
+        (x) =>
+          x.orderCasingId ===
+          item.orderCasingId,
+      );
 
       if (exists) {
         return prev;
@@ -473,33 +834,36 @@ useEffect(() => {
       return [...prev, item];
     });
 
-    // Immediately remove from left table
     setAvailableCasings((prev) =>
-      prev.filter((x) => x.orderCasingId !== item.orderCasingId),
+      prev.filter(
+        (x) =>
+          x.orderCasingId !==
+          item.orderCasingId,
+      ),
     );
   };
 
   // ==========================================
   // REMOVE CASING
-  // RIGHT -> LEFT
   // ==========================================
 
-  const handleRemoveCasing = (item: CustomerCasing) => {
-    console.log("REMOVING CASING:", item);
-
-    // Remove from right table
+  const handleRemoveCasing = (
+    item: CustomerCasing,
+  ) => {
     setSelectedCasings((prev) =>
-      prev.filter((x) => x.orderCasingId !== item.orderCasingId),
+      prev.filter(
+        (x) =>
+          x.orderCasingId !==
+          item.orderCasingId,
+      ),
     );
 
-    // IMPORTANT:
-    // Put it directly back into LEFT TABLE.
-    //
-    // Do not depend only on useEffect.
-    //
-
     setAvailableCasings((prev) => {
-      const exists = prev.some((x) => x.orderCasingId === item.orderCasingId);
+      const exists = prev.some(
+        (x) =>
+          x.orderCasingId ===
+          item.orderCasingId,
+      );
 
       if (exists) {
         return prev;
@@ -513,8 +877,25 @@ useEffect(() => {
   // LOAD EXISTING CASINGS FOR EDIT
   // ==========================================
 
-  const loadEditCasings = (casings: any[]) => {
-    if (!Array.isArray(casings)) {
+  const loadEditCasings = (
+    casings: any[],
+  ) => {
+    console.log(
+      "========================================",
+    );
+
+    console.log(
+      "LOADING EDIT CASINGS:",
+      casings,
+    );
+
+    console.log(
+      "========================================",
+    );
+
+    if (
+      !Array.isArray(casings)
+    ) {
       setSelectedCasings([]);
 
       setOriginalEditCasingIds([]);
@@ -523,87 +904,125 @@ useEffect(() => {
     }
 
     // ==========================================
-    // MAP API CASINGS
+    // MAP EXISTING CASINGS
     // ==========================================
 
-    const mappedCasings: CustomerCasing[] = casings.map((casing: any) => ({
-      orderCasingId: casing.orderCasingId,
+    const mappedCasings: CustomerCasing[] =
+      casings.map(
+        (casing: any) => ({
+          orderCasingId:
+            Number(
+              casing.orderCasingId,
+            ),
 
-      customerName: casing.customerName ?? "",
+          customerName:
+            casing.customerName ??
+            "",
 
-      service: casing.serviceType ?? casing.serviceTypeName ?? "",
+          service:
+            casing.serviceType ??
+            casing.serviceTypeName ??
+            "",
 
-      batchNo: casing.batchNumber ?? "",
+          batchNo:
+            casing.batchNumber ??
+            "",
 
-      productionNo: casing.productionNumber ?? "",
+          productionNo:
+            casing.productionNumber ??
+            "",
 
-      tyreSize: casing.tyreSizeLabel ?? "",
+          tyreSize:
+            casing.tyreSizeLabel ??
+            "",
 
-      tyreMake: casing.tyreMakeName ?? "",
-    }));
+          tyreMake:
+            casing.tyreMakeName ??
+            "",
+        }),
+      );
+
+    console.log(
+      "Mapped Edit Casings:",
+      mappedCasings,
+    );
 
     // ==========================================
-    // SAVE ORIGINAL IDS
+    // ORIGINAL IDS
     // ==========================================
 
-    const originalIds = mappedCasings.map((item) => item.orderCasingId);
+    const originalIds =
+      mappedCasings.map(
+        (item) =>
+          item.orderCasingId,
+      );
 
-    console.log("ORIGINAL EDIT CASING IDS:", originalIds);
-
-    setOriginalEditCasingIds(originalIds);
+    setOriginalEditCasingIds(
+      originalIds,
+    );
 
     // ==========================================
-    // IMPORTANT FIX
-    //
-    // Merge edit casings into batchCasings.
-    //
-    // This allows a removed casing to come
-    // back to the left table.
+    // MERGE INTO BATCH CASINGS
     // ==========================================
 
     setBatchCasings((prev) => {
-      const existingIds = new Set(prev.map((x) => x.orderCasingId));
+      const existingIds =
+        new Set(
+          prev.map(
+            (x) =>
+              x.orderCasingId,
+          ),
+        );
 
-      const newCasings = mappedCasings.filter(
-        (item) => !existingIds.has(item.orderCasingId),
-      );
+      const newCasings =
+        mappedCasings.filter(
+          (item) =>
+            !existingIds.has(
+              item.orderCasingId,
+            ),
+        );
 
-      return [...prev, ...newCasings];
+      return [
+        ...prev,
+        ...newCasings,
+      ];
     });
 
     // ==========================================
     // SHOW EXISTING CASINGS ON RIGHT
     // ==========================================
 
-    setSelectedCasings(mappedCasings);
+    setSelectedCasings(
+      mappedCasings,
+    );
   };
 
   // ==========================================
-  // GET ADD / REMOVE IDS FOR UPDATE
+  // GET UPDATE CASING IDS
   // ==========================================
 
   const getUpdateCasingIds = () => {
-    const currentIds = selectedCasings.map((item) => item.orderCasingId);
+    const currentIds =
+      selectedCasings.map(
+        (item) =>
+          item.orderCasingId,
+      );
 
-    // ==========================================
-    // ADD
-    //
-    // Current but not originally present
-    // ==========================================
+    const addOrderCasingIds =
+      currentIds.filter(
+        (id) =>
+          !originalEditCasingIds.includes(
+            id,
+          ),
+      );
 
-    const addOrderCasingIds = currentIds.filter(
-      (id) => !originalEditCasingIds.includes(id),
-    );
-
-    // ==========================================
-    // REMOVE
-    //
-    // Originally present but no longer current
-    // ==========================================
-
-    const removeOrderCasingIds = originalEditCasingIds.filter(
-      (id) => !currentIds.includes(id),
-    );
+    const removeOrderCasingIds =
+      originalEditCasingIds.filter(
+        (id) =>
+          !currentIds.includes(
+            id,
+          ),
+      );
 
     return {
       addOrderCasingIds,
@@ -612,11 +1031,14 @@ useEffect(() => {
   };
 
   // ==========================================
-  // GENERATE DELIVERY ORDER NUMBER
+  // GENERATE DO NUMBER
   // ==========================================
 
   const generateDONumber = () => {
-    const random = Math.floor(100 + Math.random() * 900);
+    const random =
+      Math.floor(
+        100 + Math.random() * 900,
+      );
 
     return `DEV-${new Date()
       .toISOString()
@@ -629,7 +1051,11 @@ useEffect(() => {
   // ==========================================
 
   const reset = () => {
-    setDeliveryDate(new Date().toISOString().split("T")[0]);
+    setDeliveryDate(
+      new Date()
+        .toISOString()
+        .split("T")[0],
+    );
 
     setSelectedCustomerId("");
 
@@ -642,62 +1068,37 @@ useEffect(() => {
     setOriginalEditCasingIds([]);
 
     // Courier
+
     setCourierServices([]);
-    setSelectedCourierServiceId(null);
+
+    setSelectedCourierServiceId(
+      null,
+    );
 
     // Drivers
+
     setDrivers([]);
+
     setSelectedDriverId(null);
   };
 
-  // ==========================================
-// SELECT EXISTING DRIVER IN EDIT MODE
-// ==========================================
-
-useEffect(() => {
-  if (
-    !isInternal ||
-    drivers.length === 0 ||
-    !dispatchTeam.driverId
-  ) {
-    return;
-  }
-
-  const existingDriver = drivers.find(
-    (driver) =>
-      Number(driver.driverId) ===
-      Number(dispatchTeam.driverId),
-  );
-
-  console.log(
-    "Existing Driver Found:",
-    existingDriver,
-  );
-
-  if (existingDriver) {
-    setSelectedDriverId(
-      Number(existingDriver.driverId),
-    );
-  }
-}, [
-  isInternal,
-  drivers,
-  dispatchTeam.driverId,
-]);
   // ==========================================
   // RETURN
   // ==========================================
 
   return {
+    // DATE
     deliveryDate,
     setDeliveryDate,
 
+    // SERVICE
     serviceType,
     setServiceType,
 
     serviceTypes,
     loadingServiceTypes,
 
+    // CUSTOMER
     selectedCustomerId,
     setSelectedCustomerId,
 
@@ -705,6 +1106,7 @@ useEffect(() => {
     selectedCustomer,
     loadingCustomers,
 
+    // CASINGS
     batchCasings,
     loadingBatchCasings,
 
@@ -724,20 +1126,22 @@ useEffect(() => {
 
     // COURIER SERVICES
     courierServices,
+
     loadingCourierServices,
 
     selectedCourierServiceId,
+
     setSelectedCourierServiceId,
 
-    // ==========================================
     // DRIVERS
-    // ==========================================
-
     drivers,
+
     loadingDrivers,
+
     selectedDriverId,
-    selectedDriver,
+
     handleDriverChange,
+
     getDrivers,
 
     reset,
