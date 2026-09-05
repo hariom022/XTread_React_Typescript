@@ -20,7 +20,7 @@ export interface CustomerDispatchCasing {
   categoryName: string;
 
   isTreadBenchDataCollected: boolean;
-
+ deliverySheetNo:string;
   currentStage: number;
   currentStageStatus: number;
 

@@ -11,30 +11,135 @@ const CustomerDispatchIndex = () => {
     useCustomerDispatchApproval();
 
   /*
-   * Selected customer/order
+   * ==========================================================
+   * SELECTED CUSTOMER / DELIVERY SHEET GROUP
+   * ==========================================================
    */
 
   const [selectedOrder, setSelectedOrder] =
     useState<CustomerDispatchOrderGroup | null>(null);
 
   /*
-   * Customer filter
+   * ==========================================================
+   * CUSTOMER FILTER
+   * ==========================================================
    */
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<string>("All Customers");
 
   /*
-   * Date filter
+   * ==========================================================
+   * DATE FILTER
+   * ==========================================================
    */
 
   const [selectedDate, setSelectedDate] = useState<string>("");
 
   /*
-   * Expanded rows
+   * ==========================================================
+   * EXPANDED ROWS
+   * ==========================================================
    */
 
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
+  /*
+   * ==========================================================
+   * GROUP DATA
+   *
+   * IMPORTANT:
+   *
+   * API returns:
+   *
+   * Batch
+   *   -> Casings
+   *       -> customerName
+   *       -> deliverySheetNo
+   *
+   * We first flatten all casings and then group them by:
+   *
+   *     Customer Name + Delivery Sheet No
+   * ==========================================================
+   */
+
+  const groupedOrders = useMemo(() => {
+    const groups = new Map<string, CustomerDispatchOrderGroup>();
+
+    orders.forEach((order) => {
+      if (!order.casings || order.casings.length === 0) {
+        return;
+      }
+
+      order.casings.forEach((casing) => {
+        const customerName = casing.customerName?.trim() || "Unknown Customer";
+
+        const deliverySheetNo =
+          casing.deliverySheetNo?.trim() || "No Delivery Sheet";
+
+        /*
+         * Grouping key
+         *
+         * Customer + Delivery Sheet
+         */
+
+        const groupId = `${customerName}__${deliverySheetNo}`;
+
+        const existingGroup = groups.get(groupId);
+
+        if (existingGroup) {
+          /*
+           * Add casing to existing customer + delivery sheet group
+           */
+
+          existingGroup.casings.push(casing);
+
+          /*
+           * Update total
+           */
+
+          existingGroup.totalCasings = existingGroup.casings.length;
+        } else {
+          /*
+           * Create new group
+           *
+           * We spread the original order so any additional
+           * properties required by the modal are preserved.
+           */
+
+          groups.set(groupId, {
+            ...order,
+
+            groupId,
+
+            customerName,
+
+            /*
+             * Use casing date for the group date.
+             */
+
+            orderDate: casing.orderDate,
+
+            /*
+             * Delivery sheet is taken from casing.
+             */
+
+            deliverySheetNo: casing.deliverySheetNo ?? null,
+
+            /*
+             * First casing starts the group.
+             */
+
+            casings: [casing],
+
+            totalCasings: 1,
+          });
+        }
+      });
+    });
+
+    return Array.from(groups.values());
+  }, [orders]);
 
   /*
    * ==========================================================
@@ -43,10 +148,12 @@ const CustomerDispatchIndex = () => {
    */
 
   const customers = useMemo(() => {
-    const names = orders.map((order) => order.customerName);
+    const names = groupedOrders
+      .map((order) => order.customerName)
+      .filter(Boolean);
 
     return ["All Customers", ...Array.from(new Set(names))];
-  }, [orders]);
+  }, [groupedOrders]);
 
   /*
    * ==========================================================
@@ -55,16 +162,34 @@ const CustomerDispatchIndex = () => {
    */
 
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
+    return groupedOrders.filter((order) => {
+      /*
+       * Customer filter
+       */
+
       const customerMatch =
         selectedCustomer === "All Customers" ||
         order.customerName === selectedCustomer;
 
-      const dateMatch = !selectedDate || order.orderDate === selectedDate;
+      /*
+       * Convert API datetime:
+       *
+       * 2026-07-04T09:20:43.862827
+       *
+       * into:
+       *
+       * 2026-07-04
+       */
+
+      const orderDate = order.orderDate
+        ? order.orderDate.substring(0, 10)
+        : "";
+
+      const dateMatch = !selectedDate || orderDate === selectedDate;
 
       return customerMatch && dateMatch;
     });
-  }, [orders, selectedCustomer, selectedDate]);
+  }, [groupedOrders, selectedCustomer, selectedDate]);
 
   /*
    * ==========================================================
@@ -258,7 +383,7 @@ const CustomerDispatchIndex = () => {
               >
                 <th
                   style={{
-                    width: "80px",
+                    width: "70px",
                     color: "#ffffff",
                   }}
                 />
@@ -281,14 +406,14 @@ const CustomerDispatchIndex = () => {
                   Customer Name
                 </th>
 
-                {/* <th
+                <th
                   style={{
                     color: "#ffffff",
                     padding: "15px",
                   }}
                 >
-                  Order No
-                </th> */}
+                  Delivery Sheet No
+                </th>
 
                 <th
                   style={{
@@ -327,18 +452,27 @@ const CustomerDispatchIndex = () => {
                       }}
                     />
 
-                    <div className="mt-2">No dispatched orders found.</div>
+                    <div className="mt-2">
+                      No dispatched orders found.
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map((order) => {
                   const isExpanded = expandedRows.has(order.groupId);
 
+                  const displayDate = order.orderDate
+                    ? order.orderDate.substring(0, 10)
+                    : "-";
+
+                  const deliverySheet =
+                    order.deliverySheetNo || "No Delivery Sheet";
+
                   return (
                     <>
                       {/* ==================================
-                            MAIN ORDER ROW
-                        =================================== */}
+                            MAIN GROUP ROW
+                      =================================== */}
 
                       <tr key={order.groupId}>
                         {/* Expand */}
@@ -366,25 +500,43 @@ const CustomerDispatchIndex = () => {
 
                         {/* Date */}
 
-                        <td>{order.orderDate}</td>
+                        <td>{displayDate}</td>
 
                         {/* Customer */}
 
-                        <td className="fw-semibold">{order.customerName}</td>
+                        <td className="fw-semibold">
+                          {order.customerName}
+                        </td>
 
-                        {/* Order No */}
+                        {/* Delivery Sheet */}
 
-                        {/* <td>
-                          {order.orderNo === "N/A" ? (
-                            <span className="text-muted">N/A</span>
+                        <td>
+                          {order.deliverySheetNo ? (
+                            <span
+                              className="badge"
+                              style={{
+                                background: "#eef7ff",
+                                color: "#1670d2",
+                                fontSize: "13px",
+                                padding: "7px 10px",
+                              }}
+                            >
+                              {order.deliverySheetNo}
+                            </span>
                           ) : (
-                            order.orderNo
+                            <span className="text-muted">
+                              No Delivery Sheet
+                            </span>
                           )}
-                        </td> */}
+                        </td>
 
                         {/* Total */}
 
-                        <td>{order.totalCasings}</td>
+                        <td>
+                          <span className="fw-semibold">
+                            {order.totalCasings}
+                          </span>
+                        </td>
 
                         {/* Confirm */}
 
@@ -408,7 +560,7 @@ const CustomerDispatchIndex = () => {
 
                       {/* ==================================
                             EXPANDED CASINGS
-                        =================================== */}
+                      =================================== */}
 
                       {isExpanded && (
                         <tr key={`${order.groupId}-details`}>
@@ -419,6 +571,36 @@ const CustomerDispatchIndex = () => {
                               background: "#f8f9fa",
                             }}
                           >
+                            <div className="mb-2">
+                              <strong>
+                                {order.customerName}
+                              </strong>
+
+                              <span className="mx-2 text-muted">
+                                |
+                              </span>
+
+                              <span className="text-muted">
+                                Delivery Sheet:
+                              </span>
+
+                              <strong className="ms-1">
+                                {deliverySheet}
+                              </strong>
+
+                              <span className="mx-2 text-muted">
+                                |
+                              </span>
+
+                              <span className="text-muted">
+                                Casings:
+                              </span>
+
+                              <strong className="ms-1">
+                                {order.totalCasings}
+                              </strong>
+                            </div>
+
                             <div className="table-responsive border rounded">
                               <table className="table table-sm mb-0">
                                 <thead>
@@ -440,23 +622,43 @@ const CustomerDispatchIndex = () => {
                                     <th>Pattern</th>
 
                                     <th>Service</th>
+
+                                    <th>Delivery Sheet</th>
                                   </tr>
                                 </thead>
 
                                 <tbody>
                                   {order.casings.map((casing) => (
-                                    <tr key={casing.orderCasingId}>
-                                      <td>{casing.tyreReferenceNumber}</td>
+                                    <tr
+                                      key={casing.orderCasingId}
+                                    >
+                                      <td>
+                                        {
+                                          casing.tyreReferenceNumber
+                                        }
+                                      </td>
 
-                                      <td>{casing.dotNumber}</td>
+                                      <td>
+                                        {casing.dotNumber}
+                                      </td>
 
-                                      <td>{casing.productionNumber}</td>
+                                      <td>
+                                        {
+                                          casing.productionNumber
+                                        }
+                                      </td>
 
-                                      <td>{casing.tyreSizeLabel}</td>
+                                      <td>
+                                        {casing.tyreSizeLabel}
+                                      </td>
 
-                                      <td>{casing.tyreMakeName}</td>
+                                      <td>
+                                        {casing.tyreMakeName}
+                                      </td>
 
-                                      <td>{casing.patternName || "-"}</td>
+                                      <td>
+                                        {casing.patternName || "-"}
+                                      </td>
 
                                       <td>
                                         <span
@@ -466,8 +668,30 @@ const CustomerDispatchIndex = () => {
                                             color: "#1670d2",
                                           }}
                                         >
-                                          {casing.serviceTypeName}
+                                          {
+                                            casing.serviceTypeName
+                                          }
                                         </span>
+                                      </td>
+
+                                      <td>
+                                        {casing.deliverySheetNo ? (
+                                          <span
+                                            className="badge"
+                                            style={{
+                                              background: "#e8f5e9",
+                                              color: "#159447",
+                                            }}
+                                          >
+                                            {
+                                              casing.deliverySheetNo
+                                            }
+                                          </span>
+                                        ) : (
+                                          <span className="text-muted">
+                                            -
+                                          </span>
+                                        )}
                                       </td>
                                     </tr>
                                   ))}
