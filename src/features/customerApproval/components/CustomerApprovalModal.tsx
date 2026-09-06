@@ -48,42 +48,119 @@ const CustomerApprovalModal = ({
       ? `${emailName}@${emailDomain}.${emailExtension}`
       : "";
 
+
   const handleApprove = async () => {
     try {
-      if (signatureRef.current?.isEmpty()) {
-        alert("Please add customer signature");
+      // ------------------------------------------------------------
+      // VALIDATE ORDER
+      // ------------------------------------------------------------
+
+      if (!selectedOrder?.items?.length) {
+        alert("No order selected.");
         return;
       }
 
-      setSaving(true);
+      const orderId = selectedOrder?.items?.[0]?.orderId;
+
+      if (!orderId || Number(orderId) <= 0) {
+        alert("Invalid order ID.");
+        return;
+      }
+
+      // ------------------------------------------------------------
+      // VALIDATE CUSTOMER REPRESENTATIVE
+      // ------------------------------------------------------------
+
+      if (!customerRepresentative.trim()) {
+        alert("Please enter customer representative.");
+        return;
+      }
+      // VALIDATE PHONE NUMBER
+      if (!order?.customer?.mobileNumber?.trim()) {
+        alert("Customer phone number is required.");
+        return;
+      }
+      // VALIDATE EMAIL CONDITION
+      if (!order?.customer?.email?.trim()) {
+        alert("Customer email address is required.");
+        return;
+      }
+
+      // ------------------------------------------------------------
+      // VALIDATE CASING CONDITION
+      // ------------------------------------------------------------
+
+      if (!casingCondition.trim()) {
+        alert("Please select casing condition.");
+        return;
+      }
+
+      // ------------------------------------------------------------
+      // VALIDATE SIGNATURE
+      // ------------------------------------------------------------
+
+      if (
+        !signatureRef.current ||
+        signatureRef.current.isEmpty()
+      ) {
+        alert("Please add customer signature.");
+        return;
+      }
+      // ============== GET SIGNATURE AS BASE64 ====================
+      const customerSignature = signatureRef.current.toDataURL("image/png");
+
+      // ------------------------------------------------------------
+      // CREATE API PAYLOAD
+      // ------------------------------------------------------------
 
       const payload = {
-        orderIds: [String(selectedOrder?.items?.[0]?.orderId)],
+        orderIds: [String(orderId)],
 
-        customerRepresentative,
+        customerRepresentative: customerRepresentative.trim(),
 
-        phoneNumber: countryCode + phoneNumber,
+        phoneNumber: `${countryCode}${order?.customer?.mobileNumber || ""}`.trim(),
 
-        emailAddress: generatedEmail,
+        emailAddress: (order?.customer?.email || "").trim(),
+
+        casingCondition: casingCondition.trim(),
+
+        remarks: remarks.trim(),
+
+        customerSignature: customerSignature,
       };
 
-      await customerApprovalService.confirmCustomerOrder(payload);
+      console.log("Customer Approval Payload:", payload);
+      //--------------- START LOADER
+
+      setSaving(true);
+
+      //--------------- CALL CUSTOMER APPROVAL API------------------------
+      const response = await customerApprovalService.confirmCustomerOrder(payload);
+
+      console.log("Customer Approval API Response:", response);
+      //---------- REFRESH LIST---------------------
 
       await onSuccess();
 
-      alert(
-        "I confirm that the above listed tyres/casings have been collected correctly and handed over for the requested services. ",
-      );
+      alert("Customer approval completed successfully.");
 
       onClose();
-    } catch (e) {
-      console.log(e);
 
-      alert("Approval Failed");
+    } catch (e: any) {
+      console.error("Customer Approval Error:", e);
+
+      const backendMessage =
+        e?.response?.data?.error?.message ||
+        e?.response?.data?.message ||
+        e?.message;
+
+      alert(backendMessage || "Customer approval failed.");
+
     } finally {
       setSaving(false);
     }
   };
+
 
   // ============================================================
   // DISPLAY DATA
@@ -102,10 +179,10 @@ const CustomerApprovalModal = ({
 
   const orderDate = order?.createdAtUtc
     ? new Date(order.createdAtUtc).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : "-";
 
   const casings = order?.casings || [];
@@ -144,7 +221,7 @@ const CustomerApprovalModal = ({
             {/* ==================================================
                 HEADER
             ================================================== */}
-            <div className="modal-header bg-danger text-white border-0 px-4 py-3">
+            <div className="modal-header bg-danger text-white ">
               <div className="d-flex align-items-center gap-3">
 
                 <div
@@ -186,11 +263,11 @@ const CustomerApprovalModal = ({
               {/* ==================================================
                   ORDER INFORMATION
               ================================================== */}
-              <div className="card border-0 shadow-sm rounded-3 mb-4">
+              <div className="card border-0 shadow-sm rounded-3 mb-2">
 
                 <div className="card-body p-3">
 
-                  <div className="d-flex align-items-center gap-2 mb-3">
+                  <div className="d-flex align-items-center gap-1 mb-1">
 
                     <div
                       className="d-flex justify-content-center align-items-center rounded"
@@ -210,7 +287,7 @@ const CustomerApprovalModal = ({
 
                   </div>
 
-                  <div className="row g-3">
+                  <div className="row g-1">
 
                     {/* ORDER NO */}
                     <div className="col-lg-3 col-md-6">
@@ -237,31 +314,34 @@ const CustomerApprovalModal = ({
                         </div>
                       </div>
                     </div>
+                    <div className=" col-lg-4 border rounded-3 p-2 ">
+                      <div className="row">
+                        {/* ORDER DATE */}
+                        <div className="col-7">
+                          {/* <div className="border rounded-3 p-3 bg-white"> */}
+                            <div className="text-muted small fw-semibold mb-2 d-block text-secondary">
+                              <i className="bi bi-calendar3 me-1"></i>
+                              Order Date
+                            </div>
 
-                    {/* ORDER DATE */}
-                    <div className="col-lg-2 col-md-6">
-                      <div className="border rounded-3 p-3 bg-white">
-                        <div className="text-muted small fw-semibold mb-2">
-                          <i className="bi bi-calendar3 me-1"></i>
-                          Order Date
+                            <div className="fw-semibold d-flex align-items-center gap-1">
+                              {orderDate}
+                            </div>
+                          {/* </div> */}
                         </div>
 
-                        <div className="fw-semibold">
-                          {orderDate}
-                        </div>
-                      </div>
-                    </div>
+                        {/* TOTAL CASINGS */}
+                        <div className="col-5 border-start">
+                          {/* <div className="border rounded-3 p-3 bg-white"> */}
+                            <div className="text-muted small fw-semibold d-block ms-2 text-secondary mb-2">
+                              <i className="bi bi-box-seam me-1"></i>
+                              Total Casings
+                            </div>
 
-                    {/* TOTAL CASINGS */}
-                    <div className="col-lg-2 col-md-6">
-                      <div className="border rounded-3 p-3 bg-white">
-                        <div className="text-muted small fw-semibold mb-2">
-                          <i className="bi bi-box-seam me-1"></i>
-                          Total Casings
-                        </div>
-
-                        <div className="fw-semibold">
-                          {totalCasings}
+                            <div className="fw-semibold d-block ms-2">
+                              {totalCasings}
+                            </div>
+                          {/* </div> */}
                         </div>
                       </div>
                     </div>
@@ -273,7 +353,7 @@ const CustomerApprovalModal = ({
               {/* ==================================================
                   CASING ORDER
               ================================================== */}
-              <div className="card border-0 shadow-sm rounded-3 mb-4">
+              <div className="card border-0 shadow-sm rounded-3 mb-2">
 
                 <div className="card-body p-3">
 
@@ -363,11 +443,10 @@ const CustomerApprovalModal = ({
 
                               <td>
                                 <span
-                                  className={`badge ${
-                                    casing.isRetreaded
-                                      ? "bg-success"
-                                      : "bg-secondary"
-                                  }`}
+                                  className={`badge ${casing.isRetreaded
+                                    ? "bg-success"
+                                    : "bg-secondary"
+                                    }`}
                                 >
                                   {casing.isRetreaded
                                     ? "Yes"
@@ -671,11 +750,10 @@ const CustomerApprovalModal = ({
                   onClick={handleApprove}
                 >
                   <i
-                    className={`bi ${
-                      saving
-                        ? "bi-hourglass-split"
-                        : "bi-check-circle"
-                    } me-2`}
+                    className={`bi ${saving
+                      ? "bi-hourglass-split"
+                      : "bi-check-circle"
+                      } me-2`}
                   ></i>
 
                   {saving

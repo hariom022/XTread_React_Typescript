@@ -18,7 +18,7 @@ const customerApprovalService = {
     orderCasingId: number
   ) =>
     api.delete(
-      `/orders/${orderNumber}/casings/${orderCasingId}`
+      `/ orders / ${ orderNumber } /casings/${ orderCasingId } `
     ),
 };
 
@@ -32,4 +32,11 @@ export interface CustomerApprovalPayload {
   phoneNumber: string;
 
   emailAddress: string;
+
+  casingCondition: string;
+
+  remarks: string;
+
+  customerSignature: string;
 }
+

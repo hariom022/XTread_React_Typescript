@@ -516,7 +516,9 @@ const CustomerDispatchApprovalModal = ({
 
                             <strong className="d-flex align-items-center gap-1">
                               <i className="bi bi-calendar3" />
-                              {order.orderDate}
+                              {order.orderDate
+                                ? order.orderDate.substring(0, 10)
+                                : "-"}
                             </strong>
 
                           </div>
