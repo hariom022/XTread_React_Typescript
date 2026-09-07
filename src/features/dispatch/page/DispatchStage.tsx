@@ -174,8 +174,6 @@ const DispatchStage = () => {
 
           salesRep: "",
 
-          customerName: "",
-
           courierName:
             item.courierName ?? "",
 
@@ -188,7 +186,7 @@ const DispatchStage = () => {
             item.vehicleRegNo ?? "",
 
           status: "Pending",
-
+          customerName: item.customerName ?? "",
           casings: [],
         }));
 

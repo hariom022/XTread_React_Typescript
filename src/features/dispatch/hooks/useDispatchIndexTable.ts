@@ -115,8 +115,8 @@ const useDispatchIndexTable = () => {
 
 
                             // Not available in this API response
-                            customerName:
-                                "",
+                          customerName:
+    item.customerName ?? "",
 
 
                             // Courier
