@@ -3,6 +3,7 @@ import RepairSection from "./RepairSection";
 import RepairTable from "./RepairTable";
 import PatchesRemoveSection from "./PatchesRemoveSection";
 import PatchRemovalTable from "./PatchRemovalTable";
+import { useAuthStore } from "../../auth/store/authStore";
 
 type Props = {
   selectedItem: any;
@@ -99,6 +100,7 @@ const NailInspectionModal = ({
 
   addRemove,
 }: Props) => {
+  const user = useAuthStore((state) => state.user);
   if (!selectedItem) return null;
 
   return (
@@ -119,7 +121,7 @@ const NailInspectionModal = ({
                 // style={{ marginLeft: "50rem" }}
               >
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
-                <b>John</b>
+                 <div>{user?.userName || "User"}</div>
               </div>
               {/* CLOSE (X) BUTTON */}
               <button

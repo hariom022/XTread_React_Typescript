@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
 
 import repairService from "../services/repairService";
+import { useAuthStore } from "../../auth/store/authStore";
 
 type PatchDetail = {
   repairLocation: string;
@@ -17,6 +18,8 @@ type Props = {
 };
 
 const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
+    const user = useAuthStore((state) => state.user);
+
   const [loading, setLoading] = useState(false);
 
   const [rejectionReasons, setRejectionReasons] = useState<any[]>([]);
@@ -202,7 +205,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
               <div className="d-flex align-items-center gap-3">
                 <div className="text-end">
-                  <div>John Doe</div>
+                  <div>{user?.userName || "User"}</div>
                 </div>
 
                 <button

@@ -1,3 +1,5 @@
+import { useAuthStore } from "../../auth/store/authStore";
+
 type Props = {
   selectedItem: any;
 
@@ -27,6 +29,8 @@ const FillUpModal = ({
   handleSave,
   onClose,
 }: Props) => {
+    const user = useAuthStore((state) => state.user);
+
   return (
     <>
       <div
@@ -45,7 +49,7 @@ const FillUpModal = ({
               </h5>
 
               <div className="me-3 text-white text-end">
-                <div>John</div>
+                 <div>{user?.userName || "User"}</div>
               </div>
 
               <button

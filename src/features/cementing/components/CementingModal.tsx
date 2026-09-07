@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { useAuthStore } from "../../auth/store/authStore";
 interface CementingModalProps {
   selectedItem: {
   id: number;
@@ -43,6 +43,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
   handleApprove,
   onClose,
 }) => {
+   const user = useAuthStore((state) => state.user);
   const [skipRepair, setSkipRepair] = useState(false);
 
   const [casingDry, setCasingDry] = useState(false);
@@ -106,7 +107,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
             <div className="modal-header bg-danger text-white">
               <h5 className="modal-title flex-grow-1 text-white text-start">CEMENTING – INSPECTION</h5>
               <div className="me-3 text-white text-end">
-                <div>John</div>
+                <div>{user?.userName || "User"}</div>
               </div>
 
               <button

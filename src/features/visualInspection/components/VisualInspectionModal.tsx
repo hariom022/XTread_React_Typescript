@@ -3,6 +3,7 @@ import { RingLoader } from "react-spinners";
 import visualInspectionService from "../service/visualInspectionService";
 import VisualChecklistModal from "./VisualChecklistModal";
 import "../styles/VisualInspect.css";
+import { useAuthStore } from "../../auth/store/authStore";
 
 type Props = {
   item: any;
@@ -17,6 +18,8 @@ const VisualInspectionModal = ({
   onClose,
   onSuccess,
 }: Props) => {
+    const user = useAuthStore((state) => state.user);
+
   const [showChecklist, setShowChecklist] = useState(false);
 
   const [checkedChecklist, setCheckedChecklist] = useState<string[]>([]);
@@ -151,7 +154,7 @@ const VisualInspectionModal = ({
               </h5>
 
               <div className="me-3 text-white text-end">
-                <div>John</div>
+                <div>{user?.userName || "User"}</div>
               </div>
 
               <button

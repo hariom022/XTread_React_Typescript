@@ -6,6 +6,7 @@ import ShearographyChecklistModal from "./ShearographyChecklistModal";
 import { SHEAROGRAPHY_CHECKLIST } from "../constants/shearographyChecklist";
 
 import shearographyService from "../service/shearographyService";
+import { useAuthStore } from "../../auth/store/authStore";
 
 type Props = {
   item: any;
@@ -20,6 +21,7 @@ const ShearographyModal = ({
   onClose,
   onSuccess,
 }: Props) => {
+   const user = useAuthStore((state) => state.user);
   const [reason, setReason] = useState("");
 
   const [showChecklist, setShowChecklist] = useState(false);
@@ -153,7 +155,7 @@ const ShearographyModal = ({
               {/* STAFF NAME */}
               <div
                 className="me-3 text-white text-end" >
-                <strong>John</strong>
+                <div>{user?.userName || "User"}</div>
                 
               </div>
               {/* CLOSE (X) BUTTON */}

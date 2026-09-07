@@ -6,6 +6,7 @@ import type {
   SkivingRepair,
   SkivingStage1Row,
 } from "../types/skivingStage1.types";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface Machine {
   machineId: number;
@@ -86,6 +87,7 @@ const SkivingStage1Modal = ({
   handleSave,
   resetModal,
 }: Props) => {
+   const user = useAuthStore((state) => state.user);
   return (
     <div
       className="modal fade"
@@ -100,7 +102,7 @@ const SkivingStage1Modal = ({
               SKIVING STAGE 1 - APPROVAL
             </h5>
             <div className="me-3 text-white text-end">
-              <div>John</div>
+             <div>{user?.userName || "User"}</div>
             </div>
             <button
               type="button"

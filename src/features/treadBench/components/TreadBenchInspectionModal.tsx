@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { TreadBenchInspectionModalProps } from "../types/treadBenchTypes";
+import { useAuthStore } from "../../auth/store/authStore";
 
 const TreadBenchInspectionModal = ({
   selectedItem,
@@ -9,6 +10,8 @@ const TreadBenchInspectionModal = ({
   handleSave,
   onClose,
 }: TreadBenchInspectionModalProps) => {
+    const user = useAuthStore((state) => state.user);
+    
   const [consumptionKg, setConsumptionKg] = useState("");
   const [cementType, setCementType] = useState("");
 
@@ -59,7 +62,7 @@ const TreadBenchInspectionModal = ({
               className="me-3 text-white text-end"
               style={{ marginLeft: "45rem" }}
             >
-              <b>{staffName}</b>
+              <b> {user?.userName || "User"}</b>
             </div>
 
             <button

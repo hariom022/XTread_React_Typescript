@@ -9,6 +9,7 @@ import { usePressureTestDetails } from "../hooks/usePressureTestDetails";
 import { PRESSURE_TEST_CHECKLIST } from "../constants/pressureTestCheckList";
 import { useEffect } from "react";
 import { RingLoader } from "react-spinners";
+import { useAuthStore } from "../../auth/store/authStore";
 type Props = {
   selectedItem: any;
   onClose: () => void;
@@ -17,10 +18,8 @@ type Props = {
 
 const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
-  console.log(
-    "PRESSURE TEST MODAL RENDERED",
-    selectedItem
-  );
+ const user = useAuthStore((state) => state.user);
+
   const { details, loading } = usePressureTestDetails(selectedItem?.orderCasingId);
 
   const [reason, setReason] = useState("");
@@ -150,7 +149,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                 PRESSURE TEST – APPROVAL
               </h5>
               <div className="me-3 text-white text-end">
-                <div>John</div>
+                <div>{user?.userName || "User"}</div>
               </div>
               <button className="btn-close btn-close-white" onClick={onClose} />
             </div>
