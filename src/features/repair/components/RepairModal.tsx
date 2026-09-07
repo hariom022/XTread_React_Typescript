@@ -286,7 +286,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                           <thead>
                             <tr className="bg-new">
                               <th>Sr. No.</th>
-                              <th>Reason For Removal</th>
+                              {/* <th>Reason For Removal</th> */}
 
                               <th>Damage Type</th>
 
@@ -302,7 +302,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                                 (item: any, index: number) => (
                                   <tr key={index}>
                                     <td>{index + 1}</td>
-                                    <td>{item.reasonForRemoval}</td>
+                                    {/* <td>{item.reasonForRemoval}</td> */}
 
                                     <td>{item.damageType}</td>
 
@@ -330,28 +330,6 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                       <div className="col-md-8">
                         <div className="form-panel">
                           <div className="row g-3">
-                            <div className="col-md-6">
-                              <label>Location</label>
-
-                              <select
-                                className="form-select"
-                                value={newPatch.repairLocation}
-                                onChange={(e) =>
-                                  setNewPatch({
-                                    ...newPatch,
-                                    repairLocation: e.target.value,
-                                  })
-                                }
-                              >
-                                <option value="">--- Location ---</option>
-
-                                {locations.map((item) => (
-                                  <option key={item.id} value={item.name}>
-                                    {item.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
 
                             <div className="col-md-6">
                               <label>Damage Type</label>
@@ -369,6 +347,28 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                                 <option value="">--- Damage Type ---</option>
 
                                 {damageTypes.map((item) => (
+                                  <option key={item.id} value={item.name}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="col-md-6">
+                              <label>Location</label>
+
+                              <select
+                                className="form-select"
+                                value={newPatch.repairLocation}
+                                onChange={(e) =>
+                                  setNewPatch({
+                                    ...newPatch,
+                                    repairLocation: e.target.value,
+                                  })
+                                }
+                              >
+                                <option value="">--- Location ---</option>
+
+                                {locations.map((item) => (
                                   <option key={item.id} value={item.name}>
                                     {item.name}
                                   </option>
@@ -521,16 +521,16 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                             </select>
                           </div>
 
-                          <div className="mt-3 d-grid gap-2">
+                          <div className="mt-3 d-grid gap-2 ">
                             <button
-                              className="btn btn-reject btn-sm-action"
+                              className="btn btn-reject btn-sm-action d-flex justify-content-center align-items-center"
                               onClick={() => handleSubmit(false)}
                             >
-                              REJECTED
+                               REJECTED
                             </button>
 
                             <button
-                              className="btn btn-approve btn-sm-action"
+                              className="btn btn-approve btn-sm-action d-flex justify-content-center align-items-center"
                               onClick={() => handleSubmit(true)}
                             >
                               APPROVED
