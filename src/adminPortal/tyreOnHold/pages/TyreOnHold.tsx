@@ -1,78 +1,205 @@
+import { useState } from "react";
 import { RingLoader } from "react-spinners";
 
 import HoldTyreIndexPage from "../components/holdTyreIndexPage";
-import { useHoldTyreIndexPage } from "../hooks/useHoldTyreIndexPage";
-import { useState } from "react";
 import HoldTyreApprovalModal from "../components/holdTyreApprovalModal";
 
+import {
+  type HoldTab,
+  useHoldTyreIndexPage,
+} from "../hooks/useHoldTyreIndexPage";
+
 const TyreOnHold = () => {
+  // =========================================================
+  // ACTIVE TAB
+  // =========================================================
+  const [activeTab, setActiveTab] =
+    useState<HoldTab>("nail");
 
-    const {
-        loading,
-        search,
-        setSearch,
-        filteredHoldTyres,
-    } = useHoldTyreIndexPage();
+  // =========================================================
+  // HOLD TYRE HOOK
+  // =========================================================
+  const {
+    loading,
+    search,
+    setSearch,
+    filteredHoldTyres,
+  } = useHoldTyreIndexPage(
+    activeTab
+  );
 
-    const [selectedItem, setSelectedItem] = useState<any>(null);
+  // =========================================================
+  // SELECTED ITEM
+  // =========================================================
+  const [selectedItem, setSelectedItem] =
+    useState<any>(null);
 
-    const [showApprovalModal, setShowApprovalModal] = useState(false);
-    const handleInspect = (item: any) => {
-        console.log("Selected HOLD casing:", item);
+  // =========================================================
+  // APPROVAL MODAL
+  // =========================================================
+  const [
+    showApprovalModal,
+    setShowApprovalModal,
+  ] = useState(false);
 
-        setSelectedItem(item);
-        setShowApprovalModal(true);
-    };
+  // =========================================================
+  // INSPECT
+  // =========================================================
+  const handleInspect = (
+    item: any
+  ) => {
+    console.log(
+      "Selected HOLD casing:",
+      item
+    );
 
-    const closeApprovalModal = () => {
-        setShowApprovalModal(false);
-        setSelectedItem(null);
-    };
+    setSelectedItem(item);
 
-    return (
-        <div className="container-fluid mt-3">
+    setShowApprovalModal(true);
+  };
 
-            {/* SEARCH */}
-            <div className="row mb-3">
-                <div className="col-md-10">
+  // =========================================================
+  // CLOSE APPROVAL MODAL
+  // =========================================================
+  const closeApprovalModal = () => {
+    setShowApprovalModal(false);
 
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
-                        value={search}
-                        onChange={(e) =>
-                            setSearch(e.target.value)
-                        }
-                    />
+    setSelectedItem(null);
+  };
 
-                </div>
-            </div>
+  // =========================================================
+  // CHANGE TAB
+  // =========================================================
+  const handleTabChange = (
+    tab: HoldTab
+  ) => {
+    setActiveTab(tab);
+  };
 
-            {/* TABLE */}
-            {loading ? (
-                <div
-                    className="d-flex justify-content-center align-items-center"
-                    style={{ minHeight: "400px" }}
-                >
-                    <RingLoader size={80} />
-                </div>
-            ) : (
-                <HoldTyreIndexPage
-                    data={filteredHoldTyres}
-                    onInspect={handleInspect}
-                />
-            )}
-                {/* APPROVAL MODAL */}
-                {selectedItem && (
-                <HoldTyreApprovalModal
-                    selectedItem={selectedItem}
-                    onClose={closeApprovalModal}
-                />
-            )}
+  return (
+    <div className="container-fluid mt-3">
+
+      {/* =====================================================
+          HOLD TABS
+      ====================================================== */}
+      <ul className="nav nav-tabs mb-3">
+
+        {/* ===================================================
+            NAIL INSPECTION HOLD
+        ==================================================== */}
+        <li className="nav-item">
+          <button
+            type="button"
+            className={`nav-link ${
+              activeTab === "nail"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              handleTabChange("nail")
+            }
+          >
+            Nail Inspection Hold
+          </button>
+        </li>
+
+        {/* ===================================================
+            SHEAROGRAPHY HOLD
+        ==================================================== */}
+        <li className="nav-item">
+          <button
+            type="button"
+            className={`nav-link ${
+              activeTab ===
+              "shearography"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              handleTabChange(
+                "shearography"
+              )
+            }
+          >
+            Shearography Hold
+          </button>
+        </li>
+
+        {/* ===================================================
+            BUFFING HOLD
+        ==================================================== */}
+        <li className="nav-item">
+          <button
+            type="button"
+            className={`nav-link ${
+              activeTab === "buffing"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              handleTabChange("buffing")
+            }
+          >
+            Buffing Hold
+          </button>
+        </li>
+
+      </ul>
+
+      {/* =====================================================
+          SEARCH
+      ====================================================== */}
+      <div className="row mb-3">
+        <div className="col-md-10">
+
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
+            value={search}
+            onChange={(e) =>
+              setSearch(
+                e.target.value
+              )
+            }
+          />
 
         </div>
-    );
+      </div>
+
+      {/* =====================================================
+          TABLE / LOADER
+      ====================================================== */}
+      {loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{
+            minHeight: "400px",
+          }}
+        >
+          <RingLoader size={80} />
+        </div>
+      ) : (
+        <HoldTyreIndexPage
+          data={filteredHoldTyres}
+          onInspect={handleInspect}
+        />
+      )}
+
+      {/* =====================================================
+          APPROVAL MODAL
+      ====================================================== */}
+      {selectedItem && (
+        <HoldTyreApprovalModal
+          selectedItem={selectedItem}
+          onClose={
+            closeApprovalModal
+          }
+        />
+      )}
+
+    </div>
+  );
 };
 
 export default TyreOnHold;

@@ -1,212 +1,292 @@
-// import { useEffect, useMemo, useState } from "react";
-// import holdTyreServiceApi from "../service/holdTyreServiceApi";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-// export const useHoldTyreIndexPage = () => {
-//   const [loading, setLoading] = useState(false);
-//   const [search, setSearch] = useState("");
-//   const [holdTyres, setHoldTyres] = useState<any[]>([]);
+import indexPageApiService from "../../../shared/services/indexPageApiService";
 
-//   const transformApiData = (stages: any[]) => {
-//     const transformed: any[] = [];
+export type HoldTab =
+  | "nail"
+  | "shearography"
+  | "buffing";
 
-//     (stages || []).forEach((stage: any) => {
-//       stage.batches?.forEach((batch: any) => {
-//         batch.casings?.forEach((casing: any) => {
-//           transformed.push({
-//             id: casing.orderCasingId,
+export const useHoldTyreIndexPage = (
+  activeTab: HoldTab
+) => {
+  const [loading, setLoading] =
+    useState(false);
 
-//             casing:
-//               casing.productionNumber ||
-//               casing.barcodeNumber ||
-//               "-",
+  const [search, setSearch] =
+    useState("");
 
-//             date: casing.orderDate || "-",
+  const [holdTyres, setHoldTyres] =
+    useState<any[]>([]);
 
-//             serial: casing.tyreReferenceNumber || "-",
+  // =========================================================
+  // TRANSFORM API RESPONSE
+  // =========================================================
+  const transformApiData = (
+    stages: any[]
+  ) => {
+    const transformed: any[] = [];
 
-//             dot: casing.dotNumber || "-",
+    (stages || []).forEach(
+      (stage: any) => {
+        stage.batches?.forEach(
+          (batch: any) => {
+            batch.casings?.forEach(
+              (casing: any) => {
+                transformed.push({
+                  id:
+                    casing.orderCasingId,
 
-//             patternName: casing.patternName || "-",
+                  casing:
+                    casing.productionNumber ||
+                    casing.barcodeNumber ||
+                    "-",
 
-//             tyreMakeName: casing.tyreMakeName || "-",
+                  date:
+                    casing.orderDate ||
+                    "-",
 
-//             tyreSize: casing.tyreSizeLabel || "-",
+                  serial:
+                    casing.tyreReferenceNumber ||
+                    "-",
 
-//             customerName: casing.customerName || "-",
+                  dot:
+                    casing.dotNumber ||
+                    "-",
 
-//             service: casing.serviceTypeName || "-",
+                  patternName:
+                    casing.patternName ||
+                    "-",
 
-//             batchNo: batch.batchNumber || "-",
+                  tyreMakeName:
+                    casing.tyreMakeName ||
+                    "-",
 
-//             currentStageStatus: casing.currentStageStatus,
+                  tyreSize:
+                    casing.tyreSizeLabel ||
+                    "-",
 
-//             requestedPattern: casing.patternName || "-",
+                  customerName:
+                    casing.customerName ||
+                    "-",
 
-//             originalBatch: batch,
-//             originalCasing: casing,
+                  service:
+                    casing.serviceTypeName ||
+                    "-",
 
-//             approved: batch.stageSummary?.approved || 0,
+                  batchNo:
+                    batch.batchNumber ||
+                    "-",
 
-//             rejected: batch.stageSummary?.rejected || 0,
+                  currentStage:
+                    casing.currentStage,
 
-//             pending: batch.stageSummary?.pending || 0,
+                  currentStageStatus:
+                    casing.currentStageStatus,
 
-//             previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
+                  currentSubstage:
+                    casing.currentSubstage,
 
-//             expectedTotal:
-//               batch.stageSummary?.expectedTotal ||
-//               batch.originalBatchSize,
+                  requestedPattern:
+                    casing.patternName ||
+                    "-",
 
-//             arrived: batch.stageSummary?.arrived || 0,
-//           });
-//         });
-//       });
-//     });
+                  // Keep original API data
+                  originalBatch:
+                    batch,
 
-//     return transformed;
-//   };
+                  originalCasing:
+                    casing,
 
-//   const loadHoldTyres = async () => {
-//     try {
-//       setLoading(true);
+                  // Batch summary
+                  approved:
+                    batch.stageSummary
+                      ?.approved || 0,
 
-//       const result =
-//         await holdTyreServiceApi.getHoldTyres();
+                  rejected:
+                    batch.stageSummary
+                      ?.rejected || 0,
 
-//       console.log("HOLD API RESULT:", result);
+                  pending:
+                    batch.stageSummary
+                      ?.pending || 0,
 
-//       const transformed =
-//         transformApiData(result.data.data);
+                  previousStage:
+                    batch.stageSummary
+                      ?.stillAtPreviousStage ||
+                    0,
 
-//       console.log("HOLD TRANSFORMED DATA:", transformed);
+                  rejectedAtPreviousStages:
+                    batch.stageSummary
+                      ?.rejectedAtPreviousStages ||
+                    0,
 
-//       setHoldTyres(transformed);
-//     } catch (error) {
-//       console.error("Failed to load hold tyres:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+                  expectedTotal:
+                    batch.stageSummary
+                      ?.expectedTotal ??
+                    batch.originalBatchSize ??
+                    0,
 
-//   useEffect(() => {
-//     loadHoldTyres();
-//   }, []);
+                  arrived:
+                    batch.stageSummary
+                      ?.arrived || 0,
+                });
+              }
+            );
+          }
+        );
+      }
+    );
 
-//   const filteredHoldTyres = useMemo(() => {
-//     return holdTyres.filter((item) =>
-//       `${item.casing}
-//        ${item.serial}
-//        ${item.patternName}
-//        ${item.customerName}
-//        ${item.batchNo}`
-//         .toLowerCase()
-//         .includes(search.toLowerCase())
-//     );
-//   }, [search, holdTyres]);
+    return transformed;
+  };
 
-//   return {
-//     loading,
-
-//     search,
-//     setSearch,
-
-//     holdTyres,
-//     filteredHoldTyres,
-
-//     loadHoldTyres,
-//   };
-// };
-import { useEffect, useMemo, useState } from "react";
-
-export const useHoldTyreIndexPage = () => {
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [holdTyres, setHoldTyres] = useState<any[]>([]);
-
-  // TEMPORARY DUMMY DATA
-  const dummyHoldTyres = [
-    {
-      id: 101,
-      casing: "PRD-10001",
-      date: "26-08-2026",
-      serial: "TR-10001",
-      dot: "2526",
-      patternName: "Pattern A",
-      tyreMakeName: "Michelin",
-      tyreSize: "11R22.5",
-      customerName: "ABC Transport",
-      service: "Retread",
-      batchNo: "BATCH-001",
-      currentStageStatus: 3,
-      requestedPattern: "Pattern A",
-    },
-    {
-      id: 102,
-      casing: "PRD-10002",
-      date: "26-08-2026",
-      serial: "TR-10002",
-      dot: "2626",
-      patternName: "Pattern B",
-      tyreMakeName: "CEAT",
-      tyreSize: "10.00R20",
-      customerName: "XYZ Logistics",
-      service: "Retread",
-      batchNo: "BATCH-002",
-      currentStageStatus: 3,
-      requestedPattern: "Pattern B",
-    },
-    {
-      id: 103,
-      casing: "PRD-10003",
-      date: "26-08-2026",
-      serial: "TR-10003",
-      dot: "2526",
-      patternName: "Pattern C",
-      tyreMakeName: "Bridgestone",
-      tyreSize: "295/80R22.5",
-      customerName: "Demo Customer",
-      service: "Retread",
-      batchNo: "BATCH-003",
-      currentStageStatus: 3,
-      requestedPattern: "Pattern C",
-    },
-  ];
-
+  // =========================================================
+  // LOAD HOLD TYRES
+  // =========================================================
   const loadHoldTyres = async () => {
     try {
       setLoading(true);
 
-      // TEMPORARY
-      // API is not ready yet.
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      setHoldTyres([]);
 
-      setHoldTyres(dummyHoldTyres);
+      let result;
 
+      // =====================================================
+      // 1. NAIL INSPECTION HOLD
+      // =====================================================
+      if (activeTab === "nail") {
+        result =
+          await indexPageApiService.getBatchProgress(
+            4,
+            6
+          );
+      }
+
+      // =====================================================
+      // 2. SHEAROGRAPHY HOLD
+      // =====================================================
+      else if (
+        activeTab === "shearography"
+      ) {
+        /*
+          IMPORTANT:
+          Add the exact Shearography parameters here.
+
+          Example only:
+          
+          result =
+            await indexPageApiService.getBatchProgress(
+              6,
+              3
+            );
+
+          DO NOT use the example until the
+          actual Shearography API parameters
+          are confirmed.
+        */
+
+        result = {
+          data: {
+            data: [],
+          },
+        };
+      }
+
+      // =====================================================
+      // 3. BUFFING HOLD
+      // =====================================================
+      else if (activeTab === "buffing") {
+        result =
+          await indexPageApiService.getBatchProgress(
+            7,
+            71,
+            3
+          );
+      }
+
+      console.log(
+        `${activeTab.toUpperCase()} HOLD API RESULT:`,
+        result
+      );
+
+      // =====================================================
+      // GET API DATA
+      // =====================================================
+      const apiData =
+        result?.data?.data || [];
+
+      // =====================================================
+      // TRANSFORM
+      // =====================================================
+      const transformed =
+        transformApiData(apiData);
+
+      console.log(
+        `${activeTab.toUpperCase()} HOLD TRANSFORMED DATA:`,
+        transformed
+      );
+
+      setHoldTyres(transformed);
     } catch (error) {
-      console.error("Failed to load hold tyres:", error);
+      console.error(
+        `Failed to load ${activeTab} hold tyres:`,
+        error
+      );
+
+      setHoldTyres([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // =========================================================
+  // LOAD DATA WHEN TAB CHANGES
+  // =========================================================
   useEffect(() => {
+    setSearch("");
+
     loadHoldTyres();
-  }, []);
+  }, [activeTab]);
 
-  const filteredHoldTyres = useMemo(() => {
-    return holdTyres.filter((item) =>
-      `${item.casing}
-       ${item.serial}
-       ${item.patternName}
-       ${item.customerName}
-       ${item.batchNo}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [search, holdTyres]);
+  // =========================================================
+  // SEARCH
+  // =========================================================
+  const filteredHoldTyres =
+    useMemo(() => {
+      const searchText =
+        search.toLowerCase().trim();
 
+      if (!searchText) {
+        return holdTyres;
+      }
+
+      return holdTyres.filter(
+        (item) =>
+          `${item.casing}
+           ${item.serial}
+           ${item.dot}
+           ${item.patternName}
+           ${item.tyreMakeName}
+           ${item.tyreSize}
+           ${item.customerName}
+           ${item.service}
+           ${item.batchNo}`
+            .toLowerCase()
+            .includes(searchText)
+      );
+    }, [search, holdTyres]);
+
+  // =========================================================
+  // RETURN
+  // =========================================================
   return {
     loading,
+
     search,
     setSearch,
 

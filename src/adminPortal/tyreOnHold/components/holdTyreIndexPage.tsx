@@ -6,12 +6,16 @@ interface Props {
   onInspect: (item: any) => void;
 }
 
-const HoldTyreIndexPage = ({ data, onInspect }: Props) => {
+const HoldTyreIndexPage = ({
+  data,
+  onInspect,
+}: Props) => {
   return (
     <CommonTable
       columns={indexPageColumns(onInspect)}
       data={data}
       groupBy="batchNo"
+      emptyMessage="No hold tyres found"
     />
   );
 };
