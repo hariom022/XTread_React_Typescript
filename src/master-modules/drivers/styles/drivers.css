@@ -1,0 +1,361 @@
+/*
+==========================================================
+DRIVER PAGE
+==========================================================
+*/
+
+.drivers-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 3px 0 30px;
+}
+
+/*
+==========================================================
+FORM CARD
+==========================================================
+*/
+
+.driver-form-card {
+  width: calc(100% - 160px);
+  margin: 0 auto 26px;
+  background: #ffffff;
+  border: 1px solid #d6d6d6;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.driver-form-header {
+  border-bottom: 1px solid #d6d6d6;
+  padding: 10px 18px;
+}
+
+.driver-form-header h2 {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.driver-form-body {
+  padding: 20px 18px 18px;
+}
+
+.driver-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111111;
+}
+
+.driver-input {
+  height: 51px;
+  border-radius: 7px;
+  border: 1px solid #d7dce1;
+  font-size: 16px;
+}
+
+.driver-input:focus {
+  border-color: #ff2738;
+  box-shadow: 0 0 0 0.15rem rgba(255, 39, 56, 0.12);
+}
+
+/*
+==========================================================
+ACTIVE CHECKBOX
+==========================================================
+*/
+
+.driver-active-check {
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+.driver-active-check .form-check-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.driver-active-check .form-check-input:checked {
+  background-color: #ff2738;
+  border-color: #ff2738;
+}
+
+/*
+==========================================================
+FORM BUTTONS
+==========================================================
+*/
+
+.driver-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 28px;
+}
+
+.driver-reset-btn {
+  background: #6c757d;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 9px 16px;
+}
+
+.driver-reset-btn:hover {
+  background: #5c636a;
+  color: #ffffff;
+}
+
+.driver-submit-btn {
+  background: #ff2738;
+  border: 1px solid #ff2738;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 9px 16px;
+}
+
+.driver-submit-btn:hover {
+  background: #e92232;
+  border-color: #e92232;
+  color: #ffffff;
+}
+
+.driver-submit-btn:disabled,
+.driver-reset-btn:disabled {
+  opacity: 0.7;
+}
+
+/*
+==========================================================
+DRIVER LIST CARD
+==========================================================
+*/
+
+.driver-list-card {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #d6d6d6;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.driver-list-header {
+  min-height: 118px;
+  padding: 27px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.driver-list-header h2 {
+  margin: 0;
+  color: #12385c;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.driver-list-header p {
+  margin: 5px 0 0;
+  color: #53677c;
+  font-size: 17px;
+}
+
+/*
+==========================================================
+SEARCH
+==========================================================
+*/
+
+.driver-search {
+  display: flex;
+  width: 360px;
+  max-width: 100%;
+  height: 51px;
+  border: 1px solid #d8dee5;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.driver-search-icon {
+  width: 53px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #d8dee5;
+  color: #4d7395;
+  font-size: 18px;
+}
+
+.driver-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0 14px;
+  font-size: 16px;
+}
+
+.driver-search input::placeholder {
+  color: #53677c;
+}
+
+/*
+==========================================================
+TABLE
+==========================================================
+*/
+
+.driver-table {
+  width: 100%;
+}
+
+.driver-table thead th {
+  background: #ff2738;
+  color: #ffffff;
+  border: none;
+  padding: 12px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.driver-table tbody td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e4e7eb;
+  color: #111111;
+  vertical-align: middle;
+}
+
+.driver-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/*
+==========================================================
+STATUS
+==========================================================
+*/
+
+.driver-status {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.driver-status.active {
+  background: #d9f5e4;
+  color: #16733c;
+}
+
+.driver-status.inactive {
+  background: #eceff1;
+  color: #5f6870;
+}
+
+/*
+==========================================================
+ACTION BUTTONS
+==========================================================
+*/
+
+.driver-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.driver-action-btn {
+  width: 37px;
+  height: 37px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #ff2738;
+  border: 1px solid #ff2738;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.driver-action-btn:hover {
+  background: #ff2738;
+  color: #ffffff;
+}
+
+.driver-action-btn i {
+  font-size: 16px;
+}
+
+/*
+==========================================================
+EMPTY
+==========================================================
+*/
+
+.driver-empty-icon {
+  display: block;
+  font-size: 32px;
+  color: #98a2b3;
+}
+
+/*
+==========================================================
+FOOTER
+==========================================================
+*/
+
+.driver-table-footer {
+  padding: 17px 25px;
+  color: #53677c;
+  font-size: 14px;
+  border-top: 1px solid #e4e7eb;
+}
+
+/*
+==========================================================
+RESPONSIVE
+==========================================================
+*/
+
+@media (max-width: 992px) {
+  .driver-form-card {
+    width: calc(100% - 30px);
+  }
+
+  .driver-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .driver-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .driver-form-card {
+    width: calc(100% - 16px);
+  }
+
+  .driver-form-body {
+    padding: 16px;
+  }
+
+  .driver-form-actions {
+    justify-content: stretch;
+  }
+
+  .driver-form-actions button {
+    flex: 1;
+  }
+
+  .driver-list-header {
+    padding: 20px 15px;
+  }
+}

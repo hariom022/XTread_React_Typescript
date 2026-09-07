@@ -1,18 +1,54 @@
-import { Navigate } from "react-router-dom";
-// import { isAuthenticated } from "../services/authService";
-import { isAuthenticated } from "../../features/auth/services/authService";
-type Props = {
-  children: React.ReactNode;
-};
+import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoute = ({ children }: Props) => {
-  const authenticated = isAuthenticated();
+import { useAuthStore } from "../../features/auth/store/authStore";
 
-  if (!authenticated) {
-    return <Navigate to="/" replace />;
+interface ProtectedRouteProps {
+  moduleCode: string;
+}
+
+const ProtectedRoute = ({
+  moduleCode,
+}: ProtectedRouteProps) => {
+
+  const isAuthenticated =
+    useAuthStore(
+      (state) => state.isAuthenticated
+    );
+
+  const hasModule =
+    useAuthStore(
+      (state) => state.hasModule
+    );
+
+  /**
+   * User is not logged in.
+   */
+  if (!isAuthenticated) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
-  return <>{children}</>;
+  /**
+   * User doesn't have
+   * permission for this module.
+   */
+  if (!hasModule(moduleCode)) {
+    return (
+      <Navigate
+        to="/access-denied"
+        replace
+      />
+    );
+  }
+
+  /**
+   * Permission exists.
+   */
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
