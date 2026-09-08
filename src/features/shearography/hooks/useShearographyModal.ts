@@ -84,6 +84,7 @@ export const useShearographyModal = () => {
       setLoadingModal(false);
     }
   };
+  
 
   const closeModal = () => {
     setShowModal(false);
