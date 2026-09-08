@@ -1,6 +1,7 @@
 import "../style/buildingStage.css";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../auth/store/authStore";
+import type { Materials } from "../type/building.types";
 
 type Props = {
   selectedItem: any;
@@ -8,9 +9,14 @@ type Props = {
   selectedWidth: string;
   setSelectedWidth: React.Dispatch<React.SetStateAction<string>>;
   widthOptions: number[];
-  handleApprove: () => void;
+ handleApprove: (
+  selectedRubber: string,
+  selectedCushionGum: string,
+) => void | Promise<void>;
   handleReturnToRepair: () => void;
   onClose: () => void;
+  rubberList: Materials[];
+  cushionGumList: Materials[];
 };
 
 const BuildingModal = ({
@@ -22,8 +28,10 @@ const BuildingModal = ({
   handleApprove,
   handleReturnToRepair,
   onClose,
+  rubberList,
+  cushionGumList,
 }: Props) => {
-   const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
 
   const [isOverride, setIsOverride] = useState(false);
   useEffect(() => {
@@ -34,7 +42,8 @@ const BuildingModal = ({
     // Reset override for every new order
     setIsOverride(false);
   }, [selectedItem]);
-
+  const [selectedRubber, setSelectedRubber] = useState("");
+  const [selectedCushionGum, setSelectedCushionGum] = useState("");
   return (
     <>
       <div
@@ -181,7 +190,57 @@ const BuildingModal = ({
                             </div>
                           </div>
                         )}
+                        <div className="row g-2 mb-2">
+                          <div className="col-6">
+                            <label className="form-label fw-semibold">
+                              Rubber
+                            </label>
 
+                            <select
+                              className="form-select"
+                              value={selectedRubber}
+                              onChange={(e) =>
+                                setSelectedRubber(e.target.value)
+                              }
+                            >
+                              <option value="">Select Rubber</option>
+
+                              {rubberList.map((rubber) => (
+                                <option
+                                  key={rubber.materialNumber}
+                                  value={rubber.materialNumber}
+                                >
+                                  {rubber.materialDescription}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="col-6">
+                            <label className="form-label fw-semibold">
+                              Cushion Gum
+                            </label>
+
+                            <select
+                              className="form-select"
+                              value={selectedCushionGum}
+                              onChange={(e) =>
+                                setSelectedCushionGum(e.target.value)
+                              }
+                            >
+                              <option value="">Select Cushion Gum</option>
+
+                              {cushionGumList.map((gum) => (
+                                <option
+                                  key={gum.materialNumber}
+                                  value={gum.materialNumber}
+                                >
+                                  {gum.materialDescription}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
                         {/* RETURN TO REPAIR */}
                         <div>
                           <button
@@ -198,7 +257,7 @@ const BuildingModal = ({
                         <div className="mt-2">
                           <button
                             className="btn-approve btn-action  w-100 d-flex align-items-center justify-content-center"
-                            onClick={handleApprove}
+                            onClick={() =>handleApprove(selectedRubber, selectedCushionGum)}
                           >
                             APPROVED
                             <span className="icon-box">
