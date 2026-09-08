@@ -272,8 +272,8 @@ const NailInspectionPage = () => {
 
       alert(
         error?.response?.data?.message ||
-          error?.response?.data ||
-          "Failed to approve with pressure test",
+        error?.response?.data ||
+        "Failed to approve with pressure test",
       );
     } finally {
       setProcessing(false);
@@ -305,6 +305,69 @@ const NailInspectionPage = () => {
   //   console.log("Approve With Pressure Test");
   // };
 
+  const handleLPOHold = async () => {
+    try {
+      setProcessing(true);
+
+      const payload = {
+        orderCasingId: selectedItem.id.toString(),
+        casingStage: 4,
+        holdType: 1,
+      };
+
+      console.log("LPO Hold Payload", payload);
+
+      await nailInspectionService.createHold(payload);
+
+      alert("Moved to HOLD – Awaiting Customer LPO");
+
+      await loadOrders();
+
+      resetAndCloseModal();
+    } catch (error: any) {
+      console.error(error);
+
+      alert(
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        "Failed to create LPO hold"
+      );
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handlePaymentHold = async () => {
+    try {
+      setProcessing(true);
+
+      const payload = {
+        orderCasingId: selectedItem.id.toString(),
+        casingStage: 4,
+        holdType: 2,
+      };
+
+      console.log("Payment Hold Payload", payload);
+
+      await nailInspectionService.createHold(payload);
+
+      alert("Moved to HOLD – Awaiting Payment");
+
+      await loadOrders();
+
+      resetAndCloseModal();
+    } catch (error: any) {
+      console.error(error);
+
+      alert(
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        "Failed to create Payment hold"
+      );
+    } finally {
+      setProcessing(false);
+    }
+  };
   return (
     <div className="container-fluid mt-3">
       {/* Search + Incident */}
@@ -374,6 +437,8 @@ const NailInspectionPage = () => {
           newPatchRemoval={newPatchRemoval}
           setNewPatchRemoval={setNewPatchRemoval}
           addRemove={addRemove}
+          handleLPOHold={handleLPOHold}
+          handlePaymentHold={handlePaymentHold}
         />
       )}
 
@@ -401,16 +466,16 @@ const NailInspectionPage = () => {
       )}
       {/* LOADER */}
       {(loadingModal || processing) && (
-  <div
-    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-    style={{
-      background: "rgba(0,0,0,0.3)",
-      zIndex: 99999,
-    }}
-  >
-    <RingLoader color="#b30815" size={80} />
-  </div>
-)}
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.3)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader color="#b30815" size={80} />
+        </div>
+      )}
     </div>
   );
 };

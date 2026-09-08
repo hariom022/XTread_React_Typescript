@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { MdOutlineMargin } from "react-icons/md";
 import RepairSection from "./RepairSection";
 import RepairTable from "./RepairTable";
@@ -34,6 +35,8 @@ type Props = {
   handleReject: () => void;
   handleHold: () => void;
   handleApproveWithPressureTest: () => void;
+  handleLPOHold: () => void;
+  handlePaymentHold: () => void;
 
   resonForRemoval: any[];
   location: any[];
@@ -88,6 +91,10 @@ const NailInspectionModal = ({
   handleReject,
   handleHold,
   handleApproveWithPressureTest,
+
+  handleLPOHold,
+  handlePaymentHold,
+
   resonForRemoval,
   location,
   damageType,
@@ -101,6 +108,7 @@ const NailInspectionModal = ({
   addRemove,
 }: Props) => {
   const user = useAuthStore((state) => state.user);
+  const [showHoldOptions, setShowHoldOptions] = useState(false);
   if (!selectedItem) return null;
 
   return (
@@ -118,10 +126,10 @@ const NailInspectionModal = ({
               {/* STAFF NAME */}
               <div
                 className="text-white text-end"
-                // style={{ marginLeft: "50rem" }}
+              // style={{ marginLeft: "50rem" }}
               >
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
-                 <div>{user?.userName || "User"}</div>
+                <div>{user?.userName || "User"}</div>
               </div>
               {/* CLOSE (X) BUTTON */}
               <button
@@ -321,12 +329,52 @@ const NailInspectionModal = ({
                 <div className="col">
                   <button
                     className="btn btn-warning w-100 fw-bold"
-                    onClick={handleHold}
+                    onClick={() => setShowHoldOptions(true)}
                   >
                     HOLD – Awaiting Customer LPO
                   </button>
                 </div>
               </div>
+              {/* HOLD OPTIONS MODAL */}
+              {showHoldOptions &&
+                (<>
+                  <div className="modal-backdrop fade show" style={{ zIndex: 1060 }} ></div>
+                  <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1065 }} >
+                    <div className="modal-dialog modal-dialog-centered"> <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title"> Hold – Awaiting Customer LPO </h5>
+                        <button type="button"
+                          className="btn-close btn-close-white"
+                          onClick={() => setShowHoldOptions(false)} >
+                        </button> </div> <div className="modal-body">
+                        <div className="row g-3">
+                          <div className="col-6">
+                            <button
+                              type="button"
+                              className="btn btn-primary w-100"
+                              style={{ height: "60px" }}
+                              onClick={handleLPOHold}
+                            >
+                              <b>LPO</b>
+                            </button>
+                          </div>
+                          <div className="col-6">
+                            <button
+                              type="button"
+                              className="btn btn-success w-100"
+                              style={{ height: "60px" }}
+                              onClick={handlePaymentHold}
+                            >
+                              <b>Payment</b>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                </>
+                )}
             </div>
           </div>
         </div>

@@ -163,38 +163,19 @@ export const useHoldTyreIndexPage = (
         result =
           await indexPageApiService.getBatchProgress(
             4,
-            6
+            3
           );
       }
 
       // =====================================================
       // 2. SHEAROGRAPHY HOLD
       // =====================================================
-      else if (
-        activeTab === "shearography"
-      ) {
-        /*
-          IMPORTANT:
-          Add the exact Shearography parameters here.
-
-          Example only:
-          
-          result =
-            await indexPageApiService.getBatchProgress(
-              6,
-              3
-            );
-
-          DO NOT use the example until the
-          actual Shearography API parameters
-          are confirmed.
-        */
-
-        result = {
-          data: {
-            data: [],
-          },
-        };
+      else if (activeTab === "shearography") {
+        result =
+          await indexPageApiService.getBatchProgress(
+            6,
+            3
+          );
       }
 
       // =====================================================
