@@ -1,13 +1,18 @@
 import { useState } from "react";
+import holdTyreServiceApi from "../service/holdTyreServiceApi";
 
 type Props = {
   selectedItem: any;
   onClose: () => void;
+  activeTab: "nail" | "shearography" | "buffing";
+  onApproved: () => Promise<void>;
 };
 
 const HoldTyreApprovalModal = ({
   selectedItem,
+  activeTab,
   onClose,
+  onApproved,
 }: Props) => {
   // =========================================================
   // HOLD TYPE
@@ -33,11 +38,20 @@ const HoldTyreApprovalModal = ({
   const [paymentDate, setPaymentDate] =
     useState("");
 
+  // ==============HOLD TYPE===============
+
+  const holdTypeLabel =
+    selectedItem?.holdType === 1
+      ? "Customer LPO"
+      : selectedItem?.holdType === 2
+        ? "Payment"
+        : "-";
+
   // =========================================================
   // CLOSE / RESET
   // =========================================================
   const handleClose = () => {
-    setHoldType("");
+    // setHoldType("");
     setLpoNumber("");
     setLpoDate("");
     setPaymentAmount("");
@@ -49,17 +63,199 @@ const HoldTyreApprovalModal = ({
   // =========================================================
   // APPROVE
   // =========================================================
-  const handleApprove = () => {
-    console.log("Approve clicked");
+  const handleApprove = async () => {
+    try {
+      // =====================================================
+      // APPROVE API ONLY FOR NAIL & SHEAROGRAPHY
+      // =====================================================
+      if (
+        activeTab !== "nail" &&
+        activeTab !== "shearography"
+      ) {
+        return;
+      }
 
-    console.log({
-      selectedItem,
-      holdType,
-      lpoNumber,
-      lpoDate,
-      paymentAmount,
-      paymentDate,
-    });
+      // =====================================================
+      // HOLD ID
+      // =====================================================
+      const holdId = selectedItem?.holdId;
+
+      if (!holdId) {
+        console.error(
+          "Hold ID is missing:",
+          selectedItem
+        );
+        return;
+      }
+
+      // =====================================================
+      // VALIDATION
+      // =====================================================
+      if (!holdType) {
+        alert("Please select Hold Reason.");
+        return;
+      }
+
+      if (holdType === "lpo") {
+        if (!lpoNumber.trim()) {
+          alert("Please enter LPO Number.");
+          return;
+        }
+
+        if (!lpoDate) {
+          alert("Please select LPO Date.");
+          return;
+        }
+      }
+
+      if (holdType === "payment") {
+        if (!paymentAmount) {
+          alert("Please enter Payment Amount.");
+          return;
+        }
+
+        if (!paymentDate) {
+          alert("Please select Payment Date.");
+          return;
+        }
+      }
+
+      // =====================================================
+      // DATE
+      // API EXPECTS ISO DATETIME
+      // =====================================================
+      const selectedDate =
+        holdType === "lpo"
+          ? lpoDate
+          : paymentDate;
+
+      const isoDate = new Date(
+        `${selectedDate}T00:00:00`
+      ).toISOString();
+
+      // =====================================================
+      // AMOUNT
+      // API EXPECTS NUMBER
+      // =====================================================
+      const amount =
+        holdType === "payment"
+          ? Number(paymentAmount)
+          : 0;
+
+      // =====================================================
+      // REQUEST BODY
+      // =====================================================
+      const payload = {
+        lpoNumber:
+          holdType === "lpo"
+            ? lpoNumber.trim()
+            : "",
+
+        date: isoDate,
+
+        amount,
+
+        remarks:
+          holdType === "payment"
+            ? "payment received"
+            : "LPO received",
+      };
+
+      console.log(
+        "===================================="
+      );
+
+      console.log(
+        "APPROVE HOLD REQUEST"
+      );
+
+      console.log(
+        "Hold ID:",
+        holdId
+      );
+
+      console.log(
+        "Active Tab:",
+        activeTab
+      );
+
+      console.log(
+        "Payload:",
+        payload
+      );
+
+      console.log(
+        "===================================="
+      );
+
+      // =====================================================
+      // CALL API
+      // =====================================================
+      const response =
+        await holdTyreServiceApi.approveHold(
+          holdId,
+          payload
+        );
+
+      console.log(
+        "APPROVE HOLD RESPONSE:",
+        response
+      );
+
+      // =====================================================
+      // CHECK SUCCESS
+      // =====================================================
+      if (response?.data?.success === true) {
+
+        console.log(
+          "Hold approved successfully."
+        );
+        // Refresh index page
+        await onApproved();
+        // Reset modal state
+        setHoldType("");
+        setLpoNumber("");
+        setLpoDate("");
+        setPaymentAmount("");
+        setPaymentDate("");
+
+        // Close modal
+        onClose();
+      } else {
+
+        console.error(
+          "Approve API returned unsuccessful response:",
+          response?.data
+        );
+
+        alert(
+          response?.data?.error ||
+          "Failed to approve hold."
+        );
+      }
+
+    } catch (error: any) {
+
+      console.error(
+        "APPROVE HOLD API ERROR:",
+        error
+      );
+
+      console.error(
+        "API ERROR RESPONSE:",
+        error?.response?.data
+      );
+
+      console.error(
+        "API ERROR STATUS:",
+        error?.response?.status
+      );
+
+      alert(
+        error?.response?.data?.error ||
+        "Failed to approve hold."
+      );
+    }
   };
 
   // =========================================================
@@ -105,7 +301,7 @@ const HoldTyreApprovalModal = ({
             <div
               className="modal-header"
               style={{
-                backgroundColor: "#b30815",
+                backgroundColor: "#ff3040 !important",
                 color: "white",
               }}
             >
@@ -128,274 +324,248 @@ const HoldTyreApprovalModal = ({
               {/* =================================================
                   BASIC INFORMATION
               ================================================== */}
-              <div className="row g-3 mb-4">
+              {/* <div className="modal-body"> */}
+              <div>
+                {/* TOP INFO */}
+                <div className="modal-info m-0 row text-nowrap">
+                  <div className="col">
+                    <strong>Production No</strong>
+                    <div>{selectedItem?.casing || "-"}</div>
+                  </div>
 
-                {/* Production No */}
-                <div className="col-md-4">
-                  <label className="fw-semibold">
-                    Production No
-                  </label>
+                  <div className="col">
+                    <strong>Tyre Ref No</strong>
+                    <div>{selectedItem?.serial || "-"}</div>
+                  </div>
 
-                  <div className="form-control bg-light">
-                    {selectedItem.casing || "-"}
+                  <div className="col">
+                    <strong>Customer Name</strong>
+                    <div>{selectedItem?.customerName || "-"}</div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Tyre Size</strong>
+                    <div>{selectedItem?.tyreSize || "-"}</div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Requested Pattern</strong>
+                    <div>{selectedItem?.requestedPattern || "-"}</div>
                   </div>
                 </div>
+                {/* </div> */}
 
-                {/* Tyre Ref No */}
-                <div className="col-md-4">
-                  <label className="fw-semibold">
-                    Tyre Ref No
-                  </label>
-
-                  <div className="form-control bg-light">
-                    {selectedItem.serial || "-"}
-                  </div>
-                </div>
-
-                {/* Customer Name */}
-                <div className="col-md-4">
-                  <label className="fw-semibold">
-                    Customer Name
-                  </label>
-
-                  <div className="form-control bg-light">
-                    {selectedItem.customerName || "-"}
-                  </div>
-                </div>
-
-                {/* Tyre Size */}
-                <div className="col-md-4">
-                  <label className="fw-semibold">
-                    Tyre Size
-                  </label>
-
-                  <div className="form-control bg-light">
-                    {selectedItem.tyreSize || "-"}
-                  </div>
-                </div>
-
-                {/* Tyre Make */}
-                <div className="col-md-4">
-                  <label className="fw-semibold">
-                    Tyre Make
-                  </label>
-
-                  <div className="form-control bg-light">
-                    {selectedItem.tyreMakeName || "-"}
-                  </div>
-                </div>
-
-                {/* Requested Pattern */}
-                <div className="col-md-4">
-                  <label className="fw-semibold">
-                    Requested Pattern
-                  </label>
-
-                  <div className="form-control bg-light">
-                    {selectedItem.requestedPattern || "-"}
-                  </div>
-                </div>
-
-              </div>
-
-              {/* =================================================
+                {/* =================================================
                   HOLD INFORMATION
               ================================================== */}
-              <div className="card mb-4">
+                <div className="card mb-3 mt-2">
 
-                <div className="card-header fw-bold">
-                  HOLD INFORMATION
-                </div>
+                  <div className="card-header fw-bold">
+                    HOLD INFORMATION
+                  </div>
 
-                <div className="card-body">
+                  <div className="card-body">
+                    {/* ================== HOLD TYPE======================== */}
+                    <div className="col-md-6">
+                      <label className="fw-semibold">
+                        Hold Type
+                      </label>
 
-                  <div className="row g-3">
+                      <div className="form-control bg-light">
+                        {holdTypeLabel}
+                      </div>
+                    </div>
+                    <div className="row g-3">
 
-                    {/* =================================================
+
+                      {/* =================================================
                         HOLD REASON DROPDOWN
                     ================================================== */}
-                    <div className="col-md-6">
+                      <div className="col-md-6">
 
-                      <label className="fw-semibold">
-                        Hold Reason
-                      </label>
+                        <label className="fw-semibold">
+                          Hold Reason
+                        </label>
 
-                      <select
-                        className="form-select"
-                        value={holdType}
-                        onChange={(e) =>
-                          setHoldType(
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="">
-                          Select Hold Reason
-                        </option>
+                        <select
+                          className="form-select"
+                          value={holdType}
+                          onChange={(e) =>
+                            setHoldType(
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="">
+                            Select Hold Reason
+                          </option>
 
-                        <option value="lpo">
-                          Awaiting Customer LPO
-                        </option>
+                          <option value="lpo">
+                            Awaiting Customer LPO
+                          </option>
 
-                        <option value="payment">
-                          Payment
-                        </option>
-                      </select>
+                          <option value="payment">
+                            Payment
+                          </option>
+                        </select>
 
-                    </div>
-
-                    {/* =================================================
-                        CUSTOMER APPROVAL STATUS
-                    ================================================== */}
-                    <div className="col-md-6">
-
-                      <label className="fw-semibold">
-                        Customer Approval Status
-                      </label>
-
-                      <div className="mt-1">
-                        <span className="badge bg-warning text-dark fs-6">
-                          PENDING
-                        </span>
                       </div>
 
-                    </div>
+                      {/* =================================================
+                        CUSTOMER APPROVAL STATUS
+                    ================================================== */}
+                      <div className="col-md-6">
 
-                    {/* =================================================
+                        <label className="fw-semibold">
+                          Customer Approval Status
+                        </label>
+
+                        <div className="mt-1">
+                          <span className="badge bg-warning text-dark fs-6">
+                            PENDING
+                          </span>
+                        </div>
+
+                      </div>
+
+                      {/* =================================================
                         LPO FIELDS
                     ================================================== */}
-                    {holdType === "lpo" && (
-                      <>
-                        {/* LPO Number */}
-                        <div className="col-md-6">
+                      {holdType === "lpo" && (
+                        <>
+                          {/* LPO Number */}
+                          <div className="col-md-6">
 
-                          <label className="fw-semibold">
-                            LPO Number
-                          </label>
+                            <label className="fw-semibold">
+                              LPO Number
+                            </label>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter LPO Number"
-                            value={lpoNumber}
-                            onChange={(e) =>
-                              setLpoNumber(
-                                e.target.value
-                              )
-                            }
-                          />
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter LPO Number"
+                              value={lpoNumber}
+                              onChange={(e) =>
+                                setLpoNumber(
+                                  e.target.value
+                                )
+                              }
+                            />
 
-                        </div>
+                          </div>
 
-                        {/* LPO Date */}
-                        <div className="col-md-6">
+                          {/* LPO Date */}
+                          <div className="col-md-6">
 
-                          <label className="fw-semibold">
-                            Date
-                          </label>
+                            <label className="fw-semibold">
+                              Date
+                            </label>
 
-                          <input
-                            type="date"
-                            className="form-control"
-                            value={lpoDate}
-                            onChange={(e) =>
-                              setLpoDate(
-                                e.target.value
-                              )
-                            }
-                          />
+                            <input
+                              type="date"
+                              className="form-control"
+                              value={lpoDate}
+                              onChange={(e) =>
+                                setLpoDate(
+                                  e.target.value
+                                )
+                              }
+                            />
 
-                        </div>
-                      </>
-                    )}
+                          </div>
+                        </>
+                      )}
 
-                    {/* =================================================
+                      {/* =================================================
                         PAYMENT FIELDS
                     ================================================== */}
-                    {holdType === "payment" && (
-                      <>
-                        {/* Amount */}
-                        <div className="col-md-6">
+                      {holdType === "payment" && (
+                        <>
+                          {/* Amount */}
+                          <div className="col-md-6">
 
-                          <label className="fw-semibold">
-                            Amount
-                          </label>
+                            <label className="fw-semibold">
+                              Amount
+                            </label>
 
-                          <input
-                            type="number"
-                            className="form-control"
-                            placeholder="Enter Amount"
-                            value={paymentAmount}
-                            onChange={(e) =>
-                              setPaymentAmount(
-                                e.target.value
-                              )
-                            }
-                          />
+                            <input
+                              type="number"
+                              className="form-control"
+                              placeholder="Enter Amount"
+                              value={paymentAmount}
+                              onChange={(e) =>
+                                setPaymentAmount(
+                                  e.target.value
+                                )
+                              }
+                            />
 
-                        </div>
+                          </div>
 
-                        {/* Payment Date */}
-                        <div className="col-md-6">
+                          {/* Payment Date */}
+                          <div className="col-md-6">
 
-                          <label className="fw-semibold">
-                            Date
-                          </label>
+                            <label className="fw-semibold">
+                              Date
+                            </label>
 
-                          <input
-                            type="date"
-                            className="form-control"
-                            value={paymentDate}
-                            onChange={(e) =>
-                              setPaymentDate(
-                                e.target.value
-                              )
-                            }
-                          />
+                            <input
+                              type="date"
+                              className="form-control"
+                              value={paymentDate}
+                              onChange={(e) =>
+                                setPaymentDate(
+                                  e.target.value
+                                )
+                              }
+                            />
 
-                        </div>
-                      </>
-                    )}
+                          </div>
+                        </>
+                      )}
+
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* =================================================
+                  ACTION BUTTONS
+              ================================================== */}
+                <div className="row g-3">
+
+                  {/* APPROVE */}
+                  <div className="col-md-6">
+
+                    <button
+                      type="button"
+                      className="btn btn-approve w-100 h-100"
+                      style={{
+                        // background: "linear-gradient(135deg, #28a745, #26a369)",
+                        height: "100%",
+                      }}
+                      onClick={handleApprove}
+                    >
+                      <b>APPROVED</b>
+                    </button>
 
                   </div>
 
-                </div>
-              </div>
+                  {/* REJECT */}
+                  <div className="col-md-6">
 
-              {/* =================================================
-                  ACTION BUTTONS
-              ================================================== */}
-              <div className="row g-3">
+                    <button
+                      type="button"
+                      className="btn btn-reject w-100 h-100"
+                      style={{
+                        height: "100%",
+                      }}
+                      onClick={handleReject}
+                    >
+                      <b>REJECTED</b>
+                    </button>
 
-                {/* REJECT */}
-                <div className="col-md-6">
-
-                  <button
-                    type="button"
-                    className="btn btn-danger w-100"
-                    style={{
-                      height: "65px",
-                    }}
-                    onClick={handleReject}
-                  >
-                    <b>REJECT</b>
-                  </button>
-
-                </div>
-
-                {/* APPROVE */}
-                <div className="col-md-6">
-
-                  <button
-                    type="button"
-                    className="btn btn-success w-100"
-                    style={{
-                      height: "65px",
-                    }}
-                    onClick={handleApprove}
-                  >
-                    <b>APPROVE</b>
-                  </button>
+                  </div>
 
                 </div>
 
@@ -404,7 +574,6 @@ const HoldTyreApprovalModal = ({
             </div>
 
           </div>
-
         </div>
       </div>
     </>

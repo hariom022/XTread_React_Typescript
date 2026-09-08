@@ -24,6 +24,7 @@ const TyreOnHold = () => {
     search,
     setSearch,
     filteredHoldTyres,
+    loadHoldTyres,
   } = useHoldTyreIndexPage(
     activeTab
   );
@@ -90,11 +91,10 @@ const TyreOnHold = () => {
         <li className="nav-item">
           <button
             type="button"
-            className={`nav-link ${
-              activeTab === "nail"
+            className={`nav-link ${activeTab === "nail"
                 ? "active"
                 : ""
-            }`}
+              }`}
             onClick={() =>
               handleTabChange("nail")
             }
@@ -109,12 +109,11 @@ const TyreOnHold = () => {
         <li className="nav-item">
           <button
             type="button"
-            className={`nav-link ${
-              activeTab ===
-              "shearography"
+            className={`nav-link ${activeTab ===
+                "shearography"
                 ? "active"
                 : ""
-            }`}
+              }`}
             onClick={() =>
               handleTabChange(
                 "shearography"
@@ -131,11 +130,10 @@ const TyreOnHold = () => {
         <li className="nav-item">
           <button
             type="button"
-            className={`nav-link ${
-              activeTab === "buffing"
+            className={`nav-link ${activeTab === "buffing"
                 ? "active"
                 : ""
-            }`}
+              }`}
             onClick={() =>
               handleTabChange("buffing")
             }
@@ -192,9 +190,9 @@ const TyreOnHold = () => {
       {selectedItem && (
         <HoldTyreApprovalModal
           selectedItem={selectedItem}
-          onClose={
-            closeApprovalModal
-          }
+          onClose={closeApprovalModal}
+          activeTab={activeTab}
+          onApproved={loadHoldTyres}
         />
       )}
 

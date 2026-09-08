@@ -4,7 +4,7 @@ import {
   useState,
 } from "react";
 
-import indexPageApiService from "../../../shared/services/indexPageApiService";
+import holdTyreServiceApi from "../service/holdTyreServiceApi";
 
 export type HoldTab =
   | "nail"
@@ -24,169 +24,49 @@ export const useHoldTyreIndexPage = (
     useState<any[]>([]);
 
   // =========================================================
-  // TRANSFORM API RESPONSE
-  // =========================================================
-  const transformApiData = (
-    stages: any[]
-  ) => {
-    const transformed: any[] = [];
-
-    (stages || []).forEach(
-      (stage: any) => {
-        stage.batches?.forEach(
-          (batch: any) => {
-            batch.casings?.forEach(
-              (casing: any) => {
-                transformed.push({
-                  id:
-                    casing.orderCasingId,
-
-                  casing:
-                    casing.productionNumber ||
-                    casing.barcodeNumber ||
-                    "-",
-
-                  date:
-                    casing.orderDate ||
-                    "-",
-
-                  serial:
-                    casing.tyreReferenceNumber ||
-                    "-",
-
-                  dot:
-                    casing.dotNumber ||
-                    "-",
-
-                  patternName:
-                    casing.patternName ||
-                    "-",
-
-                  tyreMakeName:
-                    casing.tyreMakeName ||
-                    "-",
-
-                  tyreSize:
-                    casing.tyreSizeLabel ||
-                    "-",
-
-                  customerName:
-                    casing.customerName ||
-                    "-",
-
-                  service:
-                    casing.serviceTypeName ||
-                    "-",
-
-                  batchNo:
-                    batch.batchNumber ||
-                    "-",
-
-                  currentStage:
-                    casing.currentStage,
-
-                  currentStageStatus:
-                    casing.currentStageStatus,
-
-                  currentSubstage:
-                    casing.currentSubstage,
-
-                  requestedPattern:
-                    casing.patternName ||
-                    "-",
-
-                  // Keep original API data
-                  originalBatch:
-                    batch,
-
-                  originalCasing:
-                    casing,
-
-                  // Batch summary
-                  approved:
-                    batch.stageSummary
-                      ?.approved || 0,
-
-                  rejected:
-                    batch.stageSummary
-                      ?.rejected || 0,
-
-                  pending:
-                    batch.stageSummary
-                      ?.pending || 0,
-
-                  previousStage:
-                    batch.stageSummary
-                      ?.stillAtPreviousStage ||
-                    0,
-
-                  rejectedAtPreviousStages:
-                    batch.stageSummary
-                      ?.rejectedAtPreviousStages ||
-                    0,
-
-                  expectedTotal:
-                    batch.stageSummary
-                      ?.expectedTotal ??
-                    batch.originalBatchSize ??
-                    0,
-
-                  arrived:
-                    batch.stageSummary
-                      ?.arrived || 0,
-                });
-              }
-            );
-          }
-        );
-      }
-    );
-
-    return transformed;
-  };
-
-  // =========================================================
   // LOAD HOLD TYRES
   // =========================================================
   const loadHoldTyres = async () => {
     try {
       setLoading(true);
-
       setHoldTyres([]);
 
       let result;
 
       // =====================================================
-      // 1. NAIL INSPECTION HOLD
+      // NAIL INSPECTION HOLD
       // =====================================================
       if (activeTab === "nail") {
         result =
-          await indexPageApiService.getBatchProgress(
-            4,
-            3
+          await holdTyreServiceApi.getHoldTyres(4,
+            undefined,
+            true,
+            1
           );
       }
 
       // =====================================================
-      // 2. SHEAROGRAPHY HOLD
+      // SHEAROGRAPHY HOLD
       // =====================================================
       else if (activeTab === "shearography") {
         result =
-          await indexPageApiService.getBatchProgress(
-            6,
-            3
+          await holdTyreServiceApi.getHoldTyres(6,
+            undefined,
+            true,
+            1
           );
       }
 
       // =====================================================
-      // 3. BUFFING HOLD
+      // PRE-BUFFING HOLD
       // =====================================================
       else if (activeTab === "buffing") {
         result =
-          await indexPageApiService.getBatchProgress(
+          await holdTyreServiceApi.getHoldTyres(
             7,
             71,
-            3
+            true,
+            1
           );
       }
 
@@ -195,24 +75,83 @@ export const useHoldTyreIndexPage = (
         result
       );
 
-      // =====================================================
-      // GET API DATA
-      // =====================================================
       const apiData =
         result?.data?.data || [];
 
-      // =====================================================
-      // TRANSFORM
-      // =====================================================
-      const transformed =
-        transformApiData(apiData);
-
       console.log(
-        `${activeTab.toUpperCase()} HOLD TRANSFORMED DATA:`,
-        transformed
+        `${activeTab.toUpperCase()} HOLD DATA:`,
+        apiData
       );
 
-      setHoldTyres(transformed);
+      // =====================================================
+      // MAP NEW HOLD API FIELDS TO EXISTING TABLE FIELDS
+      // =====================================================
+      const transformedData = apiData.map(
+        (hold: any) => ({
+          holdId: hold.holdId,
+          orderCasingId: hold.orderCasingId,
+
+          casing:
+            hold.productionNumber || "-",
+
+          date:
+            hold.createdAtUtc || "-",
+
+          serial:
+            hold.tyreReferenceNumber || "-",
+
+          dot: "-",
+
+          patternName: "-",
+
+          tyreMakeName:
+            hold.tyreMakeName || "-",
+
+          tyreSize:
+            hold.tyreSizeLabel || "-",
+
+          customerName:
+            hold.customerName || "-",
+
+          service:
+            hold.serviceTypeName || "-",
+
+          holdType:
+            hold.holdType,
+
+          lpoNumber:
+            hold.lpoNumber,
+
+          holdDate:
+            hold.date,
+
+          amount:
+            hold.amount,
+
+          remarks:
+            hold.remarks,
+
+          isApproved:
+            hold.isApproved,
+
+          casingStage:
+            hold.casingStage,
+
+          createdAtUtc:
+            hold.createdAtUtc,
+
+          originalHold:
+            hold,
+        })
+      );
+
+      console.log(
+        `${activeTab.toUpperCase()} HOLD TABLE DATA:`,
+        transformedData
+      );
+
+      setHoldTyres(transformedData);
+
     } catch (error) {
       console.error(
         `Failed to load ${activeTab} hold tyres:`,
@@ -255,8 +194,7 @@ export const useHoldTyreIndexPage = (
            ${item.tyreMakeName}
            ${item.tyreSize}
            ${item.customerName}
-           ${item.service}
-           ${item.batchNo}`
+           ${item.service}`
             .toLowerCase()
             .includes(searchText)
       );

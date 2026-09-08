@@ -14,7 +14,6 @@ const HoldTyreIndexPage = ({
     <CommonTable
       columns={indexPageColumns(onInspect)}
       data={data}
-      groupBy="batchNo"
       emptyMessage="No hold tyres found"
     />
   );

@@ -1,13 +1,47 @@
 import api from "../../../shared/services/api";
 
 const holdTyreServiceApi = {
-  getHoldTyres: () =>
-    api.get("/batches/progress", {
+  // =========================================================
+  // GET HOLD TYRES
+  // =========================================================
+  getHoldTyres: (
+    casingStage: number,
+    casingSubstage?: number,
+    includeApproved: boolean = true,
+    holdType: number = 1
+  ) => {
+    return api.get("/holds", {
       params: {
-        currentStage: 4,
-        currentStageStatus: 3,
+        casingStage,
+
+        ...(casingSubstage !== undefined && {
+          casingSubstage,
+        }),
+
+        includeApproved,
+
+        holdType,
       },
-    }),
+    });
+  },
+
+  // =========================================================
+  // APPROVE HOLD TYRE
+  // =========================================================
+  approveHold: (
+    holdId: number,
+    payload: {
+      lpoNumber: string;
+      date: string;
+      amount: number;
+      remarks: string;
+    }
+  ) => {
+    return api.post(
+      `/holds/${holdId}/approve`,
+      payload
+    );
+  },
 };
 
 export default holdTyreServiceApi;
