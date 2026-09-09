@@ -6,21 +6,21 @@ const holdTyreServiceApi = {
   // =========================================================
   getHoldTyres: (
     casingStage: number,
-    casingSubstage?: number,
-    includeApproved: boolean = true,
-    holdType: number = 1
+    // casingSubstage?: number,
+    includeApproved: boolean = false,
+    // holdType: number = 1
   ) => {
     return api.get("/holds", {
       params: {
         casingStage,
 
-        ...(casingSubstage !== undefined && {
-          casingSubstage,
-        }),
+        // ...(casingSubstage !== undefined && {
+        //   casingSubstage,
+        // }),
 
         includeApproved,
 
-        holdType,
+        // holdType,
       },
     });
   },

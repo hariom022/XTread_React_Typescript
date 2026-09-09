@@ -39,9 +39,8 @@ export const useHoldTyreIndexPage = (
       if (activeTab === "nail") {
         result =
           await holdTyreServiceApi.getHoldTyres(4,
-            undefined,
-            true,
-            1
+            false,
+            
           );
       }
 
@@ -51,9 +50,7 @@ export const useHoldTyreIndexPage = (
       else if (activeTab === "shearography") {
         result =
           await holdTyreServiceApi.getHoldTyres(6,
-            undefined,
-            true,
-            1
+            false,           
           );
       }
 
@@ -63,10 +60,8 @@ export const useHoldTyreIndexPage = (
       else if (activeTab === "buffing") {
         result =
           await holdTyreServiceApi.getHoldTyres(
-            7,
-            71,
-            true,
-            1
+            7,        
+            false,           
           );
       }
 
