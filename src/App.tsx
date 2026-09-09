@@ -111,6 +111,7 @@ import RoleModuleMapping from "./master-modules/roleModuleMapping/page/RoleModul
 import UserRegistrationPage from "./adminPortal/users/page/UserManagementPage";
 import CourierServices from "./master-modules/courier-services/pages/CourierServices";
 import Drivers from "./master-modules/drivers/page/Drivers";
+import MaterialConsumptionPage from "./adminPortal/materialConsumption/pages/MaterialConsumptionPage";
 /* =========================================================
    AUTH INITIALIZER
 ========================================================= */
@@ -363,7 +364,9 @@ function AppContent() {
                   path="/adminPortal/byPassTyres"
                   element={<ByPassTyres />}
                 />
+                    <Route path="/materialConsumption" element={<MaterialConsumptionPage />} />
                 <Route path="/users" element={<UserRegistrationPage />} />
+            
                 {/* =====================================
                     MASTER MODULES
                 ===================================== */}
