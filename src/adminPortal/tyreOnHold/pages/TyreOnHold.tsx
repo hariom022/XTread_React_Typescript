@@ -3,6 +3,7 @@ import { RingLoader } from "react-spinners";
 
 import HoldTyreIndexPage from "../components/holdTyreIndexPage";
 import HoldTyreApprovalModal from "../components/holdTyreApprovalModal";
+import PreBuffingPatternApprovalModal from "../components/preBuffingPatternApprovalModal";
 
 import {
   type HoldTab,
@@ -92,8 +93,8 @@ const TyreOnHold = () => {
           <button
             type="button"
             className={`nav-link ${activeTab === "nail"
-                ? "active"
-                : ""
+              ? "active"
+              : ""
               }`}
             onClick={() =>
               handleTabChange("nail")
@@ -110,9 +111,9 @@ const TyreOnHold = () => {
           <button
             type="button"
             className={`nav-link ${activeTab ===
-                "shearography"
-                ? "active"
-                : ""
+              "shearography"
+              ? "active"
+              : ""
               }`}
             onClick={() =>
               handleTabChange(
@@ -131,8 +132,8 @@ const TyreOnHold = () => {
           <button
             type="button"
             className={`nav-link ${activeTab === "buffing"
-                ? "active"
-                : ""
+              ? "active"
+              : ""
               }`}
             onClick={() =>
               handleTabChange("buffing")
@@ -188,14 +189,23 @@ const TyreOnHold = () => {
           APPROVAL MODAL
       ====================================================== */}
       {selectedItem && (
-        <HoldTyreApprovalModal
-          selectedItem={selectedItem}
-          onClose={closeApprovalModal}
-          activeTab={activeTab}
-          onApproved={loadHoldTyres}
-        />
+        <>
+          {activeTab === "buffing" ? (
+            <PreBuffingPatternApprovalModal
+              selectedItem={selectedItem}
+              onClose={closeApprovalModal}
+              onApproved={loadHoldTyres}
+            />
+          ) : (
+            <HoldTyreApprovalModal
+              selectedItem={selectedItem}
+              onClose={closeApprovalModal}
+              activeTab={activeTab}
+              onApproved={loadHoldTyres}
+            />
+          )}
+        </>
       )}
-
     </div>
   );
 };

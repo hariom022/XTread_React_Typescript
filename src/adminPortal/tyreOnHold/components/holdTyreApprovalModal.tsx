@@ -4,7 +4,7 @@ import holdTyreServiceApi from "../service/holdTyreServiceApi";
 type Props = {
   selectedItem: any;
   onClose: () => void;
-  activeTab: "nail" | "shearography" | "buffing";
+  activeTab: "nail" | "shearography" ; //| "buffing";
   onApproved: () => Promise<void>;
 };
 
@@ -17,8 +17,7 @@ const HoldTyreApprovalModal = ({
   // =========================================================
   // HOLD TYPE
   // =========================================================
-  const [holdType, setHoldType] =
-    useState("");
+  // const [holdType, setHoldType] =  useState("");
 
   // =========================================================
   // LPO FIELDS
@@ -39,6 +38,12 @@ const HoldTyreApprovalModal = ({
     useState("");
 
   // ==============HOLD TYPE===============
+  const holdType =
+    selectedItem?.holdType === 1
+      ? "lpo"
+      : selectedItem?.holdType === 2
+        ? "payment"
+        : "";
 
   const holdTypeLabel =
     selectedItem?.holdType === 1
@@ -213,7 +218,7 @@ const HoldTyreApprovalModal = ({
         // Refresh index page
         await onApproved();
         // Reset modal state
-        setHoldType("");
+        // setHoldType("");
         setLpoNumber("");
         setLpoDate("");
         setPaymentAmount("");
@@ -365,23 +370,41 @@ const HoldTyreApprovalModal = ({
                   </div>
 
                   <div className="card-body">
-                    {/* ================== HOLD TYPE======================== */}
-                    <div className="col-md-6">
-                      <label className="fw-semibold">
-                        Hold Type
-                      </label>
 
-                      <div className="form-control bg-light">
-                        {holdTypeLabel}
-                      </div>
-                    </div>
                     <div className="row g-3">
+                      {/* ================== HOLD TYPE======================== */}
+                      <div className="col-md-6">
+                        <label className="fw-semibold">
+                          Hold Type
+                        </label>
+
+                        <div className="form-control bg-light">
+                          {holdTypeLabel}
+                        </div>
+                      </div>
+
+                      {/* =================================================
+                        CUSTOMER APPROVAL STATUS
+                    ================================================== */}
+                      <div className="col-md-6">
+
+                        <label className="fw-semibold">
+                          Customer Approval Status
+                        </label>
+
+                        <div className="mt-1">
+                          <span className="badge bg-warning text-dark fs-6">
+                            PENDING
+                          </span>
+                        </div>
+
+                      </div>
 
 
                       {/* =================================================
                         HOLD REASON DROPDOWN
                     ================================================== */}
-                      <div className="col-md-6">
+                      {/* <div className="col-md-6">
 
                         <label className="fw-semibold">
                           Hold Reason
@@ -409,24 +432,8 @@ const HoldTyreApprovalModal = ({
                           </option>
                         </select>
 
-                      </div>
+                      </div> */}
 
-                      {/* =================================================
-                        CUSTOMER APPROVAL STATUS
-                    ================================================== */}
-                      <div className="col-md-6">
-
-                        <label className="fw-semibold">
-                          Customer Approval Status
-                        </label>
-
-                        <div className="mt-1">
-                          <span className="badge bg-warning text-dark fs-6">
-                            PENDING
-                          </span>
-                        </div>
-
-                      </div>
 
                       {/* =================================================
                         LPO FIELDS
