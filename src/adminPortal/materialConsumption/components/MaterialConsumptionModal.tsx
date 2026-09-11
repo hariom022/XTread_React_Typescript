@@ -21,14 +21,11 @@ const MaterialConsumptionModal = ({
    * ==========================================================
    */
 
-  const [approving, setApproving] =
-    useState<boolean>(false);
+  const [approving, setApproving] = useState<boolean>(false);
 
-  const [approveError, setApproveError] =
-    useState<string>("");
+  const [approveError, setApproveError] = useState<string>("");
 
-  const [approved, setApproved] =
-    useState<boolean>(false);
+  const [approved, setApproved] = useState<boolean>(false);
 
   /*
    * ==========================================================
@@ -46,7 +43,7 @@ const MaterialConsumptionModal = ({
       setApproveError("");
 
       await materialConsumptionApiService.approveMaterialConsumption(
-        materialConsumption.orderCasingId
+        materialConsumption.orderCasingId,
       );
 
       /*
@@ -54,17 +51,13 @@ const MaterialConsumptionModal = ({
        */
 
       setApproved(true);
-
     } catch (error) {
-      console.error(
-        "Failed to approve material consumption:",
-        error
-      );
+      console.error("Failed to approve material consumption:", error);
 
       setApproveError(
         error instanceof Error
           ? error.message
-          : "Failed to approve Material Consumption."
+          : "Failed to approve Material Consumption.",
       );
     } finally {
       setApproving(false);
@@ -101,10 +94,7 @@ const MaterialConsumptionModal = ({
           BACKDROP
       ====================================================== */}
 
-      <div
-        className="modal-backdrop fade show"
-        onClick={handleClose}
-      />
+      <div className="modal-backdrop fade show" onClick={handleClose} />
 
       {/* =====================================================
           MODAL
@@ -126,15 +116,12 @@ const MaterialConsumptionModal = ({
           role="document"
         >
           <div className="modal-content">
-
             {/* =================================================
                 HEADER
             ================================================== */}
 
             <div className="modal-header">
-
               <div>
-
                 <h5
                   className="modal-title"
                   style={{
@@ -147,11 +134,8 @@ const MaterialConsumptionModal = ({
 
                 <small className="text-muted">
                   Order:{" "}
-                  <strong>
-                    {materialConsumption.orderNumber || "-"}
-                  </strong>
+                  <strong>{materialConsumption.orderNumber || "-"}</strong>
                 </small>
-
               </div>
 
               <button
@@ -160,7 +144,6 @@ const MaterialConsumptionModal = ({
                 aria-label="Close"
                 onClick={handleClose}
               />
-
             </div>
 
             {/* =================================================
@@ -168,67 +151,42 @@ const MaterialConsumptionModal = ({
             ================================================== */}
 
             <div className="modal-body">
-
               {/* =================================================
                   CASING INFORMATION
               ================================================== */}
 
               <div className="row g-3 mb-4">
-
                 <div className="col-md-3">
-
-                  <div className="small text-muted">
-                    Order Number
-                  </div>
+                  <div className="small text-muted">Order Number</div>
 
                   <div className="fw-semibold">
                     {materialConsumption.orderNumber || "-"}
                   </div>
-
                 </div>
 
                 <div className="col-md-3">
-
-                  <div className="small text-muted">
-                    Tyre Reference
-                  </div>
+                  <div className="small text-muted">Tyre Reference</div>
 
                   <div className="fw-semibold">
-                    {
-                      materialConsumption.tyreReferenceNumber ||
-                      "-"
-                    }
+                    {materialConsumption.tyreReferenceNumber || "-"}
                   </div>
-
                 </div>
 
                 <div className="col-md-3">
-
-                  <div className="small text-muted">
-                    Production Number
-                  </div>
+                  <div className="small text-muted">Production Number</div>
 
                   <div className="fw-semibold">
-                    {
-                      materialConsumption.productionNumber ||
-                      "-"
-                    }
+                    {materialConsumption.productionNumber || "-"}
                   </div>
-
                 </div>
 
                 <div className="col-md-3">
-
-                  <div className="small text-muted">
-                    Batch Number
-                  </div>
+                  <div className="small text-muted">Batch Number</div>
 
                   <div className="fw-semibold">
                     {materialConsumption.batchNumber || "-"}
                   </div>
-
                 </div>
-
               </div>
 
               {/* =================================================
@@ -243,8 +201,7 @@ const MaterialConsumptionModal = ({
                   <i className="bi bi-check-circle-fill me-2" />
 
                   <div>
-                    Material consumption has been approved
-                    successfully.
+                    Material consumption has been approved successfully.
                   </div>
                 </div>
               )}
@@ -260,9 +217,7 @@ const MaterialConsumptionModal = ({
                 >
                   <i className="bi bi-exclamation-triangle-fill me-2" />
 
-                  <div>
-                    {approveError}
-                  </div>
+                  <div>{approveError}</div>
                 </div>
               )}
 
@@ -278,7 +233,6 @@ const MaterialConsumptionModal = ({
                   mb-3
                 "
               >
-
                 <h6
                   className="mb-0"
                   style={{
@@ -290,13 +244,9 @@ const MaterialConsumptionModal = ({
                 </h6>
 
                 <span className="badge bg-light text-primary border">
-                  {
-                    materialConsumption.materialConsumed
-                      ?.length || 0
-                  }{" "}
+                  {materialConsumption.materialConsumed?.length || 0}{" "}
                   Material(s)
                 </span>
-
               </div>
 
               {/* =================================================
@@ -304,17 +254,13 @@ const MaterialConsumptionModal = ({
               ================================================== */}
 
               <div className="table-responsive">
-
                 <table className="table table-hover align-middle mb-0">
-
                   <thead>
-
                     <tr
                       style={{
                         background: "#ff2738",
                       }}
                     >
-
                       <th
                         className="text-white"
                         style={{
@@ -342,14 +288,14 @@ const MaterialConsumptionModal = ({
                         Prod Hierarchy 4
                       </th>
 
-                      <th
+                      {/* <th
                         className="text-white"
                         style={{
                           padding: "12px 10px",
                         }}
                       >
                         Consumption Type
-                      </th>
+                      </th> */}
 
                       <th
                         className="text-white"
@@ -386,32 +332,20 @@ const MaterialConsumptionModal = ({
                       >
                         Approval Status
                       </th>
-
                     </tr>
-
                   </thead>
 
                   <tbody>
-
                     {materialConsumption.materialConsumed &&
-                    materialConsumption.materialConsumed.length >
-                      0 ? (
-
+                    materialConsumption.materialConsumed.length > 0 ? (
                       materialConsumption.materialConsumed.map(
-                        (
-                          material,
-                          index
-                        ) => (
-
+                        (material, index) => (
                           <tr
                             key={`${materialConsumption.orderCasingId}-${index}`}
                           >
-
                             {/* # */}
 
-                            <td>
-                              {index + 1}
-                            </td>
+                            <td>{index + 1}</td>
 
                             {/* Material */}
 
@@ -421,17 +355,15 @@ const MaterialConsumptionModal = ({
 
                             {/* Prod Hierarchy */}
 
-                            <td>
-                              {material.prodHierarchy4 || "-"}
-                            </td>
+                            <td>{material.prodHierarchy4 || "-"}</td>
 
                             {/* Consumption Type */}
 
-                            <td>
+                            {/* <td>
                               <span className="badge bg-light text-dark border">
                                 {material.consumptionType}
                               </span>
-                            </td>
+                            </td> */}
 
                             {/* Quantity */}
 
@@ -441,78 +373,44 @@ const MaterialConsumptionModal = ({
 
                             {/* Unit */}
 
-                            <td>
-                              {material.unitOfMeasure || "-"}
-                            </td>
+                            <td>{material.unitOfMeasure || "-"}</td>
 
                             {/* Casing Stage */}
 
                             <td>
-
                               <span className="badge bg-light text-primary border">
-                                {
-                                  material.casingStageName ||
-                                  "-"
-                                }
+                                {material.casingStageName || "-"}
                               </span>
-
                             </td>
 
                             {/* Approval Status */}
 
                             <td>
-
-                              {approved ||
-                              material.isApproved ? (
-
+                              {approved || material.isApproved ? (
                                 <span className="badge bg-success-subtle text-success">
-
                                   <i className="bi bi-check-circle me-1" />
-
                                   Approved
-
                                 </span>
-
                               ) : (
-
                                 <span className="badge bg-warning-subtle text-warning-emphasis">
-
                                   <i className="bi bi-clock me-1" />
-
                                   Pending
-
                                 </span>
-
                               )}
-
                             </td>
-
                           </tr>
-
-                        )
+                        ),
                       )
-
                     ) : (
-
                       <tr>
-
-                        <td
-                          colSpan={8}
-                          className="text-center py-4 text-muted"
-                        >
+                        <td colSpan={8} className="text-center py-4 text-muted">
                           No material consumption details found.
                         </td>
-
                       </tr>
-
                     )}
-
                   </tbody>
-
                 </table>
-
               </div>
-
             </div>
 
             {/* =================================================
@@ -520,7 +418,6 @@ const MaterialConsumptionModal = ({
             ================================================== */}
 
             <div className="modal-footer">
-
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -535,14 +432,12 @@ const MaterialConsumptionModal = ({
               ================================================== */}
 
               {!approved && (
-
                 <button
                   type="button"
                   className="btn btn-success"
                   onClick={handleApprove}
                   disabled={approving}
                 >
-
                   {approving ? (
                     <>
                       <span
@@ -550,19 +445,15 @@ const MaterialConsumptionModal = ({
                         role="status"
                         aria-hidden="true"
                       />
-
                       Approving...
                     </>
                   ) : (
                     <>
                       <i className="bi bi-check-circle me-1" />
-
                       Approve
                     </>
                   )}
-
                 </button>
-
               )}
 
               {/* =================================================
@@ -570,21 +461,12 @@ const MaterialConsumptionModal = ({
               ================================================== */}
 
               {approved && (
-
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  disabled
-                >
+                <button type="button" className="btn btn-success" disabled>
                   <i className="bi bi-check-circle-fill me-1" />
-
                   Approved
                 </button>
-
               )}
-
             </div>
-
           </div>
         </div>
       </div>

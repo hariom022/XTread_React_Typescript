@@ -8,19 +8,29 @@ interface Props {
   data: MaterialConsumption[];
   loading: boolean;
   error: string;
+
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
 }
 
-const MaterialConsumptionTable = ({ data, loading, error }: Props) => {
-  /*
-   * ==========================================================
-   * PAGINATION
-   * ==========================================================
-   */
+const MaterialConsumptionTable = ({
+  data,
+  loading,
+  error,
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  currentPage,
+  pageSize,
+  totalCount,
+  totalPages,
 
-  const [pageSize] = useState<number>(10);
-
+  onPageChange,
+  onPageSizeChange,
+}: Props) => {
   /*
    * ==========================================================
    * SEARCH
@@ -64,7 +74,17 @@ const MaterialConsumptionTable = ({ data, loading, error }: Props) => {
 
   /*
    * ==========================================================
-   * FILTER DATA
+   * SEARCH
+   * ==========================================================
+   *
+   * IMPORTANT:
+   *
+   * This currently searches only the records returned by
+   * the backend.
+   *
+   * If you need search across ALL records, search must also
+   * be implemented in the backend API.
+   *
    * ==========================================================
    */
 
@@ -81,10 +101,10 @@ const MaterialConsumptionTable = ({ data, loading, error }: Props) => {
           ?.map(
             (material) =>
               `${material.material}
-                 ${material.prodHierarchy4}
-                 ${material.quantity}
-                 ${material.unitOfMeasure}
-                 ${material.casingStageName}`,
+               ${material.prodHierarchy4}
+               ${material.quantity}
+               ${material.unitOfMeasure}
+               ${material.casingStageName}`,
           )
           .join(" ") || "";
 
@@ -102,67 +122,26 @@ const MaterialConsumptionTable = ({ data, loading, error }: Props) => {
 
   /*
    * ==========================================================
-   * TOTAL PAGES
-   * ==========================================================
-   */
-
-  const totalPages = Math.ceil(filteredMaterialConsumption.length / pageSize);
-
-  /*
-   * ==========================================================
    * RESET PAGE WHEN SEARCH CHANGES
    * ==========================================================
    */
 
   useEffect(() => {
-    setCurrentPage(1);
+    if (searchTerm.trim()) {
+      onPageChange(1);
+    }
   }, [searchTerm]);
 
   /*
    * ==========================================================
-   * MAKE SURE CURRENT PAGE IS VALID
+   * RECORD NUMBERS
    * ==========================================================
    */
 
-  useEffect(() => {
-    if (totalPages > 0 && currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
+  const startRecord = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
 
-    if (totalPages === 0) {
-      setCurrentPage(1);
-    }
-  }, [totalPages, currentPage]);
-
-  /*
-   * ==========================================================
-   * CURRENT PAGE DATA
-   * ==========================================================
-   */
-
-  const paginatedMaterialConsumption = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-
-    const endIndex = startIndex + pageSize;
-
-    return filteredMaterialConsumption.slice(startIndex, endIndex);
-  }, [filteredMaterialConsumption, currentPage, pageSize]);
-
-  /*
-   * ==========================================================
-   * START / END RECORD NUMBER
-   * ==========================================================
-   */
-
-  const startRecord =
-    filteredMaterialConsumption.length === 0
-      ? 0
-      : (currentPage - 1) * pageSize + 1;
-
-  const endRecord = Math.min(
-    currentPage * pageSize,
-    filteredMaterialConsumption.length,
-  );
+  const endRecord =
+    totalCount === 0 ? 0 : Math.min(currentPage * pageSize, totalCount);
 
   /*
    * ==========================================================
@@ -186,7 +165,7 @@ const MaterialConsumptionTable = ({ data, loading, error }: Props) => {
       return;
     }
 
-    setCurrentPage(page);
+    onPageChange(page);
   };
 
   return (
@@ -440,7 +419,7 @@ const MaterialConsumptionTable = ({ data, loading, error }: Props) => {
                      DATA
                   ================================================== */
 
-                  paginatedMaterialConsumption.map((item, index) => {
+                  filteredMaterialConsumption.map((item, index) => {
                     /*
                      * Global row number
                      */
@@ -557,63 +536,111 @@ const MaterialConsumptionTable = ({ data, loading, error }: Props) => {
                     PAGINATION
                 ================================================== */}
 
-                {totalPages > 1 && (
-                  <nav aria-label="Material consumption pagination">
-                    <ul className="pagination mb-0">
-                      {/* Previous */}
+                {!loading && totalCount > 0 && (
+                  <div className="border-top px-4 py-3">
+                    <div
+                      className="
+        d-flex
+        flex-column
+        flex-md-row
+        align-items-center
+        justify-content-between
+        gap-3
+      "
+                    >
+                      {/* =================================================
+          RECORD COUNT + PAGE SIZE
+      ================================================== */}
 
-                      <li
-                        className={`page-item ${
-                          currentPage === 1 ? "disabled" : ""
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          className="page-link"
-                          onClick={() => goToPage(currentPage - 1)}
-                          disabled={currentPage === 1}
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="text-muted">
+                          Showing <strong>{startRecord}</strong> -{" "}
+                          <strong>{endRecord}</strong> of{" "}
+                          <strong>{totalCount}</strong> material consumption
+                          records
+                        </div>
+
+                        {/* PAGE SIZE */}
+
+                        <select
+                          className="form-select form-select-sm"
+                          style={{ width: "90px" }}
+                          value={pageSize}
+                          onChange={(event) =>
+                            onPageSizeChange(Number(event.target.value))
+                          }
                         >
-                          Previous
-                        </button>
-                      </li>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                        </select>
+                      </div>
 
-                      {/* Page Numbers */}
+                      {/* =================================================
+          PAGINATION
+      ================================================== */}
 
-                      {pageNumbers.map((page) => (
-                        <li
-                          key={page}
-                          className={`page-item ${
-                            currentPage === page ? "active" : ""
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            className="page-link"
-                            onClick={() => goToPage(page)}
-                          >
-                            {page}
-                          </button>
-                        </li>
-                      ))}
+                      {totalPages > 1 && (
+                        <nav aria-label="Material consumption pagination">
+                          <ul className="pagination mb-0">
+                            {/* PREVIOUS */}
 
-                      {/* Next */}
+                            <li
+                              className={`page-item ${
+                                currentPage === 1 ? "disabled" : ""
+                              }`}
+                            >
+                              <button
+                                type="button"
+                                className="page-link"
+                                onClick={() => goToPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                              >
+                                Previous
+                              </button>
+                            </li>
 
-                      <li
-                        className={`page-item ${
-                          currentPage === totalPages ? "disabled" : ""
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          className="page-link"
-                          onClick={() => goToPage(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                        >
-                          Next
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
+                            {/* PAGE NUMBERS */}
+
+                            {pageNumbers.map((page) => (
+                              <li
+                                key={page}
+                                className={`page-item ${
+                                  currentPage === page ? "active" : ""
+                                }`}
+                              >
+                                <button
+                                  type="button"
+                                  className="page-link"
+                                  onClick={() => goToPage(page)}
+                                >
+                                  {page}
+                                </button>
+                              </li>
+                            ))}
+
+                            {/* NEXT */}
+
+                            <li
+                              className={`page-item ${
+                                currentPage === totalPages ? "disabled" : ""
+                              }`}
+                            >
+                              <button
+                                type="button"
+                                className="page-link"
+                                onClick={() => goToPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                              >
+                                Next
+                              </button>
+                            </li>
+                          </ul>
+                        </nav>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

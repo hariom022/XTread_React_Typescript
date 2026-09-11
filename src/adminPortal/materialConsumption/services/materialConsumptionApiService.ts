@@ -1,13 +1,23 @@
-
 import { apiRequest } from "../../../shared/services/apiClient";
-import type { ApiResponse, MaterialConsumption } from "../types/materialConsumption.type";
 
+import type {
+  ApiResponse,
+  MaterialConsumptionPagedResponse,
+} from "../types/materialConsumption.type";
+
+/*
+ * ==========================================================
+ * GET MATERIAL CONSUMPTION APPROVALS
+ * ==========================================================
+ */
 
 const getMaterialConsumptionApprovals = async (
-): Promise<MaterialConsumption[]> => {
+  pageNumber: number,
+  pageSize: number
+): Promise<MaterialConsumptionPagedResponse> => {
   const response =
-    await apiRequest<ApiResponse<MaterialConsumption[]>>(
-      '/sap/material-consumption/quality-control-approved'
+    await apiRequest<ApiResponse<MaterialConsumptionPagedResponse>>(
+      `/sap/material-consumption/quality-control-approved?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
 
   if (!response.success) {
@@ -17,7 +27,15 @@ const getMaterialConsumptionApprovals = async (
     );
   }
 
-  return response.data || [];
+  return (
+    response.data || {
+      items: [],
+      pageNumber,
+      pageSize,
+      totalCount: 0,
+      totalPages: 0,
+    }
+  );
 };
 
 /*
@@ -46,8 +64,8 @@ const approveMaterialConsumption = async (
 };
 
 const materialConsumptionApiService = {
-getMaterialConsumptionApprovals,
-approveMaterialConsumption
+  getMaterialConsumptionApprovals,
+  approveMaterialConsumption,
 };
 
 export default materialConsumptionApiService;
