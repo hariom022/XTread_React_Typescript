@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from "react";
 
 import materialConsumptionApiService from "../services/materialConsumptionApiService";
@@ -5,6 +6,11 @@ import materialConsumptionApiService from "../services/materialConsumptionApiSer
 import type {
   MaterialConsumption,
 } from "../types/materialConsumption.type";
+
+export type MaterialConsumptionStatus =
+  | "all"
+  | "pending"
+  | "approved";
 
 const useMaterialConsumption = () => {
   /*
@@ -22,6 +28,7 @@ const useMaterialConsumption = () => {
    */
 
   const [loading, setLoading] = useState<boolean>(true);
+
   const [error, setError] = useState<string>("");
 
   /*
@@ -40,6 +47,41 @@ const useMaterialConsumption = () => {
 
   /*
    * ==========================================================
+   * STATUS FILTER
+   * ==========================================================
+   *
+   * all      -> isApproved is not sent
+   * pending  -> isApproved=false
+   * approved -> isApproved=true
+   *
+   * Default = all
+   */
+
+  const [status, setStatus] =
+    useState<MaterialConsumptionStatus>("pending");
+
+  /*
+   * ==========================================================
+   * CONVERT STATUS TO API VALUE
+   * ==========================================================
+   */
+
+  const getIsApproved = (
+    selectedStatus: MaterialConsumptionStatus
+  ): boolean | undefined => {
+    if (selectedStatus === "pending") {
+      return false;
+    }
+
+    if (selectedStatus === "approved") {
+      return true;
+    }
+
+    return undefined;
+  };
+
+  /*
+   * ==========================================================
    * FETCH MATERIAL CONSUMPTION
    * ==========================================================
    */
@@ -47,18 +89,28 @@ const useMaterialConsumption = () => {
   const fetchMaterialConsumption = useCallback(
     async (
       page: number = currentPage,
-      size: number = pageSize
+      size: number = pageSize,
+      selectedStatus: MaterialConsumptionStatus = status
     ) => {
       try {
         setLoading(true);
         setError("");
 
+        const isApproved = getIsApproved(selectedStatus);
+
+        console.log("Material Consumption API Filter:", {
+          status: selectedStatus,
+          isApproved,
+          page,
+          pageSize: size,
+        });
+
         const response =
-          await materialConsumptionApiService
-            .getMaterialConsumptionApprovals(
-              page,
-              size
-            );
+          await materialConsumptionApiService.getMaterialConsumptionApprovals(
+            page,
+            size,
+            isApproved
+          );
 
         setData(response.items || []);
 
@@ -84,26 +136,49 @@ const useMaterialConsumption = () => {
         setData([]);
 
         setTotalCount(0);
+
         setTotalPages(0);
       } finally {
         setLoading(false);
       }
     },
-    [currentPage, pageSize]
+    [currentPage, pageSize, status]
   );
 
   /*
    * ==========================================================
-   * INITIAL LOAD
+   * INITIAL LOAD / PAGINATION / STATUS CHANGE
    * ==========================================================
    */
 
   useEffect(() => {
     fetchMaterialConsumption(
       currentPage,
-      pageSize
+      pageSize,
+      status
     );
-  }, [currentPage, pageSize]);
+  }, [
+    currentPage,
+    pageSize,
+    status,
+  ]);
+
+  /*
+   * ==========================================================
+   * CHANGE STATUS
+   * ==========================================================
+   */
+
+  const changeStatus = (
+    newStatus: MaterialConsumptionStatus
+  ) => {
+    setStatus(newStatus);
+
+    /*
+     * Always start from page 1 when filter changes.
+     */
+    setCurrentPage(1);
+  };
 
   /*
    * ==========================================================
@@ -130,6 +205,7 @@ const useMaterialConsumption = () => {
 
   const changePageSize = (size: number) => {
     setPageSize(size);
+
     setCurrentPage(1);
   };
 
@@ -149,15 +225,20 @@ const useMaterialConsumption = () => {
     totalCount,
     totalPages,
 
+    status,
+
     goToPage,
     changePageSize,
+    changeStatus,
 
     refetch: () =>
       fetchMaterialConsumption(
         currentPage,
-        pageSize
+        pageSize,
+        status
       ),
   };
 };
 
 export default useMaterialConsumption;
+

@@ -14,6 +14,9 @@ interface Props {
   totalCount: number;
   totalPages: number;
 
+  status: "all" | "pending" | "approved";
+  onStatusChange: (status: "all" | "pending" | "approved") => void;
+
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
 }
@@ -27,6 +30,9 @@ const MaterialConsumptionTable = ({
   pageSize,
   totalCount,
   totalPages,
+
+  status,
+  onStatusChange,
 
   onPageChange,
   onPageSizeChange,
@@ -194,7 +200,6 @@ const MaterialConsumptionTable = ({
             {/* =================================================
                 TITLE
             ================================================== */}
-
             <div>
               <h2
                 className="mb-1"
@@ -217,30 +222,75 @@ const MaterialConsumptionTable = ({
                 Quality Control Approved Material Consumption
               </p>
             </div>
-
+           
             {/* =================================================
-                SEARCH
-            ================================================== */}
-
+    FILTERS
+================================================== */}
             <div
-              className="input-group"
-              style={{
-                width: "360px",
-                maxWidth: "100%",
-              }}
+              className="
+    d-flex
+    flex-column
+    flex-sm-row
+    align-items-stretch
+    align-items-sm-center
+    gap-2
+  "
             >
-              <span className="input-group-text bg-white">
-                <i className="bi bi-search text-primary" />
-              </span>
+              {/* =================================================
+      STATUS FILTER
+  ================================================== */}
 
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search material consumption..."
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-              />
+              <div
+                className="input-group"
+                style={{
+                  width: "180px",
+                  maxWidth: "100%",
+                }}
+              >
+                <span className="input-group-text bg-white">
+                  <i className="bi bi-funnel text-primary" />
+                </span>
+
+                <select
+                  className="form-select"
+                  value={status}
+                  onChange={(event) =>
+                    onStatusChange(
+                      event.target.value as "all" | "pending" | "approved",
+                    )
+                  }
+                >
+                  <option value="all">All</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                </select>
+              </div>
+
+              {/* =================================================
+      SEARCH
+  ================================================== */}
+
+              <div
+                className="input-group"
+                style={{
+                  width: "360px",
+                  maxWidth: "100%",
+                }}
+              >
+                <span className="input-group-text bg-white">
+                  <i className="bi bi-search text-primary" />
+                </span>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search material consumption..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                />
+              </div>
             </div>
+          
           </div>
 
           {/* =================================================
@@ -257,6 +307,72 @@ const MaterialConsumptionTable = ({
             </div>
           )}
 
+          {/* =====================================================
+              FOOTER
+          ====================================================== */}
+
+          {!loading && filteredMaterialConsumption.length > 0 && (
+            <div className="border-top">
+              <div
+                className="
+                  d-flex
+                  flex-column
+                  flex-md-row
+                  align-items-center
+                  justify-content-between
+                  gap-3
+                "
+              >
+                {/* =================================================
+                    PAGINATION
+                ================================================== */}
+
+                {!loading && totalCount > 0 && (
+                  <div className="border-top px-4 py-3">
+                    <div
+                      className="
+        d-flex
+        flex-column
+        flex-md-row
+        align-items-center
+        justify-content-between
+        gap-3
+      "
+                    >
+                      {/* =================================================
+          RECORD COUNT + PAGE SIZE
+      ================================================== */}
+
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="text-muted">
+                          Showing <strong>{startRecord}</strong> -{" "}
+                          <strong>{endRecord}</strong> of{" "}
+                          <strong>{totalCount}</strong> material consumption
+                          records
+                        </div>
+
+                        {/* PAGE SIZE */}
+
+                        <select
+                          className="form-select form-select-sm"
+                          style={{ width: "90px" }}
+                          value={pageSize}
+                          onChange={(event) =>
+                            onPageSizeChange(Number(event.target.value))
+                          }
+                        >
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           {/* =================================================
               TABLE
           ================================================== */}
@@ -504,147 +620,90 @@ const MaterialConsumptionTable = ({
               </tbody>
             </table>
           </div>
-
-          {/* =====================================================
-              FOOTER
-          ====================================================== */}
-
-          {!loading && filteredMaterialConsumption.length > 0 && (
-            <div className="border-top px-4 py-3">
-              <div
-                className="
+          <div
+            className="
                   d-flex
                   flex-column
                   flex-md-row
                   align-items-center
                   justify-content-between
                   gap-3
+                  mt-2
                 "
-              >
-                {/* =================================================
+          >
+            {/* =================================================
                     RECORD COUNT
                 ================================================== */}
 
-                <div className="text-muted">
-                  Showing <strong>{startRecord}</strong> -{" "}
-                  <strong>{endRecord}</strong> of{" "}
-                  <strong>{filteredMaterialConsumption.length}</strong> material
-                  consumption records
-                </div>
-
-                {/* =================================================
-                    PAGINATION
-                ================================================== */}
-
-                {!loading && totalCount > 0 && (
-                  <div className="border-top px-4 py-3">
-                    <div
-                      className="
-        d-flex
-        flex-column
-        flex-md-row
-        align-items-center
-        justify-content-between
-        gap-3
-      "
-                    >
-                      {/* =================================================
-          RECORD COUNT + PAGE SIZE
-      ================================================== */}
-
-                      <div className="d-flex align-items-center gap-3">
-                        <div className="text-muted">
-                          Showing <strong>{startRecord}</strong> -{" "}
-                          <strong>{endRecord}</strong> of{" "}
-                          <strong>{totalCount}</strong> material consumption
-                          records
-                        </div>
-
-                        {/* PAGE SIZE */}
-
-                        <select
-                          className="form-select form-select-sm"
-                          style={{ width: "90px" }}
-                          value={pageSize}
-                          onChange={(event) =>
-                            onPageSizeChange(Number(event.target.value))
-                          }
-                        >
-                          <option value={10}>10</option>
-                          <option value={20}>20</option>
-                          <option value={50}>50</option>
-                          <option value={100}>100</option>
-                        </select>
-                      </div>
-
-                      {/* =================================================
+            <div className="text-muted">
+              Showing <strong>{startRecord}</strong> -{" "}
+              <strong>{endRecord}</strong> of{" "}
+              <strong>{filteredMaterialConsumption.length}</strong> material
+              consumption records
+            </div>
+            {/* =================================================
           PAGINATION
       ================================================== */}
 
-                      {totalPages > 1 && (
-                        <nav aria-label="Material consumption pagination">
-                          <ul className="pagination mb-0">
-                            {/* PREVIOUS */}
+            {totalPages > 1 && (
+              <nav aria-label="Material consumption pagination">
+                <ul className="pagination mb-0">
+                  {/* PREVIOUS */}
 
-                            <li
-                              className={`page-item ${
-                                currentPage === 1 ? "disabled" : ""
-                              }`}
-                            >
-                              <button
-                                type="button"
-                                className="page-link"
-                                onClick={() => goToPage(currentPage - 1)}
-                                disabled={currentPage === 1}
-                              >
-                                Previous
-                              </button>
-                            </li>
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </button>
+                  </li>
 
-                            {/* PAGE NUMBERS */}
+                  {/* PAGE NUMBERS */}
 
-                            {pageNumbers.map((page) => (
-                              <li
-                                key={page}
-                                className={`page-item ${
-                                  currentPage === page ? "active" : ""
-                                }`}
-                              >
-                                <button
-                                  type="button"
-                                  className="page-link"
-                                  onClick={() => goToPage(page)}
-                                >
-                                  {page}
-                                </button>
-                              </li>
-                            ))}
+                  {pageNumbers.map((page) => (
+                    <li
+                      key={page}
+                      className={`page-item ${
+                        currentPage === page ? "active" : ""
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => goToPage(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  ))}
 
-                            {/* NEXT */}
+                  {/* NEXT */}
 
-                            <li
-                              className={`page-item ${
-                                currentPage === totalPages ? "disabled" : ""
-                              }`}
-                            >
-                              <button
-                                type="button"
-                                className="page-link"
-                                onClick={() => goToPage(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                              >
-                                Next
-                              </button>
-                            </li>
-                          </ul>
-                        </nav>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      className="page-link"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
+          </div>
         </div>
       </div>
 

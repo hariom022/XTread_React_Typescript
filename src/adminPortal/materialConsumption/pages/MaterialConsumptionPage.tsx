@@ -12,8 +12,13 @@ const MaterialConsumptionPage = () => {
     totalCount,
     totalPages,
 
+    status,
+
     goToPage,
     changePageSize,
+    changeStatus,
+
+    refetch,
   } = useMaterialConsumption();
 
   return (
@@ -21,12 +26,12 @@ const MaterialConsumptionPage = () => {
       data={data}
       loading={loading}
       error={error}
-
       currentPage={currentPage}
       pageSize={pageSize}
       totalCount={totalCount}
       totalPages={totalPages}
-
+      status={status}
+      onStatusChange={changeStatus}
       onPageChange={goToPage}
       onPageSizeChange={changePageSize}
     />
