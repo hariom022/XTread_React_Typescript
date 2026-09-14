@@ -66,13 +66,26 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     }
   };
 
-  const loadRepairMaterials = async () => {
+  const loadRepairMaterials = async (serviceTypeId?: number) => {
     try {
-      const result = await repairService.getRepairMaterials();
+      const result = await repairService.getRepairMaterials(serviceTypeId);
 
-      setRepairMaterials(result?.data?.data || []);
+      console.log("SERVICE TYPE ID:", serviceTypeId);
+      console.log("REPAIR MATERIAL RESPONSE:", result?.data);
+
+      const data = result?.data?.data;
+
+      if (Array.isArray(data)) {
+        setRepairMaterials(data);
+      } else if (data) {
+        // API returned a single repair material object
+        setRepairMaterials([data]);
+      } else {
+        setRepairMaterials([]);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load repair materials:", error);
+      setRepairMaterials([]);
     }
   };
 
@@ -100,8 +113,10 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     loadRejectionReasons();
     loadLocations();
     loadDamageTypes();
-    loadRepairMaterials();
-  }, []);
+    if (selectedItem?.serviceTypeId) {
+      loadRepairMaterials(selectedItem.serviceTypeId);
+    }
+  }, [selectedItem]);
 
   const addPatch = () => {
     if (
