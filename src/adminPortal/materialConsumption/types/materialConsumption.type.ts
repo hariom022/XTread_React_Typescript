@@ -1,10 +1,15 @@
 export interface MaterialConsumed {
+  orderCasingMaterialConsumptionId:number;
   material?: string;
   prodHierarchy4?: string;
-  quantity?: number;
+  consumedQuantity?: number;
   unitOfMeasure?: string;
   casingStageName?: string;
   isApproved?: boolean;
+  materialDescription:string;
+  consumptionType:number;
+  recommendedQuantity:number;
+  casingStageId:number;
 }
 
 export interface MaterialConsumption {
@@ -14,7 +19,7 @@ export interface MaterialConsumption {
   productionNumber?: string;
   batchNumber?: string;
   barcodeNumber?: string;
-  customerName?: string;
+  customerName?: string;  
 
   materialConsumed?: MaterialConsumed[];
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import type { MaterialConsumption } from "../types/materialConsumption.type";
 
@@ -27,6 +27,79 @@ const MaterialConsumptionModal = ({
 
   const [approved, setApproved] = useState<boolean>(false);
 
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const [editedMaterials, setEditedMaterials] = useState(
+    materialConsumption?.materialConsumed ?? [],
+  );
+
+  useEffect(() => {
+    setEditedMaterials(materialConsumption?.materialConsumed ?? []);
+    setEditingIndex(null);
+  }, [materialConsumption]);
+
+  const handleEdit = (index: number) => {
+    setEditingIndex(index);
+  };
+
+  const handleConsumedQuantityChange = (index: number, value: string) => {
+    setEditedMaterials((prev) =>
+      prev.map((material, i) =>
+        i === index
+          ? {
+              ...material,
+              consumedQuantity: Number(value),
+            }
+          : material,
+      ),
+    );
+  };
+  
+  const handleSave = async (index: number) => {
+  const material = editedMaterials[index];
+
+  if (!material) {
+    return;
+  }
+
+  if (!material.orderCasingMaterialConsumptionId) {
+    console.error(
+      "orderCasingMaterialConsumptionId is missing."
+    );
+    return;
+  }
+
+  const consumedQuantity = Number(
+    material.consumedQuantity ?? 0
+  );
+
+  if (consumedQuantity < 0) {
+    console.error("Consumed quantity cannot be negative.");
+    return;
+  }
+
+  try {
+    console.log("Updating consumed quantity:", {
+      orderCasingMaterialConsumptionId:
+        material.orderCasingMaterialConsumptionId,
+      consumedQuantity,
+    });
+
+    await materialConsumptionApiService.updateConsumedQuantity(
+      material.orderCasingMaterialConsumptionId,
+      consumedQuantity
+    );
+
+    // API update successful
+    setEditingIndex(null);
+
+  } catch (error) {
+    console.error(
+      "Failed to update consumed quantity:",
+      error
+    );
+  }
+};
   /*
    * ==========================================================
    * APPROVE MATERIAL CONSUMPTION
@@ -88,6 +161,19 @@ const MaterialConsumptionModal = ({
    * ==========================================================
    */
 
+  const calculateDeviation = (
+    recommendedQuantity: number | null | undefined,
+    consumedQuantity: number | null | undefined,
+  ): number => {
+    const recommended = Number(recommendedQuantity ?? 0);
+    const consumed = Number(consumedQuantity ?? 0);
+
+    if (recommended === 0) {
+      return 0;
+    }
+
+    return ((consumed - recommended) / recommended) * 100;
+  };
   return (
     <>
       {/* =====================================================
@@ -285,17 +371,8 @@ const MaterialConsumptionModal = ({
                           padding: "12px 10px",
                         }}
                       >
-                        Prod Hierarchy 4
+                        Material Description
                       </th>
-
-                      {/* <th
-                        className="text-white"
-                        style={{
-                          padding: "12px 10px",
-                        }}
-                      >
-                        Consumption Type
-                      </th> */}
 
                       <th
                         className="text-white"
@@ -303,9 +380,32 @@ const MaterialConsumptionModal = ({
                           padding: "12px 10px",
                         }}
                       >
-                        Quantity
+                        Consumption Type
                       </th>
-
+                      <th
+                        className="text-white"
+                        style={{
+                          padding: "12px 10px",
+                        }}
+                      >
+                        Recommended Quantity
+                      </th>
+                      <th
+                        className="text-white"
+                        style={{
+                          padding: "12px 10px",
+                        }}
+                      >
+                        Consumed Quantity
+                      </th>
+                      <th
+                        className="text-white"
+                        style={{
+                          padding: "12px 10px",
+                        }}
+                      >
+                        % Deviation
+                      </th>
                       <th
                         className="text-white"
                         style={{
@@ -332,13 +432,21 @@ const MaterialConsumptionModal = ({
                       >
                         Approval Status
                       </th>
+                      <th
+                        className="text-white"
+                        style={{
+                          padding: "12px 10px",
+                        }}
+                      >
+                        Action
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody>
                     {materialConsumption.materialConsumed &&
                     materialConsumption.materialConsumed.length > 0 ? (
-                      materialConsumption.materialConsumed.map(
+                      editedMaterials.map(
                         (material, index) => (
                           <tr
                             key={`${materialConsumption.orderCasingId}-${index}`}
@@ -355,22 +463,52 @@ const MaterialConsumptionModal = ({
 
                             {/* Prod Hierarchy */}
 
-                            <td>{material.prodHierarchy4 || "-"}</td>
+                            <td>{material.materialDescription || "-"}</td>
 
                             {/* Consumption Type */}
 
-                            {/* <td>
+                            <td>
                               <span className="badge bg-light text-dark border">
-                                {material.consumptionType}
+                                {material.consumptionType === 1
+                                  ? "Fixed"
+                                  : material.consumptionType === 2
+                                    ? "Variable"
+                                    : "-"}
                               </span>
-                            </td> */}
-
+                            </td>
+                            <td className="fw-semibold">
+                              {material.recommendedQuantity ?? 0}
+                            </td>
                             {/* Quantity */}
 
                             <td className="fw-semibold">
-                              {material.quantity ?? 0}
+                              {editingIndex === index ? (
+                                <input
+                                  type="number"
+                                  className="form-control form-control-sm"
+                                  value={material.consumedQuantity ?? 0}
+                                  min="0"
+                                  step="any"
+                                  onChange={(e) =>
+                                    handleConsumedQuantityChange(
+                                      index,
+                                      e.target.value,
+                                    )
+                                  }
+                                  style={{ width: "120px" }}
+                                />
+                              ) : (
+                                (material.consumedQuantity ?? 0)
+                              )}
                             </td>
 
+                            <td className="fw-semibold">
+                              {calculateDeviation(
+                                material.recommendedQuantity,
+                                material.consumedQuantity,
+                              ).toFixed(2)}
+                              %
+                            </td>
                             {/* Unit */}
 
                             <td>{material.unitOfMeasure || "-"}</td>
@@ -396,6 +534,27 @@ const MaterialConsumptionModal = ({
                                   <i className="bi bi-clock me-1" />
                                   Pending
                                 </span>
+                              )}
+                            </td>
+                            <td>
+                              {editingIndex === index ? (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-success"
+                                  onClick={() => handleSave(index)}
+                                  title="Save"
+                                >
+                                  <i className="bi bi-check-lg"></i>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-primary"
+                                  onClick={() => handleEdit(index)}
+                                  title="Edit"
+                                >
+                                  <i className="bi bi-pencil"></i>
+                                </button>
                               )}
                             </td>
                           </tr>

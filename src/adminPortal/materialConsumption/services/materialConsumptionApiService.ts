@@ -83,9 +83,37 @@ const approveMaterialConsumption = async (
   }
 };
 
+/*
+ * ==========================================================
+ * UPDATE CONSUMED QUANTITY
+ * ==========================================================
+ */
+
+const updateConsumedQuantity = async (
+  orderCasingMaterialConsumptionId: number,
+  consumedQuantity: number
+): Promise<void> => {
+  const response = await apiRequest<ApiResponse<unknown>>(
+    `/sap/material-consumption/consumption/${orderCasingMaterialConsumptionId}/consumed-quantity`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        consumedQuantity,
+      }),
+    }
+  );
+
+  if (!response.success) {
+    throw new Error(
+      response.error || "Failed to update consumed quantity."
+    );
+  }
+};
+
 const materialConsumptionApiService = {
   getMaterialConsumptionApprovals,
   approveMaterialConsumption,
+  updateConsumedQuantity,
 };
 
 export default materialConsumptionApiService;
