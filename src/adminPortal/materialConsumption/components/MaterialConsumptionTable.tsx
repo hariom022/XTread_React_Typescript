@@ -108,7 +108,7 @@ const MaterialConsumptionTable = ({
             (material) =>
               `${material.material}
                ${material.prodHierarchy4}
-               ${material.quantity}
+               ${material.consumedQuantity}
                ${material.unitOfMeasure}
                ${material.casingStageName}`,
           )
