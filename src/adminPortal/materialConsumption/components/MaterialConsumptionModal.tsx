@@ -32,6 +32,7 @@ const MaterialConsumptionModal = ({
   const [editedMaterials, setEditedMaterials] = useState(
     materialConsumption?.materialConsumed ?? [],
   );
+  const [editingQuantity, setEditingQuantity] = useState<string>("");
 
   useEffect(() => {
     setEditedMaterials(materialConsumption?.materialConsumed ?? []);
@@ -39,67 +40,112 @@ const MaterialConsumptionModal = ({
   }, [materialConsumption]);
 
   const handleEdit = (index: number) => {
+    const material = editedMaterials[index];
+
+    if (!material) {
+      return;
+    }
+
+    // Only Variable consumption can be edited
+    if (material.consumptionType !== 2) {
+      return;
+    }
+
     setEditingIndex(index);
+
+    setEditingQuantity(
+      material.consumedQuantity !== undefined &&
+        material.consumedQuantity !== null
+        ? String(material.consumedQuantity)
+        : "",
+    );
   };
 
   const handleConsumedQuantityChange = (index: number, value: string) => {
+    const material = editedMaterials[index];
+
+    if (!material) {
+      return;
+    }
+
+    const unit = material.unitOfMeasure?.trim().toUpperCase();
+
+    /*
+     * ==========================================================
+     * EA -> ONLY WHOLE NUMBERS
+     * KG -> DECIMAL VALUES ALLOWED
+     * ==========================================================
+     */
+
+    if (unit === "EA") {
+      // Only digits allowed for EA
+      if (!/^\d*$/.test(value)) {
+        return;
+      }
+    } else if (unit === "KG") {
+      // Digits + one decimal point allowed for KG
+      if (!/^\d*\.?\d*$/.test(value)) {
+        return;
+      }
+    } else {
+      // Default behaviour for any other unit:
+      // Allow decimal values
+      if (!/^\d*\.?\d*$/.test(value)) {
+        return;
+      }
+    }
+
+    setEditingQuantity(value);
+
     setEditedMaterials((prev) =>
-      prev.map((material, i) =>
+      prev.map((item, i) =>
         i === index
           ? {
-              ...material,
-              consumedQuantity: Number(value),
+              ...item,
+              consumedQuantity: value === "" ? 0 : Number(value),
             }
-          : material,
+          : item,
       ),
     );
   };
-  
+
   const handleSave = async (index: number) => {
-  const material = editedMaterials[index];
+    const material = editedMaterials[index];
 
-  if (!material) {
-    return;
-  }
+    if (!material) {
+      return;
+    }
 
-  if (!material.orderCasingMaterialConsumptionId) {
-    console.error(
-      "orderCasingMaterialConsumptionId is missing."
-    );
-    return;
-  }
+    if (!material.orderCasingMaterialConsumptionId) {
+      console.error("orderCasingMaterialConsumptionId is missing.");
+      return;
+    }
 
-  const consumedQuantity = Number(
-    material.consumedQuantity ?? 0
-  );
+    const consumedQuantity = Number(material.consumedQuantity ?? 0);
 
-  if (consumedQuantity < 0) {
-    console.error("Consumed quantity cannot be negative.");
-    return;
-  }
+    if (consumedQuantity < 0) {
+      console.error("Consumed quantity cannot be negative.");
+      return;
+    }
 
-  try {
-    console.log("Updating consumed quantity:", {
-      orderCasingMaterialConsumptionId:
+    try {
+      console.log("Updating consumed quantity:", {
+        orderCasingMaterialConsumptionId:
+          material.orderCasingMaterialConsumptionId,
+        consumedQuantity,
+      });
+
+      await materialConsumptionApiService.updateConsumedQuantity(
         material.orderCasingMaterialConsumptionId,
-      consumedQuantity,
-    });
+        consumedQuantity,
+      );
 
-    await materialConsumptionApiService.updateConsumedQuantity(
-      material.orderCasingMaterialConsumptionId,
-      consumedQuantity
-    );
-
-    // API update successful
-    setEditingIndex(null);
-
-  } catch (error) {
-    console.error(
-      "Failed to update consumed quantity:",
-      error
-    );
-  }
-};
+      // API update successful
+      setEditingIndex(null);
+    } catch (error) {
+      console.error("Failed to update consumed quantity:", error);
+    }
+  };
   /*
    * ==========================================================
    * APPROVE MATERIAL CONSUMPTION
@@ -446,120 +492,136 @@ const MaterialConsumptionModal = ({
                   <tbody>
                     {materialConsumption.materialConsumed &&
                     materialConsumption.materialConsumed.length > 0 ? (
-                      editedMaterials.map(
-                        (material, index) => (
-                          <tr
-                            key={`${materialConsumption.orderCasingId}-${index}`}
-                          >
-                            {/* # */}
+                      editedMaterials.map((material, index) => (
+                        <tr
+                          key={`${materialConsumption.orderCasingId}-${index}`}
+                        >
+                          {/* # */}
 
-                            <td>{index + 1}</td>
+                          <td>{index + 1}</td>
 
-                            {/* Material */}
+                          {/* Material */}
 
-                            <td className="fw-semibold">
-                              {material.material || "-"}
-                            </td>
+                          <td className="fw-semibold">
+                            {material.material || "-"}
+                          </td>
 
-                            {/* Prod Hierarchy */}
+                          {/* Prod Hierarchy */}
 
-                            <td>{material.materialDescription || "-"}</td>
+                          <td>{material.materialDescription || "-"}</td>
 
-                            {/* Consumption Type */}
+                          {/* Consumption Type */}
 
-                            <td>
-                              <span className="badge bg-light text-dark border">
-                                {material.consumptionType === 1
-                                  ? "Fixed"
-                                  : material.consumptionType === 2
-                                    ? "Variable"
-                                    : "-"}
+                          <td>
+                            <span className="badge bg-light text-dark border">
+                              {material.consumptionType === 1
+                                ? "Fixed"
+                                : material.consumptionType === 2
+                                  ? "Variable"
+                                  : "-"}
+                            </span>
+                          </td>
+                          <td className="fw-semibold">
+                            {material.recommendedQuantity ?? 0}
+                          </td>
+                          {/* Quantity */}
+
+                          <td className="fw-semibold">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                inputMode={
+                                  material.unitOfMeasure
+                                    ?.trim()
+                                    .toUpperCase() === "EA"
+                                    ? "numeric"
+                                    : "decimal"
+                                }
+                                className="form-control form-control-sm"
+                                value={editingQuantity}
+                                onChange={(e) =>
+                                  handleConsumedQuantityChange(
+                                    index,
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder={
+                                  material.unitOfMeasure
+                                    ?.trim()
+                                    .toUpperCase() === "EA"
+                                    ? "Enter whole number"
+                                    : "Enter quantity"
+                                }
+                                style={{ width: "120px" }}
+                              />
+                            ) : (
+                              (material.consumedQuantity ?? 0)
+                            )}
+                          </td>
+
+                          <td className="fw-semibold">
+                            {calculateDeviation(
+                              material.recommendedQuantity,
+                              material.consumedQuantity,
+                            ).toFixed(2)}
+                            %
+                          </td>
+                          {/* Unit */}
+
+                          <td>{material.unitOfMeasure || "-"}</td>
+
+                          {/* Casing Stage */}
+
+                          <td>
+                            <span className="badge bg-light text-primary border">
+                              {material.casingStageName || "-"}
+                            </span>
+                          </td>
+
+                          {/* Approval Status */}
+
+                          <td>
+                            {approved || material.isApproved ? (
+                              <span className="badge bg-success-subtle text-success">
+                                <i className="bi bi-check-circle me-1" />
+                                Approved
                               </span>
-                            </td>
-                            <td className="fw-semibold">
-                              {material.recommendedQuantity ?? 0}
-                            </td>
-                            {/* Quantity */}
-
-                            <td className="fw-semibold">
-                              {editingIndex === index ? (
-                                <input
-                                  type="number"
-                                  className="form-control form-control-sm"
-                                  value={material.consumedQuantity ?? 0}
-                                  min="0"
-                                  step="any"
-                                  onChange={(e) =>
-                                    handleConsumedQuantityChange(
-                                      index,
-                                      e.target.value,
-                                    )
-                                  }
-                                  style={{ width: "120px" }}
-                                />
-                              ) : (
-                                (material.consumedQuantity ?? 0)
-                              )}
-                            </td>
-
-                            <td className="fw-semibold">
-                              {calculateDeviation(
-                                material.recommendedQuantity,
-                                material.consumedQuantity,
-                              ).toFixed(2)}
-                              %
-                            </td>
-                            {/* Unit */}
-
-                            <td>{material.unitOfMeasure || "-"}</td>
-
-                            {/* Casing Stage */}
-
-                            <td>
-                              <span className="badge bg-light text-primary border">
-                                {material.casingStageName || "-"}
+                            ) : (
+                              <span className="badge bg-warning-subtle text-warning-emphasis">
+                                <i className="bi bi-clock me-1" />
+                                Pending
                               </span>
-                            </td>
-
-                            {/* Approval Status */}
-
+                            )}
+                          </td>
+                          <td>
                             <td>
-                              {approved || material.isApproved ? (
-                                <span className="badge bg-success-subtle text-success">
-                                  <i className="bi bi-check-circle me-1" />
-                                  Approved
-                                </span>
+                              {material.consumptionType === 2 ? (
+                                editingIndex === index ? (
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-success"
+                                    onClick={() => handleSave(index)}
+                                    title="Save"
+                                  >
+                                    <i className="bi bi-check-lg"></i>
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() => handleEdit(index)}
+                                    title="Edit"
+                                  >
+                                    <i className="bi bi-pencil"></i>
+                                  </button>
+                                )
                               ) : (
-                                <span className="badge bg-warning-subtle text-warning-emphasis">
-                                  <i className="bi bi-clock me-1" />
-                                  Pending
-                                </span>
+                                <span className="text-muted">-</span>
                               )}
                             </td>
-                            <td>
-                              {editingIndex === index ? (
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-success"
-                                  onClick={() => handleSave(index)}
-                                  title="Save"
-                                >
-                                  <i className="bi bi-check-lg"></i>
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-outline-primary"
-                                  onClick={() => handleEdit(index)}
-                                  title="Edit"
-                                >
-                                  <i className="bi bi-pencil"></i>
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ),
-                      )
+                          </td>
+                        </tr>
+                      ))
                     ) : (
                       <tr>
                         <td colSpan={8} className="text-center py-4 text-muted">
