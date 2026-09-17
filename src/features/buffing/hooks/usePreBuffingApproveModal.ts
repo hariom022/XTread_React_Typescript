@@ -28,10 +28,10 @@ interface Props {
   selectedItem: SelectedItem | null;
   refreshTable: () => void;
   refreshPostTable: () => Promise<void>;
-  onClose:()=>void;
+  onClose: () => void;
 }
 
-const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTable,onClose }: Props) => {
+const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTable, onClose }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const [reason, setReason] = useState("");
@@ -76,24 +76,24 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
   const isChecklistComplete =
     checkedChecklist.length === PRE_BUFFING_CHECKLIST.length;
 
- const resetModal = () => {
-  setReason("");
-  setHoldReason("");
+  const resetModal = () => {
+    setReason("");
+    setHoldReason("");
 
-  setPatterns([]);
+    setPatterns([]);
 
-  setSelectedPatternId("");
-  setSelectedVariantId("");
+    setSelectedPatternId("");
+    setSelectedVariantId("");
 
-  setSelectedWidth("");
-  setSelectedBrand("");
+    setSelectedWidth("");
+    setSelectedBrand("");
 
-  setChecklistSaved(false);
+    setChecklistSaved(false);
 
-  setShowChecklist(false);
+    setShowChecklist(false);
 
-  setCheckedChecklist([]);
-};
+    setCheckedChecklist([]);
+  };
 
   const fetchRejectionReasons = async () => {
     try {
@@ -161,7 +161,7 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
 
       refreshTable();
       refreshPostTable(),
-      resetModal();
+        resetModal();
       onClose();
     } catch (error) {
       console.error(error);
@@ -208,9 +208,9 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
 
       refreshTable();
       refreshPostTable(),
-      resetModal();
+        resetModal();
       onClose();
-     
+
     } catch (error) {
       console.error(error);
 
@@ -221,49 +221,60 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
   };
 
   const handleHold = async () => {
-    // try {
-    //   setLoading(true);
-    //   if (!selectedItem) return;
+    try {
+      setLoading(true);
 
-    //   if (!checklistSaved) {
-    //     alert("Please complete all checklist items");
-    //     return;
-    //   }
+      if (!selectedItem) return;
 
-    //   if (!holdReason) {
-    //     alert("Please select hold reason");
-    //     return;
-    //   }
+      if (!checklistSaved) {
+        alert("Please complete all checklist items");
+        return;
+      }
 
-    //   if (!selectedVariantId) {
-    //     alert("Please select width");
-    //     return;
-    //   }
+      const payload = {
+        orderCasingId: selectedItem.id,
+        casingStage: 7,
+        holdType: 1,
+      };
 
-    //   const payload = {
-    //     orderCasingIds: [selectedItem.id],
+      console.log("Pre-Buffing HOLD Payload:", payload);
 
-    //     action: 3,
+      const response =
+        await buffingStageServiceApi.createHold(payload);
 
-    //     reasonCode: holdReason,
+      console.log(
+        "Pre-Buffing HOLD Response:",
+        response.data
+      );
 
-    //     suggestedTreadPatternVariantId: selectedVariantId,
-    //   };
+      if (response.data?.success) {
+        alert("Hold Successfully");
 
-    //   await buffingStageServiceApi.approveRejectPreBuffing(payload);
+        refreshTable();
+        await refreshPostTable();
 
-    //   alert("Hold Successfully");
+        resetModal();
+        onClose();
+      } else {
+        alert(
+          response.data?.error ||
+          "Hold Failed"
+        );
+      }
+    } catch (error: any) {
+      console.error(
+        "Pre-Buffing HOLD Error:",
+        error
+      );
 
-    //   refreshTable();
-
-    //   resetModal();
-    // } catch (error) {
-    //   console.error(error);
-
-    //   alert("Hold Failed");
-    // } finally {
-    //   setLoading(false);
-    // }
+      alert(
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        "Hold Failed"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {

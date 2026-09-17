@@ -29,9 +29,17 @@ const buffingStageServiceApi = {
 
   approveRejectPostBuffing: (data: any) =>
     api.post("/post-buffing/approve-reject", data),
-  
+
   getOrderCasingById: (orderCasingId: number) =>
     api.get(`/orders/casings/${orderCasingId}`),
+
+  //hold button 
+  createHold: (data: {
+    orderCasingId: number;
+    casingStage: number;
+    holdType: number;
+  }) =>
+    api.post("/holds", data),
 };
 
 export default buffingStageServiceApi;

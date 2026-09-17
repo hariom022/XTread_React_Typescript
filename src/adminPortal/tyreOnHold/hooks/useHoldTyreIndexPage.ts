@@ -40,7 +40,7 @@ export const useHoldTyreIndexPage = (
         result =
           await holdTyreServiceApi.getHoldTyres(4,
             false,
-            
+
           );
       }
 
@@ -50,7 +50,7 @@ export const useHoldTyreIndexPage = (
       else if (activeTab === "shearography") {
         result =
           await holdTyreServiceApi.getHoldTyres(6,
-            false,           
+            false,
           );
       }
 
@@ -59,10 +59,7 @@ export const useHoldTyreIndexPage = (
       // =====================================================
       else if (activeTab === "buffing") {
         result =
-          await holdTyreServiceApi.getHoldTyres(
-            7,        
-            false,           
-          );
+          await holdTyreServiceApi.getPreBuffingHoldTyres();
       }
 
       console.log(
@@ -70,75 +67,107 @@ export const useHoldTyreIndexPage = (
         result
       );
 
-      const apiData =
-        result?.data?.data || [];
+      let transformedData: any[] = [];
 
-      console.log(
-        `${activeTab.toUpperCase()} HOLD DATA:`,
-        apiData
-      );
+      if (activeTab === "buffing") {
+        const stages = result?.data?.data || [];
 
-      // =====================================================
-      // MAP NEW HOLD API FIELDS TO EXISTING TABLE FIELDS
-      // =====================================================
-      const transformedData = apiData.map(
-        (hold: any) => ({
-          holdId: hold.holdId,
-          orderCasingId: hold.orderCasingId,
+        const casings = stages.flatMap(
+          (stage: any) =>
+            stage.batches?.flatMap(
+              (batch: any) =>
+                batch.casings?.map((casing: any) => ({
+                  ...casing,
+                  batchNumber: batch.batchNumber,
+                })) || []
+            ) || []
+        );
 
-          casing:
-            hold.productionNumber || "-",
+        transformedData = casings.map((casing: any) => ({
+          id: casing.orderCasingId,
+          orderCasingId: casing.orderCasingId,
 
-          date:
-            hold.createdAtUtc || "-",
+          casing: casing.productionNumber || "-",
+          date: casing.orderDate || "-",
+          serial: casing.tyreReferenceNumber || "-",
+          dot: casing.dotNumber || "-",
+          patternName: casing.patternName || "-",
+          tyreMakeName: casing.tyreMakeName || "-",
+          tyreSize: casing.tyreSizeLabel || "-",
+          customerName: casing.customerName || "-",
+          service: casing.serviceTypeName || "-",
 
-          serial:
-            hold.tyreReferenceNumber || "-",
+          casingStage: casing.currentStage,
+          currentSubstage: casing.currentSubstage,
+          currentStageStatus: casing.currentStageStatus,
 
-          dot: "-",
+          batchNumber: casing.batchNumber,
 
-          patternName: "-",
+          originalHold: casing,
+        }));
+      } else {
+        // EXISTING NAIL + SHEAROGRAPHY TRANSFORMATION
+        const apiData = result?.data?.data || [];
 
-          tyreMakeName:
-            hold.tyreMakeName || "-",
+        transformedData = apiData.map(
+          (hold: any) => ({
+            holdId: hold.holdId,
+            orderCasingId: hold.orderCasingId,
 
-          tyreSize:
-            hold.tyreSizeLabel || "-",
+            casing:
+              hold.productionNumber || "-",
 
-          customerName:
-            hold.customerName || "-",
+            date:
+              hold.createdAtUtc || "-",
 
-          service:
-            hold.serviceTypeName || "-",
+            serial:
+              hold.tyreReferenceNumber || "-",
 
-          holdType:
-            hold.holdType,
+            dot: "-",
 
-          lpoNumber:
-            hold.lpoNumber,
+            patternName: "-",
 
-          holdDate:
-            hold.date,
+            tyreMakeName:
+              hold.tyreMakeName || "-",
 
-          amount:
-            hold.amount,
+            tyreSize:
+              hold.tyreSizeLabel || "-",
 
-          remarks:
-            hold.remarks,
+            customerName:
+              hold.customerName || "-",
 
-          isApproved:
-            hold.isApproved,
+            service:
+              hold.serviceTypeName || "-",
 
-          casingStage:
-            hold.casingStage,
+            holdType:
+              hold.holdType,
 
-          createdAtUtc:
-            hold.createdAtUtc,
+            lpoNumber:
+              hold.lpoNumber,
 
-          originalHold:
-            hold,
-        })
-      );
+            holdDate:
+              hold.date,
+
+            amount:
+              hold.amount,
+
+            remarks:
+              hold.remarks,
+
+            isApproved:
+              hold.isApproved,
+
+            casingStage:
+              hold.casingStage,
+
+            createdAtUtc:
+              hold.createdAtUtc,
+
+            originalHold:
+              hold,
+          })
+        );
+      }
 
       console.log(
         `${activeTab.toUpperCase()} HOLD TABLE DATA:`,

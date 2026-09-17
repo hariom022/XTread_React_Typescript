@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import holdTyreServiceApi from "../service/holdTyreServiceApi";
 
 type Props = {
     selectedItem: any;
@@ -11,20 +12,128 @@ const PreBuffingPatternApprovalModal = ({
     onClose,
     onApproved,
 }: Props) => {
-    const [changeRequestedPattern, setChangeRequestedPattern] =
-        useState(true);
+    const [changeRequestedPattern, setChangeRequestedPattern] = useState(true);
 
-    const [selectedPattern, setSelectedPattern] =
-        useState("");
+    const [selectedPattern, setSelectedPattern] = useState("");
 
-    const [selectedWidth, setSelectedWidth] =
-        useState("");
+    const [selectedWidth, setSelectedWidth] = useState("");
 
-    const [selectedBrand, setSelectedBrand] =
-        useState("");
+    const [selectedBrand, setSelectedBrand] = useState("");
 
-    const [comments, setComments] =
-        useState("");
+    const [comments, setComments] = useState("");
+    const [casingDetails, setCasingDetails] = useState<any>(null);
+
+    const [loadingCasingDetails, setLoadingCasingDetails] = useState(false);
+
+    const [patternSuggestions, setPatternSuggestions] = useState<any[]>([]);
+    const [loadingPatternSuggestions, setLoadingPatternSuggestions] = useState(false);
+
+    const [patternVariants, setPatternVariants] = useState<any[]>([]);
+    const [loadingPatternVariants, setLoadingPatternVariants] = useState(false);
+
+
+    //get order casing details for the selected item
+    useEffect(() => {
+        const loadCasingDetails = async () => {
+            if (!selectedItem?.orderCasingId) {
+                return;
+            }
+
+            try {
+                setLoadingCasingDetails(true);
+
+                const response =
+                    await holdTyreServiceApi.getOrderCasingById(
+                        selectedItem.orderCasingId
+                    );
+
+                console.log(
+                    "PRE-BUFFING CASING DETAILS:",
+                    response
+                );
+
+                if (response?.data?.success) {
+                    setCasingDetails(
+                        response.data.data
+                    );
+                }
+            } catch (error) {
+                console.error(
+                    "Failed to load casing details:",
+                    error
+                );
+
+                setCasingDetails(null);
+            } finally {
+                setLoadingCasingDetails(false);
+            }
+        };
+
+        loadCasingDetails();
+    }, [selectedItem?.orderCasingId]);
+
+    // =========================================================
+    // GET AVAILABLE TREAD PATTERNS
+    // =========================================================
+    useEffect(() => {
+        const loadTreadPatterns = async () => {
+            if (!casingDetails) {
+                return;
+            }
+
+            const categoryId =
+                casingDetails.category?.categoryId;
+
+            const tyreClassificationId =
+                casingDetails.tyreClassification?.id;
+
+            const isRetread =
+                casingDetails.isRetreaded ?? false;
+
+            const override =
+                casingDetails.retreadDetail?.isPatternOverride ?? false;
+
+            if (!categoryId || !tyreClassificationId) {
+                return;
+            }
+
+            try {
+                setLoadingPatternSuggestions(true);
+
+                const response =
+                    await holdTyreServiceApi.getTreadPatterns(
+                        categoryId,
+                        tyreClassificationId,
+                        isRetread,
+                        override
+                    );
+
+                console.log(
+                    "AVAILABLE TREAD PATTERNS:",
+                    response
+                );
+
+                if (response?.data?.success) {
+                    setPatternSuggestions(
+                        response.data.data || []
+                    );
+                } else {
+                    setPatternSuggestions([]);
+                }
+            } catch (error) {
+                console.error(
+                    "Failed to load tread patterns:",
+                    error
+                );
+
+                setPatternSuggestions([]);
+            } finally {
+                setLoadingPatternSuggestions(false);
+            }
+        };
+
+        loadTreadPatterns();
+    }, [casingDetails]);
 
     const handleApprove = async () => {
         // Pre-Buffing approval API will go here
@@ -74,27 +183,35 @@ const PreBuffingPatternApprovalModal = ({
                                 <div className="modal-info m-0 row text-nowrap">
                                     <div className="col">
                                         <strong>Production No</strong>
-                                        <div>{selectedItem?.casing || "-"}</div>
+                                        <div>
+                                            {casingDetails?.productionNumber || selectedItem?.casing || "-"}
+                                        </div>
                                     </div>
 
                                     <div className="col">
                                         <strong>Tyre Ref No</strong>
-                                        <div>{selectedItem?.serial || "-"}</div>
+                                        <div>
+                                            {casingDetails?.tyreReferenceNumber || selectedItem?.serial || "-"}
+                                        </div>
                                     </div>
 
                                     <div className="col">
                                         <strong>Customer Name</strong>
-                                        <div>{selectedItem?.customerName || "-"}</div>
+                                        <div>
+                                            {casingDetails?.customerName || selectedItem?.customerName || "-"}
+                                        </div>
                                     </div>
 
                                     <div className="col">
                                         <strong>Tyre Size</strong>
-                                        <div>{selectedItem?.tyreSize || "-"}</div>
+                                        <div>
+                                            {casingDetails?.tyreSize?.casingSize || selectedItem?.tyreSize || "-"}
+                                        </div>
                                     </div>
 
                                     <div className="col">
                                         <strong>Requested Pattern</strong>
-                                        <div>{selectedItem?.requestedPattern || "-"}</div>
+                                        <div>{casingDetails?.retreadDetail?.patternName || "-"}</div>
                                     </div>
                                 </div>
 
@@ -118,10 +235,7 @@ const PreBuffingPatternApprovalModal = ({
                                                         <input
                                                             type="text"
                                                             className="form-control"
-                                                            value={
-                                                                selectedItem?.tyreMakeName ||
-                                                                ""
-                                                            }
+                                                            value={casingDetails?.tyreMake?.name || ""}
                                                             readOnly
                                                         />
                                                     </div>
@@ -135,10 +249,7 @@ const PreBuffingPatternApprovalModal = ({
                                                         <input
                                                             type="text"
                                                             className="form-control"
-                                                            value={
-                                                                selectedItem?.model ||
-                                                                ""
-                                                            }
+                                                            value={casingDetails?.model || ""}
                                                             readOnly
                                                         />
                                                     </div>
@@ -152,10 +263,7 @@ const PreBuffingPatternApprovalModal = ({
                                                         <input
                                                             type="text"
                                                             className="form-control"
-                                                            value={
-                                                                selectedItem?.tyreSize ||
-                                                                ""
-                                                            }
+                                                            value={casingDetails?.tyreSize?.casingSize || ""}
                                                             readOnly
                                                         />
                                                     </div>
@@ -182,9 +290,7 @@ const PreBuffingPatternApprovalModal = ({
                                                         <input
                                                             type="text"
                                                             className="form-control"
-                                                            value={
-                                                                selectedItem?.requestedBrand ||
-                                                                ""
+                                                            value={casingDetails?.retreadDetail?.brand || ""
                                                             }
                                                             readOnly
                                                         />
@@ -199,10 +305,7 @@ const PreBuffingPatternApprovalModal = ({
                                                         <input
                                                             type="text"
                                                             className="form-control"
-                                                            value={
-                                                                selectedItem?.requestedPattern ||
-                                                                ""
-                                                            }
+                                                            value={casingDetails?.retreadDetail?.patternName || ""}
                                                             readOnly
                                                         />
                                                     </div>
@@ -216,10 +319,7 @@ const PreBuffingPatternApprovalModal = ({
                                                         <input
                                                             type="text"
                                                             className="form-control"
-                                                            value={
-                                                                selectedItem?.requestedWidth ||
-                                                                ""
-                                                            }
+                                                            value={casingDetails?.retreadDetail?.width ?? ""}
                                                             readOnly
                                                         />
                                                     </div>
@@ -334,15 +434,77 @@ const PreBuffingPatternApprovalModal = ({
                                                 <select
                                                     className="form-select"
                                                     value={selectedPattern}
-                                                    onChange={(e) =>
-                                                        setSelectedPattern(
-                                                            e.target.value
-                                                        )
-                                                    }
+                                                    onChange={async (e) => {
+                                                        const patternId = e.target.value;
+
+                                                        setSelectedPattern(patternId);
+
+                                                        // Reset previous values
+                                                        setSelectedWidth("");
+                                                        setSelectedBrand("");
+                                                        setPatternVariants([]);
+
+                                                        if (!patternId) {
+                                                            return;
+                                                        }
+
+                                                        try {
+                                                            setLoadingPatternVariants(true);
+
+                                                            const response =
+                                                                await holdTyreServiceApi.getTreadPatternVariants(
+                                                                    Number(patternId)
+                                                                );
+
+                                                            console.log(
+                                                                "SELECTED TREAD PATTERN VARIANTS:",
+                                                                response
+                                                            );
+
+                                                            if (response?.data?.success) {
+                                                                const patternData =
+                                                                    response.data.data?.[0];
+
+                                                                const variants =
+                                                                    patternData?.variants || [];
+
+                                                                setPatternVariants(variants);
+
+                                                                // Auto-fill Brand
+                                                                setSelectedBrand(
+                                                                    patternData?.brand || ""
+                                                                );
+                                                            } else {
+                                                                setPatternVariants([]);
+                                                                setSelectedBrand("");
+                                                            }
+                                                        } catch (error) {
+                                                            console.error(
+                                                                "Failed to load tread pattern variants:",
+                                                                error
+                                                            );
+
+                                                            setPatternVariants([]);
+                                                            setSelectedBrand("");
+                                                        } finally {
+                                                            setLoadingPatternVariants(false);
+                                                        }
+                                                    }}
                                                 >
                                                     <option value="">
-                                                        Select Pattern
+                                                        {loadingPatternSuggestions
+                                                            ? "Loading Patterns..."
+                                                            : "Select Pattern"}
                                                     </option>
+
+                                                    {patternSuggestions.map((pattern) => (
+                                                        <option
+                                                            key={pattern.treadPatternId}
+                                                            value={pattern.treadPatternId}
+                                                        >
+                                                            {pattern.brand} - {pattern.patternName}
+                                                        </option>
+                                                    ))}
                                                 </select>
                                             </div>
 
@@ -350,19 +512,31 @@ const PreBuffingPatternApprovalModal = ({
                                                 <label className="form-label fw-semibold">
                                                     Width
                                                 </label>
-
                                                 <select
                                                     className="form-select"
                                                     value={selectedWidth}
                                                     onChange={(e) =>
-                                                        setSelectedWidth(
-                                                            e.target.value
-                                                        )
+                                                        setSelectedWidth(e.target.value)
+                                                    }
+                                                    disabled={
+                                                        !selectedPattern ||
+                                                        loadingPatternVariants
                                                     }
                                                 >
                                                     <option value="">
-                                                        Select Width
+                                                        {loadingPatternVariants
+                                                            ? "Loading Widths..."
+                                                            : "Select Width"}
                                                     </option>
+
+                                                    {patternVariants.map((variant: any) => (
+                                                        <option
+                                                            key={variant.treadPatternVariantId}
+                                                            value={variant.width}
+                                                        >
+                                                            {variant.width}
+                                                        </option>
+                                                    ))}
                                                 </select>
                                             </div>
 
@@ -375,11 +549,7 @@ const PreBuffingPatternApprovalModal = ({
                                                     type="text"
                                                     className="form-control"
                                                     value={selectedBrand}
-                                                    onChange={(e) =>
-                                                        setSelectedBrand(
-                                                            e.target.value
-                                                        )
-                                                    }
+                                                    readOnly
                                                 />
                                             </div>
 
