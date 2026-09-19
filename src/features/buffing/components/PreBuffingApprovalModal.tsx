@@ -1,6 +1,7 @@
 import PreBuffingChecklist from "../components/PreBuffingCheckList";
 import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
 import { RingLoader } from "react-spinners";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface Variant {
   treadPatternVariantId: number;
@@ -132,7 +133,7 @@ const PreBuffingApprovalModal = ({
   casingDetails,
   loading,
 }: Props) => {
-  console.log("showChecklist", casingDetails);
+  const user = useAuthStore((state) => state.user);
 
   return (
     <>
@@ -153,14 +154,18 @@ const PreBuffingApprovalModal = ({
             <div className="modal-header">
               <h5 className="modal-title">PRE BUFFING - APPROVAL</h5>
 
-              <button
-                type="button"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                onClick={() => {
-                  resetModal();
-                }}
-              />
+              <div className="d-flex align-items-center gap-3 ms-auto">
+                <span className="text-white">{user?.userName || "User"}</span>
+
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  data-bs-dismiss="modal"
+                  onClick={() => {
+                    resetModal();
+                  }}
+                />
+              </div>
             </div>
 
             {/* BODY */}
@@ -416,7 +421,10 @@ const PreBuffingApprovalModal = ({
                   <option value="">Select Rejection Reason</option>
 
                   {rejectionReasons.map((item) => (
-                    <option key={item.rejectionReasonId} value={item.rejectionReasonId}>
+                    <option
+                      key={item.rejectionReasonId}
+                      value={item.rejectionReasonId}
+                    >
                       {item.reason}
                     </option>
                   ))}

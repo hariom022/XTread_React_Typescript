@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import buildingServiceApi from "../service/buildingServiceApi";
+import type { Materials } from "../type/building.types";
 
 interface Props {
   selectedItem: any;
@@ -16,6 +17,42 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
   const [widthOptions, setWidthOptions] = useState<number[]>([]);
   const [processing, setProcessing] = useState(false);
 
+  const [rubberList, setRubberList] = useState<Materials[]>([]);
+
+  const [cushionGumList, setCushionGumList] = useState<Materials[]>([]);
+
+  const fetchRubbers = async () => {
+    try {
+      const prodHierarchy4 = "000060000800001005";
+      setProcessing(true);
+
+      var res = await buildingServiceApi.getRubber(prodHierarchy4);
+      setRubberList(res.data.data);
+    } catch (err) {
+      throw err;
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const fetchCushionGum = async () => {
+    try {
+      const prodHierarchy4 = "000060000800001007";
+      setProcessing(true);
+
+      var res = await buildingServiceApi.getCushionGum(prodHierarchy4);
+      setCushionGumList(res.data.data);
+    } catch (err) {
+      throw err;
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRubbers();
+    fetchCushionGum();
+  }, []);
   // ==========================
   // LOAD WIDTHS
   // ==========================
@@ -44,7 +81,10 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     setWidthOptions([]);
   };
 
-  const handleApprove = async () => {
+  const handleApprove = async (
+    selectedRubber: string,
+    selectedCushionGum: string,
+  ) => {
     try {
       setProcessing(true);
       if (!selectedItem) return;
@@ -57,14 +97,34 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
         return;
       }
 
+      const materialConsumptions = [];
+
+      if (selectedRubber) {
+        materialConsumptions.push({
+          prodHierarchy4: "000060000800001005",
+          material: selectedRubber,
+          consumptionType: 1,
+        });
+      }
+
+      if (selectedCushionGum) {
+        materialConsumptions.push({
+          prodHierarchy4: "000060000800001007",
+          material: selectedCushionGum,
+          consumptionType: 1,
+        });
+      }
+
       const payload = {
-        orderCasingIds: [String(selectedItem.id)],
+        orderCasingIds: [Number(selectedItem.id)],
 
         isApproved: true,
 
-        width: isRetread ? Number(selectedWidth) : null,
+        width: isRetread ? selectedWidth : null,
 
-        rejectionReasonCode: null,
+        rejectionReasonId: "-0",
+
+        materialConsumptions,
       };
 
       console.log("HANDLE APPROVED PAYLOAD:=->", selectedItem);
@@ -85,7 +145,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       console.error("STATUS", error?.response?.status);
 
       alert(JSON.stringify(error?.response?.data));
-    }finally{
+    } finally {
       setProcessing(false);
     }
   };
@@ -96,9 +156,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       if (!selectedItem) return;
 
       const payload = {
-        orderCasingIds: [
-          Number(selectedItem.orderCasingId ?? selectedItem.id),
-        ],
+        orderCasingIds: [Number(selectedItem.orderCasingId ?? selectedItem.id)],
       };
 
       console.log("RETURN TO REPAIR PAYLOAD", payload);
@@ -117,11 +175,8 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       console.error("RESPONSE", error?.response);
       console.error("DATA", error?.response?.data);
 
-      alert(
-        error?.response?.data ||
-        "Return To Repair Failed"
-      );
-    }finally{
+      alert(error?.response?.data || "Return To Repair Failed");
+    } finally {
       setProcessing(false);
     }
   };
@@ -147,6 +202,8 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     handleApprove,
     handleReturnToRepair,
     processing,
+    rubberList,
+    cushionGumList,
   };
 };
 

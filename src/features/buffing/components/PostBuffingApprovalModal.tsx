@@ -2,6 +2,7 @@ import PostBuffingChecklist from "./PostBuffingChecklist";
 import type { OrderCasingDetails } from "../../../shared/types/OrderCasingDetails";
 import { RingLoader } from "react-spinners";
 import { useEffect } from "react";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface Machine {
   machineId: number;
@@ -147,7 +148,7 @@ const PostBuffingApprovalModal = ({
   setPostChecklistSaved,
   casingDetails,
 }: Props) => {
-
+const user = useAuthStore((state) => state.user);
   useEffect(() => {
   if (
     casingDetails?.retreadDetail?.treadPatternVariantId &&
@@ -175,7 +176,7 @@ const PostBuffingApprovalModal = ({
               POST BUFFING - APPROVAL
             </h5>
             <div className="me-3 text-white text-end">
-              <div>John</div>
+              <div>{user?.userName || "User"}</div>
             </div>
             <button
               type="button"

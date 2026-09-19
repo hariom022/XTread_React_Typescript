@@ -3,7 +3,7 @@ import { shearographyColumns } from "../constants/shearographyColumns";
 // import { visualInspectionColumns }
 // import { indexPageColumns } from "../../../shared/constants/indexPageColumns"; 
 
-const VisualInspectionTable = ({
+const ShearographyTable = ({
   data,
   onInspect,
 }: any) => {
@@ -16,4 +16,4 @@ const VisualInspectionTable = ({
   );
 };
 
-export default VisualInspectionTable;
+export default ShearographyTable;

@@ -16,7 +16,7 @@ const shearographyService = {
     api.get(`/rejection-reasons?currentStage=${6}`),
 
   // 🔹 Approve / Reject
-  handleApprovalRejection: (data:any) =>
+  handleApprovalRejection: (data: any) =>
     api.post(
       `/shearography/approve-reject`,
       data,
@@ -26,6 +26,13 @@ const shearographyService = {
         },
       }
     ),
+
+  // 🔹 Hold - LPO / Payment
+  createHold: (data: {
+    orderCasingId: string;
+    casingStage: number;
+    holdType: number;
+  }) => api.post(`/holds`, data),
 
 };
 

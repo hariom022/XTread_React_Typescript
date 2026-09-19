@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
 
 import repairService from "../services/repairService";
+import { useAuthStore } from "../../auth/store/authStore";
 
 type PatchDetail = {
-  repairLocation: string;
-  damageType: string;
-  repairMaterial: string;
-  patchSize: string;
+  repairLocationId: number;
+  damageTypeId: number;
+  repairMaterialId: number;
+  patchSizeId: number;
+
+  patchSizeName: string;
 };
 
 type Props = {
@@ -17,6 +20,8 @@ type Props = {
 };
 
 const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
+  const user = useAuthStore((state) => state.user);
+
   const [loading, setLoading] = useState(false);
 
   const [rejectionReasons, setRejectionReasons] = useState<any[]>([]);
@@ -26,10 +31,11 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
   const [patchDetails, setPatchDetails] = useState<PatchDetail[]>([]);
 
   const [newPatch, setNewPatch] = useState<PatchDetail>({
-    repairLocation: "",
-    damageType: "",
-    repairMaterial: "",
-    patchSize: "",
+    repairLocationId: 0,
+    damageTypeId: 0,
+    repairMaterialId: 0,
+    patchSizeId: 0,
+    patchSizeName: "",
   });
 
   const [locations, setLocations] = useState<any[]>([]);
@@ -60,13 +66,26 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     }
   };
 
-  const loadRepairMaterials = async () => {
+  const loadRepairMaterials = async (serviceTypeId?: number) => {
     try {
-      const result = await repairService.getRepairMaterials();
+      const result = await repairService.getRepairMaterials(serviceTypeId);
 
-      setRepairMaterials(result?.data?.data || []);
+      console.log("SERVICE TYPE ID:", serviceTypeId);
+      console.log("REPAIR MATERIAL RESPONSE:", result?.data);
+
+      const data = result?.data?.data;
+
+      if (Array.isArray(data)) {
+        setRepairMaterials(data);
+      } else if (data) {
+        // API returned a single repair material object
+        setRepairMaterials([data]);
+      } else {
+        setRepairMaterials([]);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load repair materials:", error);
+      setRepairMaterials([]);
     }
   };
 
@@ -80,16 +99,6 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     }
   };
 
-  useEffect(() => {
-    loadRejectionReasons();
-
-    loadLocations();
-
-    loadDamageTypes();
-
-    loadRepairMaterials();
-  }, []);
-
   const loadRejectionReasons = async () => {
     try {
       const result = await repairService.getRejectionReasons();
@@ -100,24 +109,53 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     }
   };
 
+  useEffect(() => {
+    loadRejectionReasons();
+    loadLocations();
+    loadDamageTypes();
+    if (selectedItem?.serviceTypeId) {
+      loadRepairMaterials(selectedItem.serviceTypeId);
+    }
+  }, [selectedItem]);
+
   const addPatch = () => {
     if (
-      !newPatch.repairLocation ||
-      !newPatch.damageType ||
-      !newPatch.repairMaterial ||
-      !newPatch.patchSize
+      !newPatch.repairLocationId ||
+      !newPatch.damageTypeId ||
+      !newPatch.repairMaterialId ||
+      !newPatch.patchSizeId
     ) {
       alert("Please select all fields");
       return;
     }
 
-    setPatchDetails((prev) => [...prev, newPatch]);
+    const selectedPatchSize = patchSizes.find(
+      (item) => item.patchSizeId === newPatch.patchSizeId,
+    );
+
+    if (!selectedPatchSize) {
+      alert("Please select a valid Patch Size");
+      return;
+    }
+
+    const patchToAdd: PatchDetail = {
+      repairLocationId: newPatch.repairLocationId,
+      damageTypeId: newPatch.damageTypeId,
+      repairMaterialId: newPatch.repairMaterialId,
+      patchSizeId: newPatch.patchSizeId,
+
+      // Save the display name permanently
+      patchSizeName: selectedPatchSize.displayName,
+    };
+
+    setPatchDetails((prev) => [...prev, patchToAdd]);
 
     setNewPatch({
-      repairLocation: "",
-      damageType: "",
-      repairMaterial: "",
-      patchSize: "",
+      repairLocationId: 0,
+      damageTypeId: 0,
+      repairMaterialId: 0,
+      patchSizeId: 0,
+      patchSizeName: "",
     });
   };
 
@@ -131,6 +169,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
         alert("Please select rejection reason");
         return;
       }
+
       setLoading(true);
 
       const inspectionRows = selectedItem?.repairDetail?.length || 0;
@@ -146,15 +185,22 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       }
 
       const payload = {
-        orderCasingIds: [String(selectedItem.orderCasingId ?? selectedItem.id)],
+        orderCasingIds: [Number(selectedItem.orderCasingId ?? selectedItem.id)],
 
         isApproved,
 
         rejectionReasonCode: isApproved ? null : rejectionReason,
 
-        patchDetails,
+        patchDetails: patchDetails.map((item) => ({
+          repairLocationId: item.repairLocationId,
+          damageTypeId: item.damageTypeId,
+          repairMaterialId: item.repairMaterialId,
+          patchSizeId: item.patchSizeId,
+        })),
       };
+
       console.log("payload Repair", payload);
+
       await repairService.approveReject(payload);
 
       alert(isApproved ? "Approved Successfully" : "Rejected Successfully");
@@ -202,7 +248,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
               <div className="d-flex align-items-center gap-3">
                 <div className="text-end">
-                  <div>John Doe</div>
+                  <div>{user?.userName || "User"}</div>
                 </div>
 
                 <button
@@ -218,33 +264,29 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
               <div className="modal-info p-1 repairs-top row text-nowrap">
                 <div className="col">
                   <strong>Production No</strong>
-
                   <div>{selectedItem?.productionNumber}</div>
                 </div>
 
                 <div className="col">
                   <strong>Tyre Ref No</strong>
-
                   <div>{selectedItem?.tyreReferenceNumber}</div>
                 </div>
 
                 <div className="col-2">
                   <strong>Customer Name</strong>
-
                   <div>{selectedItem?.customerName}</div>
                 </div>
 
                 <div className="col">
                   <strong>Tyre Size</strong>
-
                   <div>{selectedItem?.tyreSize}</div>
                 </div>
 
                 <div className="col">
                   <strong>Requested Pattern</strong>
-
                   <div>{selectedItem?.requestedPattern}</div>
                 </div>
+
                 <div className="col">
                   <strong>ReApproved Pattern</strong>
                   <div>{selectedItem?.reApprovedPattern || "-"}</div>
@@ -268,7 +310,8 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                           <span>Repair Details - Patches</span>
 
                           <span>
-                            Total Found : {selectedItem.repairDetail.length}
+                            Total Found :{" "}
+                            {selectedItem?.repairDetail?.length || 0}
                           </span>
                         </div>
                       </div>
@@ -286,12 +329,9 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                           <thead>
                             <tr className="bg-new">
                               <th>Sr. No.</th>
-                              {/* <th>Reason For Removal</th> */}
-
+                              <th>Reason For Removal</th>
                               <th>Damage Type</th>
-
                               <th>Repair Location</th>
-
                               <th>Found At Location</th>
                             </tr>
                           </thead>
@@ -302,12 +342,9 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                                 (item: any, index: number) => (
                                   <tr key={index}>
                                     <td>{index + 1}</td>
-                                    {/* <td>{item.reasonForRemoval}</td> */}
-
+                                    <td>{item.reasonForRemoval}</td>
                                     <td>{item.damageType}</td>
-
                                     <td>{item.repairLocation}</td>
-
                                     <td>{item.foundAt}</td>
                                   </tr>
                                 ),
@@ -330,105 +367,123 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                       <div className="col-md-8">
                         <div className="form-panel">
                           <div className="row g-3">
+                            {/* LOCATION */}
+
+                            <div className="col-md-6">
+                              <label>Location</label>
+
+                              <select
+                                className="form-select"
+                                value={newPatch.repairLocationId}
+                                onChange={(e) =>
+                                  setNewPatch({
+                                    ...newPatch,
+                                    repairLocationId: Number(e.target.value),
+                                  })
+                                }
+                              >
+                                <option value={0}>--- Location ---</option>
+
+                                {locations.map((item) => (
+                                  <option key={item.id} value={item.id}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* DAMAGE TYPE */}
 
                             <div className="col-md-6">
                               <label>Damage Type</label>
 
                               <select
                                 className="form-select"
-                                value={newPatch.damageType}
+                                value={newPatch.damageTypeId}
                                 onChange={(e) =>
                                   setNewPatch({
                                     ...newPatch,
-                                    damageType: e.target.value,
+                                    damageTypeId: Number(e.target.value),
                                   })
                                 }
                               >
-                                <option value="">--- Damage Type ---</option>
+                                <option value={0}>--- Damage Type ---</option>
 
                                 {damageTypes.map((item) => (
-                                  <option key={item.id} value={item.name}>
+                                  <option key={item.id} value={item.id}>
                                     {item.name}
                                   </option>
                                 ))}
                               </select>
                             </div>
-                            <div className="col-md-6">
-                              <label>Location</label>
 
-                              <select
-                                className="form-select"
-                                value={newPatch.repairLocation}
-                                onChange={(e) =>
-                                  setNewPatch({
-                                    ...newPatch,
-                                    repairLocation: e.target.value,
-                                  })
-                                }
-                              >
-                                <option value="">--- Location ---</option>
-
-                                {locations.map((item) => (
-                                  <option key={item.id} value={item.name}>
-                                    {item.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
+                            {/* REPAIR MATERIAL */}
 
                             <div className="col-md-6">
                               <label>Repair Material</label>
 
                               <select
                                 className="form-select"
-                                value={newPatch.repairMaterial}
+                                value={newPatch.repairMaterialId}
                                 onChange={async (e) => {
-                                  const selectedMaterial = repairMaterials.find(
-                                    (x) => x.name === e.target.value,
+                                  const repairMaterialId = Number(
+                                    e.target.value,
                                   );
 
                                   setNewPatch({
                                     ...newPatch,
-                                    repairMaterial: e.target.value,
-                                    patchSize: "",
+                                    repairMaterialId,
+                                    patchSizeId: 0,
                                   });
 
-                                  if (selectedMaterial) {
-                                    await loadPatchSizes(selectedMaterial.id);
+                                  setPatchSizes([]);
+
+                                  if (repairMaterialId) {
+                                    await loadPatchSizes(repairMaterialId);
                                   }
                                 }}
                               >
-                                <option value="">
+                                <option value={0}>
                                   --- Repair Material ---
                                 </option>
 
                                 {repairMaterials.map((item) => (
-                                  <option key={item.id} value={item.name}>
+                                  <option key={item.id} value={item.id}>
                                     {item.name}
                                   </option>
                                 ))}
                               </select>
                             </div>
 
+                            {/* PATCH SIZE */}
+
                             <div className="col-md-6">
                               <label>Patch Size</label>
 
                               <select
                                 className="form-select"
-                                value={newPatch.patchSize}
-                                onChange={(e) =>
+                                value={newPatch.patchSizeId}
+                                onChange={(e) => {
+                                  const patchSizeId = Number(e.target.value);
+
+                                  const selectedPatchSize = patchSizes.find(
+                                    (item) => item.patchSizeId === patchSizeId,
+                                  );
+
                                   setNewPatch({
                                     ...newPatch,
-                                    patchSize: e.target.value,
-                                  })
-                                }
+                                    patchSizeId,
+                                    patchSizeName:
+                                      selectedPatchSize?.displayName || "",
+                                  });
+                                }}
                               >
-                                <option value="">--- Patch Size ---</option>
+                                <option value={0}>--- Patch Size ---</option>
 
                                 {patchSizes.map((item) => (
                                   <option
                                     key={item.patchSizeId}
-                                    value={item.displayName}
+                                    value={item.patchSizeId}
                                   >
                                     {item.displayName}
                                   </option>
@@ -443,6 +498,8 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                           >
                             Add Patch Details
                           </button>
+
+                          {/* PATCH TABLE */}
 
                           <div className="table-panel mt-2">
                             <table className="table table-bordered text-center align-middle mb-0 compact-table">
@@ -463,28 +520,46 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                                     <td colSpan={6}>No repair patches added</td>
                                   </tr>
                                 ) : (
-                                  patchDetails.map((item, index) => (
-                                    <tr key={index}>
-                                      <td>{index + 1}</td>
+                                  patchDetails.map((item, index) => {
+                                    const location = locations.find(
+                                      (x) => x.id === item.repairLocationId,
+                                    );
 
-                                      <td>{item.repairLocation}</td>
+                                    const damageType = damageTypes.find(
+                                      (x) => x.id === item.damageTypeId,
+                                    );
 
-                                      <td>{item.repairMaterial}</td>
+                                    const material = repairMaterials.find(
+                                      (x) => x.id === item.repairMaterialId,
+                                    );
 
-                                      <td>{item.patchSize}</td>
+                                    // const patchSize = patchSizes.find(
+                                    //   (x) => x.patchSizeId === item.patchSizeId,
+                                    // );
 
-                                      <td>{item.damageType}</td>
+                                    return (
+                                      <tr key={index}>
+                                        <td>{index + 1}</td>
 
-                                      <td>
-                                        <button
-                                          className="btn btn-danger btn-sm"
-                                          onClick={() => removePatch(index)}
-                                        >
-                                          Remove
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  ))
+                                        <td>{location?.name || "-"}</td>
+
+                                        <td>{material?.name || "-"}</td>
+
+                                        <td>{item.patchSizeName || "-"}</td>
+
+                                        <td>{damageType?.name || "-"}</td>
+
+                                        <td>
+                                          <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => removePatch(index)}
+                                          >
+                                            Remove
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })
                                 )}
                               </tbody>
                             </table>

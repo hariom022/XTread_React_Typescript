@@ -1,6 +1,7 @@
 import type { RefObject } from "react";
 
 import "../style/skivingStage.css";
+import { useAuthStore } from "../../auth/store/authStore";
 
 interface Props {
   modalRef: RefObject<HTMLDivElement | null>;
@@ -53,6 +54,8 @@ const SkivingApprovalModal = ({
 
   resetModal,
 }: Props) => {
+  const user = useAuthStore((state) => state.user);
+
   const hasRepairs =
     selectedItem?.repairOperations
       ?.length > 0;
@@ -73,7 +76,7 @@ const SkivingApprovalModal = ({
             </h5>
 
             <div className="me-3 text-white text-end">
-              <div>John</div>
+             <div>{user?.userName || "User"}</div>
             </div>
 
             <button
