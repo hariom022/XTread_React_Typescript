@@ -5,6 +5,7 @@ import type {
   LoginResponse,
   User,
   MyPermissionsApiResponse,
+  RefreshTokenResponse
 } from "../types/authTypes";
 
 const authService = {
@@ -41,6 +42,32 @@ const authService = {
       "/auth/my-permissions"
     );
   },
+  /**
+   * Refresh Token (hits POST /auth/refresh)
+   */
+  async refresh(refreshToken: string): Promise<RefreshTokenResponse> {
+    return apiRequest<RefreshTokenResponse>(
+      "/auth/refresh",
+      {
+        method: "POST",
+        body: JSON.stringify({ refreshToken }),
+      }
+    );
+  },
+
+  /**
+   * Logout (hits POST /auth/logout)
+   */
+  async logout(refreshToken?: string): Promise<void> {
+    return apiRequest<void>(
+      "/auth/logout",
+      {
+        method: "POST",
+        body: JSON.stringify({ refreshToken }),
+      }
+    );
+  },
 };
+
 
 export default authService;

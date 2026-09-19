@@ -19,7 +19,7 @@ import Login from "./features/auth/pages/Login";
 import { useAuthStore } from "./features/auth/store/authStore";
 
 import AccessDenied from "./shared/components/AccessDenied";
-
+import { useIdleTimer } from "./shared/hooks/useIdleTimer";
 /* =========================================
    LAYOUTS
 ========================================= */
@@ -154,8 +154,20 @@ function AuthInitializer() {
 
 function AppContent() {
   const location = useLocation();
+const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout); // <-- 2. GET LOGOUT ACTION
 
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // 3. ATTACH THE 5-MINUTE IDLE LISTENER
+  useIdleTimer({
+    timeoutMs: 5 * 60 * 1000, // 5 minutes
+    onIdle: () => {
+      if (isAuthenticated) {
+        logout();
+        window.location.href = "/login";
+      }
+    },
+  });
+  // const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
