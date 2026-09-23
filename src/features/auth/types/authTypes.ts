@@ -29,10 +29,33 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  // token: string;
+  // user?: User;
   token: string;
+  expiresAtUtc: string;
+  refreshToken: string;
+  refreshTokenExpiresAtUtc: string;
+  userId: string;
+  email: string;
+  userName: string;
+  fullName: string;
+  roleId: number;
+  roleName: string;
   user?: User;
 }
-
+// Response for POST /api/auth/refresh
+export interface RefreshTokenResponse {
+  token: string;
+  expiresAtUtc: string;
+  refreshToken: string;
+  refreshTokenExpiresAtUtc: string;
+  userId: string;
+  email: string;
+  userName: string;
+  fullName: string;
+  roleId: number;
+  roleName: string;
+}
 export interface MyPermissionsResponse {
   roleId: number;
   roleName: string;

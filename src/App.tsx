@@ -19,7 +19,7 @@ import Login from "./features/auth/pages/Login";
 import { useAuthStore } from "./features/auth/store/authStore";
 
 import AccessDenied from "./shared/components/AccessDenied";
-
+import { useIdleTimer } from "./shared/hooks/useIdleTimer";
 /* =========================================
    LAYOUTS
 ========================================= */
@@ -72,6 +72,7 @@ import DispatchStage from "./features/dispatch/page/DispatchStage";
 import CustomerDispatchApprovePage from "./features/customerDispatchApproval/pages/CustomerDispatchApprovePage";
 
 import MountingStage from "./features/mounting/page/MountingStage";
+import RolesPage from "./master-modules/roles/page/RolesPage";
 
 /* =========================================
    MASTER MODULES
@@ -111,6 +112,7 @@ import RoleModuleMapping from "./master-modules/roleModuleMapping/page/RoleModul
 import UserRegistrationPage from "./adminPortal/users/page/UserManagementPage";
 import CourierServices from "./master-modules/courier-services/pages/CourierServices";
 import Drivers from "./master-modules/drivers/page/Drivers";
+import MaterialConsumptionPage from "./adminPortal/materialConsumption/pages/MaterialConsumptionPage";
 /* =========================================================
    AUTH INITIALIZER
 ========================================================= */
@@ -153,8 +155,20 @@ function AuthInitializer() {
 
 function AppContent() {
   const location = useLocation();
+const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout); // <-- 2. GET LOGOUT ACTION
 
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // 3. ATTACH THE 5-MINUTE IDLE LISTENER
+  useIdleTimer({
+    timeoutMs: 5 * 60 * 1000, // 5 minutes
+    onIdle: () => {
+      if (isAuthenticated) {
+        logout();
+        window.location.href = "/login";
+      }
+    },
+  });
+  // const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -317,6 +331,36 @@ function AppContent() {
                 />
 
                 <Route path="/pressuretest" element={<PressureTestPage />} />
+                <Route path="/shearography" element={<ShearographyPage />} />
+                <Route path="/buffing" element={<BuffingStage />} />
+                <Route path="/skiving" element={<SkivingStage />} />
+                <Route path="/cementing" element={<CementingPage />} />
+                <Route path="/fillUp" element={<FillUpStage />} />
+                <Route path="/building" element={<BuildingStage />} />
+                <Route path="/repairs" element={<RepairPage />} />
+                <Route path="/treadBench" element={<TreadBenchPage />} />
+                <Route path="/enveloping" element={<EnvelopingStage />} />
+                 <Route path="/mounting" element={<MountingStage />} />
+                <Route path="/curing" element={<CuringStage />} />
+                <Route path="/qualityControl" element={<QualityControl />} />
+                <Route path="/dispatch" element={<DispatchStage />} />
+                <Route path="/adminPortal/rejectedTyres" element={<RejectedTyres />} /> 
+                <Route path="/adminPortal/byPassTyres" element={<ByPassTyres />} />
+                {/* MASTER MODULES */}
+                <Route path="/customer" element={<CustomersPage />} />
+                <Route path="/serviceType" element={<ServiceTypesPage />} />
+                <Route path="/tyreMake" element={<TyreMakesPage />} />
+                <Route path="/machine" element={<MachinesPage />} />
+                <Route path="/rejectionReason" element={<RejectionReasonsPage />} />
+                <Route path="/Autoclave" element={<AutoclavesPage/>} />
+                <Route path="/damageLevel" element={<DamageLevelsPage/>} />
+                <Route path="/damageType" element={<DamageTypesPage/>} />
+                <Route path="/repairMaterial" element={<RepairMaterialsPage/>} />
+                <Route path="/tyreSize" element={<TyreSizesPage/>} />
+                <Route path="/category" element={<CategoriesPage/>} />
+                <Route path="/roles" element={<RolesPage/>} />
+                
+                <Route path="/pressuretest" element={<PressureTestPage />} />
 
                 <Route path="/shearography" element={<ShearographyPage />} />
 
@@ -363,7 +407,9 @@ function AppContent() {
                   path="/adminPortal/byPassTyres"
                   element={<ByPassTyres />}
                 />
+                    <Route path="/materialConsumption" element={<MaterialConsumptionPage />} />
                 <Route path="/users" element={<UserRegistrationPage />} />
+            
                 {/* =====================================
                     MASTER MODULES
                 ===================================== */}

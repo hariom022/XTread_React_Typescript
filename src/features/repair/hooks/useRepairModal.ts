@@ -30,6 +30,8 @@ export const useRepairModal = () => {
         customerName: casing.customerName,
 
         service: casing.serviceType?.name || "-",
+        
+        serviceTypeId: casing.serviceType.id,
 
         tyreSize: casing.tyreSize?.casingSize || "-",
 
