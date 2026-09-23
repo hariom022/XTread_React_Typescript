@@ -1,5 +1,5 @@
 import SignatureCanvas from "react-signature-canvas";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { RingLoader } from "react-spinners";
 
 import customerApprovalService from "../services/customerApprovalService";
@@ -31,7 +31,7 @@ const CustomerApprovalModal = ({
   const [emailExtension, setEmailExtension] = useState("com");
 
   const [saving, setSaving] = useState(false);
-
+  const [email, setEmail] = useState("");
   // ============================================================
   // NEW UI FIELDS
   // These are currently UI-only and are NOT added to API payload.
@@ -48,6 +48,11 @@ const CustomerApprovalModal = ({
       ? `${emailName}@${emailDomain}.${emailExtension}`
       : "";
 
+  const order = selectedOrder?.items?.[0];
+
+  useEffect(() => {
+    setEmail(order?.customer?.email || "");
+  }, [order?.customer?.email]);
 
   const handleApprove = async () => {
     try {
@@ -81,7 +86,7 @@ const CustomerApprovalModal = ({
         return;
       }
       // VALIDATE EMAIL CONDITION
-      if (!order?.customer?.email?.trim()) {
+      if (!email.trim()) {
         alert("Customer email address is required.");
         return;
       }
@@ -120,7 +125,7 @@ const CustomerApprovalModal = ({
 
         phoneNumber: `${countryCode}${order?.customer?.mobileNumber || ""}`.trim(),
 
-        emailAddress: (order?.customer?.email || "").trim(),
+        emailAddress: email.trim(),
 
         casingCondition: casingCondition.trim(),
 
@@ -165,8 +170,6 @@ const CustomerApprovalModal = ({
   // ============================================================
   // DISPLAY DATA
   // ============================================================
-
-  const order = selectedOrder?.items?.[0];
 
   const orderNumber =
     order?.orderNumber || selectedOrder?.orderNo || "-";
@@ -319,28 +322,28 @@ const CustomerApprovalModal = ({
                         {/* ORDER DATE */}
                         <div className="col-7">
                           {/* <div className="border rounded-3 p-3 bg-white"> */}
-                            <div className="text-muted small fw-semibold mb-2 d-block text-secondary">
-                              <i className="bi bi-calendar3 me-1"></i>
-                              Order Date
-                            </div>
+                          <div className="text-muted small fw-semibold mb-2 d-block text-secondary">
+                            <i className="bi bi-calendar3 me-1"></i>
+                            Order Date
+                          </div>
 
-                            <div className="fw-semibold d-flex align-items-center gap-1">
-                              {orderDate}
-                            </div>
+                          <div className="fw-semibold d-flex align-items-center gap-1">
+                            {orderDate}
+                          </div>
                           {/* </div> */}
                         </div>
 
                         {/* TOTAL CASINGS */}
                         <div className="col-5 border-start">
                           {/* <div className="border rounded-3 p-3 bg-white"> */}
-                            <div className="text-muted small fw-semibold d-block ms-2 text-secondary mb-2">
-                              <i className="bi bi-box-seam me-1"></i>
-                              Total Casings
-                            </div>
+                          <div className="text-muted small fw-semibold d-block ms-2 text-secondary mb-2">
+                            <i className="bi bi-box-seam me-1"></i>
+                            Total Casings
+                          </div>
 
-                            <div className="fw-semibold d-block ms-2">
-                              {totalCasings}
-                            </div>
+                          <div className="fw-semibold d-block ms-2">
+                            {totalCasings}
+                          </div>
                           {/* </div> */}
                         </div>
                       </div>
@@ -579,9 +582,12 @@ const CustomerApprovalModal = ({
                       </label>
 
                       <input
+                        type="email"
                         className="form-control"
-                        value={order?.customer?.email || "-"}
-                        readOnly
+                        placeholder="Enter customer email"
+                        value={email}
+                        disabled={saving}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
 
                     </div>
