@@ -96,7 +96,7 @@ const updateConsumedQuantity = async (
   const response = await apiRequest<ApiResponse<unknown>>(
     `/sap/material-consumption/consumption/${orderCasingMaterialConsumptionId}/consumed-quantity`,
     {
-      method: "PUT",
+      method: "POST",
       body: JSON.stringify({
         consumedQuantity,
       }),
