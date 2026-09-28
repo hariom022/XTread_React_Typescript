@@ -22,10 +22,18 @@ const buildingServiceApi = {
   sendToRepair: (payload: { orderCasingIds: number[] }) =>
     api.post("/building/send-to-repair", payload),
 
-  getRubber: (prodHierarchy4: string) =>
-    api.get(`/materials?$prodHierarchy4=${prodHierarchy4}`),
+  //get rubber 
+  // getRubber: (prodHierarchy4: string) =>
+  //   api.get(`/materials?$prodHierarchy4=${prodHierarchy4}`),
+  //get cushion gum
   getCushionGum: (prodHierarchy4: string) =>
     api.get(`/materials?prodHierarchy4=${prodHierarchy4}`),
+  //get shutter proof gum
+  // get shutter proof gum
+  getShutterProofGum: () =>
+    api.get(
+      `/materials?prodHierarchy4=000060000800001010&prodHierarchy4=000060000800001007`
+    ),
 };
 
 export default buildingServiceApi;

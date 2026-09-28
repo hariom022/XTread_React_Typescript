@@ -17,23 +17,24 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
   const [widthOptions, setWidthOptions] = useState<number[]>([]);
   const [processing, setProcessing] = useState(false);
 
-  const [rubberList, setRubberList] = useState<Materials[]>([]);
+  // const [rubberList, setRubberList] = useState<Materials[]>([]);
 
   const [cushionGumList, setCushionGumList] = useState<Materials[]>([]);
+  const [shutterProofGumList, setShutterProofGumList] = useState<Materials[]>([]);
 
-  const fetchRubbers = async () => {
-    try {
-      const prodHierarchy4 = "000060000800001005";
-      setProcessing(true);
+  // const fetchRubbers = async () => {
+  //   try {
+  //     const prodHierarchy4 = "000060000800001005";
+  //     setProcessing(true);
 
-      var res = await buildingServiceApi.getRubber(prodHierarchy4);
-      setRubberList(res.data.data);
-    } catch (err) {
-      throw err;
-    } finally {
-      setProcessing(false);
-    }
-  };
+  //     var res = await buildingServiceApi.getRubber(prodHierarchy4);
+  //     setRubberList(res.data.data);
+  //   } catch (err) {
+  //     throw err;
+  //   } finally {
+  //     setProcessing(false);
+  //   }
+  // };
 
   const fetchCushionGum = async () => {
     try {
@@ -49,9 +50,24 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     }
   };
 
+  const fetchShutterProofGum = async () => {
+    try {
+      setProcessing(true);
+
+      const res =
+        await buildingServiceApi.getShutterProofGum();
+
+      setShutterProofGumList(res.data.data);
+    } catch (err) {
+      throw err;
+    } finally {
+      setProcessing(false);
+    }
+  };
   useEffect(() => {
-    fetchRubbers();
+    // fetchRubbers();
     fetchCushionGum();
+    fetchShutterProofGum();
   }, []);
   // ==========================
   // LOAD WIDTHS
@@ -82,8 +98,9 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
   };
 
   const handleApprove = async (
-    selectedRubber: string,
+    // selectedRubber: string,
     selectedCushionGum: string,
+    selectedShutterProofGum: string,
   ) => {
     try {
       setProcessing(true);
@@ -99,18 +116,25 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
 
       const materialConsumptions = [];
 
-      if (selectedRubber) {
-        materialConsumptions.push({
-          prodHierarchy4: "000060000800001005",
-          material: selectedRubber,
-          consumptionType: 1,
-        });
-      }
+      // if (selectedRubber) {
+      //   materialConsumptions.push({
+      //     prodHierarchy4: "000060000800001005",
+      //     material: selectedRubber,
+      //     consumptionType: 1,
+      //   });
+      // }
 
       if (selectedCushionGum) {
         materialConsumptions.push({
           prodHierarchy4: "000060000800001007",
           material: selectedCushionGum,
+          consumptionType: 1,
+        });
+      }
+      if (selectedShutterProofGum) {
+        materialConsumptions.push({
+          prodHierarchy4: "000060000800001010",
+          material: selectedShutterProofGum,
           consumptionType: 1,
         });
       }
@@ -202,8 +226,9 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     handleApprove,
     handleReturnToRepair,
     processing,
-    rubberList,
+    // rubberList,
     cushionGumList,
+    shutterProofGumList,
   };
 };
 

@@ -9,14 +9,16 @@ type Props = {
   selectedWidth: string;
   setSelectedWidth: React.Dispatch<React.SetStateAction<string>>;
   widthOptions: number[];
- handleApprove: (
-  selectedRubber: string,
-  selectedCushionGum: string,
-) => void | Promise<void>;
+  handleApprove: (
+    // selectedRubber: string,
+    selectedCushionGum: string,
+    selectedShutterProofGum: string,
+  ) => void | Promise<void>;
   handleReturnToRepair: () => void;
   onClose: () => void;
-  rubberList: Materials[];
+  // rubberList: Materials[];
   cushionGumList: Materials[];
+  shutterProofGumList: Materials[];
 };
 
 const BuildingModal = ({
@@ -28,8 +30,9 @@ const BuildingModal = ({
   handleApprove,
   handleReturnToRepair,
   onClose,
-  rubberList,
+  // rubberList,
   cushionGumList,
+  shutterProofGumList,
 }: Props) => {
   const user = useAuthStore((state) => state.user);
 
@@ -42,8 +45,9 @@ const BuildingModal = ({
     // Reset override for every new order
     setIsOverride(false);
   }, [selectedItem]);
-  const [selectedRubber, setSelectedRubber] = useState("");
+  // const [selectedRubber, setSelectedRubber] = useState("");
   const [selectedCushionGum, setSelectedCushionGum] = useState("");
+  const [selectedShutterProofGum, setSelectedShutterProofGum] = useState("");
   return (
     <>
       <div
@@ -191,7 +195,7 @@ const BuildingModal = ({
                           </div>
                         )}
                         <div className="row g-2 mb-2">
-                          <div className="col-6">
+                          {/* <div className="col-6">
                             <label className="form-label fw-semibold">
                               Rubber
                             </label>
@@ -214,7 +218,7 @@ const BuildingModal = ({
                                 </option>
                               ))}
                             </select>
-                          </div>
+                          </div> */}
 
                           <div className="col-6">
                             <label className="form-label fw-semibold">
@@ -240,6 +244,36 @@ const BuildingModal = ({
                               ))}
                             </select>
                           </div>
+
+                          {/* shutter proof gum */}
+                          {/* SHUTTER PROOF GUM */}
+                          <div className="col-6">
+                            <label className="form-label fw-semibold">
+                              Shutter Proof Gum
+                            </label>
+
+                            <select
+                              className="form-select"
+                              value={selectedShutterProofGum}
+                              onChange={(e) =>
+                                setSelectedShutterProofGum(e.target.value)
+                              }
+                            >
+                              <option value="">
+                                Select Shutter Proof Gum
+                              </option>
+
+                              {shutterProofGumList.map((gum) => (
+                                <option
+                                  key={gum.materialNumber}
+                                  value={gum.materialNumber}
+                                >
+                                  {gum.materialDescription}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
                         </div>
                         {/* RETURN TO REPAIR */}
                         <div>
@@ -257,7 +291,10 @@ const BuildingModal = ({
                         <div className="mt-2">
                           <button
                             className="btn-approve btn-action  w-100 d-flex align-items-center justify-content-center"
-                            onClick={() =>handleApprove(selectedRubber, selectedCushionGum)}
+                            onClick={() => handleApprove(
+                              // selectedRubber, 
+                              selectedCushionGum, 
+                              selectedShutterProofGum)}
                           >
                             APPROVED
                             <span className="icon-box">

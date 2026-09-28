@@ -156,8 +156,10 @@ const BuildingStage = () => {
             setShowModal(false);
           }}
          
-          rubberList={buildingModal.rubberList}
+          // rubberList={buildingModal.rubberList}
           cushionGumList={buildingModal.cushionGumList}
+          shutterProofGumList={buildingModal.shutterProofGumList}
+
         />
       )}
 
