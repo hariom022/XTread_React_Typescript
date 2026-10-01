@@ -113,6 +113,7 @@ import UserRegistrationPage from "./adminPortal/users/page/UserManagementPage";
 import CourierServices from "./master-modules/courier-services/pages/CourierServices";
 import Drivers from "./master-modules/drivers/page/Drivers";
 import MaterialConsumptionPage from "./adminPortal/materialConsumption/pages/MaterialConsumptionPage";
+import CustomerSearchPage from "./adminPortal/customerSerach/pages/CustomerSearchPage";
 /* =========================================================
    AUTH INITIALIZER
 ========================================================= */
@@ -396,6 +397,7 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                 {/* =====================================
                     ADMIN PORTAL
                 ===================================== */}
+                <Route path="/customerSearch" element={<CustomerSearchPage/>} />
 
                 <Route path="/tyreOnHold" element={<TyreOnHold />} />
                 <Route
