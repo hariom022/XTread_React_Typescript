@@ -37,6 +37,7 @@ const BuildingModal = ({
   const user = useAuthStore((state) => state.user);
 
   const [isOverride, setIsOverride] = useState(false);
+  const [isShutterProofOverride, setIsShutterProofOverride] = useState(false);
   useEffect(() => {
     if (selectedItem?.width) {
       setSelectedWidth(String(selectedItem.width));
@@ -44,6 +45,8 @@ const BuildingModal = ({
 
     // Reset override for every new order
     setIsOverride(false);
+    setIsShutterProofOverride(false);
+    setSelectedShutterProofGum("");
   }, [selectedItem]);
   // const [selectedRubber, setSelectedRubber] = useState("");
   const [selectedCushionGum, setSelectedCushionGum] = useState("");
@@ -194,6 +197,25 @@ const BuildingModal = ({
                             </div>
                           </div>
                         )}
+
+                        {/* Override Shutter Proof Gum */}
+                        <div className="row mb-1">
+                          <div className="col-12 d-flex align-items-center">
+                            <input
+                              type="checkbox"
+                              className="form-check-input me-2"
+                              checked={isShutterProofOverride}
+                              onChange={(e) => {
+                                setIsShutterProofOverride(e.target.checked);
+                                setSelectedShutterProofGum("");
+                              }}
+                            />
+
+                            <label className="form-label fw-semibold mb-0">
+                              Override Gum
+                            </label>
+                          </div>
+                        </div>
                         <div className="row g-2 mb-2">
                           {/* <div className="col-6">
                             <label className="form-label fw-semibold">
@@ -245,9 +267,9 @@ const BuildingModal = ({
                             </select>
                           </div>
 
-                          {/* shutter proof gum */}
                           {/* SHUTTER PROOF GUM */}
                           <div className="col-6">
+
                             <label className="form-label fw-semibold">
                               Shutter Proof Gum
                             </label>
@@ -263,17 +285,29 @@ const BuildingModal = ({
                                 Select Shutter Proof Gum
                               </option>
 
-                              {shutterProofGumList.map((gum) => (
-                                <option
-                                  key={gum.materialNumber}
-                                  value={gum.materialNumber}
-                                >
-                                  {gum.materialDescription}
-                                </option>
-                              ))}
+                              {/* {shutterProofGumList
+                                .filter((gum) =>
+                                  isOverride
+                                    ? gum.prodHierarchy4 === "000060000800001007"
+                                    : gum.prodHierarchy4 === "000060000800001010"
+                                )
+                                .map((gum) => ( */}
+                              {shutterProofGumList
+                                .filter((gum) =>
+                                  isShutterProofOverride
+                                    ? gum.materialNumber === "70000056" // Cushion Gum
+                                    : gum.materialNumber === "70000055" // Shutter Proof Gum
+                                )
+                                .map((gum) => (
+                                  <option
+                                    key={gum.materialNumber}
+                                    value={gum.materialNumber}
+                                  >
+                                    {gum.materialDescription}
+                                  </option>
+                                ))}
                             </select>
                           </div>
-
                         </div>
                         {/* RETURN TO REPAIR */}
                         <div>
@@ -293,7 +327,7 @@ const BuildingModal = ({
                             className="btn-approve btn-action  w-100 d-flex align-items-center justify-content-center"
                             onClick={() => handleApprove(
                               // selectedRubber, 
-                              selectedCushionGum, 
+                              selectedCushionGum,
                               selectedShutterProofGum)}
                           >
                             APPROVED

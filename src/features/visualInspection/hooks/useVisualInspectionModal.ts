@@ -14,6 +14,12 @@ export const useVisualInspectionModal = () => {
 
       const res = await indexPageApiService.getOrderCasingDetails(item.id);
       console.log("VISUAL INSPECT API", res.data);
+       console.log("========== INSPECT API RESPONSE ==========");
+      console.log("Inspect Item:", item);
+      console.log("API Response:", res);
+      console.log("Response Data:", res.data);
+      console.log("Response Data.Data:", res.data.data);
+      console.log("==========================================");
       const casing = res.data.data;
 
       const modalData = {

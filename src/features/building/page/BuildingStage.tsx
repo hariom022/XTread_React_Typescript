@@ -52,6 +52,12 @@ const BuildingStage = () => {
     try {
       setloadingModal(true);
       const response = await indexPageApiService.getOrderCasingDetails(item.id);
+      console.log("========== INSPECT API RESPONSE ==========");
+      console.log("Inspect Item:", item);
+      console.log("API Response:", response);
+      console.log("Response Data:", response.data);
+      console.log("Response Data.Data:", response.data.data);
+      console.log("==========================================");
 
       const casing = response.data.data;
 
@@ -155,7 +161,7 @@ const BuildingStage = () => {
 
             setShowModal(false);
           }}
-         
+
           // rubberList={buildingModal.rubberList}
           cushionGumList={buildingModal.cushionGumList}
           shutterProofGumList={buildingModal.shutterProofGumList}
@@ -176,7 +182,7 @@ const BuildingStage = () => {
             zIndex: 99999,
           }}
         >
-          <RingLoader color="#b30815" size={80} />
+          {/* <RingLoader color="#b30815" size={80} /> */}
         </div>
       )}
     </div>
