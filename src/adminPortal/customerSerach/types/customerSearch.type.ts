@@ -1,31 +1,29 @@
 export interface Customer {
-  id: number;
-
   customerNumber: string;
   customerName: string;
+  searchTerm: string | null;
 
-  mobileNumber: string;
+  companyCode: string | null;
 
-  sapNumber: string;
+  salesGroup: string | null;
+  salesGroupDescription: string | null;
 
-  address1: string;
+  customerGroup: string | null;
+  customerGroupDescription: string | null;
+
+  mobileNumber: string | null;
+
+  priceList: string | null;
+  priceListDescription: string | null;
+
+  address1: string | null;
   address2: string | null;
 
-  city: string;
-  country: string;
-  pincode: string;
+  city: string | null;
+  country: string | null;
+  pincode: string | null;
 
   email: string | null;
-
-  companyCode: string;
-  salesGroup: string;
-  salesGroupDescription: string;
-
-  customerGroup: string;
-  customerGroupDescription: string;
-
-  priceList: string;
-  priceListDescription: string | null;
 }
 
 export interface CustomerSearchRequest {
@@ -35,40 +33,14 @@ export interface CustomerSearchRequest {
 
 export interface CustomerSearchApiResponse {
   success: boolean;
-
   data: {
-    customers: CustomerApiResponse[];
-  };
-
-  error: string | null;
-}
-
-export interface CustomerApiResponse {
-  customerNumber: string;
-  customerName: string;
-
-  searchTerm: string | null;
-
-  companyCode: string;
-  salesGroup: string;
-  salesGroupDescription: string;
-
-  customerGroup: string;
-  customerGroupDescription: string;
-
-  mobileNumber: string;
-
-  priceList: string;
-  priceListDescription: string | null;
-
-  address1: string;
-  address2: string | null;
-
-  city: string;
-  country: string;
-  pincode: string;
-
-  email: string | null;
+    customers: Customer[];
+  } | null;
+  error: {
+    code: string;
+    message: string;
+    details: string | null;
+  } | null;
 }
 
 export interface SaveCustomerResponse {

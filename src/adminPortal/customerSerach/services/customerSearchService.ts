@@ -2,7 +2,6 @@ import { apiRequest } from "../../../shared/services/apiClient";
 
 import type {
   Customer,
-  CustomerApiResponse,
   CustomerSearchApiResponse,
   CustomerSearchRequest,
   SaveCustomerResponse,
@@ -36,89 +35,48 @@ const customerSearchService = {
 
     const queryString = params.toString();
 
+    if (!queryString) {
+      throw new Error(
+        "At least one search parameter is required.",
+      );
+    }
+
     const response =
       await apiRequest<CustomerSearchApiResponse>(
-        `/api/customers/search${
-          queryString ? `?${queryString}` : ""
-        }`,
+        `/customers/search?${queryString}`,
         {
           method: "GET",
         },
       );
 
+    console.log(
+      "Customer Search API Response:",
+      response,
+    );
+
+    // ==========================================
+    // API ERROR
+    // ==========================================
+
     if (!response.success) {
       throw new Error(
-        response.error ||
-          "Unable to search customers.",
+        response.error?.message ??
+          "Unable to retrieve customer information.",
       );
     }
 
-    const customers =
-      response.data?.customers ?? [];
+    // ==========================================
+    // NO RESULTS
+    // ==========================================
 
-    // Convert API response into the Customer
-    // structure used by the UI.
-    return customers.map(
-      (
-        customer: CustomerApiResponse,
-        index: number,
-      ) => ({
-        id: index + 1,
+    if (
+      !response.data ||
+      !Array.isArray(response.data.customers)
+    ) {
+      return [];
+    }
 
-        customerNumber:
-          customer.customerNumber,
-
-        customerName:
-          customer.customerName,
-
-        mobileNumber:
-          customer.mobileNumber,
-
-        // The API response gives customerNumber.
-        // We use it for SAP Number display for now.
-        sapNumber:
-          customer.customerNumber,
-
-        address1:
-          customer.address1,
-
-        address2:
-          customer.address2,
-
-        city:
-          customer.city,
-
-        country:
-          customer.country,
-
-        pincode:
-          customer.pincode,
-
-        email:
-          customer.email,
-
-        companyCode:
-          customer.companyCode,
-
-        salesGroup:
-          customer.salesGroup,
-
-        salesGroupDescription:
-          customer.salesGroupDescription,
-
-        customerGroup:
-          customer.customerGroup,
-
-        customerGroupDescription:
-          customer.customerGroupDescription,
-
-        priceList:
-          customer.priceList,
-
-        priceListDescription:
-          customer.priceListDescription,
-      }),
-    );
+    return response.data.customers;
   },
 
   // ==========================================
@@ -129,10 +87,9 @@ const customerSearchService = {
     customer: Customer,
   ): Promise<SaveCustomerResponse> => {
     /*
-     * Save API is not provided yet.
+     * Save Customer API has not been provided yet.
      *
-     * Keep this temporarily as a dummy implementation.
-     * Replace this section when Save Customer API is available.
+     * Keep dummy implementation temporarily.
      */
 
     await new Promise((resolve) =>

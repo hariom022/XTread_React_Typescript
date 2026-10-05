@@ -41,7 +41,7 @@ const CustomerSuccess = ({
                 type="button"
                 className="btn-close"
                 onClick={onAddAnother}
-              ></button>
+              />
 
             </div>
 
@@ -50,6 +50,7 @@ const CustomerSuccess = ({
               <div className="alert alert-success text-center mb-0">
 
                 <div className="mb-3">
+
                   <div
                     className="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center"
                     style={{
@@ -59,6 +60,7 @@ const CustomerSuccess = ({
                   >
                     <i className="bi bi-check-lg fs-1"></i>
                   </div>
+
                 </div>
 
                 <h4 className="text-success fw-bold">
@@ -75,16 +77,7 @@ const CustomerSuccess = ({
                   <div className="card-body">
 
                     <div className="row mb-2">
-                      <div className="col-5 text-muted">
-                        Customer Name
-                      </div>
 
-                      <div className="col-7 fw-semibold">
-                        {customer.customerName}
-                      </div>
-                    </div>
-
-                    <div className="row mb-2">
                       <div className="col-5 text-muted">
                         Customer Number
                       </div>
@@ -92,9 +85,23 @@ const CustomerSuccess = ({
                       <div className="col-7 fw-semibold">
                         {customer.customerNumber}
                       </div>
+
+                    </div>
+
+                    <div className="row mb-2">
+
+                      <div className="col-5 text-muted">
+                        Customer Name
+                      </div>
+
+                      <div className="col-7 fw-semibold">
+                        {customer.customerName}
+                      </div>
+
                     </div>
 
                     <div className="row">
+
                       <div className="col-5 text-muted">
                         Mobile Number
                       </div>
@@ -102,6 +109,7 @@ const CustomerSuccess = ({
                       <div className="col-7 fw-semibold">
                         {customer.mobileNumber || "-"}
                       </div>
+
                     </div>
 
                   </div>

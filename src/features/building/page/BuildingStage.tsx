@@ -84,6 +84,9 @@ const BuildingStage = () => {
 
         treadPatternId: casing.retreadDetail?.treadPatternId,
 
+        treadPatternVariantId:
+          casing.retreadDetail?.treadPatternVariantId,
+
         width: casing.retreadDetail?.width || "-",
       };
 

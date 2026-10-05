@@ -24,14 +24,24 @@ const CustomerSearchResults = ({
   return (
     <div className="card shadow-sm mt-4">
 
-      {/* ========================================
-          STEP 2 HEADER
-      ======================================== */}
+      {/* HEADER */}
 
       <div className="card-header bg-white border-0 pt-4 px-4">
+
         <div className="d-flex align-items-start">
 
+          <span
+            className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+            style={{
+              width: "32px",
+              height: "32px",
+            }}
+          >
+            2
+          </span>
+
           <div>
+
             <h4 className="mb-1">
               Search Results
             </h4>
@@ -40,14 +50,12 @@ const CustomerSearchResults = ({
               Select the required customer from the
               list.
             </p>
+
           </div>
 
         </div>
-      </div>
 
-      {/* ========================================
-          BODY
-      ======================================== */}
+      </div>
 
       <div className="card-body px-4 pb-4">
 
@@ -180,100 +188,66 @@ const CustomerSearchResults = ({
 
                 <div className="table-responsive">
 
-                  <table className="table table-hover mb-0">
+                  <table className="table table-hover align-middle mb-0">
 
                     <thead>
-
                       <tr>
-
-                        <th className="ps-4">
-                          Select
-                        </th>
-
+                        <th className="ps-4">Select</th>
                         <th>#</th>
-
+                        <th>Customer Number</th>
                         <th>Customer Name</th>
-
                         <th>Mobile Number</th>
-
-                        <th>Customer No.</th>
-
-                        <th>Address</th>
-
-                        <th>City</th>
-
+                        <th>Sales Group</th>
+                        <th>Customer Group</th>
                         <th>Country</th>
-
                       </tr>
-
                     </thead>
 
                     <tbody>
+                      {customers.map((customer, index) => (
+                        <tr key={customer.customerNumber}>
+                          <td className="ps-4">
+                            <input
+                              type="radio"
+                              className="form-check-input"
+                              name="selectedCustomer"
+                              checked={
+                                selectedCustomer?.customerNumber ===
+                                customer.customerNumber
+                              }
+                              onChange={() =>
+                                onSelectCustomer(customer)
+                              }
+                            />
+                          </td>
 
-                      {customers.map(
-                        (customer, index) => (
+                          <td>{index + 1}</td>
 
-                          <tr key={customer.id}>
+                          <td>{customer.customerNumber}</td>
 
-                            <td className="ps-4">
+                          <td>{customer.customerName}</td>
 
-                              <input
-                                type="radio"
-                                className="form-check-input"
-                                name="selectedCustomer"
-                                checked={
-                                  selectedCustomer?.id ===
-                                  customer.id
-                                }
-                                onChange={() =>
-                                  onSelectCustomer(
-                                    customer,
-                                  )
-                                }
-                              />
+                          <td>
+                            {customer.mobileNumber || "-"}
+                          </td>
 
-                            </td>
+                          <td>
+                            {customer.salesGroupDescription ||
+                              customer.salesGroup ||
+                              "-"}
+                          </td>
 
-                            <td>
-                              {index + 1}
-                            </td>
+                          <td>
+                            {customer.customerGroupDescription ||
+                              customer.customerGroup ||
+                              "-"}
+                          </td>
 
-                            <td>
-                              {customer.customerName}
-                            </td>
-
-                            <td>
-                              {customer.mobileNumber ||
-                                "-"}
-                            </td>
-
-                            <td>
-                              {customer.customerNumber ||
-                                "-"}
-                            </td>
-
-                            <td>
-                              {[
-                                customer.address1,
-                                customer.address2,
-                              ]
-                                .filter(Boolean)
-                                .join(", ") || "-"}
-                            </td>
-
-                            <td>
-                              {customer.city || "-"}
-                            </td>
-
-                            <td>
-                              {customer.country || "-"}
-                            </td>
-
-                          </tr>
-
-                        ),
-                      )}
-
+                          <td>
+                            {customer.country || "-"}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
 
                   </table>
@@ -295,14 +269,18 @@ const CustomerSearchResults = ({
                 onClick={onContinue}
               >
                 Continue
+
                 <i className="bi bi-arrow-right ms-2"></i>
+
               </button>
 
             </div>
+
           </>
         )}
 
       </div>
+
     </div>
   );
 };

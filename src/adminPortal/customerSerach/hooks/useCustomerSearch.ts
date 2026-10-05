@@ -40,11 +40,9 @@ const useCustomerSearch = () => {
       const message =
         err instanceof Error
           ? err.message
-          : "Something went wrong while searching customers.";
+          : "Unable to retrieve customer information.";
 
       setError(message);
-
-      setCustomerList([]);
 
       throw err;
     } finally {
@@ -88,7 +86,7 @@ const useCustomerSearch = () => {
   };
 
   // ==========================================
-  // CLEAR RESULTS
+  // CLEAR
   // ==========================================
 
   const clearResults = () => {

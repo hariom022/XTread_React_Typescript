@@ -8,15 +8,20 @@ const buildingServiceApi = {
   /**Approved Button API */
   // APPROVE
   approveReject: (payload: {
-    orderCasingIds: number[];
+    orderCasingIds: string[];
     isApproved: boolean;
-    width: string | null;
+    width: string;
+    treadPatternVariantId: string;
     rejectionReasonId: string;
-    materialConsumptions: {
-      prodHierarchy4: string;
-      material: string;
-      consumptionType: number;
-    }[];
+    materialConsumptions: null;
+    finishedMaterial: string;
+    overrideShutterproof: boolean;
+    cushionGum: {
+      rawMaterial: string;
+    };
+    shutterProofGum: {
+      rawMaterial: string;
+    };
   }) => api.post("/building/approve-reject", payload),
   // RETURN TO REPAIR button api
   sendToRepair: (payload: { orderCasingIds: number[] }) =>

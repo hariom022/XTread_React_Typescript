@@ -35,9 +35,12 @@ const CustomerReview = ({
 
           <div className="modal-content">
 
+            {/* HEADER */}
+
             <div className="modal-header">
 
               <div>
+
                 <h5 className="modal-title">
                   Review & Confirm
                 </h5>
@@ -46,6 +49,7 @@ const CustomerReview = ({
                   Verify the selected customer details
                   before saving.
                 </small>
+
               </div>
 
               <button
@@ -53,9 +57,11 @@ const CustomerReview = ({
                 className="btn-close"
                 onClick={onBack}
                 disabled={loading}
-              ></button>
+              />
 
             </div>
+
+            {/* BODY */}
 
             <div className="modal-body">
 
@@ -77,43 +83,40 @@ const CustomerReview = ({
                 <div className="table-responsive">
 
                   <table className="table table-bordered mb-0">
-
                     <tbody>
-
                       <tr>
                         <th className="bg-light w-25">
-                          Customer Name
+                          Customer Number
                         </th>
-                        <td>
-                          {customer.customerName}
-                        </td>
+                        <td>{customer.customerNumber}</td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
-                          Customer Number
+                          Customer Name
                         </th>
-                        <td>
-                          {customer.customerNumber || "-"}
-                        </td>
+                        <td>{customer.customerName}</td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
                           Mobile Number
                         </th>
-                        <td>
-                          {customer.mobileNumber || "-"}
-                        </td>
+                        <td>{customer.mobileNumber || "-"}</td>
+                      </tr>
+
+                      <tr>
+                        <th className="bg-light">
+                          Email
+                        </th>
+                        <td>{customer.email || "-"}</td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
                           Company Code
                         </th>
-                        <td>
-                          {customer.companyCode || "-"}
-                        </td>
+                        <td>{customer.companyCode || "-"}</td>
                       </tr>
 
                       <tr>
@@ -121,9 +124,9 @@ const CustomerReview = ({
                           Sales Group
                         </th>
                         <td>
-                          {customer.salesGroupDescription ||
-                            customer.salesGroup ||
-                            "-"}
+                          {customer.salesGroupDescription
+                            ? `${customer.salesGroup} - ${customer.salesGroupDescription}`
+                            : customer.salesGroup || "-"}
                         </td>
                       </tr>
 
@@ -132,64 +135,58 @@ const CustomerReview = ({
                           Customer Group
                         </th>
                         <td>
-                          {customer.customerGroupDescription ||
-                            customer.customerGroup ||
-                            "-"}
+                          {customer.customerGroupDescription
+                            ? `${customer.customerGroup} - ${customer.customerGroupDescription}`
+                            : customer.customerGroup || "-"}
                         </td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
-                          Address
+                          Price List
                         </th>
                         <td>
-                          {[
-                            customer.address1,
-                            customer.address2,
-                          ]
-                            .filter(Boolean)
-                            .join(", ") || "-"}
+                          {customer.priceListDescription
+                            ? `${customer.priceList} - ${customer.priceListDescription}`
+                            : customer.priceList || "-"}
                         </td>
+                      </tr>
+
+                      <tr>
+                        <th className="bg-light">
+                          Address 1
+                        </th>
+                        <td>{customer.address1 || "-"}</td>
+                      </tr>
+
+                      <tr>
+                        <th className="bg-light">
+                          Address 2
+                        </th>
+                        <td>{customer.address2 || "-"}</td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
                           City
                         </th>
-                        <td>
-                          {customer.city || "-"}
-                        </td>
+                        <td>{customer.city || "-"}</td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
                           Country
                         </th>
-                        <td>
-                          {customer.country || "-"}
-                        </td>
+                        <td>{customer.country || "-"}</td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
                           Pincode
                         </th>
-                        <td>
-                          {customer.pincode || "-"}
-                        </td>
+                        <td>{customer.pincode || "-"}</td>
                       </tr>
-
-                      <tr>
-                        <th className="bg-light">
-                          Email
-                        </th>
-                        <td>
-                          {customer.email || "-"}
-                        </td>
-                      </tr>
-
                     </tbody>
-
                   </table>
 
                 </div>
@@ -197,6 +194,8 @@ const CustomerReview = ({
               </div>
 
             </div>
+
+            {/* FOOTER */}
 
             <div className="modal-footer">
 
@@ -221,7 +220,7 @@ const CustomerReview = ({
                     <span
                       className="spinner-border spinner-border-sm me-2"
                       role="status"
-                    ></span>
+                    />
 
                     Saving...
                   </>

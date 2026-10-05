@@ -98,15 +98,14 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
   };
 
   const handleApprove = async (
-    // selectedRubber: string,
     selectedCushionGum: string,
     selectedShutterProofGum: string,
   ) => {
     try {
       setProcessing(true);
+
       if (!selectedItem) return;
 
-      // const isRetread = selectedItem?.serviceType?.id === 1;
       const isRetread = selectedItem?.service === "Retread";
 
       if (isRetread && !selectedWidth) {
@@ -114,45 +113,37 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
         return;
       }
 
-      const materialConsumptions = [];
-
-      // if (selectedRubber) {
-      //   materialConsumptions.push({
-      //     prodHierarchy4: "000060000800001005",
-      //     material: selectedRubber,
-      //     consumptionType: 1,
-      //   });
-      // }
-
-      if (selectedCushionGum) {
-        materialConsumptions.push({
-          prodHierarchy4: "000060000800001007",
-          material: selectedCushionGum,
-          consumptionType: 1,
-        });
-      }
-      if (selectedShutterProofGum) {
-        materialConsumptions.push({
-          prodHierarchy4: "000060000800001010",
-          material: selectedShutterProofGum,
-          consumptionType: 1,
-        });
-      }
-
       const payload = {
-        orderCasingIds: [Number(selectedItem.id)],
+        orderCasingIds: [String(selectedItem.id)],
 
         isApproved: true,
 
-        width: isRetread ? selectedWidth : null,
+        width: isRetread ? selectedWidth : "-0",
+
+        treadPatternVariantId: String(
+          selectedItem.treadPatternVariantId || ""
+        ),
 
         rejectionReasonId: "-0",
 
-        materialConsumptions,
+        materialConsumptions: null,
+
+        finishedMaterial: "71000210",
+
+        overrideShutterproof:
+          selectedShutterProofGum === "70000056",
+
+        cushionGum: {
+          rawMaterial: selectedCushionGum,
+        },
+
+        shutterProofGum: {
+          rawMaterial: selectedShutterProofGum,
+        },
       };
 
-      console.log("HANDLE APPROVED PAYLOAD:=->", selectedItem);
-      console.log("Building Payload", payload);
+      console.log("BUILDING APPROVE PAYLOAD", payload);
+
       await buildingServiceApi.approveReject(payload);
 
       alert("Approved Successfully");
@@ -162,6 +153,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       resetModal();
 
       onClose();
+
     } catch (error: any) {
       console.error("FULL ERROR", error);
       console.error("RESPONSE", error?.response);
@@ -169,6 +161,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       console.error("STATUS", error?.response?.status);
 
       alert(JSON.stringify(error?.response?.data));
+
     } finally {
       setProcessing(false);
     }
