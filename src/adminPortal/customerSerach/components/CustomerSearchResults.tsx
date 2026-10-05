@@ -29,7 +29,6 @@ const CustomerSearchResults = ({
       ======================================== */}
 
       <div className="card-header bg-white border-0 pt-4 px-4">
-
         <div className="d-flex align-items-start">
 
           <div>
@@ -38,12 +37,12 @@ const CustomerSearchResults = ({
             </h4>
 
             <p className="text-muted mb-0">
-              Select the required customer from the list.
+              Select the required customer from the
+              list.
             </p>
           </div>
 
         </div>
-
       </div>
 
       {/* ========================================
@@ -52,9 +51,7 @@ const CustomerSearchResults = ({
 
       <div className="card-body px-4 pb-4">
 
-        {/* ======================================
-            SEARCH CRITERIA
-        ====================================== */}
+        {/* SEARCH CRITERIA */}
 
         <div className="card border mb-4">
 
@@ -104,12 +101,34 @@ const CustomerSearchResults = ({
 
         </div>
 
-        {/* ======================================
-            NO RESULTS
-        ====================================== */}
+        {/* LOADING */}
+
+        {loading && (
+          <div className="card border">
+
+            <div className="card-body text-center py-5">
+
+              <div
+                className="spinner-border text-primary"
+                role="status"
+              >
+                <span className="visually-hidden">
+                  Loading...
+                </span>
+              </div>
+
+              <p className="text-muted mt-3 mb-0">
+                Searching customers...
+              </p>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* NO RESULTS */}
 
         {!loading && customers.length === 0 && (
-
           <div className="card border">
 
             <div className="card-body text-center py-5">
@@ -137,46 +156,12 @@ const CustomerSearchResults = ({
             </div>
 
           </div>
-
         )}
 
-        {/* ======================================
-            LOADING
-        ====================================== */}
-
-        {loading && (
-
-          <div className="card border">
-
-            <div className="card-body text-center py-5">
-
-              <div
-                className="spinner-border text-primary"
-                role="status"
-              >
-                <span className="visually-hidden">
-                  Loading...
-                </span>
-              </div>
-
-              <p className="text-muted mt-3 mb-0">
-                Searching customers...
-              </p>
-
-            </div>
-
-          </div>
-
-        )}
-
-        {/* ======================================
-            RESULTS TABLE
-        ====================================== */}
+        {/* RESULTS */}
 
         {!loading && customers.length > 0 && (
-
           <>
-
             <div className="card border">
 
               <div className="card-header bg-light d-flex justify-content-between align-items-center">
@@ -211,11 +196,13 @@ const CustomerSearchResults = ({
 
                         <th>Mobile Number</th>
 
-                        <th>SAP No.</th>
-
-                        <th>GP No.</th>
+                        <th>Customer No.</th>
 
                         <th>Address</th>
+
+                        <th>City</th>
+
+                        <th>Country</th>
 
                       </tr>
 
@@ -256,20 +243,30 @@ const CustomerSearchResults = ({
                             </td>
 
                             <td>
-                              {customer.mobileNumber}
+                              {customer.mobileNumber ||
+                                "-"}
                             </td>
 
                             <td>
-                              {customer.sapNumber}
+                              {customer.customerNumber ||
+                                "-"}
                             </td>
 
                             <td>
-                              {customer.gpNumber}
+                              {[
+                                customer.address1,
+                                customer.address2,
+                              ]
+                                .filter(Boolean)
+                                .join(", ") || "-"}
                             </td>
 
                             <td>
-                              {customer.address},{" "}
-                              {customer.city}
+                              {customer.city || "-"}
+                            </td>
+
+                            <td>
+                              {customer.country || "-"}
                             </td>
 
                           </tr>
@@ -302,13 +299,10 @@ const CustomerSearchResults = ({
               </button>
 
             </div>
-
           </>
-
         )}
 
       </div>
-
     </div>
   );
 };

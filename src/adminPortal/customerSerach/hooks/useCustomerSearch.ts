@@ -8,7 +8,8 @@ import type {
 import customerSearchService from "../services/customerSearchService";
 
 const useCustomerSearch = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const [error, setError] =
     useState<string | null>(null);
@@ -42,6 +43,8 @@ const useCustomerSearch = () => {
           : "Something went wrong while searching customers.";
 
       setError(message);
+
+      setCustomerList([]);
 
       throw err;
     } finally {

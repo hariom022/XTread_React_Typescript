@@ -23,11 +23,7 @@ const CustomerReview = ({
 
   return (
     <>
-      {/* BACKDROP */}
-
       <div className="modal-backdrop fade show"></div>
-
-      {/* MODAL */}
 
       <div
         className="modal fade show d-block"
@@ -39,23 +35,17 @@ const CustomerReview = ({
 
           <div className="modal-content">
 
-            {/* ==================================
-                HEADER
-            ================================== */}
-
             <div className="modal-header">
 
               <div>
-
                 <h5 className="modal-title">
                   Review & Confirm
                 </h5>
 
-                <small className="text">
+                <small className="text-muted">
                   Verify the selected customer details
                   before saving.
                 </small>
-
               </div>
 
               <button
@@ -66,10 +56,6 @@ const CustomerReview = ({
               ></button>
 
             </div>
-
-            {/* ==================================
-                BODY
-            ================================== */}
 
             <div className="modal-body">
 
@@ -98,7 +84,6 @@ const CustomerReview = ({
                         <th className="bg-light w-25">
                           Customer Name
                         </th>
-
                         <td>
                           {customer.customerName}
                         </td>
@@ -106,31 +91,50 @@ const CustomerReview = ({
 
                       <tr>
                         <th className="bg-light">
+                          Customer Number
+                        </th>
+                        <td>
+                          {customer.customerNumber || "-"}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <th className="bg-light">
                           Mobile Number
                         </th>
-
                         <td>
-                          {customer.mobileNumber}
+                          {customer.mobileNumber || "-"}
                         </td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
-                          SAP No.
+                          Company Code
                         </th>
-
                         <td>
-                          {customer.sapNumber}
+                          {customer.companyCode || "-"}
                         </td>
                       </tr>
 
                       <tr>
                         <th className="bg-light">
-                          GP No.
+                          Sales Group
                         </th>
-
                         <td>
-                          {customer.gpNumber}
+                          {customer.salesGroupDescription ||
+                            customer.salesGroup ||
+                            "-"}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <th className="bg-light">
+                          Customer Group
+                        </th>
+                        <td>
+                          {customer.customerGroupDescription ||
+                            customer.customerGroup ||
+                            "-"}
                         </td>
                       </tr>
 
@@ -138,9 +142,13 @@ const CustomerReview = ({
                         <th className="bg-light">
                           Address
                         </th>
-
                         <td>
-                          {customer.address}
+                          {[
+                            customer.address1,
+                            customer.address2,
+                          ]
+                            .filter(Boolean)
+                            .join(", ") || "-"}
                         </td>
                       </tr>
 
@@ -148,19 +156,8 @@ const CustomerReview = ({
                         <th className="bg-light">
                           City
                         </th>
-
                         <td>
-                          {customer.city}
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <th className="bg-light">
-                          State
-                        </th>
-
-                        <td>
-                          {customer.state}
+                          {customer.city || "-"}
                         </td>
                       </tr>
 
@@ -168,9 +165,26 @@ const CustomerReview = ({
                         <th className="bg-light">
                           Country
                         </th>
-
                         <td>
-                          {customer.country}
+                          {customer.country || "-"}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <th className="bg-light">
+                          Pincode
+                        </th>
+                        <td>
+                          {customer.pincode || "-"}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <th className="bg-light">
+                          Email
+                        </th>
+                        <td>
+                          {customer.email || "-"}
                         </td>
                       </tr>
 
@@ -183,10 +197,6 @@ const CustomerReview = ({
               </div>
 
             </div>
-
-            {/* ==================================
-                FOOTER
-            ================================== */}
 
             <div className="modal-footer">
 

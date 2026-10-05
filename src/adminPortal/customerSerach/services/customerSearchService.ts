@@ -1,80 +1,12 @@
+import { apiRequest } from "../../../shared/services/apiClient";
+
 import type {
   Customer,
+  CustomerApiResponse,
+  CustomerSearchApiResponse,
   CustomerSearchRequest,
   SaveCustomerResponse,
 } from "../types/customerSearch.type";
-
-// ============================================
-// DUMMY CUSTOMER DATA
-// ============================================
-
-const dummyCustomers: Customer[] = [
-  {
-    id: 1,
-    customerName: "Rahul Sharma",
-    mobileNumber: "9876543210",
-    sapNumber: "10023456",
-    gpNumber: "GP-00123",
-    address: "123 Park Street",
-    city: "Kolkata",
-    state: "West Bengal",
-    country: "India",
-  },
-  {
-    id: 2,
-    customerName: "Rahul Kumar",
-    mobileNumber: "9876543226",
-    sapNumber: "10023457",
-    gpNumber: "GP-00456",
-    address: "45 MG Road",
-    city: "Delhi",
-    state: "Delhi",
-    country: "India",
-  },
-  {
-    id: 3,
-    customerName: "Rahul Enterprises",
-    mobileNumber: "9123456780",
-    sapNumber: "10067890",
-    gpNumber: "GP-00789",
-    address: "Industrial Area",
-    city: "Noida",
-    state: "Uttar Pradesh",
-    country: "India",
-  },
-  {
-    id: 4,
-    customerName: "Rahul & Sons",
-    mobileNumber: "9018770155",
-    sapNumber: "10123456",
-    gpNumber: "GP-00987",
-    address: "Salt Lake",
-    city: "Kolkata",
-    state: "West Bengal",
-    country: "India",
-  },
-  {
-    id: 5,
-    customerName: "Rahul Traders",
-    mobileNumber: "9898099988",
-    sapNumber: "10123457",
-    gpNumber: "GP-00991",
-    address: "880 Bright Road",
-    city: "Kolkata",
-    state: "West Bengal",
-    country: "India",
-  },
-];
-
-// ============================================
-// DUMMY SAVED CUSTOMERS
-// ============================================
-
-const savedCustomers: Customer[] = [];
-
-// ============================================
-// CUSTOMER SERVICE
-// ============================================
 
 const customerSearchService = {
   // ==========================================
@@ -84,38 +16,109 @@ const customerSearchService = {
   searchCustomers: async (
     payload: CustomerSearchRequest,
   ): Promise<Customer[]> => {
-    // Simulate API delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 500),
+    const params = new URLSearchParams();
+
+    // SAP Number
+    if (payload.sapNumber.trim()) {
+      params.append(
+        "sapNumber",
+        payload.sapNumber.trim(),
+      );
+    }
+
+    // Customer Name
+    if (payload.customerName.trim()) {
+      params.append(
+        "customerName",
+        payload.customerName.trim(),
+      );
+    }
+
+    const queryString = params.toString();
+
+    const response =
+      await apiRequest<CustomerSearchApiResponse>(
+        `/api/customers/search${
+          queryString ? `?${queryString}` : ""
+        }`,
+        {
+          method: "GET",
+        },
+      );
+
+    if (!response.success) {
+      throw new Error(
+        response.error ||
+          "Unable to search customers.",
+      );
+    }
+
+    const customers =
+      response.data?.customers ?? [];
+
+    // Convert API response into the Customer
+    // structure used by the UI.
+    return customers.map(
+      (
+        customer: CustomerApiResponse,
+        index: number,
+      ) => ({
+        id: index + 1,
+
+        customerNumber:
+          customer.customerNumber,
+
+        customerName:
+          customer.customerName,
+
+        mobileNumber:
+          customer.mobileNumber,
+
+        // The API response gives customerNumber.
+        // We use it for SAP Number display for now.
+        sapNumber:
+          customer.customerNumber,
+
+        address1:
+          customer.address1,
+
+        address2:
+          customer.address2,
+
+        city:
+          customer.city,
+
+        country:
+          customer.country,
+
+        pincode:
+          customer.pincode,
+
+        email:
+          customer.email,
+
+        companyCode:
+          customer.companyCode,
+
+        salesGroup:
+          customer.salesGroup,
+
+        salesGroupDescription:
+          customer.salesGroupDescription,
+
+        customerGroup:
+          customer.customerGroup,
+
+        customerGroupDescription:
+          customer.customerGroupDescription,
+
+        priceList:
+          customer.priceList,
+
+        priceListDescription:
+          customer.priceListDescription,
+      }),
     );
-
-    const sapNumber = payload.sapNumber
-      .trim()
-      .toLowerCase();
-
-    const customerName = payload.customerName
-      .trim()
-      .toLowerCase();
-
-    const results = dummyCustomers.filter(
-      (customer) => {
-        const sapMatches =
-          !sapNumber ||
-          customer.sapNumber
-            .toLowerCase()
-            .includes(sapNumber);
-
-        const nameMatches =
-          !customerName ||
-          customer.customerName
-            .toLowerCase()
-            .includes(customerName);
-
-        return sapMatches && nameMatches;
-      },
-    );
-
-    return results;
   },
 
   // ==========================================
@@ -125,26 +128,16 @@ const customerSearchService = {
   saveCustomer: async (
     customer: Customer,
   ): Promise<SaveCustomerResponse> => {
-    // Simulate API delay
+    /*
+     * Save API is not provided yet.
+     *
+     * Keep this temporarily as a dummy implementation.
+     * Replace this section when Save Customer API is available.
+     */
+
     await new Promise((resolve) =>
       setTimeout(resolve, 500),
     );
-
-    // Duplicate check
-    const alreadyExists = savedCustomers.some(
-      (item) =>
-        item.sapNumber === customer.sapNumber,
-    );
-
-    if (alreadyExists) {
-      return {
-        success: false,
-        message:
-          "Customer already exists in the system.",
-      };
-    }
-
-    savedCustomers.push(customer);
 
     return {
       success: true,

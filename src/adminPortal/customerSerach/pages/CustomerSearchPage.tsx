@@ -25,44 +25,20 @@ const CustomerSearchPage = () => {
     clearResults,
   } = useCustomerSearch();
 
-  // ==========================================
-  // SEARCH HAS BEEN PERFORMED
-  // ==========================================
-
   const [hasSearched, setHasSearched] =
     useState(false);
-
-  // ==========================================
-  // SELECTED CUSTOMER
-  // ==========================================
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<Customer | null>(null);
 
-  // ==========================================
-  // SEARCH CRITERIA
-  // ==========================================
-
   const [searchCriteria, setSearchCriteria] =
     useState<CustomerSearchRequest | null>(null);
-
-  // ==========================================
-  // REVIEW POPUP
-  // ==========================================
 
   const [showReview, setShowReview] =
     useState(false);
 
-  // ==========================================
-  // SUCCESS POPUP
-  // ==========================================
-
   const [showSuccess, setShowSuccess] =
     useState(false);
-
-  // ==========================================
-  // SAVE ERROR
-  // ==========================================
 
   const [saveError, setSaveError] =
     useState<string | null>(null);
@@ -81,10 +57,8 @@ const CustomerSearchPage = () => {
     try {
       await searchCustomers(payload);
 
-      // Results section appears directly below
-      // Customer Search form.
       setHasSearched(true);
-    } catch (err) {
+    } catch {
       setHasSearched(true);
     }
   };
@@ -122,8 +96,6 @@ const CustomerSearchPage = () => {
       return;
     }
 
-    // Search results remain on page,
-    // but Review opens as popup.
     setSaveError(null);
     setShowReview(true);
   };
@@ -138,7 +110,7 @@ const CustomerSearchPage = () => {
   };
 
   // ==========================================
-  // SAVE CUSTOMER
+  // SAVE
   // ==========================================
 
   const handleSaveCustomer = async () => {
@@ -157,14 +129,10 @@ const CustomerSearchPage = () => {
         return;
       }
 
-      /*
-       * IMPORTANT:
-       *
-       * 1. Close Review popup
-       * 2. Open Success popup
-       */
-
+      // Close Review popup
       setShowReview(false);
+
+      // Open Success popup
       setShowSuccess(true);
     } catch (err) {
       setSaveError(
@@ -176,7 +144,7 @@ const CustomerSearchPage = () => {
   };
 
   // ==========================================
-  // ADD ANOTHER CUSTOMER
+  // ADD ANOTHER
   // ==========================================
 
   const handleAddAnother = () => {
@@ -192,20 +160,14 @@ const CustomerSearchPage = () => {
   };
 
   // ==========================================
-  // GO TO NEXT STEP
+  // NEXT STEP
   // ==========================================
 
   const handleNextStep = () => {
-    // Close success popup
     setShowSuccess(false);
 
     setSelectedCustomer(null);
     clearResults();
-
-    /*
-     * Replace this route with the route
-     * of your existing/current Customer Form.
-     */
 
     navigate("/customer-form");
   };
@@ -213,18 +175,14 @@ const CustomerSearchPage = () => {
   return (
     <div className="container-fluid">
 
-      {/* ========================================
-          STEP 1
-      ======================================== */}
+      {/* SEARCH FORM */}
 
       <CustomerSearchForm
         loading={loading}
         onSearch={handleSearch}
       />
 
-      {/* ========================================
-          SEARCH ERROR
-      ======================================== */}
+      {/* SEARCH ERROR */}
 
       {hasSearched && error && (
         <div className="alert alert-danger mt-4">
@@ -234,10 +192,7 @@ const CustomerSearchPage = () => {
         </div>
       )}
 
-      {/* ========================================
-          STEP 2
-          DIRECTLY BELOW SEARCH FORM
-      ======================================== */}
+      {/* SEARCH RESULTS */}
 
       {hasSearched &&
         searchCriteria && (
@@ -266,9 +221,7 @@ const CustomerSearchPage = () => {
           />
         )}
 
-      {/* ========================================
-          STEP 3 - REVIEW POPUP
-      ======================================== */}
+      {/* REVIEW POPUP */}
 
       <CustomerReview
         show={showReview}
@@ -279,9 +232,7 @@ const CustomerSearchPage = () => {
         onSave={handleSaveCustomer}
       />
 
-      {/* ========================================
-          STEP 4 - SUCCESS POPUP
-      ======================================== */}
+      {/* SUCCESS POPUP */}
 
       <CustomerSuccess
         show={showSuccess}
