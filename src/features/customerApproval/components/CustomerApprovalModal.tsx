@@ -4,6 +4,32 @@ import { RingLoader } from "react-spinners";
 
 import customerApprovalService from "../services/customerApprovalService";
 
+const getErrorMessage = (error: any): string => {
+  const data = error?.response?.data;
+
+  if (typeof data?.error?.message === "string") {
+    return data.error.message;
+  }
+
+  if (typeof data?.message === "string") {
+    return data.message;
+  }
+
+  if (typeof data?.error === "string") {
+    return data.error;
+  }
+
+  if (Array.isArray(data?.errors)) {
+    return data.errors.join("\n");
+  }
+
+  if (typeof error?.message === "string") {
+    return error.message;
+  }
+
+  return "Customer approval failed. Please try again.";
+};
+
 type Props = {
   selectedOrder: any;
   onClose: () => void;
@@ -24,14 +50,15 @@ const CustomerApprovalModal = ({
 
   const [countryCode, setCountryCode] = useState("+91");
 
-  const [emailName, setEmailName] = useState("");
+  // const [emailName, setEmailName] = useState("");
 
-  const [emailDomain, setEmailDomain] = useState("");
+  // const [emailDomain, setEmailDomain] = useState("");
 
-  const [emailExtension, setEmailExtension] = useState("com");
+  // const [emailExtension, setEmailExtension] = useState("com");
 
   const [saving, setSaving] = useState(false);
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
+  const [emails, setEmails] = useState<string[]>([]);
   // ============================================================
   // NEW UI FIELDS
   // These are currently UI-only and are NOT added to API payload.
@@ -43,16 +70,21 @@ const CustomerApprovalModal = ({
 
   const [remarks, setRemarks] = useState("");
 
-  const generatedEmail =
-    emailName && emailDomain && emailExtension
-      ? `${emailName}@${emailDomain}.${emailExtension}`
-      : "";
+  // const generatedEmail =
+  //   emailName && emailDomain && emailExtension
+  //     ? `${emailName}@${emailDomain}.${emailExtension}`
+  //     : "";
 
   const order = selectedOrder?.items?.[0];
 
   useEffect(() => {
-    setEmail(order?.customer?.email || "");
-  }, [order?.customer?.email]);
+    setEmails(order?.customer?.email ? [order.customer.email] : []);
+    setPhoneNumber(order?.customer?.mobileNumber || "");
+  }, [
+    order?.customer?.email,
+    order?.customer?.mobileNumber,
+  ]);
+
 
   const handleApprove = async () => {
     try {
@@ -81,13 +113,27 @@ const CustomerApprovalModal = ({
         return;
       }
       // VALIDATE PHONE NUMBER
-      if (!order?.customer?.mobileNumber?.trim()) {
+      if (!phoneNumber.trim()) {
         alert("Customer phone number is required.");
         return;
       }
       // VALIDATE EMAIL CONDITION
-      if (!email.trim()) {
-        alert("Customer email address is required.");
+      const validEmails = emails
+        .map((e) => e.trim())
+        .filter(Boolean);
+
+      if (validEmails.length === 0) {
+        alert("At least one customer representative email is required.");
+        return;
+      }
+
+      const invalidEmail = validEmails.find(
+        (email) =>
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      );
+
+      if (invalidEmail) {
+        alert(`Invalid email address: ${invalidEmail}`);
         return;
       }
 
@@ -123,9 +169,10 @@ const CustomerApprovalModal = ({
 
         customerRepresentative: customerRepresentative.trim(),
 
-        phoneNumber: `${countryCode}${order?.customer?.mobileNumber || ""}`.trim(),
+        // phoneNumber: `${countryCode}${order?.customer?.mobileNumber || ""}`.trim(),
+        phoneNumber: `${countryCode}${phoneNumber.trim()}`,
 
-        emailAddress: email.trim(),
+        emailAddresses: validEmails,
 
         casingCondition: casingCondition.trim(),
 
@@ -154,13 +201,7 @@ const CustomerApprovalModal = ({
     } catch (e: any) {
       console.error("Customer Approval Error:", e);
 
-      const backendMessage =
-        e?.response?.data?.error?.message ||
-        e?.response?.data?.message ||
-        e?.message;
-
-      alert(backendMessage || "Customer approval failed.");
-
+      alert(getErrorMessage(e));
     } finally {
       setSaving(false);
     }
@@ -565,31 +606,63 @@ const CustomerApprovalModal = ({
                       </label>
 
                       <input
+                        type="tel"
                         className="form-control"
-                        value={
-                          order?.customer?.mobileNumber || "-"
-                        }
-                        readOnly
+                        placeholder="Enter mobile number"
+                        value={phoneNumber}
+                        disabled={saving}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
                       />
 
                     </div>
 
                     {/* EMAIL */}
-                    <div className="col-lg-4">
-
+                    <div className="col-lg-6">
                       <label className="form-label fw-semibold small">
-                        Email Address
+                        Customer Representative Email(s)
                       </label>
 
-                      <input
-                        type="email"
-                        className="form-control"
-                        placeholder="Enter customer email"
-                        value={email}
-                        disabled={saving}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
+                      {emails.map((emailValue, index) => (
+                        <div className="input-group mb-2" key={index}>
+                          <input
+                            type="email"
+                            className="form-control"
+                            placeholder="Enter email address"
+                            value={emailValue}
+                            disabled={saving}
+                            onChange={(e) => {
+                              const updated = [...emails];
+                              updated[index] = e.target.value;
+                              setEmails(updated);
+                            }}
+                          />
 
+                          {emails.length > 1 && (
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger"
+                              disabled={saving}
+                              onClick={() => {
+                                setEmails(
+                                  emails.filter((_, i) => i !== index)
+                                );
+                              }}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      ))}
+
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary btn-sm"
+                        disabled={saving}
+                        onClick={() => setEmails([...emails, ""])}
+                      >
+                        <i className="bi bi-plus-circle me-1"></i>
+                        Add Email
+                      </button>
                     </div>
 
                   </div>

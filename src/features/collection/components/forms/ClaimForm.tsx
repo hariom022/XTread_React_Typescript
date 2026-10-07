@@ -118,11 +118,13 @@ type Props = {
   isEditMode?: boolean;
   onSave?: () => void;
   onClose?: () => void;
+  onDelete?: () => void;
 };
 
 const ClaimForm = ({
   onSave,
   onClose,
+  onDelete,
   // ================= DATA =================
   selectedRimSize,
   setSelectedRimSize,
@@ -1000,10 +1002,16 @@ const ClaimForm = ({
                 >
                   Cancel
                 </button>
-
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-danger me-2"
+                  onClick={onDelete}
+                >
+                  Delete Casing
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
                   onClick={onSave}
                 >
                   Save Changes

@@ -14,12 +14,12 @@ const customerApprovalService = {
     api.post("/orders/customer-approval", data),
 
   deleteCasing: (
-    orderNumber: string,
-    orderCasingId: number
-  ) =>
-    api.delete(
-      `/ orders / ${ orderNumber } /casings/${ orderCasingId } `
-    ),
+  orderNumber: string,
+  orderCasingId: number
+) =>
+  api.delete(
+    `/orders/${orderNumber}/casings/${orderCasingId}`
+  ),
 };
 
 export default customerApprovalService;
@@ -31,7 +31,7 @@ export interface CustomerApprovalPayload {
 
   phoneNumber: string;
 
-  emailAddress: string;
+  emailAddresses: string[];
 
   casingCondition: string;
 
