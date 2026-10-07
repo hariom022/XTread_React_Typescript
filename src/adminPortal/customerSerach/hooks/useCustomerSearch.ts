@@ -8,14 +8,12 @@ import type {
 import customerSearchService from "../services/customerSearchService";
 
 const useCustomerSearch = () => {
-  const [loading, setLoading] =
-    useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
-  const [error, setError] =
-    useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [customerList, setCustomerList] =
-    useState<Customer[]>([]);
+  const [customerList, setCustomerList] = useState<Customer[]>([]);
 
   // ==========================================
   // SEARCH CUSTOMERS
@@ -25,13 +23,11 @@ const useCustomerSearch = () => {
     payload: CustomerSearchRequest,
   ) => {
     try {
-      setLoading(true);
+      setSearchLoading(true);
       setError(null);
 
       const response =
-        await customerSearchService.searchCustomers(
-          payload,
-        );
+        await customerSearchService.searchCustomers(payload);
 
       setCustomerList(response);
 
@@ -46,7 +42,7 @@ const useCustomerSearch = () => {
 
       throw err;
     } finally {
-      setLoading(false);
+      setSearchLoading(false);
     }
   };
 
@@ -58,20 +54,20 @@ const useCustomerSearch = () => {
     customer: Customer,
   ) => {
     try {
-      setLoading(true);
+      setSaveLoading(true);
       setError(null);
 
-      const response =
-        await customerSearchService.saveCustomer(
-          customer,
-        );
+      console.log("HOOK: Calling customerSearchService.saveCustomer");
 
-      // if (!response.success) {
-      //   setError(response.message);
-      // }
+      const response =
+        await customerSearchService.saveCustomer(customer);
+
+      console.log("HOOK: Save response:", response);
 
       return response;
     } catch (err) {
+      console.error("HOOK: Save customer error:", err);
+
       const message =
         err instanceof Error
           ? err.message
@@ -81,7 +77,7 @@ const useCustomerSearch = () => {
 
       throw err;
     } finally {
-      setLoading(false);
+      setSaveLoading(false);
     }
   };
 
@@ -99,7 +95,8 @@ const useCustomerSearch = () => {
     saveCustomer,
     clearResults,
     customerList,
-    loading,
+    searchLoading,
+    saveLoading,
     error,
   };
 };

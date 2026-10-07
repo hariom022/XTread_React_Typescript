@@ -20,13 +20,13 @@ const CustomerSearchPage = () => {
     searchCustomers,
     saveCustomer,
     customerList,
-    loading,
+    searchLoading,
+    saveLoading,
     error,
     clearResults,
   } = useCustomerSearch();
 
-  const [hasSearched, setHasSearched] =
-    useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<Customer | null>(null);
@@ -34,11 +34,9 @@ const CustomerSearchPage = () => {
   const [searchCriteria, setSearchCriteria] =
     useState<CustomerSearchRequest | null>(null);
 
-  const [showReview, setShowReview] =
-    useState(false);
+  const [showReview, setShowReview] = useState(false);
 
-  const [showSuccess, setShowSuccess] =
-    useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [saveError, setSaveError] =
     useState<string | null>(null);
@@ -114,38 +112,63 @@ const CustomerSearchPage = () => {
   // ==========================================
 
   const handleSaveCustomer = async () => {
+    console.log("========================================");
+    console.log("🔥 handleSaveCustomer START");
+    console.log("========================================");
+
     if (!selectedCustomer) {
+      console.log("❌ No selected customer");
       return;
     }
+
+    console.log(
+      "✅ Selected customer:",
+      selectedCustomer,
+    );
 
     try {
       setSaveError(null);
 
+      console.log(
+        "➡️ About to call saveCustomer()",
+      );
+
       const response =
         await saveCustomer(selectedCustomer);
-      // Log API response in browser console
-      console.log("========== SAVE CUSTOMER RESPONSE ==========");
-      console.log("Customer:", selectedCustomer);
-      console.log("Sync API Response:", response);
-      console.log("============================================");
 
-      // if (!response.success) {
-      //   setSaveError(response.message);
-      //   return;
-      // }
+      console.log(
+        "✅ saveCustomer() returned",
+      );
 
-      // Close Review popup
+      console.log(
+        "========== SAVE CUSTOMER RESPONSE ==========",
+      );
+
+      console.log(response);
+
+      console.log(
+        "============================================",
+      );
+
       setShowReview(false);
-
-      // Open Success popup
       setShowSuccess(true);
+
     } catch (err) {
+      console.error(
+        "❌ SAVE CUSTOMER ERROR:",
+        err,
+      );
+
       setSaveError(
         err instanceof Error
           ? err.message
           : "Unable to save customer.",
       );
     }
+
+    console.log(
+      "🔥 handleSaveCustomer END",
+    );
   };
 
   // ==========================================
@@ -180,14 +203,18 @@ const CustomerSearchPage = () => {
   return (
     <div className="container-fluid">
 
-      {/* SEARCH FORM */}
+      {/* ==========================================
+          SEARCH FORM
+      ========================================== */}
 
       <CustomerSearchForm
-        loading={loading}
+        loading={searchLoading}
         onSearch={handleSearch}
       />
 
-      {/* SEARCH ERROR */}
+      {/* ==========================================
+          SEARCH ERROR
+      ========================================== */}
 
       {hasSearched && error && (
         <div className="alert alert-danger mt-4">
@@ -197,47 +224,48 @@ const CustomerSearchPage = () => {
         </div>
       )}
 
-      {/* SEARCH RESULTS */}
+      {/* ==========================================
+          SEARCH RESULTS
+      ========================================== */}
 
-      {hasSearched &&
-        searchCriteria && (
-          <CustomerSearchResults
-            customers={customerList}
-            selectedCustomer={selectedCustomer}
-            searchValue={[
-              searchCriteria.sapNumber
-                ? `SAP Number: ${searchCriteria.sapNumber}`
-                : null,
+      {hasSearched && searchCriteria && (
+        <CustomerSearchResults
+          customers={customerList}
+          selectedCustomer={selectedCustomer}
+          searchValue={[
+            searchCriteria.sapNumber
+              ? `SAP Number: ${searchCriteria.sapNumber}`
+              : null,
 
-              searchCriteria.customerName
-                ? `Customer Name: ${searchCriteria.customerName}`
-                : null,
-            ]
-              .filter(Boolean)
-              .join(" | ")}
-            loading={loading}
-            onSelectCustomer={
-              handleSelectCustomer
-            }
-            onModifySearch={
-              handleModifySearch
-            }
-            onContinue={handleContinue}
-          />
-        )}
+            searchCriteria.customerName
+              ? `Customer Name: ${searchCriteria.customerName}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" | ")}
+          loading={searchLoading}
+          onSelectCustomer={handleSelectCustomer}
+          onModifySearch={handleModifySearch}
+          onContinue={handleContinue}
+        />
+      )}
 
-      {/* REVIEW POPUP */}
+      {/* ==========================================
+          REVIEW POPUP
+      ========================================== */}
 
       <CustomerReview
         show={showReview}
         customer={selectedCustomer}
-        loading={loading}
+        loading={saveLoading}
         error={saveError}
         onBack={handleBackToResults}
         onSave={handleSaveCustomer}
       />
 
-      {/* SUCCESS POPUP */}
+      {/* ==========================================
+          SUCCESS POPUP
+      ========================================== */}
 
       <CustomerSuccess
         show={showSuccess}

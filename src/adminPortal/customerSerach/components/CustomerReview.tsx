@@ -32,24 +32,16 @@ const CustomerReview = ({
         aria-modal="true"
       >
         <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-
           <div className="modal-content">
-
             {/* HEADER */}
 
             <div className="modal-header">
-
               <div>
-
-                <h5 className="modal-title">
-                  Review & Confirm
-                </h5>
+                <h5 className="modal-title">Review & Confirm</h5>
 
                 <small className="text-muted">
-                  Verify the selected customer details
-                  before saving.
+                  Verify the selected customer details before saving.
                 </small>
-
               </div>
 
               <button
@@ -58,13 +50,11 @@ const CustomerReview = ({
                 onClick={onBack}
                 disabled={loading}
               />
-
             </div>
 
             {/* BODY */}
 
             <div className="modal-body">
-
               {error && (
                 <div className="alert alert-danger">
                   <i className="bi bi-exclamation-triangle me-2"></i>
@@ -73,56 +63,40 @@ const CustomerReview = ({
               )}
 
               <div className="card border">
-
                 <div className="card-header bg-light">
-                  <h6 className="mb-0">
-                    Selected Customer Details
-                  </h6>
+                  <h6 className="mb-0">Selected Customer Details</h6>
                 </div>
 
                 <div className="table-responsive">
-
                   <table className="table table-bordered mb-0">
                     <tbody>
                       <tr>
-                        <th className="bg-light w-25">
-                          Customer Number
-                        </th>
+                        <th className="bg-light w-25">Customer Number</th>
                         <td>{customer.customerNumber}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Customer Name
-                        </th>
+                        <th className="bg-light">Customer Name</th>
                         <td>{customer.customerName}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Mobile Number
-                        </th>
+                        <th className="bg-light">Mobile Number</th>
                         <td>{customer.mobileNumber || "-"}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Email
-                        </th>
+                        <th className="bg-light">Email</th>
                         <td>{customer.email || "-"}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Company Code
-                        </th>
+                        <th className="bg-light">Company Code</th>
                         <td>{customer.companyCode || "-"}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Sales Group
-                        </th>
+                        <th className="bg-light">Sales Group</th>
                         <td>
                           {customer.salesGroupDescription
                             ? `${customer.salesGroup} - ${customer.salesGroupDescription}`
@@ -131,9 +105,7 @@ const CustomerReview = ({
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Customer Group
-                        </th>
+                        <th className="bg-light">Customer Group</th>
                         <td>
                           {customer.customerGroupDescription
                             ? `${customer.customerGroup} - ${customer.customerGroupDescription}`
@@ -142,9 +114,7 @@ const CustomerReview = ({
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Price List
-                        </th>
+                        <th className="bg-light">Price List</th>
                         <td>
                           {customer.priceListDescription
                             ? `${customer.priceList} - ${customer.priceListDescription}`
@@ -153,52 +123,38 @@ const CustomerReview = ({
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Address 1
-                        </th>
+                        <th className="bg-light">Address 1</th>
                         <td>{customer.address1 || "-"}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Address 2
-                        </th>
+                        <th className="bg-light">Address 2</th>
                         <td>{customer.address2 || "-"}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          City
-                        </th>
+                        <th className="bg-light">City</th>
                         <td>{customer.city || "-"}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Country
-                        </th>
+                        <th className="bg-light">Country</th>
                         <td>{customer.country || "-"}</td>
                       </tr>
 
                       <tr>
-                        <th className="bg-light">
-                          Pincode
-                        </th>
+                        <th className="bg-light">Pincode</th>
                         <td>{customer.pincode || "-"}</td>
                       </tr>
                     </tbody>
                   </table>
-
                 </div>
-
               </div>
-
             </div>
 
             {/* FOOTER */}
 
             <div className="modal-footer">
-
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -212,7 +168,11 @@ const CustomerReview = ({
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={onSave}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  void onSave();
+                }}
                 disabled={loading}
               >
                 {loading ? (
@@ -221,7 +181,6 @@ const CustomerReview = ({
                       className="spinner-border spinner-border-sm me-2"
                       role="status"
                     />
-
                     Saving...
                   </>
                 ) : (
@@ -231,11 +190,8 @@ const CustomerReview = ({
                   </>
                 )}
               </button>
-
             </div>
-
           </div>
-
         </div>
       </div>
     </>

@@ -1,4 +1,8 @@
-import { apiRequest } from "../../../shared/services/apiClient";
+// import { apiRequest } from "../../../shared/services/apiClient";
+import {
+  apiRequest,
+  basicAuthRequest,
+} from "../../../shared/services/apiClient";
 
 import type {
   Customer,
@@ -20,40 +24,28 @@ const customerSearchService = {
 
     // SAP Number
     if (payload.sapNumber.trim()) {
-      params.append(
-        "sapNumber",
-        payload.sapNumber.trim(),
-      );
+      params.append("sapNumber", payload.sapNumber.trim());
     }
 
     // Customer Name
     if (payload.customerName.trim()) {
-      params.append(
-        "customerName",
-        payload.customerName.trim(),
-      );
+      params.append("customerName", payload.customerName.trim());
     }
 
     const queryString = params.toString();
 
     if (!queryString) {
-      throw new Error(
-        "At least one search parameter is required.",
-      );
+      throw new Error("At least one search parameter is required.");
     }
 
-    const response =
-      await apiRequest<CustomerSearchApiResponse>(
-        `/customers/search?${queryString}`,
-        {
-          method: "GET",
-        },
-      );
-
-    console.log(
-      "Customer Search API Response:",
-      response,
+    const response = await apiRequest<CustomerSearchApiResponse>(
+      `/customers/search?${queryString}`,
+      {
+        method: "GET",
+      },
     );
+
+    console.log("Customer Search API Response:", response);
 
     // ==========================================
     // API ERROR
@@ -61,8 +53,7 @@ const customerSearchService = {
 
     if (!response.success) {
       throw new Error(
-        response.error?.message ??
-        "Unable to retrieve customer information.",
+        response.error?.message ?? "Unable to retrieve customer information.",
       );
     }
 
@@ -70,10 +61,7 @@ const customerSearchService = {
     // NO RESULTS
     // ==========================================
 
-    if (
-      !response.data ||
-      !Array.isArray(response.data.customers)
-    ) {
+    if (!response.data || !Array.isArray(response.data.customers)) {
       return [];
     }
 
@@ -88,57 +76,54 @@ const customerSearchService = {
   // SAVE / SYNC CUSTOMER
   // ==========================================
 
-  saveCustomer: async (
-    customer: Customer,
-  ): Promise<SyncApiResponse> => {
-    const payload: SyncCustomersRequest = {
-      batchId: `CUSTOMER-${Date.now()}`,
-      sourceSystem: "Customer Portal",
-      syncTimestamp: new Date().toISOString(),
-
-      customers: [
-        {
-          customerNumber: customer.customerNumber,
-          customerName: customer.customerName,
-          searchTerm: customer.searchTerm,
-          companyCode: customer.companyCode,
-          salesGroup: customer.salesGroup,
-          salesGroupDescription: customer.salesGroupDescription,
-          customerGroup: customer.customerGroup,
-          customerGroupDescription:
-            customer.customerGroupDescription,
-          mobileNumber: customer.mobileNumber,
-          priceList: customer.priceList,
-          priceListDescription:
-            customer.priceListDescription,
-          address1: customer.address1,
-          address2: customer.address2,
-          city: customer.city,
-          country: customer.country,
-          pincode: customer.pincode,
-          email: customer.email,
-        },
-      ],
-    };
-
-    console.log("Sync Customer Request:", payload);
-
-    const response = await apiRequest<SyncApiResponse>(
-      "/customers/sync",
+ saveCustomer: async (customer: Customer): Promise<SyncApiResponse> => {
+  const payload: SyncCustomersRequest = {
+    batchId: `CUSTOMER-${Date.now()}`,
+    sourceSystem: "Customer Portal",
+    syncTimestamp: new Date().toISOString(),
+    customers: [
       {
-        method: "POST",
-        body: JSON.stringify(payload),
+        customerNumber: customer.customerNumber,
+        customerName: customer.customerName,
+        searchTerm: customer.searchTerm,
+        companyCode: customer.companyCode,
+        salesGroup: customer.salesGroup,
+        salesGroupDescription: customer.salesGroupDescription,
+        customerGroup: customer.customerGroup,
+        customerGroupDescription: customer.customerGroupDescription,
+        mobileNumber: customer.mobileNumber,
+        priceList: customer.priceList,
+        priceListDescription: customer.priceListDescription,
+        address1: customer.address1,
+        address2: customer.address2,
+        city: customer.city,
+        country: customer.country,
+        pincode: customer.pincode,
+        email: customer.email,
       },
-    );
+    ],
+  };
 
-    console.log("Sync Customer API Response:", response);
+  // Direct credentials
+  const username = "xtread-sync-svc";
+  const password = "PZq&#i*=KpcNo!6#abk$jK4Q3Z7s%VND";
 
-    if (!response) {
-      throw new Error("Unable to sync customer.");
+  const response = await basicAuthRequest<SyncApiResponse>(
+    "/customers/sync",
+    username,
+    password,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
     }
+  );
 
-    return response;
-  },
+  if (!response) {
+    throw new Error("Unable to sync customer.");
+  }
+
+  return response;
+},
 };
 
 export default customerSearchService;

@@ -183,3 +183,57 @@ export async function apiRequest<T>(
 
   return response.json();
 }
+
+/**
+ * Basic Auth API request
+ *
+ * Used for APIs protected by BasicAuthFilter.
+ */
+
+export async function basicAuthRequest<T>(
+  endpoint: string,
+  username: string,
+  password: string,
+  options: RequestInit = {},
+): Promise<T> {
+  const cleanBase = API_BASE_URL.replace(/\/+$/, "");
+
+  const cleanEndpoint = endpoint.startsWith("/")
+    ? endpoint
+    : `/${endpoint}`;
+
+  const targetUrl = `${cleanBase}${cleanEndpoint}`;
+
+  const headers = new Headers(options.headers);
+
+  headers.set("Content-Type", "application/json");
+
+  const credentials = `${username}:${password}`;
+
+  const basicCredentials = btoa(credentials);
+
+  headers.set(
+    "Authorization",
+    `Basic ${basicCredentials}`,
+  );
+
+  const response = await fetch(targetUrl, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+
+    throw new Error(
+      errorText ||
+        `API Error: ${response.status}`,
+    );
+  }
+
+  if (response.status === 204) {
+    return {} as T;
+  }
+
+  return response.json();
+}
