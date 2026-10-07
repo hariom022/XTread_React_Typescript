@@ -66,9 +66,9 @@ const useCustomerSearch = () => {
           customer,
         );
 
-      if (!response.success) {
-        setError(response.message);
-      }
+      // if (!response.success) {
+      //   setError(response.message);
+      // }
 
       return response;
     } catch (err) {

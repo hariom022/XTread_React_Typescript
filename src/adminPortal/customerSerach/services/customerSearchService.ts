@@ -4,7 +4,8 @@ import type {
   Customer,
   CustomerSearchApiResponse,
   CustomerSearchRequest,
-  SaveCustomerResponse,
+  SyncApiResponse,
+  SyncCustomersRequest,
 } from "../types/customerSearch.type";
 
 const customerSearchService = {
@@ -61,7 +62,7 @@ const customerSearchService = {
     if (!response.success) {
       throw new Error(
         response.error?.message ??
-          "Unable to retrieve customer information.",
+        "Unable to retrieve customer information.",
       );
     }
 
@@ -83,24 +84,60 @@ const customerSearchService = {
   // SAVE CUSTOMER
   // ==========================================
 
+  // ==========================================
+  // SAVE / SYNC CUSTOMER
+  // ==========================================
+
   saveCustomer: async (
     customer: Customer,
-  ): Promise<SaveCustomerResponse> => {
-    /*
-     * Save Customer API has not been provided yet.
-     *
-     * Keep dummy implementation temporarily.
-     */
+  ): Promise<SyncApiResponse> => {
+    const payload: SyncCustomersRequest = {
+      batchId: `CUSTOMER-${Date.now()}`,
+      sourceSystem: "Customer Portal",
+      syncTimestamp: new Date().toISOString(),
 
-    await new Promise((resolve) =>
-      setTimeout(resolve, 500),
+      customers: [
+        {
+          customerNumber: customer.customerNumber,
+          customerName: customer.customerName,
+          searchTerm: customer.searchTerm,
+          companyCode: customer.companyCode,
+          salesGroup: customer.salesGroup,
+          salesGroupDescription: customer.salesGroupDescription,
+          customerGroup: customer.customerGroup,
+          customerGroupDescription:
+            customer.customerGroupDescription,
+          mobileNumber: customer.mobileNumber,
+          priceList: customer.priceList,
+          priceListDescription:
+            customer.priceListDescription,
+          address1: customer.address1,
+          address2: customer.address2,
+          city: customer.city,
+          country: customer.country,
+          pincode: customer.pincode,
+          email: customer.email,
+        },
+      ],
+    };
+
+    console.log("Sync Customer Request:", payload);
+
+    const response = await apiRequest<SyncApiResponse>(
+      "/customers/sync",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
     );
 
-    return {
-      success: true,
-      message: "Customer saved successfully.",
-      data: customer,
-    };
+    console.log("Sync Customer API Response:", response);
+
+    if (!response) {
+      throw new Error("Unable to sync customer.");
+    }
+
+    return response;
   },
 };
 

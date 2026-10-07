@@ -123,11 +123,16 @@ const CustomerSearchPage = () => {
 
       const response =
         await saveCustomer(selectedCustomer);
+      // Log API response in browser console
+      console.log("========== SAVE CUSTOMER RESPONSE ==========");
+      console.log("Customer:", selectedCustomer);
+      console.log("Sync API Response:", response);
+      console.log("============================================");
 
-      if (!response.success) {
-        setSaveError(response.message);
-        return;
-      }
+      // if (!response.success) {
+      //   setSaveError(response.message);
+      //   return;
+      // }
 
       // Close Review popup
       setShowReview(false);
