@@ -154,11 +154,13 @@ type Props = {
   isEditMode?: boolean;
   onSave?: () => void;
   onClose?: () => void;
+  onDelete?: () => void;
 };
 
 const RepairForm = ({
   onSave,
   onClose,
+  onDelete,
   // ================= DATA =================
   selectedRimSize,
   setSelectedRimSize,
@@ -925,8 +927,14 @@ const RepairForm = ({
             >
               Cancel
             </button>
-
-            <button type="button" className="btn btn-primary" onClick={onSave}>
+            <button
+              type="button"
+              className="btn btn-danger me-2"
+              onClick={onDelete}
+            >
+              Delete Casing
+            </button>
+            <button type="button" className="btn btn-success" onClick={onSave}>
               Save Changes
             </button>
           </>

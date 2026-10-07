@@ -883,29 +883,29 @@ const CollectionPage = ({
         retreadDetail:
           item.serviceType === "Retread"
             ? {
-                treadPatternVariantId: item.treadPatternVariantId?.toString(),
+              treadPatternVariantId: item.treadPatternVariantId?.toString(),
 
-                isPatternOverride: !!item.override,
-              }
+              isPatternOverride: !!item.override,
+            }
             : null,
 
         // REPAIR DETAIL
         repairDetail:
           item.serviceType === "Repair"
             ? {
-                percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
+              percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
 
-                remarks: item.remarks || "",
+              remarks: item.remarks || "",
 
-                operations:
-                  item.repairs?.map((r: any) => ({
-                    repairType: r.repairType,
+              operations:
+                item.repairs?.map((r: any) => ({
+                  repairType: r.repairType,
 
-                    repairLocation: r.repairLocation,
+                  repairLocation: r.repairLocation,
 
-                    quantity: r.repairQty,
-                  })) || [],
-              }
+                  quantity: r.repairQty,
+                })) || [],
+            }
             : null,
       })),
     };
@@ -1012,18 +1012,18 @@ const CollectionPage = ({
       // // CREATE NEW ORDER
       // // ==================================
       // else {
-        const payload = buildApiPayload();
+      const payload = buildApiPayload();
 
-        console.log("CREATE ORDER API", payload);
+      console.log("CREATE ORDER API", payload);
 
-        await masterService.postSaveOrder(payload);
+      await masterService.postSaveOrder(payload);
 
-        alert("Order created successfully ✅");
+      alert("Order created successfully ✅");
 
-        setOrderItems([]);
+      setOrderItems([]);
 
-        resetFormFields();
-      } catch (err) {
+      resetFormFields();
+    } catch (err) {
       console.error("SAVE ORDER ERROR", err);
 
       alert("Error saving order ❌");
@@ -1071,24 +1071,24 @@ const CollectionPage = ({
         retreadDetail:
           selectedService === "Retread"
             ? {
-                treadPatternVariantId: selectedVariantId,
-                isPatternOverride: override,
-              }
+              treadPatternVariantId: selectedVariantId,
+              isPatternOverride: override,
+            }
             : null,
 
         repairDetail:
           selectedService === "Repair"
             ? {
-                percentageRemainingTreadDepth: remainingTreadDepth,
+              percentageRemainingTreadDepth: remainingTreadDepth,
 
-                remarks,
+              remarks,
 
-                operations: repairs.map((r) => ({
-                  repairType: r.repairType,
-                  repairLocation: r.repairLocation,
-                  quantity: Number(r.repairQty),
-                })),
-              }
+              operations: repairs.map((r) => ({
+                repairType: r.repairType,
+                repairLocation: r.repairLocation,
+                quantity: Number(r.repairQty),
+              })),
+            }
             : null,
       };
       console.log("UPDATE PAYLOAD ON EDITING ", payload);
@@ -1109,6 +1109,51 @@ const CollectionPage = ({
     }
   };
 
+  //===================DELETE CASING =======================================
+  const handleDeleteCasing = async () => {
+    if (!casing?.orderNumber || !casing?.orderCasingId) {
+      alert("Unable to delete casing. Casing information is missing.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete casing "${casing.tyreReferenceNumber || casing.orderCasingId}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setSaveEditLoading?.(true);
+
+      await masterService.deleteCasing(
+        casing.orderNumber,
+        casing.orderCasingId,
+      );
+
+      alert("Casing deleted successfully.");
+
+      // Refresh Customer Approval list
+      onSuccess?.();
+
+      // Close Edit Casing modal
+      onClose?.();
+    } catch (error: any) {
+      console.error("DELETE CASING ERROR:", error);
+
+      const message =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to delete casing.";
+
+      alert(message);
+    } finally {
+      setSaveEditLoading?.(false);
+    }
+  };
   //========================================================================
   return (
     <>
@@ -1236,6 +1281,7 @@ const CollectionPage = ({
                   isEditMode={editMode}
                   onSave={handleUpdateCasing}
                   onClose={onClose}
+                  onDelete={handleDeleteCasing}
                 />
               </div>
             </div>
@@ -1321,6 +1367,7 @@ const CollectionPage = ({
                   isEditMode={editMode}
                   onSave={handleUpdateCasing}
                   onClose={onClose}
+                  onDelete={handleDeleteCasing}
                   damageTypes={damageTypes}
                   repairLocations={repairLocations}
                 />
@@ -1398,6 +1445,7 @@ const CollectionPage = ({
                   isEditMode={editMode}
                   onSave={handleUpdateCasing}
                   onClose={onClose}
+                  onDelete={handleDeleteCasing}
                 />
               </div>
             </div>

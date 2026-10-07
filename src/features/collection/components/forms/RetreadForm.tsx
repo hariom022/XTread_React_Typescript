@@ -142,11 +142,13 @@ interface RetreadFormProps {
   isEditMode?: boolean;
   onSave?: () => void;
   onClose?: () => void;
+  onDelete?: () => void;
 }
 
 const RetreadForm: React.FC<RetreadFormProps> = ({
   onSave,
   onClose,
+  onDelete,
   handleMakeSelect,
   selectedRimSize,
   setSelectedRimSize,
@@ -810,8 +812,14 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
             >
               Cancel
             </button>
-
-            <button type="button" className="btn btn-primary" onClick={onSave}>
+            <button
+              type="button"
+              className="btn btn-danger me-2"
+              onClick={onDelete}
+            >
+              Delete Casing
+            </button>
+            <button type="button" className="btn btn-success" onClick={onSave}>
               Save Changes
             </button>
           </>

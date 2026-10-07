@@ -44,6 +44,14 @@ const masterService = {
     orderCasingId: number,
     data: unknown,
   ) => api.put(`/orders/${orderNumber}/casings/${orderCasingId}`, data),
+  
+  deleteCasing: (
+  orderNumber: string,
+  orderCasingId: number,
+) =>
+  api.delete(
+    `/orders/${orderNumber}/casings/${orderCasingId}`,
+  ),
 };
 
 export default masterService;
