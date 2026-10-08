@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import buildingServiceApi from "../service/buildingServiceApi";
+import { getBuildingErrorMessage } from "../utils/buildingErrorHandler";
 import type { Materials } from "../type/building.types";
 
 interface Props {
@@ -149,8 +150,29 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
 
       const isRetread = selectedItem?.service === "Retread";
 
+      // Width is required for Retread
       if (isRetread && !selectedWidth) {
-        alert("Please select Width");
+        alert("Please select Width.");
+        return;
+      }
+
+      // Cushion Gum is required
+      if (!selectedCushionGum) {
+        alert("Please select Cushion Gum.");
+        return;
+      }
+
+      // Shutter Proof Gum is required
+      if (!selectedShutterProofGum) {
+        alert("Please select Shutter Proof Gum.");
+        return;
+      }
+
+      // Pattern Variant is required
+      if (!selectedItem?.treadPatternVariantId) {
+        alert(
+          "Tread pattern variant information is not available for this order. Please refresh the order and try again."
+        );
         return;
       }
 
@@ -196,13 +218,18 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
       onClose();
 
     } catch (error: any) {
-      console.error("FULL ERROR", error);
-      console.error("RESPONSE", error?.response);
-      console.error("DATA", error?.response?.data);
-      console.error("STATUS", error?.response?.status);
+      console.error("BUILDING APPROVE ERROR:", error);
+      console.error(
+        "BUILDING APPROVE API RESPONSE:",
+        error?.response?.data
+      );
 
-      alert(JSON.stringify(error?.response?.data));
+      const message = getBuildingErrorMessage(
+        error,
+        "Unable to approve the order. Please try again."
+      );
 
+      alert(message);
     } finally {
       setProcessing(false);
     }
@@ -229,11 +256,18 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
 
       onClose();
     } catch (error: any) {
-      console.error("FULL ERROR", error);
-      console.error("RESPONSE", error?.response);
-      console.error("DATA", error?.response?.data);
+      console.error("BUILDING RETURN TO REPAIR ERROR:", error);
+      console.error(
+        "BUILDING RETURN TO REPAIR API RESPONSE:",
+        error?.response?.data
+      );
 
-      alert(error?.response?.data || "Return To Repair Failed");
+      const message = getBuildingErrorMessage(
+        error,
+        "Unable to return the order to repairs. Please try again."
+      );
+
+      alert(message);
     } finally {
       setProcessing(false);
     }
