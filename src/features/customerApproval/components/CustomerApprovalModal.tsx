@@ -78,7 +78,7 @@ const CustomerApprovalModal = ({
   const order = selectedOrder?.items?.[0];
 
   useEffect(() => {
-    setEmails(order?.customer?.email ? [order.customer.email] : []);
+    setEmails(order?.customer?.email ? [order.customer.email] : [""]);
     setPhoneNumber(order?.customer?.mobileNumber || "");
   }, [
     order?.customer?.email,
@@ -579,7 +579,7 @@ const CustomerApprovalModal = ({
                   <div className="row g-3 mb-3">
 
                     {/* REPRESENTATIVE */}
-                    <div className="col-lg-4">
+                    <div className="col-lg-6">
 
                       <label className="form-label fw-semibold small">
                         Customer Representative
@@ -599,7 +599,7 @@ const CustomerApprovalModal = ({
                     </div>
 
                     {/* PHONE */}
-                    <div className="col-lg-4">
+                    <div className="col-lg-6">
 
                       <label className="form-label fw-semibold small">
                         Mobile Number
@@ -615,54 +615,61 @@ const CustomerApprovalModal = ({
                       />
 
                     </div>
-
+                  </div>
+                  <div className="row g-3 mb-3">
                     {/* EMAIL */}
-                    <div className="col-lg-6">
+                    <div className="col-12">
                       <label className="form-label fw-semibold small">
                         Customer Representative Email(s)
                       </label>
 
                       {emails.map((emailValue, index) => (
-                        <div className="input-group mb-2" key={index}>
-                          <input
-                            type="email"
-                            className="form-control"
-                            placeholder="Enter email address"
-                            value={emailValue}
-                            disabled={saving}
-                            onChange={(e) => {
-                              const updated = [...emails];
-                              updated[index] = e.target.value;
-                              setEmails(updated);
-                            }}
-                          />
+                        <div className="d-flex align-items-center gap-2 mb-2" key={index}>
+                          <div className="input-group flex-grow-1">
+                            <input
+                              type="email"
+                              className="form-control"
+                              placeholder="Enter email address"
+                              value={emailValue}
+                              disabled={saving}
+                              onChange={(e) => {
+                                const updated = [...emails];
+                                updated[index] = e.target.value;
+                                setEmails(updated);
+                              }}
+                            />
 
-                          {emails.length > 1 && (
+                            {emails.length > 1 && (
+                              <button
+                                type="button"
+                                className="btn btn-outline-danger"
+                                disabled={saving}
+                                onClick={() => {
+                                  setEmails(
+                                    emails.filter((_, i) => i !== index)
+                                  );
+                                }}
+                              >
+                                <i className="bi bi-trash me-1"></i>
+                                Remove
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Show Add Email only beside the last email */}
+                          {index === emails.length - 1 && (
                             <button
                               type="button"
-                              className="btn btn-outline-danger"
+                              className="btn btn-outline-primary flex-shrink-0 text-nowrap px-3"
                               disabled={saving}
-                              onClick={() => {
-                                setEmails(
-                                  emails.filter((_, i) => i !== index)
-                                );
-                              }}
+                              onClick={() => setEmails([...emails, ""])}
                             >
-                              Remove
+                              <i className="bi bi-plus-circle me-1"></i>
+                              Add Email
                             </button>
                           )}
                         </div>
                       ))}
-
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary btn-sm"
-                        disabled={saving}
-                        onClick={() => setEmails([...emails, ""])}
-                      >
-                        <i className="bi bi-plus-circle me-1"></i>
-                        Add Email
-                      </button>
                     </div>
 
                   </div>
@@ -673,7 +680,7 @@ const CustomerApprovalModal = ({
                   <div className="row g-3 mb-3">
 
                     {/* CASING CONDITION */}
-                    <div className="col-lg-4">
+                    <div className="col-lg-5">
 
                       <label className="form-label fw-semibold small">
                         Casing Condition
@@ -707,7 +714,7 @@ const CustomerApprovalModal = ({
                     </div>
 
                     {/* REMARKS */}
-                    <div className="col-lg-8">
+                    <div className="col-lg-7">
 
                       <label className="form-label fw-semibold small">
                         Remarks <span className="text-muted">(Optional)</span>
