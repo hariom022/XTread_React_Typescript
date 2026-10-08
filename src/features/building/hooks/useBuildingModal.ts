@@ -75,20 +75,61 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
 
   const loadWidths = async () => {
     try {
-      if (!selectedItem?.treadPatternId) return;
+      console.log("========== WIDTH DEBUG ==========");
 
-      const response = await buildingServiceApi.getWidth(
-        selectedItem.treadPatternId,
+      console.log("Selected Item:", selectedItem);
+      console.log(
+        "Tread Pattern ID:",
+        selectedItem?.treadPatternId
+      );
+      console.log(
+        "Tread Pattern Variant ID:",
+        selectedItem?.treadPatternVariantId
+      );
+      console.log(
+        "Original Width:",
+        selectedItem?.width
       );
 
-      const widths =
-        response.data.data?.[0]?.variants?.map((item: any) => item.width) || [];
+      if (!selectedItem?.treadPatternId) {
+        console.log("❌ No treadPatternId");
+        return;
+      }
+
+      const response = await buildingServiceApi.getWidth(
+        selectedItem.treadPatternId
+      );
+
+      const variants =
+        response.data.data?.[0]?.variants || [];
+
+      const widths = variants.map(
+        (item: any) => item.width
+      );
+
+      console.log("Available Widths:", widths);
+      console.log(
+        "Current API Width:",
+        selectedItem.width
+      );
 
       setWidthOptions(widths);
+
+      // AUTO BIND EXISTING WIDTH
+      if (selectedItem?.width !== null && selectedItem?.width !== undefined) {
+        setSelectedWidth(String(selectedItem.width));
+
+        console.log(
+          "✅ AUTO BOUND WIDTH:",
+          String(selectedItem.width)
+        );
+      }
+
     } catch (error) {
-      console.error(error);
+      console.error("❌ WIDTH API ERROR:", error);
     }
   };
+
   const resetModal = () => {
     setSelectedPattern("");
 
@@ -202,7 +243,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
     if (selectedItem) {
       setSelectedPattern(selectedItem.requestedPattern || "");
 
-      setSelectedWidth("");
+      // setSelectedWidth("");
 
       loadWidths();
     }

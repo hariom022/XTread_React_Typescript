@@ -39,9 +39,9 @@ const BuildingModal = ({
   const [isOverride, setIsOverride] = useState(false);
   const [isShutterProofOverride, setIsShutterProofOverride] = useState(false);
   useEffect(() => {
-    if (selectedItem?.width) {
-      setSelectedWidth(String(selectedItem.width));
-    }
+    // if (selectedItem?.width) {
+    //   setSelectedWidth(String(selectedItem.width));
+    // }
 
     // Reset override for every new order
     setIsOverride(false);
@@ -186,7 +186,7 @@ const BuildingModal = ({
                                   }
                                   disabled={!isOverride}
                                 >
-                                  <option value="">Select Width</option>
+                                  <option value="" disabled>Select Width</option>
                                   {widthOptions.map((width) => (
                                     <option key={width} value={width}>
                                       {width}
@@ -254,7 +254,7 @@ const BuildingModal = ({
                                 setSelectedCushionGum(e.target.value)
                               }
                             >
-                              <option value="">Select Cushion Gum</option>
+                              <option value="" disabled>Select Cushion Gum</option>
 
                               {cushionGumList.map((gum) => (
                                 <option
@@ -281,7 +281,7 @@ const BuildingModal = ({
                                 setSelectedShutterProofGum(e.target.value)
                               }
                             >
-                              <option value="">
+                              <option value="" disabled>
                                 Select Shutter Proof Gum
                               </option>
 

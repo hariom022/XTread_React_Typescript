@@ -90,6 +90,16 @@ const BuildingStage = () => {
         width: casing.retreadDetail?.width || "-",
       };
 
+      console.log("===== WIDTH DEBUG - INSPECT =====");
+      console.log("API treadPatternId:", casing.retreadDetail?.treadPatternId);
+      console.log(
+        "API treadPatternVariantId:",
+        casing.retreadDetail?.treadPatternVariantId
+      );
+      console.log("API width:", casing.retreadDetail?.width);
+      console.log("Updated Item:", updatedItem);
+      console.log("=================================");
+
       setSelectedItem(updatedItem);
 
       // buildingModal.setSelectedPattern(
