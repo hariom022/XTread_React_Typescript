@@ -31,7 +31,8 @@ export interface CustomerApprovalPayload {
 
   phoneNumber: string;
 
-  emailAddresses: string[];
+  // emailAddresses: string[];
+  emailAddress: string;
 
   casingCondition: string;
 

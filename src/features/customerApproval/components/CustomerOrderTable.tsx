@@ -11,6 +11,7 @@ type Props = {
   handleOpenEdit: (casing: Casing) => void;
 
   handleDeleteCasing: (orderNumber: string, orderCasingId: number) => void;
+  handleOpenAddCasing: (orderNumber: string) => void;
 };
 
 const CustomerOrderTable = ({
@@ -20,6 +21,7 @@ const CustomerOrderTable = ({
   handleOpenApproval,
   handleOpenEdit,
   handleDeleteCasing,
+  handleOpenAddCasing,
 }: Props) => {
   return (
     <div className="card shadow-sm border-0">
@@ -78,6 +80,21 @@ const CustomerOrderTable = ({
                 {expandedCollection === orderNo && (
                   <tr>
                     <td colSpan={6} className="p-3">
+
+                      {/* ADD NEW CASING */}
+                      <div className="d-flex justify-content-end mb-2">
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenAddCasing(orderNo);
+                          }}
+                        >
+                          <i className="bi bi-plus-circle me-1"></i>
+                          Add New Casing
+                        </button>
+                      </div>
                       <table className="table table-bordered table-sm align-middle mb-0">
                         <thead className="table-danger">
                           <tr>
@@ -114,11 +131,10 @@ const CustomerOrderTable = ({
 
                               <td>
                                 <span
-                                  className={`badge ${
-                                    casing.isRetreaded
-                                      ? "bg-success"
-                                      : "bg-secondary"
-                                  }`}
+                                  className={`badge ${casing.isRetreaded
+                                    ? "bg-success"
+                                    : "bg-secondary"
+                                    }`}
                                 >
                                   {casing.isRetreaded ? "Yes" : "No"}
                                 </span>

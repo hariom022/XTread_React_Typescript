@@ -12,7 +12,7 @@ const TreadBenchInspectionModal = ({
 }: TreadBenchInspectionModalProps) => {
     const user = useAuthStore((state) => state.user);
     
-  const [consumptionKg, setConsumptionKg] = useState("");
+  // const [consumptionKg, setConsumptionKg] = useState("");
   const [cementType, setCementType] = useState("");
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const TreadBenchInspectionModal = ({
       const payload = {
         orderCasingIds: [selectedItem.id.toString()],
         cementTypeId: Number(cementType),
-        consumptionEstimateKgs: consumptionKg,
+        // consumptionEstimateKgs: consumptionKg,
       };
 
       console.log("SAVE PAYLOAD", payload);
@@ -140,7 +140,7 @@ const TreadBenchInspectionModal = ({
                         <div className="w-100 mb-3 flex-grow-1">
                           <div className="row g-2 mt-1">
                             {/* Consumption Estimate */}
-                            <div className="col-6">
+                            {/* <div className="col-6">
                               <label className="form-label fw-semibold">
                                 Consumption Estimate (kgs)
                               </label>
@@ -152,7 +152,7 @@ const TreadBenchInspectionModal = ({
                                   setConsumptionKg(e.target.value)
                                 }
                               />
-                            </div>
+                            </div> */}
 
                             {/* Cement Type */}
                             <div className="col-6">
@@ -165,6 +165,7 @@ const TreadBenchInspectionModal = ({
                                 onChange={(e) => setCementType(e.target.value)}
                               >
                                 <option value="">Select Cement Type</option>
+                                <option value="0">Select None</option>
                                 {cementTypes?.map((item) => (
                                   <option
                                     key={item.cementTypeId}

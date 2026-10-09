@@ -172,7 +172,9 @@ const CustomerApprovalModal = ({
         // phoneNumber: `${countryCode}${order?.customer?.mobileNumber || ""}`.trim(),
         phoneNumber: `${countryCode}${phoneNumber.trim()}`,
 
-        emailAddresses: validEmails,
+        // emailAddresses: validEmails,
+        // Temporary compatibility with the existing API
+  emailAddress: validEmails[0],
 
         casingCondition: casingCondition.trim(),
 
