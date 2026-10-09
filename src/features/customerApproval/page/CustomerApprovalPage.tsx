@@ -33,11 +33,27 @@ const CustomerApprovalPage = () => {
   const [selectedCasing, setSelectedCasing] = useState<Casing | null>(null);
 
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddCasingModal, setShowAddCasingModal] = useState(false);
+
+  const [selectedOrderNumber, setSelectedOrderNumber] = useState<string | null>(
+    null,
+  );
+
+  const [addCasingLoading, setAddCasingLoading] = useState(false);
 
   const [editLoading, setEditLoading] = useState(false);
 
   const [deleteLoading, setDeleteLoading] = useState(false);
-
+  /**ADD NEW CASING HANDLER */
+const handleOpenAddCasing = (orderNumber: string) => {
+  setSelectedOrderNumber(orderNumber);
+  setShowAddCasingModal(true);
+};
+/* CLOSE ADD NEW CASING HANDLER*/
+const handleCloseAddCasing = () => {
+  setShowAddCasingModal(false);
+  setSelectedOrderNumber(null);
+};
   const handleDeleteCasing = async (
     orderNumber: string,
     orderCasingId: number,
@@ -200,6 +216,7 @@ const CustomerApprovalPage = () => {
           handleOpenApproval={handleOpenApproval}
           handleOpenEdit={handleOpenEdit}
           handleDeleteCasing={handleDeleteCasing}
+          handleOpenAddCasing={handleOpenAddCasing}
         />
       )}
 
@@ -264,19 +281,19 @@ const CustomerApprovalPage = () => {
         </div>
       )}
       {saveEditLoading && (
-  <div
-    className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-    style={{
-      background: "rgba(0,0,0,0.45)",
-      zIndex: 99999,
-    }}
-  >
-    <RingLoader
-      color="#b30815"
-      size={80}
-    />
-  </div>
-)}
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 99999,
+          }}
+        >
+          <RingLoader
+            color="#b30815"
+            size={80}
+          />
+        </div>
+      )}
     </div>
   );
 };
