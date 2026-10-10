@@ -116,27 +116,6 @@ const CustomerSuccess = ({
 
                 </div>
 
-                <div className="d-flex justify-content-center gap-2 flex-wrap">
-
-                  {/* <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={onAddAnother}
-                  >
-                    <i className="bi bi-plus-circle me-2"></i>
-                    Add Another Customer
-                  </button> */}
-
-                  {/* <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={onNextStep}
-                  >
-                    Go to Next Step
-                    <i className="bi bi-arrow-right ms-2"></i>
-                  </button> */}
-
-                </div>
 
               </div>
 
