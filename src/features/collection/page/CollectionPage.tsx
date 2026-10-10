@@ -42,6 +42,10 @@ type Props = {
   onSuccess?: () => void;
   hideLayout?: boolean;
   setSaveEditLoading?: (loading: boolean) => void;
+
+  // NEW: add a casing to an existing customer order
+  addToExistingOrder?: boolean;
+  existingOrder?: any;
 };
 
 const CollectionPage = ({
@@ -51,6 +55,9 @@ const CollectionPage = ({
   onSuccess,
   hideLayout = false,
   setSaveEditLoading,
+
+  addToExistingOrder = false,
+  existingOrder,
 }: Props) => {
   // =========================================================
   // CUSTOMER
@@ -330,6 +337,64 @@ const CollectionPage = ({
 
     setServiceTypes(res.data.data || []);
   };
+
+  /**using it for add new casing button at customer approval */
+
+
+  useEffect(() => {
+    if (!addToExistingOrder || !existingOrder || serviceTypes.length === 0) {
+      return;
+    }
+
+    // Bind the existing customer's details.
+    const customer = existingOrder.customer;
+
+    if (customer) {
+      setSelectedCustomer({
+        customerNumber: customer.customerNumber,
+        customerName: customer.customerName,
+        mobileNumber: customer.mobileNumber,
+        email: customer.email,
+        salesGroupDescription: customer.salesGroupDescription,
+      });
+    }
+
+    // Keep the existing order number.
+    //setOrderNumber(existingOrder.orderNumber || "");
+
+    // Get the service type from an existing casing.
+    const firstCasing = existingOrder.casings?.[0];
+
+    const existingServiceTypeId =
+      firstCasing?.serviceType?.id ??
+      firstCasing?.serviceType?.serviceTypeId ??
+      firstCasing?.serviceTypeId;
+
+    if (existingServiceTypeId == null) {
+      console.error(
+        "Service type ID was not found on the existing order's casings.",
+        existingOrder
+      );
+      return;
+    }
+
+    const serviceId = String(existingServiceTypeId);
+
+    setServiceTypeId(serviceId);
+
+    // Load categories only for this service type.
+    const loadExistingOrderCategories = async () => {
+      try {
+        const response = await masterService.getCategories(serviceId);
+        setCategories(response.data.data || []);
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+        alert("Failed to load categories for this service type.");
+      }
+    };
+
+    loadExistingOrderCategories();
+  }, [addToExistingOrder, existingOrder, serviceTypes]);
 
   const loadTyreMakes = async () => {
     const res = await masterService.getTyreMakes();
@@ -913,124 +978,114 @@ const CollectionPage = ({
   // =========================================================
   // SAVE ORDER
   // =========================================================
+
   const [saveOrderLoading, setSaveOrderLoading] = useState(false);
+
   const handleSaveOrder = async () => {
     try {
       if (orderItems.length === 0) {
-        alert("Please add casing first");
+        alert("Please add casing first.");
+        return;
+      }
+
+      // if (addToExistingOrder && !orderNumber.trim()) {
+      //   alert("Existing order number is missing.");
+      //   return;
+      // }
+
+      setSaveOrderLoading(true);
+
+      // ADD CASINGS TO AN EXISTING ORDER:
+      // Prepare the payload only. The backend API is not ready yet.
+      if (addToExistingOrder) {
+        const existingOrderPayload = orderItems.map((item) => ({
+          orderNumber: existingOrder?.orderNumber,
+          bookNumber: orderNumber.trim() || null,
+          
+          serviceTypeId: String(item.serviceTypeId),
+          categoryId: String(item.categoryId),
+          tyreSizeId: String(item.tyreSizeId),
+          rimSize: item.rimSize,
+
+          tyreMakeId: String(item.tyreMakeId),
+          model: item.model,
+          tyreClassificationId: String(item.tyreClassificationId),
+
+          tyreReferenceNumber: item.serial,
+          dotNumber: item.dot,
+          otherNumber: item.otherNumber,
+          vehicleRegistrationNumber: item.vehicleReg,
+          existingRepairsCount: item.noOfRepairs || "0",
+
+          isRetreaded: Boolean(item.isRetreaded),
+          noOfRetread: item.isRetreaded
+            ? String(item.noOfRetreads)
+            : null,
+          previousPattern: item.isRetreaded
+            ? item.previousPattern
+            : null,
+          previousRetreader: item.isRetreaded
+            ? item.retreadRef
+            : null,
+
+          retreadDetail:
+            item.serviceType === "Retread"
+              ? {
+                treadPatternVariantId: String(
+                  item.treadPatternVariantId
+                ),
+                isPatternOverride: Boolean(item.override),
+              }
+              : null,
+
+          repairDetail:
+            item.serviceType === "Repair"
+              ? {
+                percentageRemainingTreadDepth:
+                  item.remainingTreadDepth || "0",
+                remarks: item.remarks || "",
+                operations: (item.repairs || []).map((repair: any) => ({
+                  repairType: repair.repairType,
+                  repairLocation: repair.repairLocation,
+                  quantity: Number(repair.repairQty),
+                })),
+              }
+              : null,
+        }));
+
+        console.log(
+          "ADD CASINGS TO EXISTING ORDER - READY PAYLOAD",
+          existingOrderPayload
+        );
+
+        // No API call until the backend endpoint is implemented.
+        alert(
+          "Casing payload prepared successfully. " +
+          "The existing-order save API is not implemented yet."
+        );
 
         return;
       }
-      setSaveOrderLoading(true);
-      // ==================================
-      // ADD CASING TO EXISTING ORDER
-      // ==================================
 
-      // if (orderNumber && orderNumber.trim() !== "") {
-      //   const lastItem = orderItems[orderItems.length - 1];
-
-      //   const casingPayload = {
-      //     bookNumber: orderNumber?.trim() || null,
-      //     serviceTypeId: lastItem.serviceTypeId?.toString(),
-
-      //     categoryId: lastItem.categoryId?.toString(),
-
-      //     tyreSizeId: lastItem.tyreSizeId?.toString(),
-
-      //     rimSize: lastItem.rimSize,
-
-      //     tyreMakeId: lastItem.tyreMakeId?.toString(),
-
-      //     model: lastItem.model,
-
-      //     tyreClassificationId: lastItem.tyreClassificationId?.toString(),
-
-      //     tyreReferenceNumber: lastItem.serial,
-
-      //     dotNumber: lastItem.dot,
-
-      //     otherNumber: lastItem.otherNumber,
-
-      //     vehicleRegistrationNumber: lastItem.vehicleReg,
-
-      //     existingRepairsCount: lastItem.noOfRepairs || "0",
-
-      //     isRetreaded: !!lastItem.isRetreaded,
-
-      //     noOfRetread: lastItem.isRetreaded
-      //       ? lastItem.noOfRetreads?.toString()
-      //       : null,
-
-      //     previousPattern: lastItem.isRetreaded
-      //       ? lastItem.previousPattern
-      //       : null,
-
-      //     previousRetreader: lastItem.isRetreaded ? lastItem.retreadRef : null,
-
-      //     // RETREAD
-      //     retreadDetail:
-      //       lastItem.serviceType === "Retread"
-      //         ? {
-      //             treadPatternVariantId:
-      //               lastItem.treadPatternVariantId?.toString(),
-
-      //             isPatternOverride: !!lastItem.override,
-      //           }
-      //         : null,
-
-      //     // REPAIR
-      //     repairDetail:
-      //       lastItem.serviceType === "Repair"
-      //         ? {
-      //             percentageRemainingTreadDepth:
-      //               lastItem.remainingTreadDepth || "0",
-
-      //             remarks: lastItem.remarks || "",
-
-      //             operations:
-      //               lastItem.repairs?.map((r: any) => ({
-      //                 repairType: r.repairType,
-
-      //                 repairLocation: r.repairLocation,
-
-      //                 quantity: r.repairQty,
-      //               })) || [],
-      //           }
-      //         : null,
-      //   };
-
-      //   console.log("ADD CASING API", casingPayload);
-
-      //   await masterService.addCasingToOrder(casingPayload);
-
-      //   alert("Casing added successfully ✅");
-
-      //   setOrderItems([]);
-      // }
-
-      // // ==================================
-      // // CREATE NEW ORDER
-      // // ==================================
-      // else {
+      // NORMAL CREATE CUSTOMER ORDER FLOW — keep unchanged.
       const payload = buildApiPayload();
 
       console.log("CREATE ORDER API", payload);
 
       await masterService.postSaveOrder(payload);
 
-      alert("Order created successfully ✅");
+      alert("Order created successfully.");
 
       setOrderItems([]);
-
       resetFormFields();
-    } catch (err) {
-      console.error("SAVE ORDER ERROR", err);
-
-      alert("Error saving order ❌");
+    } catch (error) {
+      console.error("SAVE ORDER ERROR", error);
+      alert("Error saving order.");
     } finally {
       setSaveOrderLoading(false);
     }
   };
+
 
   //===================SAVE EDIT FORM =======================================
   const handleUpdateCasing = async () => {
@@ -1170,19 +1225,23 @@ const CollectionPage = ({
         <div className="container-fluid modern-form p-3">
           {/* Rest of your page */}
 
+
           {/* TOP SECTION */}
           {!hideLayout && (
             <div className="row g-4">
-              <div className="col-lg-6">
-                <CustomerSelection
-                  customers={customers}
-                  selectedCustomer={selectedCustomer}
-                  setSelectedCustomer={setSelectedCustomer}
-                  orderItemsLength={orderItems.length}
-                />
-              </div>
+              {!addToExistingOrder && (
+                <div className="col-lg-6">
+                  <CustomerSelection
+                    customers={customers}
+                    selectedCustomer={selectedCustomer}
+                    setSelectedCustomer={setSelectedCustomer}
+                    orderItemsLength={orderItems.length}
+                    disabled={addToExistingOrder}
+                  />
+                </div>
+              )}
 
-              <div className="col-lg-6">
+              <div className={addToExistingOrder ? "col-12" : "col-lg-6"}>
                 <OrderDetails
                   serviceTypes={serviceTypes}
                   selectedServiceType={serviceTypeId}
@@ -1192,11 +1251,13 @@ const CollectionPage = ({
                   handleCategoryChange={handleCategoryChange}
                   orderNumber={orderNumber}
                   setOrderNumber={setOrderNumber}
-                  isServiceLocked={orderItems.length > 0}
+                  isServiceLocked={addToExistingOrder || orderItems.length > 0}
+                  isOrderLocked={addToExistingOrder}
                 />
               </div>
             </div>
           )}
+
 
           {/* RETREAD */}
           {selectedService === "Retread" && category && (

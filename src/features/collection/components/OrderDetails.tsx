@@ -26,6 +26,7 @@ type Props = {
 
   // ================= COMMON =================
   orderItemsLength?: number;
+  isOrderLocked?: boolean;
 };
 
 const OrderDetails = ({
@@ -47,6 +48,7 @@ const OrderDetails = ({
 
   orderItemsLength = 0,
   isServiceLocked = false,
+  isOrderLocked = false,
 }: Props) => {
   return (
     <div className="card modern-card">
@@ -82,6 +84,7 @@ const OrderDetails = ({
               onChange={handleServiceTypeChange}
               // disabled={orderItemsLength > 0}
               disabled={isServiceLocked}
+              // disabled={isServiceLocked}
             >
               <option value="">-- Select Service Type --</option>
 

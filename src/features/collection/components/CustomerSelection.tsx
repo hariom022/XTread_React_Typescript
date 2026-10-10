@@ -10,6 +10,7 @@ type Props = {
   setSelectedCustomer: (customer: Customer | null) => void;
 
   orderItemsLength?: number;
+  disabled?: boolean;
 };
 
 const CustomerSelection = ({
@@ -17,6 +18,7 @@ const CustomerSelection = ({
   selectedCustomer,
   setSelectedCustomer,
   orderItemsLength = 0,
+  disabled = false,
 }: Props) => {
   return (
     <div className="card modern-card">
@@ -39,6 +41,7 @@ const CustomerSelection = ({
             setSelectedCustomer(customer || null);
           }}
           disabled={orderItemsLength > 0}
+          // disabled={disabled}
         >
           <option value="">Select Customer</option>
 

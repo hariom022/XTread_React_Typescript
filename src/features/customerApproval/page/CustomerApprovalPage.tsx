@@ -6,7 +6,6 @@ import CustomerOrderTable from "../components/CustomerOrderTable";
 
 import { useCustomerApproval } from "../hooks/useCustomerApproval";
 import Select from "react-select";
-// import CollectionPage from "../../collection/page/CollectionPage";
 import CollectionPage from "../../collection/page/CollectionPage";
 import type { Casing } from "../types/customerApprovalList.type";
 import EditCasing from "../../collection/components/forms/EditCasing";
@@ -45,15 +44,15 @@ const CustomerApprovalPage = () => {
 
   const [deleteLoading, setDeleteLoading] = useState(false);
   /**ADD NEW CASING HANDLER */
-const handleOpenAddCasing = (orderNumber: string) => {
-  setSelectedOrderNumber(orderNumber);
-  setShowAddCasingModal(true);
-};
-/* CLOSE ADD NEW CASING HANDLER*/
-const handleCloseAddCasing = () => {
-  setShowAddCasingModal(false);
-  setSelectedOrderNumber(null);
-};
+  const handleOpenAddCasing = (orderNumber: string) => {
+    setSelectedOrderNumber(orderNumber);
+    setShowAddCasingModal(true);
+  };
+  /* CLOSE ADD NEW CASING HANDLER*/
+  const handleCloseAddCasing = () => {
+    setShowAddCasingModal(false);
+    setSelectedOrderNumber(null);
+  };
   const handleDeleteCasing = async (
     orderNumber: string,
     orderCasingId: number,
@@ -269,6 +268,47 @@ const handleCloseAddCasing = () => {
           </div>
         </div>
       )}
+
+
+      {/* ADD CASING TO EXISTING ORDER */}
+      {showAddCasingModal && selectedOrderNumber && (
+        <div
+          className="modal fade show"
+          style={{
+            display: "block",
+            background: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <div className="modal-dialog modal-xl modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header bg-danger text-white">
+                <h5 className="modal-title">
+                  Add Casing to Existing Order - {selectedOrderNumber}
+                </h5>
+
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={handleCloseAddCasing}
+                />
+              </div>
+
+              <div className="modal-body">
+                <CollectionPage
+                  addToExistingOrder={true}
+                  existingOrder={approvalList.find(
+                    (item) => item.orderNumber === selectedOrderNumber
+                  )}
+                  onClose={handleCloseAddCasing}
+                  hideLayout={false}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {deleteLoading && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
