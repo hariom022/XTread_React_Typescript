@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
-import "../style/CustomerApproval.css"
+import "../style/CustomerApproval.css";
 import CustomerApprovalModal from "../components/CustomerApprovalModal";
 
 import CustomerOrderTable from "../components/CustomerOrderTable";
 
 import { useCustomerApproval } from "../hooks/useCustomerApproval";
 import Select from "react-select";
-import CollectionPage from "../../collection/page/CollectionPage";
+// import CollectionPage from "../../collection/page/CollectionPage";
 import type { Casing } from "../types/customerApprovalList.type";
 import EditCasing from "../../collection/components/forms/EditCasing";
 import customerApprovalService from "../services/customerApprovalService";
+import AddCasingToExistingOrder from "../components/AddCasingToExistingOrder";
 
 import { RingLoader } from "react-spinners";
 
@@ -160,7 +161,6 @@ const CustomerApprovalPage = () => {
     setSelectedCasing(null);
   };
 
-
   return (
     <div className="container-fluid mt-3">
       {/* FILTER SECTION */}
@@ -196,7 +196,6 @@ const CustomerApprovalPage = () => {
           />
         </div>
       </div>
-
       {/* TABLE */}
       {loading ? (
         <div
@@ -218,7 +217,6 @@ const CustomerApprovalPage = () => {
           handleOpenAddCasing={handleOpenAddCasing}
         />
       )}
-
       {/* MODAL */}
       {showModal && (
         <CustomerApprovalModal
@@ -227,7 +225,6 @@ const CustomerApprovalPage = () => {
           onSuccess={loadOrderList}
         />
       )}
-
       {showEditModal && selectedCasing && (
         <div
           className="modal fade show"
@@ -268,8 +265,7 @@ const CustomerApprovalPage = () => {
           </div>
         </div>
       )}
-
-
+    
       {/* ADD CASING TO EXISTING ORDER */}
       {showAddCasingModal && selectedOrderNumber && (
         <div
@@ -277,6 +273,7 @@ const CustomerApprovalPage = () => {
           style={{
             display: "block",
             background: "rgba(0,0,0,0.5)",
+            zIndex: 1050,
           }}
         >
           <div className="modal-dialog modal-xl modal-dialog-scrollable">
@@ -290,25 +287,44 @@ const CustomerApprovalPage = () => {
                   type="button"
                   className="btn-close btn-close-white"
                   onClick={handleCloseAddCasing}
+                  disabled={addCasingLoading}
                 />
               </div>
 
               <div className="modal-body">
-                <CollectionPage
-                  addToExistingOrder={true}
-                  existingOrder={approvalList.find(
-                    (item) => item.orderNumber === selectedOrderNumber
-                  )}
-                  onClose={handleCloseAddCasing}
-                  hideLayout={false}
-                />
+                {(() => {
+                  const existingOrder = approvalList.find(
+                    (item) => item.orderNumber === selectedOrderNumber,
+                  );
+
+                  if (!existingOrder) {
+                    return (
+                      <div className="alert alert-warning">
+                        Order not found. Please refresh the order list and try
+                        again.
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <AddCasingToExistingOrder
+                      key={selectedOrderNumber}
+                      existingOrder={existingOrder}
+                      onClose={handleCloseAddCasing}
+                      onSuccess={async () => {
+                        await loadOrderList();
+                        handleCloseAddCasing();
+                      }}
+                      setLoading={setAddCasingLoading}
+                    />
+                  );
+                })()}
               </div>
             </div>
           </div>
         </div>
       )}
-
-
+      
       {deleteLoading && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
@@ -328,10 +344,7 @@ const CustomerApprovalPage = () => {
             zIndex: 99999,
           }}
         >
-          <RingLoader
-            color="#b30815"
-            size={80}
-          />
+          <RingLoader color="#b30815" size={80} />
         </div>
       )}
     </div>

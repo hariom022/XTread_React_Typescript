@@ -31,27 +31,34 @@ const masterService = {
 
   postSaveOrder: (data: unknown) => api.post("/orders", data),
 
-  getDamageTypes: () =>
-    api.get("/damage-types"),
+  getDamageTypes: () => api.get("/damage-types"),
 
-  getRepairLocations: () =>
-    api.get("/repair-locations"),
+  getRepairLocations: () => api.get("/repair-locations"),
 
-  addCasingToOrder: ( data: unknown) =>
-    api.post(`/orders/casings`, data),
+  // addCasingToOrder: ( data: unknown) =>
+  //   api.post(`/orders/casings`, data),
+  // updateOrderCasing: (
+  //   orderNumber: string,
+  //   orderCasingId: number,
+  //   data: unknown,
+  // ) => api.put(`/orders/${orderNumber}/casings/${orderCasingId}`, data),
+
   updateOrderCasing: (
     orderNumber: string,
     orderCasingId: number,
     data: unknown,
-  ) => api.put(`/orders/${orderNumber}/casings/${orderCasingId}`, data),
-  
-  deleteCasing: (
-  orderNumber: string,
-  orderCasingId: number,
-) =>
-  api.delete(
-    `/orders/${orderNumber}/casings/${orderCasingId}`,
-  ),
+  ) =>
+    api.put(
+      `/orders/${encodeURIComponent(orderNumber)}/casings/${orderCasingId}`,
+      data,
+    ),
+
+    
+  addCasingToOrder: (orderNumber: string, data: unknown) =>
+    api.post(`/orders/${encodeURIComponent(orderNumber)}/casings`, data),
+
+  deleteCasing: (orderNumber: string, orderCasingId: number) =>
+    api.delete(`/orders/${orderNumber}/casings/${orderCasingId}`),
 };
 
 export default masterService;

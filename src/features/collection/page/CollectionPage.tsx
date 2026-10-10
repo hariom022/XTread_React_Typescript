@@ -46,6 +46,8 @@ type Props = {
   // NEW: add a casing to an existing customer order
   addToExistingOrder?: boolean;
   existingOrder?: any;
+
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 };
 
 const CollectionPage = ({
@@ -58,6 +60,7 @@ const CollectionPage = ({
 
   addToExistingOrder = false,
   existingOrder,
+  onSubmittingChange,
 }: Props) => {
   // =========================================================
   // CUSTOMER
@@ -340,7 +343,6 @@ const CollectionPage = ({
 
   /**using it for add new casing button at customer approval */
 
-
   useEffect(() => {
     if (!addToExistingOrder || !existingOrder || serviceTypes.length === 0) {
       return;
@@ -360,7 +362,7 @@ const CollectionPage = ({
     }
 
     // Keep the existing order number.
-    //setOrderNumber(existingOrder.orderNumber || "");
+    setOrderNumber(existingOrder.orderNumber || "");
 
     // Get the service type from an existing casing.
     const firstCasing = existingOrder.casings?.[0];
@@ -373,7 +375,7 @@ const CollectionPage = ({
     if (existingServiceTypeId == null) {
       console.error(
         "Service type ID was not found on the existing order's casings.",
-        existingOrder
+        existingOrder,
       );
       return;
     }
@@ -948,29 +950,29 @@ const CollectionPage = ({
         retreadDetail:
           item.serviceType === "Retread"
             ? {
-              treadPatternVariantId: item.treadPatternVariantId?.toString(),
+                treadPatternVariantId: item.treadPatternVariantId?.toString(),
 
-              isPatternOverride: !!item.override,
-            }
+                isPatternOverride: !!item.override,
+              }
             : null,
 
         // REPAIR DETAIL
         repairDetail:
           item.serviceType === "Repair"
             ? {
-              percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
+                percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
 
-              remarks: item.remarks || "",
+                remarks: item.remarks || "",
 
-              operations:
-                item.repairs?.map((r: any) => ({
-                  repairType: r.repairType,
+                operations:
+                  item.repairs?.map((r: any) => ({
+                    repairType: r.repairType,
 
-                  repairLocation: r.repairLocation,
+                    repairLocation: r.repairLocation,
 
-                  quantity: r.repairQty,
-                })) || [],
-            }
+                    quantity: r.repairQty,
+                  })) || [],
+              }
             : null,
       })),
     };
@@ -997,72 +999,73 @@ const CollectionPage = ({
 
       // ADD CASINGS TO AN EXISTING ORDER:
       // Prepare the payload only. The backend API is not ready yet.
+
       if (addToExistingOrder) {
-        const existingOrderPayload = orderItems.map((item) => ({
-          orderNumber: existingOrder?.orderNumber,
-          bookNumber: orderNumber.trim() || null,
-          
-          serviceTypeId: String(item.serviceTypeId),
-          categoryId: String(item.categoryId),
-          tyreSizeId: String(item.tyreSizeId),
-          rimSize: item.rimSize,
+        const existingOrderNumber = existingOrder?.orderNumber;
 
-          tyreMakeId: String(item.tyreMakeId),
-          model: item.model,
-          tyreClassificationId: String(item.tyreClassificationId),
+        if (!existingOrderNumber) {
+          alert("Existing order number is missing.");
+          return;
+        }
 
-          tyreReferenceNumber: item.serial,
-          dotNumber: item.dot,
-          otherNumber: item.otherNumber,
-          vehicleRegistrationNumber: item.vehicleReg,
-          existingRepairsCount: item.noOfRepairs || "0",
+        for (const item of orderItems) {
+          const payload = {
+            serviceTypeId: String(item.serviceTypeId),
+            categoryId: String(item.categoryId),
+            tyreSizeId: String(item.tyreSizeId),
+            rimSize: String(item.rimSize ?? ""),
+            tyreMakeId: String(item.tyreMakeId),
+            model: item.model || "",
+            tyreClassificationId: String(item.tyreClassificationId),
+            tyreReferenceNumber: item.serial || "",
+            dotNumber: item.dot || "",
+            otherNumber: item.otherNumber || "",
+            vehicleRegistrationNumber: item.vehicleReg || null,
+            existingRepairsCount: String(item.noOfRepairs || "0"),
 
-          isRetreaded: Boolean(item.isRetreaded),
-          noOfRetread: item.isRetreaded
-            ? String(item.noOfRetreads)
-            : null,
-          previousPattern: item.isRetreaded
-            ? item.previousPattern
-            : null,
-          previousRetreader: item.isRetreaded
-            ? item.retreadRef
-            : null,
-
-          retreadDetail:
-            item.serviceType === "Retread"
-              ? {
-                treadPatternVariantId: String(
-                  item.treadPatternVariantId
-                ),
-                isPatternOverride: Boolean(item.override),
-              }
+            isRetreaded: Boolean(item.isRetreaded),
+            noOfRetread: item.isRetreaded
+              ? String(item.noOfRetreads || "0")
+              : "0",
+            previousPattern: item.isRetreaded
+              ? item.previousPattern || null
               : null,
+            previousRetreader: item.isRetreaded ? item.retreadRef || "" : "",
 
-          repairDetail:
-            item.serviceType === "Repair"
-              ? {
-                percentageRemainingTreadDepth:
-                  item.remainingTreadDepth || "0",
-                remarks: item.remarks || "",
-                operations: (item.repairs || []).map((repair: any) => ({
-                  repairType: repair.repairType,
-                  repairLocation: repair.repairLocation,
-                  quantity: Number(repair.repairQty),
-                })),
-              }
-              : null,
-        }));
+            retreadDetail:
+              item.serviceType === "Retread"
+                ? {
+                    treadPatternVariantId: String(item.treadPatternVariantId),
+                    isPatternOverride: Boolean(item.override),
+                  }
+                : null,
 
-        console.log(
-          "ADD CASINGS TO EXISTING ORDER - READY PAYLOAD",
-          existingOrderPayload
-        );
+            repairDetail:
+              item.serviceType === "Repair"
+                ? {
+                    percentageRemainingTreadDepth: String(
+                      item.remainingTreadDepth || "0",
+                    ),
+                    remarks: item.remarks || "",
+                    operations: (item.repairs || []).map((repair: any) => ({
+                      repairType: repair.repairType,
+                      repairLocation: repair.repairLocation,
+                      quantity: String(repair.repairQty || "0"),
+                    })),
+                  }
+                : null,
+          };
 
-        // No API call until the backend endpoint is implemented.
-        alert(
-          "Casing payload prepared successfully. " +
-          "The existing-order save API is not implemented yet."
-        );
+          await masterService.addCasingToOrder(existingOrderNumber, payload);
+        }
+
+        alert("Casing added successfully.");
+
+        setOrderItems([]);
+        resetFormFields();
+
+        await onSuccess?.();
+        onClose?.();
 
         return;
       }
@@ -1085,7 +1088,6 @@ const CollectionPage = ({
       setSaveOrderLoading(false);
     }
   };
-
 
   //===================SAVE EDIT FORM =======================================
   const handleUpdateCasing = async () => {
@@ -1126,24 +1128,24 @@ const CollectionPage = ({
         retreadDetail:
           selectedService === "Retread"
             ? {
-              treadPatternVariantId: selectedVariantId,
-              isPatternOverride: override,
-            }
+                treadPatternVariantId: selectedVariantId,
+                isPatternOverride: override,
+              }
             : null,
 
         repairDetail:
           selectedService === "Repair"
             ? {
-              percentageRemainingTreadDepth: remainingTreadDepth,
+                percentageRemainingTreadDepth: remainingTreadDepth,
 
-              remarks,
+                remarks,
 
-              operations: repairs.map((r) => ({
-                repairType: r.repairType,
-                repairLocation: r.repairLocation,
-                quantity: Number(r.repairQty),
-              })),
-            }
+                operations: repairs.map((r) => ({
+                  repairType: r.repairType,
+                  repairLocation: r.repairLocation,
+                  quantity: Number(r.repairQty),
+                })),
+              }
             : null,
       };
       console.log("UPDATE PAYLOAD ON EDITING ", payload);
@@ -1172,7 +1174,7 @@ const CollectionPage = ({
     }
 
     const confirmed = window.confirm(
-      `Are you sure you want to delete casing "${casing.tyreReferenceNumber || casing.orderCasingId}"?`
+      `Are you sure you want to delete casing "${casing.tyreReferenceNumber || casing.orderCasingId}"?`,
     );
 
     if (!confirmed) {
@@ -1225,7 +1227,6 @@ const CollectionPage = ({
         <div className="container-fluid modern-form p-3">
           {/* Rest of your page */}
 
-
           {/* TOP SECTION */}
           {!hideLayout && (
             <div className="row g-4">
@@ -1257,7 +1258,6 @@ const CollectionPage = ({
               </div>
             </div>
           )}
-
 
           {/* RETREAD */}
           {selectedService === "Retread" && category && (
