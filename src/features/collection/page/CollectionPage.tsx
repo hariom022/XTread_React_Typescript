@@ -23,6 +23,7 @@ import masterService from "../services/masterService";
 import { useTyreSizes } from "../hooks/useTyreSizes";
 
 import { usePatterns } from "../hooks/usePatterns";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 import type {
   Category,
@@ -950,29 +951,29 @@ const CollectionPage = ({
         retreadDetail:
           item.serviceType === "Retread"
             ? {
-                treadPatternVariantId: item.treadPatternVariantId?.toString(),
+              treadPatternVariantId: item.treadPatternVariantId?.toString(),
 
-                isPatternOverride: !!item.override,
-              }
+              isPatternOverride: !!item.override,
+            }
             : null,
 
         // REPAIR DETAIL
         repairDetail:
           item.serviceType === "Repair"
             ? {
-                percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
+              percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
 
-                remarks: item.remarks || "",
+              remarks: item.remarks || "",
 
-                operations:
-                  item.repairs?.map((r: any) => ({
-                    repairType: r.repairType,
+              operations:
+                item.repairs?.map((r: any) => ({
+                  repairType: r.repairType,
 
-                    repairLocation: r.repairLocation,
+                  repairLocation: r.repairLocation,
 
-                    quantity: r.repairQty,
-                  })) || [],
-              }
+                  quantity: r.repairQty,
+                })) || [],
+            }
             : null,
       })),
     };
@@ -1035,24 +1036,24 @@ const CollectionPage = ({
             retreadDetail:
               item.serviceType === "Retread"
                 ? {
-                    treadPatternVariantId: String(item.treadPatternVariantId),
-                    isPatternOverride: Boolean(item.override),
-                  }
+                  treadPatternVariantId: String(item.treadPatternVariantId),
+                  isPatternOverride: Boolean(item.override),
+                }
                 : null,
 
             repairDetail:
               item.serviceType === "Repair"
                 ? {
-                    percentageRemainingTreadDepth: String(
-                      item.remainingTreadDepth || "0",
-                    ),
-                    remarks: item.remarks || "",
-                    operations: (item.repairs || []).map((repair: any) => ({
-                      repairType: repair.repairType,
-                      repairLocation: repair.repairLocation,
-                      quantity: String(repair.repairQty || "0"),
-                    })),
-                  }
+                  percentageRemainingTreadDepth: String(
+                    item.remainingTreadDepth || "0",
+                  ),
+                  remarks: item.remarks || "",
+                  operations: (item.repairs || []).map((repair: any) => ({
+                    repairType: repair.repairType,
+                    repairLocation: repair.repairLocation,
+                    quantity: String(repair.repairQty || "0"),
+                  })),
+                }
                 : null,
           };
 
@@ -1081,12 +1082,19 @@ const CollectionPage = ({
 
       setOrderItems([]);
       resetFormFields();
-    } catch (error) {
-      console.error("SAVE ORDER ERROR", error);
-      alert("Error saving order.");
+    } catch (error: unknown) {
+      console.error("SAVE ORDER ERROR:", error);
+
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to save the order. Please check the required fields."
+        )
+      );
     } finally {
       setSaveOrderLoading(false);
     }
+
   };
 
   //===================SAVE EDIT FORM =======================================
@@ -1128,24 +1136,24 @@ const CollectionPage = ({
         retreadDetail:
           selectedService === "Retread"
             ? {
-                treadPatternVariantId: selectedVariantId,
-                isPatternOverride: override,
-              }
+              treadPatternVariantId: selectedVariantId,
+              isPatternOverride: override,
+            }
             : null,
 
         repairDetail:
           selectedService === "Repair"
             ? {
-                percentageRemainingTreadDepth: remainingTreadDepth,
+              percentageRemainingTreadDepth: remainingTreadDepth,
 
-                remarks,
+              remarks,
 
-                operations: repairs.map((r) => ({
-                  repairType: r.repairType,
-                  repairLocation: r.repairLocation,
-                  quantity: Number(r.repairQty),
-                })),
-              }
+              operations: repairs.map((r) => ({
+                repairType: r.repairType,
+                repairLocation: r.repairLocation,
+                quantity: Number(r.repairQty),
+              })),
+            }
             : null,
       };
       console.log("UPDATE PAYLOAD ON EDITING ", payload);
@@ -1158,9 +1166,16 @@ const CollectionPage = ({
       alert("Casing updated successfully");
 
       onSuccess?.();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to update casing");
+
+    } catch (error: unknown) {
+      console.error("UPDATE CASING ERROR", error);
+
+      const message = getApiErrorMessage(
+        error,
+        "Failed to update the casing. Please try again."
+      );
+
+      alert(message);
     } finally {
       setSaveEditLoading?.(false);
     }
@@ -1196,18 +1211,18 @@ const CollectionPage = ({
 
       // Close Edit Casing modal
       onClose?.();
-    } catch (error: any) {
+
+    } catch (error: unknown) {
       console.error("DELETE CASING ERROR:", error);
 
-      const message =
-        error?.response?.data?.error?.message ||
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "Failed to delete casing.";
+      const message = getApiErrorMessage(
+        error,
+        "Failed to delete the casing. Please try again."
+      );
 
       alert(message);
     } finally {
+
       setSaveEditLoading?.(false);
     }
   };

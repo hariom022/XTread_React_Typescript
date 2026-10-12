@@ -174,7 +174,6 @@ const TreadBenchInspectionModal = ({
                                     {item.displayName}
                                   </option>
                                 ))}
-                                <option value="0">None of Above</option>
                               </select>
                             </div>
                           </div>
