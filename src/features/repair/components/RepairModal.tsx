@@ -66,11 +66,10 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     }
   };
 
-  const loadRepairMaterials = async (serviceTypeId?: number) => {
+  const loadRepairMaterials = async () => {
     try {
-      const result = await repairService.getRepairMaterials(serviceTypeId);
+      const result = await repairService.getRepairMaterials();
 
-      console.log("SERVICE TYPE ID:", serviceTypeId);
       console.log("REPAIR MATERIAL RESPONSE:", result?.data);
 
       const data = result?.data?.data;
@@ -88,6 +87,30 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       setRepairMaterials([]);
     }
   };
+
+
+  // const loadRepairMaterials = async (serviceTypeId?: number) => {
+  //   try {
+  //     const result = await repairService.getRepairMaterials(serviceTypeId);
+
+  //     console.log("SERVICE TYPE ID:", serviceTypeId);
+  //     console.log("REPAIR MATERIAL RESPONSE:", result?.data);
+
+  //     const data = result?.data?.data;
+
+  //     if (Array.isArray(data)) {
+  //       setRepairMaterials(data);
+  //     } else if (data) {
+  //       // API returned a single repair material object
+  //       setRepairMaterials([data]);
+  //     } else {
+  //       setRepairMaterials([]);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to load repair materials:", error);
+  //     setRepairMaterials([]);
+  //   }
+  // };
 
   const loadPatchSizes = async (repairMaterialId: number) => {
     try {
@@ -113,9 +136,10 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     loadRejectionReasons();
     loadLocations();
     loadDamageTypes();
-    if (selectedItem?.serviceTypeId) {
-      loadRepairMaterials(selectedItem.serviceTypeId);
-    }
+    loadRepairMaterials();
+    // if (selectedItem?.serviceTypeId) {
+    //   loadRepairMaterials(selectedItem.serviceTypeId);
+    // }
   }, [selectedItem]);
 
   const addPatch = () => {
@@ -601,7 +625,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                               className="btn btn-reject btn-sm-action d-flex justify-content-center align-items-center"
                               onClick={() => handleSubmit(false)}
                             >
-                               REJECTED
+                              REJECTED
                             </button>
 
                             <button

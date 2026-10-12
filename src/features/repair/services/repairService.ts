@@ -11,10 +11,12 @@ const repairService = {
 
   getDamageTypes: () => api.get("/damage-types"),
 
-  getRepairMaterials: (serviceTypeId?: number) => {
-    if (serviceTypeId === 1) {
-      return api.get("/repair-materials/1");
-    }
+  getRepairMaterials: (
+    // serviceTypeId?: number
+  ) => {
+    // if (serviceTypeId === 1) {
+    //   return api.get("/repair-materials/1");
+    // }
 
     return api.get("/repair-materials");
   },
