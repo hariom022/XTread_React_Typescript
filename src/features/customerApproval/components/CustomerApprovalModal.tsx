@@ -174,7 +174,7 @@ const CustomerApprovalModal = ({
 
         // emailAddresses: validEmails,
         // Temporary compatibility with the existing API
-  emailAddress: validEmails[0],
+        emailAddresses: validEmails,
 
         casingCondition: casingCondition.trim(),
 
