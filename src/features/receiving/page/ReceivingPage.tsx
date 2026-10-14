@@ -21,6 +21,8 @@ import EditCasing from "../../collection/components/forms/EditCasing";
 import "../style/Receiving.css";
 import { RingLoader } from "react-spinners";
 
+import { getApiErrorMessage } from "../../../shared/utils/getApiErrorMessage";
+
 const ReceivingPage = () => {
   const {
     activeTab,
@@ -61,6 +63,8 @@ const ReceivingPage = () => {
     setSelectedCasingRows,
     loadBarcodeOrders,
     loadBatchOrders,
+    loadingError,
+    setLoadingError,
   } = useReceiving();
 
   const [selectedCustomer, setSelectedCustomer] = useState("all");
@@ -218,10 +222,15 @@ const ReceivingPage = () => {
 
       await loadCollectionOrders();
       await loadBatchOrders();
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Receive Casings Error:", error);
 
-      alert("Failed to receive casings");
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to receive casings. Please try again.",
+        ),
+      );
     }
   };
 
@@ -245,10 +254,15 @@ const ReceivingPage = () => {
       setSelectedRows([]);
 
       await loadCollectionOrders();
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Reject Casings Error:", error);
 
-      alert("Failed to reject casings");
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to reject casings. Please try again.",
+        ),
+      );
     }
   };
 
@@ -291,10 +305,15 @@ const ReceivingPage = () => {
       await loadBarcodeOrders();
 
       setActiveTab("barcode");
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Create Batch Error:", error);
 
-      alert("Failed to create batch");
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to create the batch. Please check the selected casings and try again.",
+        ),
+      );
     }
   };
   // const handleCreateBatch = async () => {
@@ -357,18 +376,19 @@ const ReceivingPage = () => {
 
       await loadBarcodeOrders();
       await loadCollectionOrders();
-    } catch (err: any) {
-      console.error(err);
+    } catch (error: unknown) {
+      console.error("Proceed to Visual Inspection Error:", error);
 
       alert(
-        err?.response?.data?.message ||
-          err?.response?.data?.title ||
-          "Failed to move next stage",
+        getApiErrorMessage(
+          error,
+          "Unable to move the selected batch to Visual Inspection. Please try again.",
+        ),
       );
     }
     finally {
-    setProceedLoading(false);
-  }
+      setProceedLoading(false);
+    }
   };
 
   const toggleAllCasing = () => {
@@ -421,36 +441,32 @@ const ReceivingPage = () => {
 
       <div className="mb-3 d-flex">
         <button
-          className={`btn me-2 ${
-            activeTab === "collection" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn me-2 ${activeTab === "collection" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={() => setActiveTab("collection")}
         >
           Collection
         </button>
 
         <button
-          className={`btn me-2 ${
-            activeTab === "batch" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn me-2 ${activeTab === "batch" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={() => setActiveTab("batch")}
         >
           Batch
         </button>
 
         <button
-          className={`btn me-2 ${
-            activeTab === "barcode" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn me-2 ${activeTab === "barcode" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={() => setActiveTab("barcode")}
         >
           Barcode
         </button>
 
         <button
-          className={`btn me-2 ${
-            activeTab === "notReceived" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn me-2 ${activeTab === "notReceived" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={() => setActiveTab("notReceived")}
         >
           Not Received
@@ -568,6 +584,19 @@ const ReceivingPage = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {loadingError && (
+        <div className="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>Unable to load data:</strong> {loadingError}
+
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={() => setLoadingError(null)}
+          />
         </div>
       )}
     </div>
