@@ -16,7 +16,7 @@ type ApiRequestError = {
   };
 };
 
-export const getApiErrorMessage = (
+export const getVisualInspectionErrorMessage = (
   error: unknown,
   fallbackMessage = "The request could not be completed. Please try again.",
 ): string => {

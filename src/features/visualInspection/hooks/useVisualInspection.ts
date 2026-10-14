@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import visualInspectionService from "../service/visualInspectionService";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getVisualInspectionErrorMessage } from "../utils/getVisualInspectionErrorMessage";
 export const useVisualInspection = () => {
   const [loading, setLoading] = useState(false);
 
@@ -91,7 +91,7 @@ export const useVisualInspection = () => {
       console.error("Load Visual Inspection Error:", error);
 
       setLoadingError(
-        getApiErrorMessage(
+        getVisualInspectionErrorMessage(
           error,
           "Unable to load Visual Inspection records. Please try again.",
         ),
@@ -109,7 +109,7 @@ export const useVisualInspection = () => {
       console.error("Load Rejection Reasons Error:", error);
 
       setLoadingError(
-        getApiErrorMessage(
+        getVisualInspectionErrorMessage(
           error,
           "Unable to load rejection reasons. Please try again.",
         ),

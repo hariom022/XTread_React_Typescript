@@ -1,7 +1,7 @@
 import { useState } from "react";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getVisualInspectionErrorMessage } from "../utils/getVisualInspectionErrorMessage";
 
 export const useVisualInspectionModal = () => {
   const [showModal, setShowModal] = useState(false);
@@ -57,7 +57,7 @@ export const useVisualInspectionModal = () => {
       console.error("Load Casing Details Error:", error);
 
       alert(
-        getApiErrorMessage(
+        getVisualInspectionErrorMessage(
           error,
           "Unable to load casing details. Please try again.",
         ),

@@ -4,7 +4,7 @@ import { RingLoader } from "react-spinners";
 
 import customerApprovalService from "../services/customerApprovalService";
 
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getApiErrorMessage } from "../utils/getCustomerApprovalErrorMessage";
 
 type Props = {
   selectedOrder: any;

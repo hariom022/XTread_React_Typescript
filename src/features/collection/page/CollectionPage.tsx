@@ -23,7 +23,7 @@ import masterService from "../services/masterService";
 import { useTyreSizes } from "../hooks/useTyreSizes";
 
 import { usePatterns } from "../hooks/usePatterns";
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getApiErrorMessage } from "../utils/getCollectionErrorMessage";
 
 import type {
   Category,

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import addCasingService from "../services/addCasingService";
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getApiErrorMessage } from "../utils/getCustomerApprovalErrorMessage";
 
 export const useAddCasingToExistingOrder = () => {
   const [loading, setLoading] = useState(false);

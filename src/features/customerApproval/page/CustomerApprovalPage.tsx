@@ -11,7 +11,7 @@ import type { Casing } from "../types/customerApprovalList.type";
 import EditCasing from "../../collection/components/forms/EditCasing";
 import customerApprovalService from "../services/customerApprovalService";
 import AddCasingToExistingOrder from "../components/AddCasingToExistingOrder";
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getApiErrorMessage } from "../utils/getCustomerApprovalErrorMessage";
 
 import { RingLoader } from "react-spinners";
 

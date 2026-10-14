@@ -4,7 +4,7 @@ import type { OrderItem } from "../types/customerApprovalList.type";
 
 import customerApprovalService from "../services/customerApprovalService";
 
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getApiErrorMessage } from "../utils/getCustomerApprovalErrorMessage";
 
 export const useCustomerApproval = () => {
   const [approvalList, setApprovalList] = useState<OrderItem[]>([]);

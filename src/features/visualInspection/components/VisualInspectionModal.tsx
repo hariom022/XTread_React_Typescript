@@ -5,7 +5,7 @@ import VisualChecklistModal from "./VisualChecklistModal";
 import "../styles/VisualInspect.css";
 import { useAuthStore } from "../../auth/store/authStore";
 
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import { getVisualInspectionErrorMessage } from "../utils/getVisualInspectionErrorMessage";
 
 type Props = {
   item: any;
@@ -120,7 +120,7 @@ const VisualInspectionModal = ({
       console.error("Visual Inspection Approval/Rejection Error:", error);
 
       alert(
-        getApiErrorMessage(
+        getVisualInspectionErrorMessage(
           error,
           `Unable to ${isApproved ? "approve" : "reject"} this casing. Please try again.`,
         ),
