@@ -4,6 +4,8 @@ import type { OrderItem } from "../types/customerApprovalList.type";
 
 import customerApprovalService from "../services/customerApprovalService";
 
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+
 export const useCustomerApproval = () => {
   const [approvalList, setApprovalList] = useState<OrderItem[]>([]);
 
@@ -26,8 +28,15 @@ export const useCustomerApproval = () => {
       console.log("API DATA", res.data.data);
 
       setApprovalList(res.data.data || []);
-    } catch (e) {
-      console.log("Load Approval Error", e);
+    } catch (error: unknown) {
+      console.error("Load Approval Error:", error);
+
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to load Customer Approval orders. Please try again.",
+        ),
+      );
     } finally {
       setLoading(false);
     }

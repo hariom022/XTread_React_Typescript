@@ -1,5 +1,6 @@
 import { useState } from "react";
 import addCasingService from "../services/addCasingService";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 export const useAddCasingToExistingOrder = () => {
   const [loading, setLoading] = useState(false);
@@ -22,21 +23,10 @@ export const useAddCasingToExistingOrder = () => {
     } catch (error: unknown) {
       console.error("Failed to add casing:", error);
 
-      const apiError = error as {
-        response?: {
-          data?: {
-            message?: string;
-            title?: string;
-          };
-        };
-        message?: string;
-      };
-
-      const message =
-        apiError.response?.data?.message ??
-        apiError.response?.data?.title ??
-        apiError.message ??
-        "Failed to add casing. Please try again.";
+      const message = getApiErrorMessage(
+        error,
+        "Unable to add this casing. Please check the details and try again.",
+      );
 
       setError(message);
       throw error;
