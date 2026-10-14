@@ -17,6 +17,8 @@ const VisualInspectionPage = () => {
     inspections,
     rejectionReasons,
     loadVisualInspection,
+    loadingError,
+    setLoadingError,
   } = useVisualInspection();
 
   const [search, setSearch] = useState("");
@@ -32,36 +34,36 @@ const VisualInspectionPage = () => {
     closeModal,
   } = useVisualInspectionModal();
 
-const filteredData = useMemo(() => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const filteredData = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  return inspections
-    .filter((item: any) =>
-      `${item.casing} ${item.serial} ${item.patternName} ${item.batchNo}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    )
-    .sort((a: any, b: any) => {
-      const timeA = new Date(a.date).getTime();
-      const timeB = new Date(b.date).getTime();
+    return inspections
+      .filter((item: any) =>
+        `${item.casing} ${item.serial} ${item.patternName} ${item.batchNo}`
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      )
+      .sort((a: any, b: any) => {
+        const timeA = new Date(a.date).getTime();
+        const timeB = new Date(b.date).getTime();
 
-      const aDay = new Date(timeA);
-      const bDay = new Date(timeB);
+        const aDay = new Date(timeA);
+        const bDay = new Date(timeB);
 
-      aDay.setHours(0, 0, 0, 0);
-      bDay.setHours(0, 0, 0, 0);
+        aDay.setHours(0, 0, 0, 0);
+        bDay.setHours(0, 0, 0, 0);
 
-      const isTodayA = aDay.getTime() === today.getTime();
-      const isTodayB = bDay.getTime() === today.getTime();
+        const isTodayA = aDay.getTime() === today.getTime();
+        const isTodayB = bDay.getTime() === today.getTime();
 
-      if (isTodayA !== isTodayB) {
-        return isTodayA ? -1 : 1;
-      }
+        if (isTodayA !== isTodayB) {
+          return isTodayA ? -1 : 1;
+        }
 
-      return timeB - timeA;
-    });
-}, [inspections, search]);
+        return timeB - timeA;
+      });
+  }, [inspections, search]);
 
 
   return (
@@ -147,6 +149,22 @@ const filteredData = useMemo(() => {
             )
           }
         />
+      )}
+
+      {loadingError && (
+        <div
+          className="alert alert-danger alert-dismissible fade show"
+          role="alert"
+        >
+          <strong>Visual Inspection:</strong> {loadingError}
+
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={() => setLoadingError(null)}
+          />
+        </div>
       )}
     </div>
   );

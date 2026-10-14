@@ -182,6 +182,9 @@ const CollectionPage = ({
   const [showRejectMessage, setShowRejectMessage] = useState<boolean>(false);
 
   const [orderNumber, setOrderNumber] = useState<string>("");
+
+  // Book Number input
+  const [bookNumber, setBookNumber] = useState<string>("");
   // =========================
   // ADD THESE STATES
   // =========================
@@ -365,6 +368,8 @@ const CollectionPage = ({
     // Keep the existing order number.
     setOrderNumber(existingOrder.orderNumber || "");
 
+    // Book Number empty when Add New Casing opens.
+    setBookNumber("");
     // Get the service type from an existing casing.
     const firstCasing = existingOrder.casings?.[0];
 
@@ -911,7 +916,7 @@ const CollectionPage = ({
   const buildApiPayload = () => {
     return {
       customerNumber: selectedCustomer?.customerNumber,
-      bookNumber: orderNumber?.trim() || null,
+      bookNumber: bookNumber.trim() || null,
 
       casings: orderItems.map((item) => ({
         serviceTypeId: item.serviceTypeId?.toString(),
@@ -1265,8 +1270,10 @@ const CollectionPage = ({
                   categories={categories}
                   category={category?.categoryId || 0}
                   handleCategoryChange={handleCategoryChange}
-                  orderNumber={orderNumber}
-                  setOrderNumber={setOrderNumber}
+                  // orderNumber={orderNumber}
+                  // setOrderNumber={setOrderNumber}
+                  bookNumber={bookNumber}
+                  setBookNumber={setBookNumber}
                   isServiceLocked={addToExistingOrder || orderItems.length > 0}
                   isOrderLocked={addToExistingOrder}
                 />

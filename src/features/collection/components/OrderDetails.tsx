@@ -4,9 +4,14 @@ import type { Category, ServiceType } from "../types/collection.types";
 
 type Props = {
   // ================= ORDER =================
-  orderNumber?: string;
+  // orderNumber?: string;
 
-  setOrderNumber?: (value: string) => void;
+  // setOrderNumber?: (value: string) => void;
+
+  // ================= BOOK NUMBER =================
+  bookNumber?: string;
+
+  setBookNumber?: (value: string) => void;
 
   // ================= SERVICE =================
   serviceTypes: ServiceType[];
@@ -30,10 +35,13 @@ type Props = {
 };
 
 const OrderDetails = ({
-  orderNumber = "",
+  // orderNumber = "",
 
-  setOrderNumber,
+  // setOrderNumber,
 
+  bookNumber = "",
+
+  setBookNumber,
   serviceTypes,
 
   selectedServiceType,
@@ -66,8 +74,8 @@ const OrderDetails = ({
             <input
               className="form-control modern-input"
               placeholder="Collection Book No#"
-              value={orderNumber}
-              onChange={(e) => setOrderNumber?.(e.target.value)}
+              value={bookNumber}
+              onChange={(e) => setBookNumber?.(e.target.value)}
             />
           </div>
         </div>
@@ -84,7 +92,7 @@ const OrderDetails = ({
               onChange={handleServiceTypeChange}
               // disabled={orderItemsLength > 0}
               disabled={isServiceLocked}
-              // disabled={isServiceLocked}
+            // disabled={isServiceLocked}
             >
               <option value="">-- Select Service Type --</option>
 

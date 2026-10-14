@@ -11,6 +11,7 @@ import type { Casing } from "../types/customerApprovalList.type";
 import EditCasing from "../../collection/components/forms/EditCasing";
 import customerApprovalService from "../services/customerApprovalService";
 import AddCasingToExistingOrder from "../components/AddCasingToExistingOrder";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 import { RingLoader } from "react-spinners";
 
@@ -72,10 +73,15 @@ const CustomerApprovalPage = () => {
       alert("Casing deleted successfully");
 
       await loadOrderList();
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Delete Casing Error:", error);
 
-      alert("Failed to delete casing");
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to delete this casing. Please try again.",
+        ),
+      );
     } finally {
       setDeleteLoading(false);
     }
@@ -265,7 +271,7 @@ const CustomerApprovalPage = () => {
           </div>
         </div>
       )}
-    
+
       {/* ADD CASING TO EXISTING ORDER */}
       {showAddCasingModal && selectedOrderNumber && (
         <div
@@ -324,7 +330,7 @@ const CustomerApprovalPage = () => {
           </div>
         </div>
       )}
-      
+
       {deleteLoading && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"

@@ -4,31 +4,7 @@ import { RingLoader } from "react-spinners";
 
 import customerApprovalService from "../services/customerApprovalService";
 
-const getErrorMessage = (error: any): string => {
-  const data = error?.response?.data;
-
-  if (typeof data?.error?.message === "string") {
-    return data.error.message;
-  }
-
-  if (typeof data?.message === "string") {
-    return data.message;
-  }
-
-  if (typeof data?.error === "string") {
-    return data.error;
-  }
-
-  if (Array.isArray(data?.errors)) {
-    return data.errors.join("\n");
-  }
-
-  if (typeof error?.message === "string") {
-    return error.message;
-  }
-
-  return "Customer approval failed. Please try again.";
-};
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 type Props = {
   selectedOrder: any;
@@ -174,7 +150,7 @@ const CustomerApprovalModal = ({
 
         // emailAddresses: validEmails,
         // Temporary compatibility with the existing API
-  emailAddress: validEmails[0],
+        emailAddresses: validEmails,
 
         casingCondition: casingCondition.trim(),
 
@@ -200,10 +176,15 @@ const CustomerApprovalModal = ({
 
       onClose();
 
-    } catch (e: any) {
-      console.error("Customer Approval Error:", e);
+    } catch (error: unknown) {
+      console.error("Customer Approval Error:", error);
 
-      alert(getErrorMessage(e));
+      alert(
+        getApiErrorMessage(
+          error,
+          "Customer approval failed. Please check the details and try again.",
+        ),
+      );
     } finally {
       setSaving(false);
     }

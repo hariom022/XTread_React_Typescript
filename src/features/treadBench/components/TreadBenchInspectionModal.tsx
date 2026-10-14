@@ -165,7 +165,7 @@ const TreadBenchInspectionModal = ({
                                 onChange={(e) => setCementType(e.target.value)}
                               >
                                 <option value="" selected disabled>Select Cement Type</option>
-                                <option value="0">Select None</option>
+                                <option value="null">Select None</option>
                                 {cementTypes?.map((item) => (
                                   <option
                                     key={item.cementTypeId}
@@ -174,6 +174,7 @@ const TreadBenchInspectionModal = ({
                                     {item.displayName}
                                   </option>
                                 ))}
+                                
                               </select>
                             </div>
                           </div>

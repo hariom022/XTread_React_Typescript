@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import receiveService from "../services/receiveService";
 
 import type { Order, ReceivingRow } from "../types/receiving.types";
+import { getApiErrorMessage } from "../../../shared/utils/getApiErrorMessage";
 
 export const useReceiving = () => {
   const [collectionLoading, setCollectionLoading] = useState(false);
@@ -29,6 +30,8 @@ export const useReceiving = () => {
   const [casingList, setCasingList] = useState<ReceivingRow[]>([]);
 
   const [notReceivedList, setNotReceivedList] = useState<ReceivingRow[]>([]);
+
+  const [loadingError, setLoadingError] = useState<string | null>(null);
 
   //   const [selectedCasingRows, setSelectedCasingRows] =
   // useState<string[]>([]);
@@ -137,8 +140,11 @@ export const useReceiving = () => {
       const transformed = transformApiData(res.data?.data || []);
 
       setInspections(transformed);
-    } catch (err) {
-      console.error("Collection Error", err);
+    } catch (error: unknown) {
+      console.error("Collection Error:", error);
+      setLoadingError(
+        getApiErrorMessage(error, "Unable to load Collection records."),
+      );
     } finally {
       setCollectionLoading(false);
     }
@@ -156,8 +162,11 @@ export const useReceiving = () => {
       const transformed = transformApiData(res.data?.data || []);
 
       setBatchList(transformed);
-    } catch (err) {
-      console.error("Batch Error", err);
+    } catch (error: unknown) {
+      console.error("Batch Error:", error);
+      setLoadingError(
+        getApiErrorMessage(error, "Unable to load Batch records."),
+      );
     } finally {
       setBatchLoading(false);
     }
@@ -175,8 +184,11 @@ export const useReceiving = () => {
       const transformed = transformApiData(res.data?.data || []);
 
       setCasingList(transformed);
-    } catch (err) {
-      console.error("Barcode Error", err);
+    } catch (error: unknown) {
+      console.error("Barcode Error:", error);
+      setLoadingError(
+        getApiErrorMessage(error, "Unable to load Barcode records."),
+      );
     } finally {
       setBarcodeLoading(false);
     }
@@ -196,8 +208,11 @@ export const useReceiving = () => {
       const transformed = transformApiData(res.data?.data || []);
 
       // setNotReceivedList(transformed);
-    } catch (err) {
-      console.error("Not Received Error", err);
+    } catch (error: unknown) {
+      console.error("Not Received Error:", error);
+      setLoadingError(
+        getApiErrorMessage(error, "Unable to load Not Received records."),
+      );
     } finally {
       setNotReceivedLoading(false);
     }
@@ -207,6 +222,8 @@ export const useReceiving = () => {
   // REFRESH ALL
   // ==========================
   const refreshAll = async () => {
+    setLoadingError(null);
+
     await Promise.all([
       loadCollectionOrders(),
       loadBatchOrders(),
@@ -322,5 +339,8 @@ export const useReceiving = () => {
     toggleCasingRow,
 
     refreshAll,
+
+    loadingError,
+    setLoadingError
   };
 };
