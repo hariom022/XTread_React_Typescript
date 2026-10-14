@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 
 import visualInspectionService from "../service/visualInspectionService";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 export const useVisualInspection = () => {
   const [loading, setLoading] = useState(false);
 
   const [inspections, setInspections] = useState<any[]>([]);
 
   const [rejectionReasons, setRejectionReasons] = useState([]);
+
+  const [loadingError, setLoadingError] = useState<string | null>(null);
 
   const loadVisualInspection = async () => {
     try {
@@ -33,16 +36,16 @@ export const useVisualInspection = () => {
 
               tyreSize: casing.tyreSizeLabel || "-",
 
-              patternName:casing?.patternName || "-",
+              patternName: casing?.patternName || "-",
 
               requestedPattern: "-",
 
-              date:casing.orderDate ||  "-",
+              date: casing.orderDate || "-",
 
-              customerName:casing.customerName ||  "-",
+              customerName: casing.customerName || "-",
 
               service: casing.serviceTypeName || "-",
-              tyreMakeName:casing.tyreMakeName || "-",
+              tyreMakeName: casing.tyreMakeName || "-",
 
               batchNo: batch.batchNumber,
 
@@ -84,15 +87,34 @@ export const useVisualInspection = () => {
       console.log("TRANSFORMED VISUAL", transformed);
 
       setInspections(transformed);
+    } catch (error: unknown) {
+      console.error("Load Visual Inspection Error:", error);
+
+      setLoadingError(
+        getApiErrorMessage(
+          error,
+          "Unable to load Visual Inspection records. Please try again.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const loadRejectionReasons = async () => {
-    const res = await visualInspectionService.getRejectionReason();
+    try {
+      const res = await visualInspectionService.getRejectionReason();
+      setRejectionReasons(res.data.data);
+    } catch (error: unknown) {
+      console.error("Load Rejection Reasons Error:", error);
 
-    setRejectionReasons(res.data.data);
+      setLoadingError(
+        getApiErrorMessage(
+          error,
+          "Unable to load rejection reasons. Please try again.",
+        ),
+      );
+    }
   };
 
   useEffect(() => {
@@ -108,5 +130,7 @@ export const useVisualInspection = () => {
     rejectionReasons,
 
     loadVisualInspection,
+    loadingError,
+    setLoadingError,
   };
 };

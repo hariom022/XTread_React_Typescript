@@ -1,6 +1,8 @@
 import { useState } from "react";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+
 export const useVisualInspectionModal = () => {
   const [showModal, setShowModal] = useState(false);
 
@@ -14,7 +16,7 @@ export const useVisualInspectionModal = () => {
 
       const res = await indexPageApiService.getOrderCasingDetails(item.id);
       console.log("VISUAL INSPECT API", res.data);
-       console.log("========== INSPECT API RESPONSE ==========");
+      console.log("========== INSPECT API RESPONSE ==========");
       console.log("Inspect Item:", item);
       console.log("API Response:", res);
       console.log("Response Data:", res.data);
@@ -51,10 +53,15 @@ export const useVisualInspectionModal = () => {
       setSelectedItem(modalData);
 
       setShowModal(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error: unknown) {
+      console.error("Load Casing Details Error:", error);
 
-      alert("Failed to load casing details");
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to load casing details. Please try again.",
+        ),
+      );
     } finally {
       setLoadingModal(false);
     }
