@@ -188,6 +188,15 @@ const CollectionPage = ({
   // ADD THESE STATES
   // =========================
 
+  const [isValidatingMaterial, setIsValidatingMaterial] = useState(false);
+
+  const [isFinishedMaterialValid, setIsFinishedMaterialValid] = useState<
+    boolean | null
+  >(null);
+
+  const [materialValidationMessage, setMaterialValidationMessage] =
+    useState("");
+
   // TYRE HISTORY
   const [showTyreHistory, setShowTyreHistory] = useState<boolean>(false);
 
@@ -334,6 +343,64 @@ const CollectionPage = ({
 
     return true;
   };
+
+  useEffect(() => {
+    // Both fields are required before validating.
+    if (!selectedTyreName.trim() || !selectedPattern.trim()) {
+      setIsFinishedMaterialValid(null);
+      setMaterialValidationMessage("");
+      setIsValidatingMaterial(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const validateMaterial = async () => {
+      setIsValidatingMaterial(true);
+      setIsFinishedMaterialValid(null);
+      setMaterialValidationMessage("");
+
+      try {
+        const response = await masterService.validateFinishedMaterial(
+          selectedTyreName.trim(),
+          selectedPattern.trim(),
+        );
+
+        if (cancelled) return;
+
+        const isValid =
+          response.data?.success === true && response.data?.data === true;
+
+        setIsFinishedMaterialValid(isValid);
+
+        if (!isValid) {
+          setMaterialValidationMessage(
+            "The selected tyre size and pattern do not have a matching finished material.",
+          );
+        }
+      } catch (error: any) {
+        if (cancelled) return;
+
+        const message =
+          error?.response?.data?.error?.message ||
+          error?.response?.data?.message ||
+          "Unable to validate the selected tyre size and pattern.";
+
+        setIsFinishedMaterialValid(false);
+        setMaterialValidationMessage(message);
+      } finally {
+        if (!cancelled) {
+          setIsValidatingMaterial(false);
+        }
+      }
+    };
+
+    validateMaterial();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTyreName, selectedPattern]);
   // =========================================================
   // LOADERS
   // =========================================================
@@ -671,6 +738,27 @@ const CollectionPage = ({
   // =========================
 
   const handleAddCasing = () => {
+
+    if (selectedService === "Retread") {
+    if (!selectedTyreName.trim() || !selectedPattern.trim()) {
+      alert("Please select both Tyre Size and Pattern.");
+      return;
+    }
+
+    if (isValidatingMaterial) {
+      alert("Please wait while the finished material is being validated.");
+      return;
+    }
+
+    if (isFinishedMaterialValid !== true) {
+      alert(
+        materialValidationMessage ||
+          "Please select a valid tyre size and pattern.",
+      );
+      return;
+    }
+  }
+  
     if (!validateDot()) return;
 
     const dotNumber = `${factoryCode}${manufacturingWeek}${manufacturingYear}`;
@@ -776,6 +864,7 @@ const CollectionPage = ({
     resetFormFields();
   };
 
+  
   const handleAddRepair = () => {
     if (!repairType || !repairLocation || !repairQty) {
       alert("Please fill all repair fields");
@@ -955,29 +1044,29 @@ const CollectionPage = ({
         retreadDetail:
           item.serviceType === "Retread"
             ? {
-              treadPatternVariantId: item.treadPatternVariantId?.toString(),
+                treadPatternVariantId: item.treadPatternVariantId?.toString(),
 
-              isPatternOverride: !!item.override,
-            }
+                isPatternOverride: !!item.override,
+              }
             : null,
 
         // REPAIR DETAIL
         repairDetail:
           item.serviceType === "Repair"
             ? {
-              percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
+                percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
 
-              remarks: item.remarks || "",
+                remarks: item.remarks || "",
 
-              operations:
-                item.repairs?.map((r: any) => ({
-                  repairType: r.repairType,
+                operations:
+                  item.repairs?.map((r: any) => ({
+                    repairType: r.repairType,
 
-                  repairLocation: r.repairLocation,
+                    repairLocation: r.repairLocation,
 
-                  quantity: r.repairQty,
-                })) || [],
-            }
+                    quantity: r.repairQty,
+                  })) || [],
+              }
             : null,
       })),
     };
@@ -1040,24 +1129,24 @@ const CollectionPage = ({
             retreadDetail:
               item.serviceType === "Retread"
                 ? {
-                  treadPatternVariantId: String(item.treadPatternVariantId),
-                  isPatternOverride: Boolean(item.override),
-                }
+                    treadPatternVariantId: String(item.treadPatternVariantId),
+                    isPatternOverride: Boolean(item.override),
+                  }
                 : null,
 
             repairDetail:
               item.serviceType === "Repair"
                 ? {
-                  percentageRemainingTreadDepth: String(
-                    item.remainingTreadDepth || "0",
-                  ),
-                  remarks: item.remarks || "",
-                  operations: (item.repairs || []).map((repair: any) => ({
-                    repairType: repair.repairType,
-                    repairLocation: repair.repairLocation,
-                    quantity: String(repair.repairQty || "0"),
-                  })),
-                }
+                    percentageRemainingTreadDepth: String(
+                      item.remainingTreadDepth || "0",
+                    ),
+                    remarks: item.remarks || "",
+                    operations: (item.repairs || []).map((repair: any) => ({
+                      repairType: repair.repairType,
+                      repairLocation: repair.repairLocation,
+                      quantity: String(repair.repairQty || "0"),
+                    })),
+                  }
                 : null,
           };
 
@@ -1133,24 +1222,24 @@ const CollectionPage = ({
         retreadDetail:
           selectedService === "Retread"
             ? {
-              treadPatternVariantId: selectedVariantId,
-              isPatternOverride: override,
-            }
+                treadPatternVariantId: selectedVariantId,
+                isPatternOverride: override,
+              }
             : null,
 
         repairDetail:
           selectedService === "Repair"
             ? {
-              percentageRemainingTreadDepth: remainingTreadDepth,
+                percentageRemainingTreadDepth: remainingTreadDepth,
 
-              remarks,
+                remarks,
 
-              operations: repairs.map((r) => ({
-                repairType: r.repairType,
-                repairLocation: r.repairLocation,
-                quantity: Number(r.repairQty),
-              })),
-            }
+                operations: repairs.map((r) => ({
+                  repairType: r.repairType,
+                  repairLocation: r.repairLocation,
+                  quantity: Number(r.repairQty),
+                })),
+              }
             : null,
       };
       console.log("UPDATE PAYLOAD ON EDITING ", payload);
@@ -1350,6 +1439,10 @@ const CollectionPage = ({
                   onSave={handleUpdateCasing}
                   onClose={onClose}
                   onDelete={handleDeleteCasing}
+
+                    isValidatingMaterial={isValidatingMaterial}
+                  isFinishedMaterialValid={isFinishedMaterialValid}
+                  materialValidationMessage={materialValidationMessage}
                 />
               </div>
             </div>
@@ -1421,6 +1514,7 @@ const CollectionPage = ({
                   remarks={remarks}
                   setRemarks={setRemarks}
                   category={category}
+
                   handleAddCasing={handleAddCasing}
                   showTyreHistory={showTyreHistory}
                   setShowTyreHistory={setShowTyreHistory}
