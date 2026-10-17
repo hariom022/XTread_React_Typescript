@@ -59,6 +59,14 @@ const masterService = {
 
   deleteCasing: (orderNumber: string, orderCasingId: number) =>
     api.delete(`/orders/${orderNumber}/casings/${orderCasingId}`),
+
+  validateFinishedMaterial: (tyreSize: string, pattern: string) =>
+  api.get(
+    `/materials/validate-finished-material?${new URLSearchParams({
+      tyreSize,
+      pattern,
+    }).toString()}`,
+  ),
 };
 
 export default masterService;

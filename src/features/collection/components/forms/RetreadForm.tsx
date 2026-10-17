@@ -143,6 +143,10 @@ interface RetreadFormProps {
   onSave?: () => void;
   onClose?: () => void;
   onDelete?: () => void;
+
+  isValidatingMaterial: boolean;
+  isFinishedMaterialValid: boolean | null;
+  materialValidationMessage: string;
 }
 
 const RetreadForm: React.FC<RetreadFormProps> = ({
@@ -245,6 +249,9 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
   manufacturingYear,
   setManufacturingWeek,
   setManufacturingYear,
+  isValidatingMaterial,
+  isFinishedMaterialValid,
+  materialValidationMessage,
 }) => {
   return (
     <div className="truck-retread-form">
@@ -739,6 +746,24 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
               </option>
             ))}
           </select>
+
+          {isValidatingMaterial && (
+            <small className="text-muted d-block mt-1">
+              Validating finished material...
+            </small>
+          )}
+
+          {!isValidatingMaterial && isFinishedMaterialValid === true && (
+            <small className="text-success d-block mt-1">
+              Finished material validated successfully.
+            </small>
+          )}
+
+          {!isValidatingMaterial && isFinishedMaterialValid === false && (
+            <small className="text-danger d-block mt-1">
+              {materialValidationMessage}
+            </small>
+          )}
         </div>
 
         {/* Width */}
@@ -831,7 +856,6 @@ const RetreadForm: React.FC<RetreadFormProps> = ({
           >
             Add Casing to Order
           </button>
-
         )}
       </div>
     </div>

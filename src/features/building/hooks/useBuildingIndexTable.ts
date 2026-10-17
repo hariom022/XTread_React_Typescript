@@ -108,7 +108,7 @@ const useBuildingIndexTable = () => {
                                         batch,
 
                                     originalCasing:
-                                        casing,
+                                        casing,                                    
                                 });
                             },
                         );

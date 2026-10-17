@@ -61,6 +61,17 @@ const BuildingStage = () => {
 
       const casing = response.data.data;
 
+      console.log("========== BUILDING INSPECT DEBUG ==========");
+      console.log("Casing ID:", item.id);
+      console.log("Complete casing response:", casing);
+      console.log("Finished Material:", casing?.finishedMaterial);
+      console.log(
+        "Retread Finished Material:",
+        casing?.retreadDetail?.finishedMaterial
+      );
+      console.log("============================================");
+
+
       console.log("BUILDING CASING DETAILS", casing);
 
       const updatedItem = {
@@ -88,6 +99,7 @@ const BuildingStage = () => {
           casing.retreadDetail?.treadPatternVariantId,
 
         width: casing.retreadDetail?.width || "-",
+        finishedMaterial: casing.finishedMaterial ?? null,
       };
 
       console.log("===== WIDTH DEBUG - INSPECT =====");
