@@ -1,9 +1,18 @@
 
 type ApiErrorBody = {
-  error?: string | { code?: string; message?: string; details?: unknown } | null;
+  success?: boolean;
+  error?:
+    | {
+        code?: string;
+        message?: string;
+        details?: unknown;
+      }
+    | string
+    | null;
   message?: string;
   title?: string;
   detail?: string;
+  details?: unknown;
   errors?: Record<string, string[] | string> | string[];
 };
 
@@ -28,7 +37,7 @@ export const getApiErrorMessage = (
   }
 
   if (data && typeof data === "object") {
-    // ASP.NET Core model-validation errors
+    // ASP.NET Core validation errors
     if (data.errors) {
       const messages = Array.isArray(data.errors)
         ? data.errors
@@ -46,14 +55,18 @@ export const getApiErrorMessage = (
       }
     }
 
-    // Your API's ApiResponse error format
-    if (
-      data.error &&
-      typeof data.error === "object" &&
-      typeof data.error.message === "string" &&
-      data.error.message.trim()
-    ) {
-      return data.error.message.trim();
+    // Custom ApiResponse error
+    if (data.error && typeof data.error === "object") {
+      if (
+        typeof data.error.message === "string" &&
+        data.error.message.trim()
+      ) {
+        return data.error.message.trim();
+      }
+
+      if (typeof data.error.code === "string") {
+        return `Request failed (${data.error.code}).`;
+      }
     }
 
     if (typeof data.error === "string" && data.error.trim()) {
@@ -68,7 +81,6 @@ export const getApiErrorMessage = (
       return data.detail.trim();
     }
 
-    // Avoid showing ASP.NET's generic validation heading
     if (
       typeof data.title === "string" &&
       data.title.trim() &&
@@ -78,7 +90,7 @@ export const getApiErrorMessage = (
     }
   }
 
-  // Request timeout or network failure
+  // Network and timeout errors
   if (!err.response) {
     if (err.code === "ECONNABORTED" || err.code === "ETIMEDOUT") {
       return "The request timed out. Please try again.";
@@ -89,17 +101,23 @@ export const getApiErrorMessage = (
     }
   }
 
-  if (err.response?.status === 401) {
-    return "Your session may have expired. Please sign in again.";
-  }
+  // HTTP errors
+  switch (err.response?.status) {
+    case 400:
+      return "The customer approval request is invalid. Please check the entered details.";
+    case 401:
+      return "Your session may have expired. Please sign in again.";
+    case 403:
+      return "You do not have permission to perform this action.";
+    case 404:
+      return "The requested order was not found.";
+    case 413:
+      return "The signature or request is too large. Please try again.";
+    default:
+      if (err.response?.status && err.response.status >= 500) {
+        return "A server error occurred. Please try again later.";
+      }
 
-  if (err.response?.status === 403) {
-    return "You do not have permission to perform this action.";
+      return fallbackMessage;
   }
-
-  if (err.response?.status !== undefined && err.response.status >= 500) {
-    return "A server error occurred. Please try again later.";
-  }
-
-  return fallbackMessage;
 };

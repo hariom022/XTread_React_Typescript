@@ -14,29 +14,31 @@ const customerApprovalService = {
     api.post("/orders/customer-approval", data),
 
   deleteCasing: (
-  orderNumber: string,
-  orderCasingId: number
-) =>
-  api.delete(
-    `/orders/${orderNumber}/casings/${orderCasingId}`
-  ),
+    orderNumber: string,
+    orderCasingId: number
+  ) =>
+    api.delete(
+      `/orders/${orderNumber}/casings/${orderCasingId}`
+    ),
 };
 
 export default customerApprovalService;
 
+
+export interface CustomerApprovalOrderPayload {
+  orderId: number;
+  requiresLpo: boolean;
+  requiresPayment: boolean;
+}
+
 export interface CustomerApprovalPayload {
-  orderIds: string[];
-
+  orders: CustomerApprovalOrderPayload[];
   customerRepresentative: string;
-
   phoneNumber: string;
-
   emailAddresses: string[];
-
   casingCondition: string;
-
-  remarks: string;
-
+  remarks: string | null;
   customerSignature: string;
 }
+
 

@@ -45,6 +45,10 @@ const CustomerApprovalModal = ({
   );
 
   const [remarks, setRemarks] = useState("");
+  type ApprovalRequirement = "lpo" | "payment" | "none";
+
+  const [approvalRequirement, setApprovalRequirement] =
+    useState<ApprovalRequirement>("none");
 
   // const generatedEmail =
   //   emailName && emailDomain && emailExtension
@@ -141,23 +145,27 @@ const CustomerApprovalModal = ({
       // ------------------------------------------------------------
 
       const payload = {
-        orderIds: [String(orderId)],
+        orders: [
+          {
+            orderId: Number(orderId),
+            requiresLpo: approvalRequirement === "lpo",
+            requiresPayment: approvalRequirement === "payment",
+          },
+        ],
 
         customerRepresentative: customerRepresentative.trim(),
 
-        // phoneNumber: `${countryCode}${order?.customer?.mobileNumber || ""}`.trim(),
         phoneNumber: `${countryCode}${phoneNumber.trim()}`,
 
-        // emailAddresses: validEmails,
-        // Temporary compatibility with the existing API
         emailAddresses: validEmails,
 
         casingCondition: casingCondition.trim(),
 
-        remarks: remarks.trim(),
+        remarks: remarks.trim() || null,
 
-        customerSignature: customerSignature,
+        customerSignature,
       };
+
 
       console.log("Customer Approval Payload:", payload);
       //--------------- START LOADER
@@ -376,6 +384,86 @@ const CustomerApprovalModal = ({
                   </div>
                 </div>
               </div>
+
+
+              {/* LPO / PAYMENT REQUIREMENT */}
+              <div className="card border-0 shadow-sm rounded-3 mb-3">
+                <div className="card-body p-3">
+                  <h6 className="fw-bold mb-3">
+                    Order Requirements
+                  </h6>
+
+                  <div className="d-flex flex-wrap gap-4">
+                    <div className="form-check">
+                      <input
+                        id="requiresLpo"
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={approvalRequirement === "lpo"}
+                        disabled={saving}
+                        onChange={(e) =>
+                          setApprovalRequirement(
+                            e.target.checked ? "lpo" : "none"
+                          )
+                        }
+                      />
+                      <label
+                        className="form-check-label fw-semibold"
+                        htmlFor="requiresLpo"
+                      >
+                        LPO Require
+                      </label>
+                    </div>
+
+                    <div className="form-check">
+                      <input
+                        id="requiresPayment"
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={approvalRequirement === "payment"}
+                        disabled={saving}
+                        onChange={(e) =>
+                          setApprovalRequirement(
+                            e.target.checked ? "payment" : "none"
+                          )
+                        }
+                      />
+                      <label
+                        className="form-check-label fw-semibold"
+                        htmlFor="requiresPayment"
+                      >
+                        Payment Require
+                      </label>
+                    </div>
+
+                    <div className="form-check">
+                      <input
+                        id="noRequirements"
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={approvalRequirement === "none"}
+                        disabled={saving}
+                        onChange={(e) =>
+                          setApprovalRequirement(
+                            e.target.checked ? "none" : "none"
+                          )
+                        }
+                      />
+                      <label
+                        className="form-check-label fw-semibold"
+                        htmlFor="noRequirements"
+                      >
+                        None
+                      </label>
+                    </div>
+                  </div>
+
+                  <small className="text-muted d-block mt-2">
+                    Select one requirement for this order.
+                  </small>
+                </div>
+              </div>
+
 
               {/* ==================================================
                   CASING ORDER
