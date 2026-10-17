@@ -190,8 +190,7 @@ const useBuildingModal = ({ selectedItem, onClose, refreshTable }: Props) => {
         rejectionReasonId: "-0",
 
         materialConsumptions: null,
-
-        finishedMaterial: "71000210",
+        finishedMaterial: selectedItem.finishedMaterial ?? null,
 
         overrideShutterproof:
           selectedShutterProofGum === "70000056",
