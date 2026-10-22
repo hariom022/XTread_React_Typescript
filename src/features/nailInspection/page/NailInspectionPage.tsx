@@ -280,15 +280,15 @@ const NailInspectionPage = () => {
     }
   };
 
-  const handleHold = () => {
-    console.log("Status: HOLD");
-    console.log("Casing:", selectedItem?.casing);
+  // const handleHold = () => {
+  //   console.log("Status: HOLD");
+  //   console.log("Casing:", selectedItem?.casing);
 
-    alert("Moved to HOLD – Awaiting Customer Approval");
+  //   alert("Moved to HOLD – Awaiting Customer Approval");
 
-    // setSelectedItem(null);
-    resetAndCloseModal();
-  };
+  //   // setSelectedItem(null);
+  //   resetAndCloseModal();
+  // };
   // const handleApprove = () => {
   //   console.log("Approve");
   // };
@@ -305,69 +305,69 @@ const NailInspectionPage = () => {
   //   console.log("Approve With Pressure Test");
   // };
 
-  const handleLPOHold = async () => {
-    try {
-      setProcessing(true);
+  // const handleLPOHold = async () => {
+  //   try {
+  //     setProcessing(true);
 
-      const payload = {
-        orderCasingId: selectedItem.id.toString(),
-        casingStage: 4,
-        holdType: 1,
-      };
+  //     const payload = {
+  //       orderCasingId: selectedItem.id.toString(),
+  //       casingStage: 4,
+  //       holdType: 1,
+  //     };
 
-      console.log("LPO Hold Payload", payload);
+  //     console.log("LPO Hold Payload", payload);
 
-      await nailInspectionService.createHold(payload);
+  //     await nailInspectionService.createHold(payload);
 
-      alert("Moved to HOLD – Awaiting Customer LPO");
+  //     alert("Moved to HOLD – Awaiting Customer LPO");
 
-      await loadOrders();
+  //     await loadOrders();
 
-      resetAndCloseModal();
-    } catch (error: any) {
-      console.error(error);
+  //     resetAndCloseModal();
+  //   } catch (error: any) {
+  //     console.error(error);
 
-      alert(
-        error?.response?.data?.message ||
-        error?.response?.data ||
-        "Failed to create LPO hold"
-      );
-    } finally {
-      setProcessing(false);
-    }
-  };
+  //     alert(
+  //       error?.response?.data?.message ||
+  //       error?.response?.data ||
+  //       "Failed to create LPO hold"
+  //     );
+  //   } finally {
+  //     setProcessing(false);
+  //   }
+  // };
 
-  const handlePaymentHold = async () => {
-    try {
-      setProcessing(true);
+  // const handlePaymentHold = async () => {
+  //   try {
+  //     setProcessing(true);
 
-      const payload = {
-        orderCasingId: selectedItem.id.toString(),
-        casingStage: 4,
-        holdType: 2,
-      };
+  //     const payload = {
+  //       orderCasingId: selectedItem.id.toString(),
+  //       casingStage: 4,
+  //       holdType: 2,
+  //     };
 
-      console.log("Payment Hold Payload", payload);
+  //     console.log("Payment Hold Payload", payload);
 
-      await nailInspectionService.createHold(payload);
+  //     await nailInspectionService.createHold(payload);
 
-      alert("Moved to HOLD – Awaiting Payment");
+  //     alert("Moved to HOLD – Awaiting Payment");
 
-      await loadOrders();
+  //     await loadOrders();
 
-      resetAndCloseModal();
-    } catch (error: any) {
-      console.error(error);
+  //     resetAndCloseModal();
+  //   } catch (error: any) {
+  //     console.error(error);
 
-      alert(
-        error?.response?.data?.message ||
-        error?.response?.data ||
-        "Failed to create Payment hold"
-      );
-    } finally {
-      setProcessing(false);
-    }
-  };
+  //     alert(
+  //       error?.response?.data?.message ||
+  //       error?.response?.data ||
+  //       "Failed to create Payment hold"
+  //     );
+  //   } finally {
+  //     setProcessing(false);
+  //   }
+  // };
   return (
     <div className="container-fluid mt-3">
       {/* Search + Incident */}
@@ -427,7 +427,7 @@ const NailInspectionPage = () => {
           openChecklist={openChecklist}
           handleApprove={handleApprove}
           handleReject={handleReject}
-          handleHold={handleHold}
+          // handleHold={handleHold}
           handleApproveWithPressureTest={handleApproveWithPressureTest}
           resonForRemoval={resonForRemoval}
           location={location}
@@ -437,8 +437,8 @@ const NailInspectionPage = () => {
           newPatchRemoval={newPatchRemoval}
           setNewPatchRemoval={setNewPatchRemoval}
           addRemove={addRemove}
-          handleLPOHold={handleLPOHold}
-          handlePaymentHold={handlePaymentHold}
+          // handleLPOHold={handleLPOHold}
+          // handlePaymentHold={handlePaymentHold}
         />
       )}
 

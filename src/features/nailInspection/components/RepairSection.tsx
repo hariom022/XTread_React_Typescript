@@ -39,8 +39,8 @@ const RepairSection = ({
             })
           }
         >
-          <option value="">
-            Damage Type
+          <option value="" selected disabled>
+            Select Damage Type
           </option>
 
           {damageType.map((item: any) => (
@@ -67,8 +67,8 @@ const RepairSection = ({
             })
           }
         >
-          <option value="">
-            Repair Location
+          <option value="" selected disabled>
+            Select Repair Location
           </option>
 
           {location.map((item: any) => (

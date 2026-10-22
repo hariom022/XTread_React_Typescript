@@ -35,7 +35,7 @@ const ShearographyModal = ({
   const [pdfFiles, setPdfFiles] = useState<any[]>([]);
 
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
-  const [showHoldOptions, setShowHoldOptions] = useState(false);
+  // const [showHoldOptions, setShowHoldOptions] = useState(false);
 
   const toggleChecklist = (id: string) => {
     setCheckedChecklist((prev) => {
@@ -75,66 +75,66 @@ const ShearographyModal = ({
   const removePdf = (index: number) => {
     setPdfFiles((prev) => prev.filter((_, i) => i !== index));
   };
-  const handleLPOHold = async () => {
-    try {
-      const payload = {
-        orderCasingId: item.id.toString(),
-        casingStage: 6,
-        holdType: 1,
-      };
+  // const handleLPOHold = async () => {
+  //   try {
+  //     const payload = {
+  //       orderCasingId: item.id.toString(),
+  //       casingStage: 6,
+  //       holdType: 1,
+  //     };
 
-      console.log("LPO Hold Payload:", payload);
+  //     console.log("LPO Hold Payload:", payload);
 
-      await shearographyService.createHold(payload);
+  //     await shearographyService.createHold(payload);
 
-      alert("Hold created for Awaiting Customer LPO");
+  //     alert("Hold created for Awaiting Customer LPO");
 
-      setShowHoldOptions(false);
-      onSuccess();
-      onClose();
-    } catch (error: any) {
-      console.error("LPO Hold Error:", error);
-      console.error("LPO Hold Response:", error?.response?.data);
+  //     setShowHoldOptions(false);
+  //     onSuccess();
+  //     onClose();
+  //   } catch (error: any) {
+  //     console.error("LPO Hold Error:", error);
+  //     console.error("LPO Hold Response:", error?.response?.data);
 
-      const responseData = error?.response?.data;
+  //     const responseData = error?.response?.data;
 
-      alert(
-        responseData?.message ||
-        responseData?.error?.message ||
-        responseData?.error ||
-        JSON.stringify(responseData) ||
-        "Failed to create LPO hold"
-      );
-    }
-  };
+  //     alert(
+  //       responseData?.message ||
+  //       responseData?.error?.message ||
+  //       responseData?.error ||
+  //       JSON.stringify(responseData) ||
+  //       "Failed to create LPO hold"
+  //     );
+  //   }
+  // };
 
-  const handlePaymentHold = async () => {
-    try {
-      const payload = {
-        orderCasingId: item.id.toString(),
-        casingStage: 6,
-        holdType: 2,
-      };
+  // const handlePaymentHold = async () => {
+  //   try {
+  //     const payload = {
+  //       orderCasingId: item.id.toString(),
+  //       casingStage: 6,
+  //       holdType: 2,
+  //     };
 
-      console.log("Payment Hold Payload:", payload);
+  //     console.log("Payment Hold Payload:", payload);
 
-      await shearographyService.createHold(payload);
+  //     await shearographyService.createHold(payload);
 
-      alert("Hold created for Payment");
+  //     alert("Hold created for Payment");
 
-      setShowHoldOptions(false);
-      onSuccess();
-      onClose();
-    } catch (error: any) {
-      console.error("Payment Hold Error:", error);
+  //     setShowHoldOptions(false);
+  //     onSuccess();
+  //     onClose();
+  //   } catch (error: any) {
+  //     console.error("Payment Hold Error:", error);
 
-      alert(
-        error?.response?.data?.message ||
-        error?.response?.data ||
-        "Failed to create Payment hold"
-      );
-    }
-  };
+  //     alert(
+  //       error?.response?.data?.message ||
+  //       error?.response?.data ||
+  //       "Failed to create Payment hold"
+  //     );
+  //   }
+  // };
   const handleApprove = async () => {
     if (!checklistSaved) {
       alert("Please complete checklist first");
@@ -258,18 +258,16 @@ const ShearographyModal = ({
 
               {/* Checklist + Rejection */}
               <div className="row g-3 mt-1">
-                <div className="col-md-6 d-flex align-items-end">
-                  <button
-                    type="button"
-                    className="btn btn-primary w-100"
-                    style={{ height: "2.75rem", }}
-                    onClick={() => setShowChecklist(true)}
-                  >
-                    Shearography Checklist
-                  </button>
-                </div>
 
-                <div className="col-md-6">
+                {/* PDF Upload */}
+                <PdfUpload
+                  pdfFiles={pdfFiles}
+                  previewIndex={previewIndex}
+                  setPreviewIndex={setPreviewIndex}
+                  handlePdfUpload={handlePdfUpload}
+                  removePdf={removePdf}
+                />
+                <div className="col">
                   <select
                     className="form-select"
                     value={reason}
@@ -289,20 +287,11 @@ const ShearographyModal = ({
                     ))}
                   </select>
                 </div>
-
-                {/* PDF Upload */}
-                <PdfUpload
-                  pdfFiles={pdfFiles}
-                  previewIndex={previewIndex}
-                  setPreviewIndex={setPreviewIndex}
-                  handlePdfUpload={handlePdfUpload}
-                  removePdf={removePdf}
-                />
               </div>
 
               {/* Action Buttons */}
               <div className="row g-1 mt-2">
-                <div className="col-md-4">
+                {/* <div className="col-md-4">
                   <button
                     className="btn btn-warning HOLD w-100 d-flex align-items-center justify-content-center gap-3"
                     style={{
@@ -315,6 +304,19 @@ const ShearographyModal = ({
                     <span className="icon-box">
                       <i className="bi bi-pause-circle"></i>
                     </span>
+                  </button>
+                </div> */}
+
+                <div className="col-md-4">
+                  <button
+                    type="button"
+                    className="open-checklist-btn btn-primary w-100 d-flex align-items-center justify-content-center gap-3"
+                    style={{
+                      height: "7.25rem",
+                    }}
+                    onClick={() => setShowChecklist(true)}
+                  >
+                    <b>SHEAROGRAPHY CHECKLIST</b>
                   </button>
                 </div>
 
@@ -345,7 +347,7 @@ const ShearographyModal = ({
                 </div>
               </div>
               {/* HOLD OPTIONS MODAL */}
-              {showHoldOptions && (
+              {/* {showHoldOptions && (
                 <>
                   <div
                     className="modal-backdrop fade show"
@@ -378,7 +380,7 @@ const ShearographyModal = ({
                         <div className="modal-body">
                           <div className="row g-3">
 
-                            {/* LPO */}
+                            
                             <div className="col-6">
                               <button
                                 type="button"
@@ -390,7 +392,7 @@ const ShearographyModal = ({
                               </button>
                             </div>
 
-                            {/* PAYMENT */}
+                            
                             <div className="col-6">
                               <button
                                 type="button"
@@ -409,7 +411,7 @@ const ShearographyModal = ({
                     </div>
                   </div>
                 </>
-              )}
+              )} */}
             </div>
           </div>
         </div>

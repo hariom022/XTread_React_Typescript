@@ -28,11 +28,11 @@ const shearographyService = {
     ),
 
   // 🔹 Hold - LPO / Payment
-  createHold: (data: {
-    orderCasingId: string;
-    casingStage: number;
-    holdType: number;
-  }) => api.post(`/holds`, data),
+  // createHold: (data: {
+  //   orderCasingId: string;
+  //   casingStage: number;
+  //   holdType: number;
+  // }) => api.post(`/holds`, data),
 
 };
 

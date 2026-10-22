@@ -1,45 +1,67 @@
 import api from "../../../shared/services/api";
 
 const holdTyreServiceApi = {
-  // =========================================================
-  // GET HOLD TYRES
-  // =========================================================
-  getHoldTyres: (
-    casingStage: number,
-    // casingSubstage?: number,
-    includeApproved: boolean = false,
-    // holdType: number = 1
-  ) => {
-    return api.get("/holds", {
-      params: {
-        casingStage,
+  // // =========================================================
+  // // GET HOLD TYRES
+  // // =========================================================
+  // getHoldTyres: (
+  //   casingStage: number,
+  //   // casingSubstage?: number,
+  //   includeApproved: boolean = false,
+  //   // holdType: number = 1
+  // ) => {
+  //   return api.get("/holds", {
+  //     params: {
+  //       casingStage,
 
-        // ...(casingSubstage !== undefined && {
-        //   casingSubstage,
-        // }),
+  //       // ...(casingSubstage !== undefined && {
+  //       //   casingSubstage,
+  //       // }),
 
-        includeApproved,
+  //       includeApproved,
 
-        // holdType,
-      },
-    });
+  //       // holdType,
+  //     },
+  //   });
+  // },
+
+  // // =========================================================
+  // // APPROVE HOLD TYRE
+  // // =========================================================
+  // approveHold: (
+  //   holdId: number,
+  //   payload: {
+  //     lpoNumber: string;
+  //     date: string;
+  //     amount: number;
+  //     remarks: string;
+  //   }
+  // ) => {
+  //   return api.post(
+  //     `/holds/${holdId}/approve`,
+  //     payload
+  //   );
+  // },
+
+  getNailInspectionHoldOrders: async (): Promise<any> => {
+    throw new Error(
+      "Nail Inspection Hold orders API is not implemented yet."
+    );
   },
 
-  // =========================================================
-  // APPROVE HOLD TYRE
-  // =========================================================
-  approveHold: (
-    holdId: number,
-    payload: {
-      lpoNumber: string;
-      date: string;
-      amount: number;
-      remarks: string;
-    }
-  ) => {
-    return api.post(
-      `/holds/${holdId}/approve`,
-      payload
+  getNailInspectionHoldOrderDetails: async (
+    _orderId: number
+  ): Promise<any> => {
+    throw new Error(
+      "Nail Inspection Hold order details API is not implemented yet."
+    );
+  },
+
+  submitNailInspectionHoldAction: async (
+    _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload
+  ): Promise<any> => {
+    throw new Error(
+      "Nail Inspection Hold action API is not implemented yet."
     );
   },
 

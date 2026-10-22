@@ -45,7 +45,9 @@ const PatchesRemoveSection = ({
             }))
           }
         >
-          <option value="">Select Reason For Removal</option>
+          <option value="" selected disabled>
+            Select Reason For Removal
+          </option>
 
           {resonForRemoval.map((item: any) => (
             <option key={item.id} value={item.id}>
@@ -67,7 +69,9 @@ const PatchesRemoveSection = ({
             }))
           }
         >
-          <option value="">Select Location</option>
+          <option value="" selected disabled>
+            Select Location
+          </option>
 
           {location.map((item: any) => (
             <option key={item.id} value={item.id}>

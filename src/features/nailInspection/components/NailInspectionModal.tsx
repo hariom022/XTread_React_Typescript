@@ -33,10 +33,10 @@ type Props = {
 
   handleApprove: () => void;
   handleReject: () => void;
-  handleHold: () => void;
+  // handleHold: () => void;
   handleApproveWithPressureTest: () => void;
-  handleLPOHold: () => void;
-  handlePaymentHold: () => void;
+  // handleLPOHold: () => void;
+  // handlePaymentHold: () => void;
 
   resonForRemoval: any[];
   location: any[];
@@ -89,11 +89,11 @@ const NailInspectionModal = ({
 
   handleApprove,
   handleReject,
-  handleHold,
+  // handleHold,
   handleApproveWithPressureTest,
 
-  handleLPOHold,
-  handlePaymentHold,
+  // handleLPOHold,
+  // handlePaymentHold,
 
   resonForRemoval,
   location,
@@ -108,7 +108,7 @@ const NailInspectionModal = ({
   addRemove,
 }: Props) => {
   const user = useAuthStore((state) => state.user);
-  const [showHoldOptions, setShowHoldOptions] = useState(false);
+  // const [showHoldOptions, setShowHoldOptions] = useState(false);
   if (!selectedItem) return null;
 
   return (
@@ -325,7 +325,7 @@ const NailInspectionModal = ({
               </div>
 
               {/* HOLD */}
-              <div className="row mt-1">
+             {/* <div className="row mt-1">
                 <div className="col">
                   <button
                     className="btn btn-warning w-100 fw-bold"
@@ -334,9 +334,9 @@ const NailInspectionModal = ({
                     HOLD – Awaiting Customer LPO
                   </button>
                 </div>
-              </div>
+              </div> */}
               {/* HOLD OPTIONS MODAL */}
-              {showHoldOptions &&
+              {/*{showHoldOptions &&
                 (<>
                   <div className="modal-backdrop fade show" style={{ zIndex: 1060 }} ></div>
                   <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1065 }} >
@@ -374,7 +374,7 @@ const NailInspectionModal = ({
                     </div>
                   </div>
                 </>
-                )}
+                )}*/}
             </div>
           </div>
         </div>

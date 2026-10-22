@@ -1,207 +1,247 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RingLoader } from "react-spinners";
 
 import HoldTyreIndexPage from "../components/holdTyreIndexPage";
-import HoldTyreApprovalModal from "../components/holdTyreApprovalModal";
 import PreBuffingPatternApprovalModal from "../components/preBuffingPatternApprovalModal";
+import NailInspectionHoldIndex from "../components/NailInspectionHoldIndex";
+import NailInspectionHoldDetails from "../components/NailInspectionHoldDetails";
 
-import {
-  type HoldTab,
-  useHoldTyreIndexPage,
-} from "../hooks/useHoldTyreIndexPage";
+import { usePreBuffingIndexPage } from "../hooks/usePreBuffingIndexPage";
+import { useNailInspectionHold } from "../hooks/useNailInspectionHold";
+
+import type { NailInspectionHoldOrder } from "../types/nailInspectionHold.types";
+
+type HoldTab = "nail" | "buffing";
 
 const TyreOnHold = () => {
-  // =========================================================
-  // ACTIVE TAB
-  // =========================================================
-  const [activeTab, setActiveTab] =
-    useState<HoldTab>("nail");
+  const [activeTab, setActiveTab] = useState<HoldTab>("nail");
 
-  // =========================================================
-  // HOLD TYRE HOOK
-  // =========================================================
-  const {
-    loading,
-    search,
-    setSearch,
-    filteredHoldTyres,
-    loadHoldTyres,
-  } = useHoldTyreIndexPage(
-    activeTab
-  );
-
-  // =========================================================
-  // SELECTED ITEM
-  // =========================================================
-  const [selectedItem, setSelectedItem] =
+  const [selectedBuffingItem, setSelectedBuffingItem] =
     useState<any>(null);
 
-  // =========================================================
-  // APPROVAL MODAL
-  // =========================================================
-  const [
-    showApprovalModal,
-    setShowApprovalModal,
-  ] = useState(false);
+  const [showBuffingModal, setShowBuffingModal] = useState(false);
+  const [nailSearch, setNailSearch] = useState("");
 
-  // =========================================================
-  // INSPECT
-  // =========================================================
-  const handleInspect = (
-    item: any
-  ) => {
-    console.log(
-      "Selected HOLD casing:",
-      item
+  // Existing Pre-Buffing functionality: keep its hook and API.
+  const {
+    loading: buffingLoading,
+    search: buffingSearch,
+    setSearch: setBuffingSearch,
+    filteredHoldTyres: buffingHoldTyres,
+    loadHoldTyres: loadBuffingHoldTyres,
+  } = usePreBuffingIndexPage("buffing");
+
+  // New order-level Nail Inspection functionality.
+  const {
+    orders,
+    selectedOrder,
+    loading: nailLoading,
+    detailsLoading,
+    actionLoading,
+    error: nailError,
+    loadOrders,
+    inspectOrder,
+    closeDetails,
+    submitAction,
+  } = useNailInspectionHold();
+
+  useEffect(() => {
+    if (activeTab === "nail") {
+      void loadOrders();
+    } else {
+      void loadBuffingHoldTyres();
+    }
+  }, [activeTab, loadOrders, loadBuffingHoldTyres]);
+
+  const filteredNailOrders = useMemo(() => {
+    const searchText = nailSearch.trim().toLowerCase();
+
+    if (!searchText) {
+      return orders;
+    }
+
+    return orders.filter((order) =>
+      [
+        order.orderNumber,
+        order.customerName,
+        order.serviceTypeName ?? "",
+        order.commercialRequirement,
+        order.holdStatus,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchText)
     );
+  }, [orders, nailSearch]);
 
-    setSelectedItem(item);
-
-    setShowApprovalModal(true);
-  };
-
-  // =========================================================
-  // CLOSE APPROVAL MODAL
-  // =========================================================
-  const closeApprovalModal = () => {
-    setShowApprovalModal(false);
-
-    setSelectedItem(null);
-  };
-
-  // =========================================================
-  // CHANGE TAB
-  // =========================================================
-  const handleTabChange = (
-    tab: HoldTab
+  const handleInspectNailOrder = (
+    order: NailInspectionHoldOrder
   ) => {
-    setActiveTab(tab);
+    void inspectOrder(order);
+  };
+
+  const handleNailAction = async (
+    action: "LPO_RECEIVED" | "PAYMENT_RECEIVED" | "REJECT_ORDER"
+  ) => {
+    const message =
+      action === "LPO_RECEIVED"
+        ? "Confirm that the LPO has been received for this order?"
+        : action === "PAYMENT_RECEIVED"
+          ? "Confirm that payment has been received for this order?"
+          : "Are you sure you want to reject this order?";
+
+    if (!window.confirm(message)) {
+      return;
+    }
+
+    await submitAction(action);
+  };
+
+  const handleBuffingInspect = (item: any) => {
+    setSelectedBuffingItem(item);
+    setShowBuffingModal(true);
+  };
+
+  const closeBuffingModal = () => {
+    setShowBuffingModal(false);
+    setSelectedBuffingItem(null);
   };
 
   return (
     <div className="container-fluid mt-3">
-
-      {/* =====================================================
-          HOLD TABS
-      ====================================================== */}
+      {/* Only the two required tabs */}
       <ul className="nav nav-tabs mb-3">
-
-        {/* ===================================================
-            NAIL INSPECTION HOLD
-        ==================================================== */}
         <li className="nav-item">
           <button
             type="button"
-            className={`nav-link ${activeTab === "nail"
-              ? "active"
-              : ""
-              }`}
-            onClick={() =>
-              handleTabChange("nail")
-            }
+            className={`nav-link ${activeTab === "nail" ? "active" : ""}`}
+            onClick={() => {
+              setActiveTab("nail");
+              setNailSearch("");
+            }}
           >
             Nail Inspection Hold
           </button>
         </li>
 
-        {/* ===================================================
-            SHEAROGRAPHY HOLD
-        ==================================================== */}
         <li className="nav-item">
           <button
             type="button"
-            className={`nav-link ${activeTab ===
-              "shearography"
-              ? "active"
-              : ""
+            className={`nav-link ${activeTab === "buffing" ? "active" : ""
               }`}
-            onClick={() =>
-              handleTabChange(
-                "shearography"
-              )
-            }
+            onClick={() => setActiveTab("buffing")}
           >
-            Shearography Hold
+            Pre-Buffing Hold
           </button>
         </li>
-
-        {/* ===================================================
-            BUFFING HOLD
-        ==================================================== */}
-        <li className="nav-item">
-          <button
-            type="button"
-            className={`nav-link ${activeTab === "buffing"
-              ? "active"
-              : ""
-              }`}
-            onClick={() =>
-              handleTabChange("buffing")
-            }
-          >
-            Buffing Hold
-          </button>
-        </li>
-
       </ul>
 
-      {/* =====================================================
-          SEARCH
-      ====================================================== */}
-      <div className="row mb-3">
-        <div className="col-md-10">
+      {/* Nail Inspection Hold */}
+      {activeTab === "nail" && (
+        <>
+          {selectedOrder ? (
+            <NailInspectionHoldDetails
+              order={selectedOrder}
+              loading={detailsLoading}
+              actionLoading={actionLoading}
+              error={nailError}
+              onBack={closeDetails}
+              onAction={handleNailAction}
+            />
+          ) : detailsLoading ? (
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ minHeight: 300 }}
+            >
+              <RingLoader size={70} />
+            </div>
+          ) : (
+            <>
+              {nailError && (
+                <div className="alert alert-warning" role="alert">
+                  {nailError}
+                </div>
+              )}
 
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
-            value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
-          />
+              <div className="row mb-3">
+                <div className="col-md-10">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search by Order No., Customer, Service or Requirement..."
+                    value={nailSearch}
+                    onChange={(event) =>
+                      setNailSearch(event.target.value)
+                    }
+                  />
+                </div>
 
-        </div>
-      </div>
+                <div className="col-md-2 mt-2 mt-md-0">
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary w-100"
+                    onClick={() => void loadOrders()}
+                    disabled={nailLoading}
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
 
-      {/* =====================================================
-          TABLE / LOADER
-      ====================================================== */}
-      {loading ? (
-        <div
-          className="d-flex justify-content-center align-items-center"
-          style={{
-            minHeight: "400px",
-          }}
-        >
-          <RingLoader size={80} />
-        </div>
-      ) : (
-        <HoldTyreIndexPage
-          data={filteredHoldTyres}
-          onInspect={handleInspect}
-        />
+              {nailLoading ? (
+                <div
+                  className="d-flex justify-content-center align-items-center"
+                  style={{ minHeight: 300 }}
+                >
+                  <RingLoader size={70} />
+                </div>
+              ) : (
+                <NailInspectionHoldIndex
+                  data={filteredNailOrders}
+                  onInspect={handleInspectNailOrder}
+                />
+              )}
+            </>
+          )}
+        </>
       )}
 
-      {/* =====================================================
-          APPROVAL MODAL
-      ====================================================== */}
-      {selectedItem && (
+      {/* Existing Pre-Buffing Hold: preserve its index and modal */}
+      {activeTab === "buffing" && (
         <>
-          {activeTab === "buffing" ? (
-            <PreBuffingPatternApprovalModal
-              selectedItem={selectedItem}
-              onClose={closeApprovalModal}
-              onApproved={loadHoldTyres}
-            />
+          <div className="row mb-3">
+            <div className="col-md-10">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
+                value={buffingSearch}
+                onChange={(event) =>
+                  setBuffingSearch(event.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          {buffingLoading ? (
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ minHeight: 300 }}
+            >
+              <RingLoader size={70} />
+            </div>
           ) : (
-            <HoldTyreApprovalModal
-              selectedItem={selectedItem}
-              onClose={closeApprovalModal}
-              activeTab={activeTab}
-              onApproved={loadHoldTyres}
+            <HoldTyreIndexPage
+              data={buffingHoldTyres}
+              onInspect={handleBuffingInspect}
+            />
+          )}
+
+          {showBuffingModal && selectedBuffingItem && (
+            <PreBuffingPatternApprovalModal
+              selectedItem={selectedBuffingItem}
+              onClose={closeBuffingModal}
+              onApproved={loadBuffingHoldTyres}
             />
           )}
         </>
