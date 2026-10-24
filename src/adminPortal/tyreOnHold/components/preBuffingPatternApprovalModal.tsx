@@ -7,12 +7,28 @@ type Props = {
   onApproved: () => Promise<void>;
 };
 
+type SuggestedPattern = {
+  orderCasingId: number;
+  rejectionReasonId: number;
+  rejectionReason: string;
+  treadPatternId: number;
+  patternName: string;
+  brand: string;
+  treadPatternVariantId: number;
+  width: number;
+  sapCode: string;
+  sapDescription: string;
+  remarks: string;
+  suggestedAtUtc: string;
+  suggestedBy: string;
+};
+
 const PreBuffingPatternApprovalModal = ({
   selectedItem,
   onClose,
   onApproved,
 }: Props) => {
-  const [changeRequestedPattern, setChangeRequestedPattern] = useState(true);
+  const [changeRequestedPattern, setChangeRequestedPattern] = useState(false);
 
   const [selectedPattern, setSelectedPattern] = useState("");
 
@@ -39,6 +55,13 @@ const PreBuffingPatternApprovalModal = ({
 
   const [materialValidationMessage, setMaterialValidationMessage] =
     useState("");
+
+  const [suggestedPattern, setSuggestedPattern] =
+    useState<SuggestedPattern | null>(null);
+
+  const [loadingSuggestedPattern, setLoadingSuggestedPattern] = useState(false);
+
+  const [suggestedPatternError, setSuggestedPatternError] = useState("");
 
   //get order casing details for the selected item
   useEffect(() => {
@@ -135,7 +158,7 @@ const PreBuffingPatternApprovalModal = ({
   // =========================================================
   useEffect(() => {
     const loadTreadPatterns = async () => {
-      if (!casingDetails) {
+      if (!casingDetails || !changeRequestedPattern) {
         return;
       }
 
@@ -178,18 +201,270 @@ const PreBuffingPatternApprovalModal = ({
     };
 
     loadTreadPatterns();
-  }, [casingDetails]);
+  }, [casingDetails, changeRequestedPattern]);
 
-  const handleApprove = async () => {
-    // Pre-Buffing approval API will go here
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSuggestedPattern = async () => {
+      const orderCasingId = selectedItem?.orderCasingId;
+
+      if (!orderCasingId) {
+        setSuggestedPattern(null);
+        return;
+      }
+
+      try {
+        setLoadingSuggestedPattern(true);
+        setSuggestedPatternError("");
+        setSuggestedPattern(null);
+
+        const response =
+          await holdTyreServiceApi.getSuggestedPattern(orderCasingId);
+
+        // Supports either a direct response body or an API envelope.
+        const data = response?.data?.data ?? response?.data;
+
+        if (!data?.treadPatternId) {
+          throw new Error("No suggested pattern was found for this casing.");
+        }
+
+        if (isMounted) {
+          setSuggestedPattern(data);
+
+          // Default values in Approved Pattern Change
+          setSelectedPattern(String(data.treadPatternId));
+          setSelectedWidth(String(data.width ?? ""));
+          setSelectedBrand(data.brand || "");
+
+          setPatternVariants([]);
+          setIsFinishedMaterialValid(null);
+          setMaterialValidationMessage("");
+        }
+
+        console.log("SUGGESTED PATTERN RESPONSE:", data);
+      } catch (error: any) {
+        console.error("Failed to load suggested pattern:", error);
+
+        if (isMounted) {
+          setSuggestedPattern(null);
+          setSuggestedPatternError(
+            error?.response?.data?.error?.message ||
+              error?.response?.data?.message ||
+              error?.message ||
+              "Failed to load the suggested pattern.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingSuggestedPattern(false);
+        }
+      }
+    };
+
+    void loadSuggestedPattern();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedItem?.orderCasingId]);
+
+  //   useEffect(() => {
+  //     if (!suggestedPattern || patternSuggestions.length === 0) {
+  //       return;
+  //     }
+
+  //     const matchingPattern = patternSuggestions.find(
+  //       (pattern) =>
+  //         Number(pattern.treadPatternId) ===
+  //         Number(suggestedPattern.treadPatternId),
+  //     );
+
+  //     if (!matchingPattern) {
+  //       setSuggestedPatternError(
+  //         `Suggested pattern "${suggestedPattern.patternName}" is not available in the pattern list.`,
+  //       );
+  //       return;
+  //     }
+
+  //     let isMounted = true;
+
+  //     const bindApprovedPattern = async () => {
+  //       const patternId = String(suggestedPattern.treadPatternId);
+  //       const patternName = suggestedPattern.patternName;
+  //       const tyreSize = casingDetails?.tyreSize?.casingSize;
+
+  //       setSelectedPattern(patternId);
+  //       setSelectedBrand(suggestedPattern.brand || "");
+  //       setSelectedWidth(String(suggestedPattern.width ?? ""));
+  //       setPatternVariants([]);
+  //       setIsFinishedMaterialValid(null);
+  //       setMaterialValidationMessage("");
+
+  //       if (tyreSize && patternName) {
+  //         void checkFinishedMaterial(tyreSize, patternName);
+  //       }
+
+  //       try {
+  //         setLoadingPatternVariants(true);
+
+  //         const response = await holdTyreServiceApi.getTreadPatternVariants(
+  //           Number(patternId),
+  //         );
+
+  //         if (!isMounted) return;
+
+  //         if (response?.data?.success) {
+  //           const patternData = response.data.data?.[0];
+  //           const variants = patternData?.variants || [];
+
+  //           setPatternVariants(variants);
+
+  //           // Prefer the exact suggested width variant.
+  //           const matchingVariant = variants.find(
+  //             (variant: any) =>
+  //               Number(variant.treadPatternVariantId) ===
+  //                 Number(suggestedPattern.treadPatternVariantId) ||
+  //               Number(variant.width) === Number(suggestedPattern.width),
+  //           );
+
+  //           if (matchingVariant) {
+  //             setSelectedWidth(String(matchingVariant.width));
+  //           }
+  //         }
+  //       } catch (error) {
+  //         console.error("Failed to load suggested pattern variants:", error);
+  //       } finally {
+  //         if (isMounted) {
+  //           setLoadingPatternVariants(false);
+  //         }
+  //       }
+  //     };
+
+  //     void bindApprovedPattern();
+
+  //     return () => {
+  //       isMounted = false;
+  //     };
+  //   }, [suggestedPattern, patternSuggestions, casingDetails]);
+
+
+const handleApprove = async () => {
+  const orderCasingId = Number(selectedItem?.orderCasingId);
+
+  if (!orderCasingId) {
+    alert("Order Casing ID is missing.");
+    return;
+  }
+
+  let treadPatternId: number;
+  let treadPatternVariantId: number;
+
+  if (changeRequestedPattern) {
+    // Use the values selected in Approved Pattern Change.
+    treadPatternId = Number(selectedPattern);
+
+    const selectedVariant = patternVariants.find(
+      (variant: any) =>
+        String(variant.width) === String(selectedWidth),
+    );
+
+    // Fallback to the suggested variant when it matches.
+    const suggestedVariantMatches =
+      String(suggestedPattern?.treadPatternId) ===
+        String(selectedPattern) &&
+      String(suggestedPattern?.width) === String(selectedWidth);
+
+    treadPatternVariantId = selectedVariant
+      ? Number(selectedVariant.treadPatternVariantId)
+      : suggestedVariantMatches
+        ? Number(suggestedPattern?.treadPatternVariantId)
+        : NaN;
+
+    if (!treadPatternId || !selectedWidth || !treadPatternVariantId) {
+      alert("Please select a valid Pattern and Width.");
+      return;
+    }
+  } else {
+    // When the checkbox is unchecked, approve the technician's
+    // suggested pattern and variant.
+    treadPatternId = Number(suggestedPattern?.treadPatternId);
+    treadPatternVariantId = Number(
+      suggestedPattern?.treadPatternVariantId,
+    );
+
+    if (!treadPatternId || !treadPatternVariantId) {
+      alert("Suggested Pattern or Width information is missing.");
+      return;
+    }
+  }
+
+  const payload = {
+    treadPatternId,
+    treadPatternVariantId,
+    remarks: null,
+  };
+
+  try {
+    console.log("APPROVE PRE-BUFFING HOLD PAYLOAD:", payload);
+
+    await holdTyreServiceApi.approvePreBuffingHold(
+      orderCasingId,
+      payload,
+    );
 
     await onApproved();
     onClose();
+  } catch (error: any) {
+    console.error("Failed to approve Pre-Buffing Hold:", error);
+
+    alert(
+      error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        "Failed to approve Pre-Buffing Hold.",
+    );
+  }
+};
+
+const handleReject = async () => {
+  const orderCasingId = Number(selectedItem?.orderCasingId);
+
+  if (!orderCasingId) {
+    alert("Order Casing ID is missing.");
+    return;
+  }
+
+  const remarks = comments.trim();
+
+  if (!remarks) {
+    alert("Please enter remarks before rejecting.");
+    return;
+  }
+
+  const payload = {
+    remarks,
   };
 
-  const handleReject = () => {
-    // Pre-Buffing rejection API will go here
-  };
+  try {
+    console.log("REJECT PRE-BUFFING HOLD PAYLOAD:", payload);
+
+    await holdTyreServiceApi.rejectPreBuffingHold(
+      orderCasingId,
+      payload,
+    );
+
+    await onApproved();
+    onClose();
+  } catch (error: any) {
+    console.error("Failed to reject Pre-Buffing Hold:", error);
+
+    alert(
+      error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        "Failed to reject Pre-Buffing Hold.",
+    );
+  }
+};
 
   if (!selectedItem) return null;
   return (
@@ -378,7 +653,7 @@ const PreBuffingPatternApprovalModal = ({
                             <input
                               type="text"
                               className="form-control"
-                              value={selectedItem?.suggestedBrand || ""}
+                              value={suggestedPattern?.brand || ""}
                               readOnly
                             />
                           </div>
@@ -390,7 +665,7 @@ const PreBuffingPatternApprovalModal = ({
                             <input
                               type="text"
                               className="form-control"
-                              value={selectedItem?.suggestedPattern || ""}
+                              value={suggestedPattern?.patternName || ""}
                               readOnly
                             />
                           </div>
@@ -402,7 +677,7 @@ const PreBuffingPatternApprovalModal = ({
                             <input
                               type="text"
                               className="form-control"
-                              value={selectedItem?.suggestedWidth || ""}
+                              value={suggestedPattern?.width ?? ""}
                               readOnly
                             />
                           </div>
@@ -424,9 +699,45 @@ const PreBuffingPatternApprovalModal = ({
                         className="form-check-input"
                         type="checkbox"
                         checked={changeRequestedPattern}
-                        onChange={(e) =>
-                          setChangeRequestedPattern(e.target.checked)
-                        }
+                        onChange={async (e) => {
+                          const checked = e.target.checked;
+                          setChangeRequestedPattern(checked);
+
+                          if (!checked) {
+                            // Preserve the bound values; only disable editing.
+                            return;
+                          }
+
+                          // Load variants for the currently selected pattern.
+                          if (!selectedPattern) return;
+
+                          try {
+                            setLoadingPatternVariants(true);
+
+                            const response =
+                              await holdTyreServiceApi.getTreadPatternVariants(
+                                Number(selectedPattern),
+                              );
+
+                            if (response?.data?.success) {
+                              const patternData = response.data.data?.[0];
+                              setPatternVariants(patternData?.variants || []);
+                              setSelectedBrand(
+                                patternData?.brand || selectedBrand,
+                              );
+                            } else {
+                              setPatternVariants([]);
+                            }
+                          } catch (error) {
+                            console.error(
+                              "Failed to load pattern variants:",
+                              error,
+                            );
+                            setPatternVariants([]);
+                          } finally {
+                            setLoadingPatternVariants(false);
+                          }
+                        }}
                         id="changeRequestedPattern"
                       />
 
@@ -447,6 +758,9 @@ const PreBuffingPatternApprovalModal = ({
                         <select
                           className="form-select"
                           value={selectedPattern}
+                          disabled={
+                            !changeRequestedPattern || loadingPatternSuggestions
+                          }
                           onChange={async (e) => {
                             const patternId = e.target.value;
 
@@ -463,15 +777,22 @@ const PreBuffingPatternApprovalModal = ({
                               return;
                             }
 
+                            // Find the selected pattern in the master list first,
+                            // then fall back to the suggested pattern.
                             const selectedPatternData = patternSuggestions.find(
                               (pattern) =>
                                 String(pattern.treadPatternId) === patternId,
                             );
 
+                            const patternName =
+                              selectedPatternData?.patternName ||
+                              (String(suggestedPattern?.treadPatternId) ===
+                              patternId
+                                ? suggestedPattern?.patternName
+                                : "");
+
                             const tyreSize =
                               casingDetails?.tyreSize?.casingSize;
-                            const patternName =
-                              selectedPatternData?.patternName;
 
                             if (tyreSize && patternName) {
                               void checkFinishedMaterial(tyreSize, patternName);
@@ -495,7 +816,32 @@ const PreBuffingPatternApprovalModal = ({
                                 const variants = patternData?.variants || [];
 
                                 setPatternVariants(variants);
-                                setSelectedBrand(patternData?.brand || "");
+                                setSelectedBrand(
+                                  patternData?.brand ||
+                                    selectedPatternData?.brand ||
+                                    (String(
+                                      suggestedPattern?.treadPatternId,
+                                    ) === patternId
+                                      ? suggestedPattern?.brand
+                                      : "") ||
+                                    "",
+                                );
+
+                                // Keep the suggested width if it exists in the
+                                // variants for the selected pattern.
+                                if (
+                                  String(suggestedPattern?.treadPatternId) ===
+                                    patternId &&
+                                  variants.some(
+                                    (variant: any) =>
+                                      String(variant.width) ===
+                                      String(suggestedPattern?.width),
+                                  )
+                                ) {
+                                  setSelectedWidth(
+                                    String(suggestedPattern?.width),
+                                  );
+                                }
                               } else {
                                 setPatternVariants([]);
                                 setSelectedBrand("");
@@ -519,10 +865,26 @@ const PreBuffingPatternApprovalModal = ({
                               : "Select Pattern"}
                           </option>
 
+                          {/* Fallback: show the suggested pattern if it is
+        missing from the master patterns API response. */}
+                          {suggestedPattern &&
+                            !patternSuggestions.some(
+                              (pattern) =>
+                                Number(pattern.treadPatternId) ===
+                                Number(suggestedPattern.treadPatternId),
+                            ) && (
+                              <option
+                                value={String(suggestedPattern.treadPatternId)}
+                              >
+                                {suggestedPattern.brand} -{" "}
+                                {suggestedPattern.patternName}
+                              </option>
+                            )}
+
                           {patternSuggestions.map((pattern) => (
                             <option
                               key={pattern.treadPatternId}
-                              value={pattern.treadPatternId}
+                              value={String(pattern.treadPatternId)}
                             >
                               {pattern.brand} - {pattern.patternName}
                             </option>
@@ -552,11 +914,16 @@ const PreBuffingPatternApprovalModal = ({
 
                       <div className="col-md-4">
                         <label className="form-label fw-semibold">Width</label>
+
                         <select
                           className="form-select"
                           value={selectedWidth}
                           onChange={(e) => setSelectedWidth(e.target.value)}
-                          disabled={!selectedPattern || loadingPatternVariants}
+                          disabled={
+                            !changeRequestedPattern ||
+                            !selectedPattern ||
+                            loadingPatternVariants
+                          }
                         >
                           <option value="">
                             {loadingPatternVariants
@@ -564,10 +931,25 @@ const PreBuffingPatternApprovalModal = ({
                               : "Select Width"}
                           </option>
 
+                          {/* Fallback: show the suggested width if it is
+        missing from the loaded variants. */}
+                          {suggestedPattern &&
+                            String(suggestedPattern.treadPatternId) ===
+                              String(selectedPattern) &&
+                            !patternVariants.some(
+                              (variant: any) =>
+                                String(variant.width) ===
+                                String(suggestedPattern.width),
+                            ) && (
+                              <option value={String(suggestedPattern.width)}>
+                                {suggestedPattern.width}
+                              </option>
+                            )}
+
                           {patternVariants.map((variant: any) => (
                             <option
                               key={variant.treadPatternVariantId}
-                              value={variant.width}
+                              value={String(variant.width)}
                             >
                               {variant.width}
                             </option>
@@ -583,6 +965,7 @@ const PreBuffingPatternApprovalModal = ({
                           className="form-control"
                           value={selectedBrand}
                           readOnly
+                          disabled={!changeRequestedPattern}
                         />
                       </div>
                     </div>
@@ -599,7 +982,11 @@ const PreBuffingPatternApprovalModal = ({
                     <input
                       type="text"
                       className="form-control"
-                      value={selectedItem?.holdReason || ""}
+                      value={
+                        suggestedPattern?.rejectionReason ||
+                        selectedItem?.holdReason ||
+                        ""
+                      }
                       readOnly
                     />
                   </div>

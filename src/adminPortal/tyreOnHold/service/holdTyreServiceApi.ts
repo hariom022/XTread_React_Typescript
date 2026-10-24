@@ -44,25 +44,19 @@ const holdTyreServiceApi = {
   // },
 
   getNailInspectionHoldOrders: async (): Promise<any> => {
-    throw new Error(
-      "Nail Inspection Hold orders API is not implemented yet."
-    );
+    throw new Error("Nail Inspection Hold orders API is not implemented yet.");
   },
 
-  getNailInspectionHoldOrderDetails: async (
-    _orderId: number
-  ): Promise<any> => {
+  getNailInspectionHoldOrderDetails: async (_orderId: number): Promise<any> => {
     throw new Error(
-      "Nail Inspection Hold order details API is not implemented yet."
+      "Nail Inspection Hold order details API is not implemented yet.",
     );
   },
 
   submitNailInspectionHoldAction: async (
-    _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload
+    _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload,
   ): Promise<any> => {
-    throw new Error(
-      "Nail Inspection Hold action API is not implemented yet."
-    );
+    throw new Error("Nail Inspection Hold action API is not implemented yet.");
   },
 
   // =========================================================
@@ -91,7 +85,7 @@ const holdTyreServiceApi = {
     categoryId: number,
     tyreClassificationId: number,
     isRetread: boolean,
-    override: boolean
+    override: boolean,
   ) => {
     return api.get("/tread-patterns", {
       params: {
@@ -107,18 +101,45 @@ const holdTyreServiceApi = {
   // GET TREAD PATTERN VARIANTS
   // =========================================================
   getTreadPatternVariants: (treadPatternId: number) => {
-    return api.get(
-      `/tread-patterns/${treadPatternId}/variants`
-    );
+    return api.get(`/tread-patterns/${treadPatternId}/variants`);
   },
 
-   validateFinishedMaterial: (tyreSize: string, pattern: string) =>
+  validateFinishedMaterial: (tyreSize: string, pattern: string) =>
     api.get(
       `/materials/validate-finished-material?${new URLSearchParams({
         tyreSize,
         pattern,
       }).toString()}`,
     ),
+
+  getSuggestedPattern: (orderCasingId: number) =>
+    api.get(`/pre-buffing/${orderCasingId}/suggested-pattern`),
+
+  
+approvePreBuffingHold: (
+  orderCasingId: number,
+  payload: {
+    treadPatternId: number;
+    treadPatternVariantId: number;
+    remarks: null;
+  },
+) =>
+  api.post(
+    `/pre-buffing/holds/${orderCasingId}/approve`,
+    payload,
+  ),
+
+rejectPreBuffingHold: (
+  orderCasingId: number,
+  payload: {
+    remarks: string;
+  },
+) =>
+  api.post(
+    `/pre-buffing/holds/${orderCasingId}/reject`,
+    payload,
+  ),
+
 };
 
 export default holdTyreServiceApi;
