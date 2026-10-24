@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import buffingStageServiceApi from "../service/buffingStageServiceApi";
 import { POST_BUFFING_CHECKLIST } from "../constants/postBuffingCheckList";
+import { getPostBuffingErrorMessage } from "../utils/postBuffingErrorHandler";
 
 interface SelectedItem {
   id: number;
@@ -70,7 +71,7 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
     [],
   );
 
-  
+
   const togglePostChecklist = (id: string) => {
     setCheckedPostChecklist((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
@@ -189,15 +190,15 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
     try {
       setLoading(true);
       if (!selectedItem) return;
-       // Validation
-  if (!machineId) {
-    alert("Please select a machine.");
-    return;
-  }
-  if (!damageLevelId) {
-    alert("Please select a damage level.");
-    return;
-  }
+      // Validation
+      if (!machineId) {
+        alert("Please select a machine.");
+        return;
+      }
+      if (!damageLevelId) {
+        alert("Please select a damage level.");
+        return;
+      }
       if (!postChecklistSaved) {
         alert(
           "Please complete all Post Buffing checklist items before Approval",
@@ -231,20 +232,16 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
 
       resetModal();
       onClose();
-    } catch (error: any) {
-  console.error(error);
-let message = "Approval Failed";
+    } catch (error: unknown) {
+      console.error("Post-Buffing Approve Error:", error);
 
-if (error?.response?.data?.error?.message) {
-  message = error.response.data.error.message;
-} else if (error?.response?.data?.message) {
-  message = error.response.data.message;
-} else if (error?.message) {
-  message = error.message;
-}
-
-alert(message);
-} finally {
+      alert(
+        getPostBuffingErrorMessage(
+          error,
+          "Unable to approve the casing. Please try again.",
+        ),
+      );
+    } finally {
       setLoading(false);
     }
   };
@@ -296,16 +293,21 @@ alert(message);
 
       resetModal();
       onClose();
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Post-Buffing Reject Error:", error);
 
-      alert("Reject Failed");
+      alert(
+        getPostBuffingErrorMessage(
+          error,
+          "Unable to reject the casing. Please try again.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  
+
   return {
     loading,
     machines,

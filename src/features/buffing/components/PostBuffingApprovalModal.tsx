@@ -403,10 +403,11 @@ const user = useAuthStore((state) => state.user);
                       <label className="form-label invisible">Checklist</label>
 
                       <button
-                        className="btn btn-primary flex-grow-1"
+                      style={{ width: "100%" }}
+                        className="open-checklist-btn btn btn-primary flex-grow-1"
                         onClick={() => setShowPostChecklist(true)}
                       >
-                        Post-Buffing Checklist
+                        <b>POST-BUFFING CHECKLIST</b>
                       </button>
                     </div>
                   </div>

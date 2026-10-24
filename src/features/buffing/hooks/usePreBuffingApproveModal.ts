@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import buffingStageServiceApi from "../service/buffingStageServiceApi";
 import { PRE_BUFFING_CHECKLIST } from "../constants/preBuffingCheckList";
+import { getPreBuffingErrorMessage } from "../utils/preBuffingErrorHandler";
 
 interface Variant {
   treadPatternVariantId: number;
@@ -163,10 +164,15 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
       refreshPostTable(),
         resetModal();
       onClose();
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Pre-Buffing Reject Error:", error);
 
-      alert("Reject Failed");
+      alert(
+        getPreBuffingErrorMessage(
+          error,
+          "Unable to reject the casing. Please try again.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -211,14 +217,20 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
         resetModal();
       onClose();
 
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Pre-Buffing Approve Error:", error);
 
-      alert("Approve Failed");
+      alert(
+        getPreBuffingErrorMessage(
+          error,
+          "Unable to approve the casing. Please try again.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleHold = async () => {
     try {
@@ -231,21 +243,35 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
         return;
       }
 
+      // Validate required fields for the new HOLD API
+      if (!holdReason) {
+        alert("Please select Hold Reason");
+        return;
+      }
+
+      if (!selectedPatternId) {
+        alert("Please select Pattern");
+        return;
+      }
+
+      if (!selectedVariantId) {
+        alert("Please select Width");
+        return;
+      }
+
       const payload = {
         orderCasingId: selectedItem.id,
-        casingStage: 7,
-        holdType: 1,
+        rejectionReasonId: Number(holdReason),
+        treadPatternId: Number(selectedPatternId),
+        treadPatternVariantId: Number(selectedVariantId),
+        remarks: "", // You can modify this if you want to include remarks
       };
 
       console.log("Pre-Buffing HOLD Payload:", payload);
 
-      const response =
-        await buffingStageServiceApi.createHold(payload);
+      const response = await buffingStageServiceApi.createHold(payload);
 
-      console.log(
-        "Pre-Buffing HOLD Response:",
-        response.data
-      );
+      console.log("Pre-Buffing HOLD Response:", response.data);
 
       if (response.data?.success) {
         alert("Hold Successfully");
@@ -256,26 +282,22 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
         resetModal();
         onClose();
       } else {
-        alert(
-          response.data?.error ||
-          "Hold Failed"
-        );
+        alert(response.data?.error || "Hold Failed");
       }
-    } catch (error: any) {
-      console.error(
-        "Pre-Buffing HOLD Error:",
-        error
-      );
+    } catch (error: unknown) {
+      console.error("Pre-Buffing HOLD Error:", error);
 
       alert(
-        error?.response?.data?.error ||
-        error?.response?.data?.message ||
-        "Hold Failed"
+        getPreBuffingErrorMessage(
+          error,
+          "Unable to put the casing on hold. Please try again.",
+        ),
       );
     } finally {
       setLoading(false);
     }
   };
+
 
   return {
     reason,

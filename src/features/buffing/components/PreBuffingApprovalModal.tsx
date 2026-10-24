@@ -242,7 +242,7 @@ const PreBuffingApprovalModal = ({
                   {/* Right PANEL */}
                   <div className="col-md-6">
                     <div className="panel-box ">
-                      <div className="panel-body mb-3">
+                      <div className="panel-body mb-1">
                         <div className="record-box text-start">
                           <div className="record-header small fw-bold">
                             Record [1 of 1]
@@ -437,13 +437,13 @@ const PreBuffingApprovalModal = ({
                 <div className="col-md-3">
                   <button
                     style={{ height: "100%" }}
-                    className="btn btn-primary w-100"
+                    className="open-checklist-btn btn-primary w-100"
                     onClick={() => {
                       console.log("Checklist Button Clicked");
                       setShowChecklist(true);
                     }}
                   >
-                    Pre-Buffing Checklist
+                    PRE-BUFFING CHECKLIST
                   </button>
                 </div>
 
@@ -469,7 +469,7 @@ const PreBuffingApprovalModal = ({
 
                 <div className="col-md-3">
                   <button
-                    style={{ height: "100%" }}
+                    style={{ height: "100%", color: "white" }}
                     disabled={loading}
                     className="btn btn-warning w-100"
                     onClick={() => {
@@ -483,7 +483,7 @@ const PreBuffingApprovalModal = ({
                       handleHold();
                     }}
                   >
-                    {loading ? "Processing..." : "HOLD"}
+                    <b>{loading ? "Processing..." : "HOLD"}</b>
                   </button>
                 </div>
 
