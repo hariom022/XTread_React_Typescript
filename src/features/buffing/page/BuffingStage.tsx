@@ -293,6 +293,7 @@ const BuffingStage = () => {
           selected={selectedPreItem}
           casingDetails={selectedPreCasing}
           {...preApproval}
+          
         />
       )}
 

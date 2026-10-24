@@ -33,7 +33,6 @@ const buffingStageServiceApi = {
   getOrderCasingById: (orderCasingId: number) =>
     api.get(`/orders/casings/${orderCasingId}`),
 
-
   // Pre-Buffing HOLD API
   createHold: (data: {
     orderCasingId: number;
@@ -42,6 +41,14 @@ const buffingStageServiceApi = {
     treadPatternVariantId: number;
     remarks: string;
   }) => api.post("/pre-buffing/holds", data),
+
+  validateFinishedMaterial: (tyreSize: string, pattern: string) =>
+    api.get(
+      `/materials/validate-finished-material?${new URLSearchParams({
+        tyreSize,
+        pattern,
+      }).toString()}`,
+    ),
 };
 
 export default buffingStageServiceApi;

@@ -87,6 +87,15 @@ interface Props {
   resetModal: () => void;
   casingDetails: OrderCasingDetails | null;
   loading: boolean;
+
+  checkFinishedMaterial: (
+    tyreSize: string,
+    patternName: string,
+  ) => Promise<void>;
+
+  isValidatingMaterial: boolean;
+  isFinishedMaterialValid: boolean | null;
+  materialValidationMessage: string;
 }
 
 const PreBuffingApprovalModal = ({
@@ -132,6 +141,10 @@ const PreBuffingApprovalModal = ({
   isChecklistComplete,
   casingDetails,
   loading,
+  checkFinishedMaterial,
+  isValidatingMaterial,
+  isFinishedMaterialValid,
+  materialValidationMessage,
 }: Props) => {
   const user = useAuthStore((state) => state.user);
 
@@ -326,10 +339,18 @@ const PreBuffingApprovalModal = ({
 
                             if (pattern) {
                               setSelectedBrand(pattern.brand);
-
                               setSelectedVariantId("");
-
                               setSelectedWidth("");
+
+                              const tyreSize =
+                                casingDetails?.tyreSize?.casingSize;
+
+                              if (tyreSize) {
+                                void checkFinishedMaterial(
+                                  tyreSize,
+                                  pattern.patternName,
+                                );
+                              }
                             }
                           }}
                         >
@@ -346,6 +367,26 @@ const PreBuffingApprovalModal = ({
                             </option>
                           ))}
                         </select>
+
+                        {isValidatingMaterial && (
+                          <small className="text-muted d-block mt-1">
+                            Validating finished material...
+                          </small>
+                        )}
+
+                        {!isValidatingMaterial &&
+                          isFinishedMaterialValid === true && (
+                            <small className="text-success d-block mt-1">
+                              Finished material validated successfully.
+                            </small>
+                          )}
+
+                        {!isValidatingMaterial &&
+                          isFinishedMaterialValid === false && (
+                            <small className="text-danger d-block mt-1">
+                              {materialValidationMessage}
+                            </small>
+                          )}
                       </div>
                       {/* Width */}
                       <div className="col">

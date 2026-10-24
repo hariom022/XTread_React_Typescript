@@ -111,6 +111,14 @@ const holdTyreServiceApi = {
       `/tread-patterns/${treadPatternId}/variants`
     );
   },
+
+   validateFinishedMaterial: (tyreSize: string, pattern: string) =>
+    api.get(
+      `/materials/validate-finished-material?${new URLSearchParams({
+        tyreSize,
+        pattern,
+      }).toString()}`,
+    ),
 };
 
 export default holdTyreServiceApi;

@@ -2,642 +2,660 @@ import { useState, useEffect } from "react";
 import holdTyreServiceApi from "../service/holdTyreServiceApi";
 
 type Props = {
-    selectedItem: any;
-    onClose: () => void;
-    onApproved: () => Promise<void>;
+  selectedItem: any;
+  onClose: () => void;
+  onApproved: () => Promise<void>;
 };
 
 const PreBuffingPatternApprovalModal = ({
-    selectedItem,
-    onClose,
-    onApproved,
+  selectedItem,
+  onClose,
+  onApproved,
 }: Props) => {
-    const [changeRequestedPattern, setChangeRequestedPattern] = useState(true);
+  const [changeRequestedPattern, setChangeRequestedPattern] = useState(true);
 
-    const [selectedPattern, setSelectedPattern] = useState("");
+  const [selectedPattern, setSelectedPattern] = useState("");
 
-    const [selectedWidth, setSelectedWidth] = useState("");
+  const [selectedWidth, setSelectedWidth] = useState("");
 
-    const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
 
-    const [comments, setComments] = useState("");
-    const [casingDetails, setCasingDetails] = useState<any>(null);
+  const [comments, setComments] = useState("");
+  const [casingDetails, setCasingDetails] = useState<any>(null);
 
-    const [loadingCasingDetails, setLoadingCasingDetails] = useState(false);
+  const [loadingCasingDetails, setLoadingCasingDetails] = useState(false);
 
-    const [patternSuggestions, setPatternSuggestions] = useState<any[]>([]);
-    const [loadingPatternSuggestions, setLoadingPatternSuggestions] = useState(false);
+  const [patternSuggestions, setPatternSuggestions] = useState<any[]>([]);
+  const [loadingPatternSuggestions, setLoadingPatternSuggestions] =
+    useState(false);
 
-    const [patternVariants, setPatternVariants] = useState<any[]>([]);
-    const [loadingPatternVariants, setLoadingPatternVariants] = useState(false);
+  const [patternVariants, setPatternVariants] = useState<any[]>([]);
+  const [loadingPatternVariants, setLoadingPatternVariants] = useState(false);
+  const [isValidatingMaterial, setIsValidatingMaterial] = useState(false);
 
+  const [isFinishedMaterialValid, setIsFinishedMaterialValid] = useState<
+    boolean | null
+  >(null);
 
-    //get order casing details for the selected item
-    useEffect(() => {
-        const loadCasingDetails = async () => {
-            if (!selectedItem?.orderCasingId) {
-                return;
-            }
+  const [materialValidationMessage, setMaterialValidationMessage] =
+    useState("");
 
-            try {
-                setLoadingCasingDetails(true);
+  //get order casing details for the selected item
+  useEffect(() => {
+    const loadCasingDetails = async () => {
+      if (!selectedItem?.orderCasingId) {
+        return;
+      }
 
-                const response =
-                    await holdTyreServiceApi.getOrderCasingById(
-                        selectedItem.orderCasingId
-                    );
+      try {
+        setLoadingCasingDetails(true);
 
-                console.log(
-                    "PRE-BUFFING CASING DETAILS:",
-                    response
-                );
+        const response = await holdTyreServiceApi.getOrderCasingById(
+          selectedItem.orderCasingId,
+        );
 
-                if (response?.data?.success) {
-                    setCasingDetails(
-                        response.data.data
-                    );
-                }
-            } catch (error) {
-                console.error(
-                    "Failed to load casing details:",
-                    error
-                );
+        console.log("PRE-BUFFING CASING DETAILS:", response);
 
-                setCasingDetails(null);
-            } finally {
-                setLoadingCasingDetails(false);
-            }
-        };
+        if (response?.data?.success) {
+          setCasingDetails(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to load casing details:", error);
 
-        loadCasingDetails();
-    }, [selectedItem?.orderCasingId]);
-
-    // =========================================================
-    // GET AVAILABLE TREAD PATTERNS
-    // =========================================================
-    useEffect(() => {
-        const loadTreadPatterns = async () => {
-            if (!casingDetails) {
-                return;
-            }
-
-            const categoryId =
-                casingDetails.category?.categoryId;
-
-            const tyreClassificationId =
-                casingDetails.tyreClassification?.id;
-
-            const isRetread =
-                casingDetails.isRetreaded ?? false;
-
-            const override =
-                casingDetails.retreadDetail?.isPatternOverride ?? false;
-
-            if (!categoryId || !tyreClassificationId) {
-                return;
-            }
-
-            try {
-                setLoadingPatternSuggestions(true);
-
-                const response =
-                    await holdTyreServiceApi.getTreadPatterns(
-                        categoryId,
-                        tyreClassificationId,
-                        isRetread,
-                        override
-                    );
-
-                console.log(
-                    "AVAILABLE TREAD PATTERNS:",
-                    response
-                );
-
-                if (response?.data?.success) {
-                    setPatternSuggestions(
-                        response.data.data || []
-                    );
-                } else {
-                    setPatternSuggestions([]);
-                }
-            } catch (error) {
-                console.error(
-                    "Failed to load tread patterns:",
-                    error
-                );
-
-                setPatternSuggestions([]);
-            } finally {
-                setLoadingPatternSuggestions(false);
-            }
-        };
-
-        loadTreadPatterns();
-    }, [casingDetails]);
-
-    const handleApprove = async () => {
-        // Pre-Buffing approval API will go here
-
-        await onApproved();
-        onClose();
+        setCasingDetails(null);
+      } finally {
+        setLoadingCasingDetails(false);
+      }
     };
 
-    const handleReject = () => {
-        // Pre-Buffing rejection API will go here
+    loadCasingDetails();
+  }, [selectedItem?.orderCasingId]);
+
+  const checkFinishedMaterial = async (
+    tyreSize: string,
+    patternName: string,
+  ) => {
+    if (!tyreSize || !patternName) {
+      setIsFinishedMaterialValid(null);
+      setMaterialValidationMessage("");
+      return;
+    }
+
+    try {
+      setIsValidatingMaterial(true);
+      setIsFinishedMaterialValid(null);
+      setMaterialValidationMessage("");
+
+      const response = await holdTyreServiceApi.validateFinishedMaterial(
+        tyreSize,
+        patternName,
+      );
+
+      const result = response.data;
+
+      console.log("Finished Material Response:", result);
+
+      if (result?.success === true && result?.data === true) {
+        setIsFinishedMaterialValid(true);
+        setMaterialValidationMessage(
+          "Finished material validated successfully.",
+        );
+      } else {
+        setIsFinishedMaterialValid(false);
+        setMaterialValidationMessage(
+          `No finished material (ZFER) found for tyre size ${tyreSize} and pattern ${patternName}.`,
+        );
+      }
+    } catch (error: unknown) {
+      console.error("Finished material validation failed:", error);
+
+      const apiMessage = (
+        error as {
+          response?: {
+            data?: {
+              error?: {
+                message?: string;
+              };
+            };
+          };
+        }
+      )?.response?.data?.error?.message;
+
+      setIsFinishedMaterialValid(false);
+      setMaterialValidationMessage(
+        apiMessage ||
+          `No finished material (ZFER) found for tyre size ${tyreSize} and pattern ${patternName}.`,
+      );
+    } finally {
+      setIsValidatingMaterial(false);
+    }
+  };
+  // =========================================================
+  // GET AVAILABLE TREAD PATTERNS
+  // =========================================================
+  useEffect(() => {
+    const loadTreadPatterns = async () => {
+      if (!casingDetails) {
+        return;
+      }
+
+      const categoryId = casingDetails.category?.categoryId;
+
+      const tyreClassificationId = casingDetails.tyreClassification?.id;
+
+      const isRetread = casingDetails.isRetreaded ?? false;
+
+      const override = casingDetails.retreadDetail?.isPatternOverride ?? false;
+
+      if (!categoryId || !tyreClassificationId) {
+        return;
+      }
+
+      try {
+        setLoadingPatternSuggestions(true);
+
+        const response = await holdTyreServiceApi.getTreadPatterns(
+          categoryId,
+          tyreClassificationId,
+          isRetread,
+          override,
+        );
+
+        console.log("AVAILABLE TREAD PATTERNS:", response);
+
+        if (response?.data?.success) {
+          setPatternSuggestions(response.data.data || []);
+        } else {
+          setPatternSuggestions([]);
+        }
+      } catch (error) {
+        console.error("Failed to load tread patterns:", error);
+
+        setPatternSuggestions([]);
+      } finally {
+        setLoadingPatternSuggestions(false);
+      }
     };
 
-    if (!selectedItem) return null;
-    return (
-        <>
-            {/* BACKDROP */}
-            <div className="modal-backdrop fade show"></div>
+    loadTreadPatterns();
+  }, [casingDetails]);
 
-            {/* MODAL */}
-            <div
-                className="modal d-block"
-                tabIndex={-1}
-                aria-modal="true"
-                role="dialog"
-            >
-                <div className="modal-dialog modal-xl modal-dialog-centered">
-                    <div className="modal-content">
+  const handleApprove = async () => {
+    // Pre-Buffing approval API will go here
 
-                        {/* HEADER */}
-                        <div className="modal-header bg-approve text-white">
-                            <h5 className="modal-title fw-bold">
-                                PRE BUFFING PATTERN CHANGE APPROVAL
-                            </h5>
+    await onApproved();
+    onClose();
+  };
 
-                            <button
-                                type="button"
-                                className="btn-close btn-close-white"
-                                onClick={onClose}
+  const handleReject = () => {
+    // Pre-Buffing rejection API will go here
+  };
+
+  if (!selectedItem) return null;
+  return (
+    <>
+      {/* BACKDROP */}
+      <div className="modal-backdrop fade show"></div>
+
+      {/* MODAL */}
+      <div
+        className="modal d-block"
+        tabIndex={-1}
+        aria-modal="true"
+        role="dialog"
+      >
+        <div className="modal-dialog modal-xl modal-dialog-centered">
+          <div className="modal-content">
+            {/* HEADER */}
+            <div className="modal-header bg-approve text-white">
+              <h5 className="modal-title fw-bold">
+                PRE BUFFING PATTERN CHANGE APPROVAL
+              </h5>
+
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={onClose}
+              />
+            </div>
+
+            {/* BODY */}
+            <div className="modal-body">
+              <div>
+                {/* TOP INFO */}
+                <div className="modal-info m-0 row text-nowrap">
+                  <div className="col">
+                    <strong>Production No</strong>
+                    <div>
+                      {casingDetails?.productionNumber ||
+                        selectedItem?.casing ||
+                        "-"}
+                    </div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Tyre Ref No</strong>
+                    <div>
+                      {casingDetails?.tyreReferenceNumber ||
+                        selectedItem?.serial ||
+                        "-"}
+                    </div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Customer Name</strong>
+                    <div>
+                      {casingDetails?.customerName ||
+                        selectedItem?.customerName ||
+                        "-"}
+                    </div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Tyre Size</strong>
+                    <div>
+                      {casingDetails?.tyreSize?.casingSize ||
+                        selectedItem?.tyreSize ||
+                        "-"}
+                    </div>
+                  </div>
+
+                  <div className="col">
+                    <strong>Requested Pattern</strong>
+                    <div>
+                      {casingDetails?.retreadDetail?.patternName || "-"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* CASING / PATTERN DETAILS */}
+                <div className="row g-2 mt-1">
+                  {/* CASING DETAILS */}
+                  <div className="col-md-4">
+                    <div className="card">
+                      <div className="card-header fw-bold">Casing Details</div>
+
+                      <div className="card-body m-0 p-1">
+                        <div className="row mb-1">
+                          <div className="col-5 fw-semibold">Make</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={casingDetails?.tyreMake?.name || ""}
+                              readOnly
                             />
+                          </div>
                         </div>
 
-                        {/* BODY */}
-                        <div className="modal-body">
-                            <div>
+                        <div className="row mb-1">
+                          <div className="col-5 fw-semibold">Model</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={casingDetails?.model || ""}
+                              readOnly
+                            />
+                          </div>
+                        </div>
 
-                                {/* TOP INFO */}
-                                <div className="modal-info m-0 row text-nowrap">
-                                    <div className="col">
-                                        <strong>Production No</strong>
-                                        <div>
-                                            {casingDetails?.productionNumber || selectedItem?.casing || "-"}
-                                        </div>
-                                    </div>
+                        <div className="row">
+                          <div className="col-5 fw-semibold">Casing Size</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={casingDetails?.tyreSize?.casingSize || ""}
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                                    <div className="col">
-                                        <strong>Tyre Ref No</strong>
-                                        <div>
-                                            {casingDetails?.tyreReferenceNumber || selectedItem?.serial || "-"}
-                                        </div>
-                                    </div>
+                  {/* CUSTOMER REQUESTED PATTERN */}
+                  <div className="col-md-4">
+                    <div className="card">
+                      <div className="card-header fw-bold">
+                        Customer Requested Pattern
+                      </div>
 
-                                    <div className="col">
-                                        <strong>Customer Name</strong>
-                                        <div>
-                                            {casingDetails?.customerName || selectedItem?.customerName || "-"}
-                                        </div>
-                                    </div>
+                      <div className="card-body m-0 p-1">
+                        <div className="row mb-1">
+                          <div className="col-5 fw-semibold">Brand</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={casingDetails?.retreadDetail?.brand || ""}
+                              readOnly
+                            />
+                          </div>
+                        </div>
 
-                                    <div className="col">
-                                        <strong>Tyre Size</strong>
-                                        <div>
-                                            {casingDetails?.tyreSize?.casingSize || selectedItem?.tyreSize || "-"}
-                                        </div>
-                                    </div>
+                        <div className="row mb-1">
+                          <div className="col-5 fw-semibold">Pattern</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={
+                                casingDetails?.retreadDetail?.patternName || ""
+                              }
+                              readOnly
+                            />
+                          </div>
+                        </div>
 
-                                    <div className="col">
-                                        <strong>Requested Pattern</strong>
-                                        <div>{casingDetails?.retreadDetail?.patternName || "-"}</div>
-                                    </div>
-                                </div>
+                        <div className="row ">
+                          <div className="col-5 fw-semibold">Width</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={casingDetails?.retreadDetail?.width ?? ""}
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                                {/* CASING / PATTERN DETAILS */}
-                                <div className="row g-2 mt-1">
+                  {/* TECHNICIAN SUGGESTED PATTERN */}
+                  <div className="col-md-4">
+                    <div className="card">
+                      <div className="card-header fw-bold">
+                        Suggested Pattern - Technician
+                      </div>
 
-                                    {/* CASING DETAILS */}
-                                    <div className="col-md-4">
-                                        <div className="card">
-                                            <div className="card-header fw-bold">
-                                                Casing Details
-                                            </div>
+                      <div className="card-body m-0 p-1">
+                        <div className="row mb-1">
+                          <div className="col-5 fw-semibold">Brand</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={selectedItem?.suggestedBrand || ""}
+                              readOnly
+                            />
+                          </div>
+                        </div>
 
-                                            <div className="card-body m-0 p-1">
+                        <div className="row mb-1">
+                          <div className="col-5 fw-semibold">Pattern</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={selectedItem?.suggestedPattern || ""}
+                              readOnly
+                            />
+                          </div>
+                        </div>
 
-                                                <div className="row mb-1">
-                                                    <div className="col-5 fw-semibold">
-                                                        Make
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={casingDetails?.tyreMake?.name || ""}
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                        <div className="row">
+                          <div className="col-5 fw-semibold">Width</div>
+                          <div className="col-7">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={selectedItem?.suggestedWidth || ""}
+                              readOnly
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                                                <div className="row mb-1">
-                                                    <div className="col-5 fw-semibold">
-                                                        Model
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={casingDetails?.model || ""}
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                {/* APPROVED PATTERN CHANGE */}
+                <div className="card mt-1">
+                  <div className="card-header fw-bold">
+                    Approved Pattern Change
+                  </div>
 
-                                                <div className="row">
-                                                    <div className="col-5 fw-semibold">
-                                                        Casing Size
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={casingDetails?.tyreSize?.casingSize || ""}
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                  <div className="card-body">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={changeRequestedPattern}
+                        onChange={(e) =>
+                          setChangeRequestedPattern(e.target.checked)
+                        }
+                        id="changeRequestedPattern"
+                      />
 
-                                            </div>
-                                        </div>
-                                    </div>
+                      <label
+                        className="form-check-label fw-bold"
+                        htmlFor="changeRequestedPattern"
+                      >
+                        Change Requested Pattern
+                      </label>
+                    </div>
 
-                                    {/* CUSTOMER REQUESTED PATTERN */}
-                                    <div className="col-md-4">
-                                        <div className="card">
-                                            <div className="card-header fw-bold">
-                                                Customer Requested Pattern
-                                            </div>
+                    <div className="row g-3">
+                      <div className="col-md-4">
+                        <label className="form-label fw-semibold">
+                          Pattern
+                        </label>
 
-                                            <div className="card-body m-0 p-1">
+                        <select
+                          className="form-select"
+                          value={selectedPattern}
+                          onChange={async (e) => {
+                            const patternId = e.target.value;
 
-                                                <div className="row mb-1">
-                                                    <div className="col-5 fw-semibold">
-                                                        Brand
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={casingDetails?.retreadDetail?.brand || ""
-                                                            }
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                            setSelectedPattern(patternId);
 
-                                                <div className="row mb-1">
-                                                    <div className="col-5 fw-semibold">
-                                                        Pattern
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={casingDetails?.retreadDetail?.patternName || ""}
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                            // Reset previous values and validation status
+                            setSelectedWidth("");
+                            setSelectedBrand("");
+                            setPatternVariants([]);
+                            setIsFinishedMaterialValid(null);
+                            setMaterialValidationMessage("");
 
-                                                <div className="row ">
-                                                    <div className="col-5 fw-semibold">
-                                                        Width
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={casingDetails?.retreadDetail?.width ?? ""}
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                            if (!patternId) {
+                              return;
+                            }
 
-                                            </div>
-                                        </div>
-                                    </div>
+                            const selectedPatternData = patternSuggestions.find(
+                              (pattern) =>
+                                String(pattern.treadPatternId) === patternId,
+                            );
 
-                                    {/* TECHNICIAN SUGGESTED PATTERN */}
-                                    <div className="col-md-4">
-                                        <div className="card">
-                                            <div className="card-header fw-bold">
-                                                Suggested Pattern - Technician
-                                            </div>
+                            const tyreSize =
+                              casingDetails?.tyreSize?.casingSize;
+                            const patternName =
+                              selectedPatternData?.patternName;
 
-                                            <div className="card-body m-0 p-1">
+                            if (tyreSize && patternName) {
+                              void checkFinishedMaterial(tyreSize, patternName);
+                            }
 
-                                                <div className="row mb-1">
-                                                    <div className="col-5 fw-semibold">
-                                                        Brand
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={
-                                                                selectedItem?.suggestedBrand ||
-                                                                ""
-                                                            }
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                            try {
+                              setLoadingPatternVariants(true);
 
-                                                <div className="row mb-1">
-                                                    <div className="col-5 fw-semibold">
-                                                        Pattern
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={
-                                                                selectedItem?.suggestedPattern ||
-                                                                ""
-                                                            }
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                              const response =
+                                await holdTyreServiceApi.getTreadPatternVariants(
+                                  Number(patternId),
+                                );
 
-                                                <div className="row">
-                                                    <div className="col-5 fw-semibold">
-                                                        Width
-                                                    </div>
-                                                    <div className="col-7">
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={
-                                                                selectedItem?.suggestedWidth ||
-                                                                ""
-                                                            }
-                                                            readOnly
-                                                        />
-                                                    </div>
-                                                </div>
+                              console.log(
+                                "SELECTED TREAD PATTERN VARIANTS:",
+                                response,
+                              );
 
-                                            </div>
-                                        </div>
-                                    </div>
+                              if (response?.data?.success) {
+                                const patternData = response.data.data?.[0];
+                                const variants = patternData?.variants || [];
 
-                                </div>
+                                setPatternVariants(variants);
+                                setSelectedBrand(patternData?.brand || "");
+                              } else {
+                                setPatternVariants([]);
+                                setSelectedBrand("");
+                              }
+                            } catch (error) {
+                              console.error(
+                                "Failed to load tread pattern variants:",
+                                error,
+                              );
 
-                                {/* APPROVED PATTERN CHANGE */}
-                                <div className="card mt-1">
-                                    <div className="card-header fw-bold">
-                                        Approved Pattern Change
-                                    </div>
+                              setPatternVariants([]);
+                              setSelectedBrand("");
+                            } finally {
+                              setLoadingPatternVariants(false);
+                            }
+                          }}
+                        >
+                          <option value="">
+                            {loadingPatternSuggestions
+                              ? "Loading Patterns..."
+                              : "Select Pattern"}
+                          </option>
 
-                                    <div className="card-body">
+                          {patternSuggestions.map((pattern) => (
+                            <option
+                              key={pattern.treadPatternId}
+                              value={pattern.treadPatternId}
+                            >
+                              {pattern.brand} - {pattern.patternName}
+                            </option>
+                          ))}
+                        </select>
 
-                                        <div className="form-check">
-                                            <input
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                checked={changeRequestedPattern}
-                                                onChange={(e) =>
-                                                    setChangeRequestedPattern(
-                                                        e.target.checked
-                                                    )
-                                                }
-                                                id="changeRequestedPattern"
-                                            />
+                        {isValidatingMaterial && (
+                          <small className="text-muted d-block mt-1">
+                            Validating finished material...
+                          </small>
+                        )}
 
-                                            <label
-                                                className="form-check-label fw-bold"
-                                                htmlFor="changeRequestedPattern"
-                                            >
-                                                Change Requested Pattern
-                                            </label>
-                                        </div>
+                        {!isValidatingMaterial &&
+                          isFinishedMaterialValid === true && (
+                            <small className="text-success d-block mt-1">
+                              Finished material validated successfully.
+                            </small>
+                          )}
 
-                                        <div className="row g-3">
+                        {!isValidatingMaterial &&
+                          isFinishedMaterialValid === false && (
+                            <small className="text-danger d-block mt-1">
+                              {materialValidationMessage}
+                            </small>
+                          )}
+                      </div>
 
-                                            <div className="col-md-4">
-                                                <label className="form-label fw-semibold">
-                                                    Pattern
-                                                </label>
+                      <div className="col-md-4">
+                        <label className="form-label fw-semibold">Width</label>
+                        <select
+                          className="form-select"
+                          value={selectedWidth}
+                          onChange={(e) => setSelectedWidth(e.target.value)}
+                          disabled={!selectedPattern || loadingPatternVariants}
+                        >
+                          <option value="">
+                            {loadingPatternVariants
+                              ? "Loading Widths..."
+                              : "Select Width"}
+                          </option>
 
-                                                <select
-                                                    className="form-select"
-                                                    value={selectedPattern}
-                                                    onChange={async (e) => {
-                                                        const patternId = e.target.value;
+                          {patternVariants.map((variant: any) => (
+                            <option
+                              key={variant.treadPatternVariantId}
+                              value={variant.width}
+                            >
+                              {variant.width}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                                                        setSelectedPattern(patternId);
+                      <div className="col-md-4">
+                        <label className="form-label fw-semibold">Brand</label>
 
-                                                        // Reset previous values
-                                                        setSelectedWidth("");
-                                                        setSelectedBrand("");
-                                                        setPatternVariants([]);
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={selectedBrand}
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                                                        if (!patternId) {
-                                                            return;
-                                                        }
+                {/* HOLD REASON / COMMENTS */}
+                <div className="row g-3 mb-1">
+                  <div className="col-md-5">
+                    <label className="form-label fw-semibold">
+                      Hold Reason
+                    </label>
 
-                                                        try {
-                                                            setLoadingPatternVariants(true);
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={selectedItem?.holdReason || ""}
+                      readOnly
+                    />
+                  </div>
 
-                                                            const response =
-                                                                await holdTyreServiceApi.getTreadPatternVariants(
-                                                                    Number(patternId)
-                                                                );
+                  <div className="col-md-7">
+                    <label className="form-label fw-semibold">Comments</label>
 
-                                                            console.log(
-                                                                "SELECTED TREAD PATTERN VARIANTS:",
-                                                                response
-                                                            );
+                    <textarea
+                      className="form-control"
+                      rows={3}
+                      value={comments}
+                      onChange={(e) => setComments(e.target.value)}
+                    />
+                  </div>
+                </div>
 
-                                                            if (response?.data?.success) {
-                                                                const patternData =
-                                                                    response.data.data?.[0];
-
-                                                                const variants =
-                                                                    patternData?.variants || [];
-
-                                                                setPatternVariants(variants);
-
-                                                                // Auto-fill Brand
-                                                                setSelectedBrand(
-                                                                    patternData?.brand || ""
-                                                                );
-                                                            } else {
-                                                                setPatternVariants([]);
-                                                                setSelectedBrand("");
-                                                            }
-                                                        } catch (error) {
-                                                            console.error(
-                                                                "Failed to load tread pattern variants:",
-                                                                error
-                                                            );
-
-                                                            setPatternVariants([]);
-                                                            setSelectedBrand("");
-                                                        } finally {
-                                                            setLoadingPatternVariants(false);
-                                                        }
-                                                    }}
-                                                >
-                                                    <option value="">
-                                                        {loadingPatternSuggestions
-                                                            ? "Loading Patterns..."
-                                                            : "Select Pattern"}
-                                                    </option>
-
-                                                    {patternSuggestions.map((pattern) => (
-                                                        <option
-                                                            key={pattern.treadPatternId}
-                                                            value={pattern.treadPatternId}
-                                                        >
-                                                            {pattern.brand} - {pattern.patternName}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            <div className="col-md-4">
-                                                <label className="form-label fw-semibold">
-                                                    Width
-                                                </label>
-                                                <select
-                                                    className="form-select"
-                                                    value={selectedWidth}
-                                                    onChange={(e) =>
-                                                        setSelectedWidth(e.target.value)
-                                                    }
-                                                    disabled={
-                                                        !selectedPattern ||
-                                                        loadingPatternVariants
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        {loadingPatternVariants
-                                                            ? "Loading Widths..."
-                                                            : "Select Width"}
-                                                    </option>
-
-                                                    {patternVariants.map((variant: any) => (
-                                                        <option
-                                                            key={variant.treadPatternVariantId}
-                                                            value={variant.width}
-                                                        >
-                                                            {variant.width}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            <div className="col-md-4">
-                                                <label className="form-label fw-semibold">
-                                                    Brand
-                                                </label>
-
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={selectedBrand}
-                                                    readOnly
-                                                />
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* HOLD REASON / COMMENTS */}
-                                <div className="row g-3 mb-1">
-
-                                    <div className="col-md-5">
-                                        <label className="form-label fw-semibold">
-                                            Hold Reason
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            value={
-                                                selectedItem?.holdReason || ""
-                                            }
-                                            readOnly
-                                        />
-                                    </div>
-
-                                    <div className="col-md-7">
-                                        <label className="form-label fw-semibold">
-                                            Comments
-                                        </label>
-
-                                        <textarea
-                                            className="form-control"
-                                            rows={3}
-                                            value={comments}
-                                            onChange={(e) =>
-                                                setComments(e.target.value)
-                                            }
-                                        />
-                                    </div>
-
-                                </div>
-
-                                {/* =================================================
+                {/* =================================================
                   ACTION BUTTONS
             ================================================== */}
-                                <div className="row g-3">
+                <div className="row g-3">
+                  {/* APPROVE */}
+                  <div className="col-md-6">
+                    <button
+                      type="button"
+                      className="btn btn-approve w-100 h-100"
+                      style={{
+                        // background: "linear-gradient(135deg, #28a745, #26a369)",
+                        height: "100%",
+                      }}
+                      onClick={handleApprove}
+                    >
+                      <b>APPROVED</b>
+                    </button>
+                  </div>
 
-                                    {/* APPROVE */}
-                                    <div className="col-md-6">
-
-                                        <button
-                                            type="button"
-                                            className="btn btn-approve w-100 h-100"
-                                            style={{
-                                                // background: "linear-gradient(135deg, #28a745, #26a369)",
-                                                height: "100%",
-                                            }}
-                                            onClick={handleApprove}
-                                        >
-                                            <b>APPROVED</b>
-                                        </button>
-
-                                    </div>
-
-                                    {/* REJECT */}
-                                    <div className="col-md-6">
-
-                                        <button
-                                            type="button"
-                                            className="btn btn-reject w-100 h-100"
-                                            style={{
-                                                height: "100%",
-                                            }}
-                                            onClick={handleReject}
-                                        >
-                                            <b>REJECTED</b>
-                                        </button>
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                  {/* REJECT */}
+                  <div className="col-md-6">
+                    <button
+                      type="button"
+                      className="btn btn-reject w-100 h-100"
+                      style={{
+                        height: "100%",
+                      }}
+                      onClick={handleReject}
+                    >
+                      <b>REJECTED</b>
+                    </button>
+                  </div>
                 </div>
+              </div>
             </div>
-        </>
-    );
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default PreBuffingPatternApprovalModal;

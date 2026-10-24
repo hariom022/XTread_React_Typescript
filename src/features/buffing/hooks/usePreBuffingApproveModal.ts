@@ -32,7 +32,12 @@ interface Props {
   onClose: () => void;
 }
 
-const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTable, onClose }: Props) => {
+const usePreBuffingApproveModal = ({
+  selectedItem,
+  refreshTable,
+  refreshPostTable,
+  onClose,
+}: Props) => {
   const [loading, setLoading] = useState(false);
 
   const [reason, setReason] = useState("");
@@ -57,6 +62,15 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
   const [showChecklist, setShowChecklist] = useState(false);
 
   const [checkedChecklist, setCheckedChecklist] = useState<string[]>([]);
+
+  const [isValidatingMaterial, setIsValidatingMaterial] = useState(false);
+
+  const [isFinishedMaterialValid, setIsFinishedMaterialValid] = useState<
+    boolean | null
+  >(null);
+
+  const [materialValidationMessage, setMaterialValidationMessage] =
+    useState("");
 
   const toggleChecklist = (id: string) => {
     setCheckedChecklist((prev) =>
@@ -94,6 +108,9 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
     setShowChecklist(false);
 
     setCheckedChecklist([]);
+    setIsValidatingMaterial(false);
+    setIsFinishedMaterialValid(null);
+    setMaterialValidationMessage("");
   };
 
   const fetchRejectionReasons = async () => {
@@ -161,8 +178,7 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
       alert("Casing Rejected Successfully");
 
       refreshTable();
-      refreshPostTable(),
-        resetModal();
+      (refreshPostTable(), resetModal());
       onClose();
     } catch (error: unknown) {
       console.error("Pre-Buffing Reject Error:", error);
@@ -213,10 +229,8 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
       alert("Approved Successfully");
 
       refreshTable();
-      refreshPostTable(),
-        resetModal();
+      (refreshPostTable(), resetModal());
       onClose();
-
     } catch (error: unknown) {
       console.error("Pre-Buffing Approve Error:", error);
 
@@ -230,7 +244,6 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
       setLoading(false);
     }
   };
-
 
   const handleHold = async () => {
     try {
@@ -298,6 +311,67 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
     }
   };
 
+ const checkFinishedMaterial = async (
+  tyreSize: string,
+  patternName: string,
+) => {
+  if (!tyreSize || !patternName) {
+    setIsFinishedMaterialValid(null);
+    setMaterialValidationMessage("");
+    return;
+  }
+
+  try {
+    setIsValidatingMaterial(true);
+    setIsFinishedMaterialValid(null);
+    setMaterialValidationMessage("");
+
+    const response =
+      await buffingStageServiceApi.validateFinishedMaterial(
+        tyreSize,
+        patternName,
+      );
+
+    const result = response.data;
+
+    console.log("Finished Material Response:", result);
+
+    // API success response: { success: true, data: true, error: null }
+    if (result?.success === true && result?.data === true) {
+      setIsFinishedMaterialValid(true);
+      setMaterialValidationMessage(
+        "Finished material validated successfully.",
+      );
+    } else {
+      setIsFinishedMaterialValid(false);
+      setMaterialValidationMessage(
+        `No finished material (ZFER) found for tyre size ${tyreSize} and pattern ${patternName}.`,
+      );
+    }
+  } catch (error: unknown) {
+    console.error("Finished material validation failed:", error);
+
+    // API failure response: HTTP 404 with error.message
+    const apiMessage =
+      (error as {
+        response?: {
+          data?: {
+            error?: {
+              message?: string;
+            };
+          };
+        };
+      })?.response?.data?.error?.message;
+
+    setIsFinishedMaterialValid(false);
+    setMaterialValidationMessage(
+      apiMessage ||
+        `No finished material (ZFER) found for tyre size ${tyreSize} and pattern ${patternName}.`,
+    );
+  } finally {
+    setIsValidatingMaterial(false);
+  }
+};
 
   return {
     reason,
@@ -347,7 +421,11 @@ const usePreBuffingApproveModal = ({ selectedItem, refreshTable, refreshPostTabl
     handleSelectAllChecklist,
 
     isChecklistComplete,
-    loading
+    loading,
+    checkFinishedMaterial,
+    isValidatingMaterial,
+    isFinishedMaterialValid,
+    materialValidationMessage,
   };
 };
 
