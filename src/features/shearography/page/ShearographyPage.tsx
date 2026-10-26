@@ -16,6 +16,8 @@ const ShearographyPage = () => {
     inspections,
     rejectionReasons,
     loadOrders,
+    loadingError,
+    rejectionReasonsError,
   } = useShearography();
 
   const [search, setSearch] = useState("");
@@ -44,6 +46,17 @@ const ShearographyPage = () => {
 
   return (
     <div className="container-fluid mt-3">
+      {loadingError && (
+        <div className="alert alert-danger" role="alert">
+          {loadingError}
+        </div>
+      )}
+
+      {rejectionReasonsError && (
+        <div className="alert alert-danger" role="alert">
+          {rejectionReasonsError}
+        </div>
+      )}
       {/* Search + Incident */}
       <div className="row mb-3">
         <div className="col-md-10">

@@ -297,9 +297,9 @@ const NailInspectionModal = ({
                       onClick={handleReject}
                     >
                       <b>REJECTED</b>
-                      <span className="icon-box">
+                      {/* <span className="icon-box">
                         <i className="bi bi-x-lg"></i>
-                      </span>
+                      </span> */}
                     </button>
 
                     <button
@@ -316,9 +316,9 @@ const NailInspectionModal = ({
                           without Pressure Test
                         </span>
                       </b>
-                      <span className="icon-box">
+                      {/* <span className="icon-box">
                         <i className="bi bi-check-lg"></i>
-                      </span>
+                      </span> */}
                     </button>
                   </div>
                 </div>

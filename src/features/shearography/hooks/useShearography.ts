@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import shearographyService from "../service/shearographyService";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
+import { getShearographyErrorMessage } from "../utils/getShearographyErrorMessage";
 
 const transformApiData = (stages: any[]) => {
   const list: any[] = [];
@@ -37,8 +38,9 @@ const transformApiData = (stages: any[]) => {
           tyreSize:
             casing.tyreSizeLabel ||
             "-",
-          tyreMakeName:casing.
-            tyreMakeName || "-",
+
+          tyreMakeName:
+            casing.tyreMakeName || "-",
 
           customerName:
             casing.customerName ||
@@ -58,7 +60,7 @@ const transformApiData = (stages: any[]) => {
 
           currentStageStatus:
             casing.currentStageStatus,
-                      // batch summary
+
           approved:
             batch.stageSummary?.approved || 0,
 
@@ -69,15 +71,15 @@ const transformApiData = (stages: any[]) => {
             batch.stageSummary?.pending || 0,
 
           previousStage:
-            batch.stageSummary
-              ?.stillAtPreviousStage || 0,
+            batch.stageSummary?.stillAtPreviousStage || 0,
 
           expectedTotal:
-            batch.stageSummary
-              ?.expectedTotal ||
+            batch.stageSummary?.expectedTotal ||
             batch.originalBatchSize,
+
           casingLife:
             `${casing.noOfRetread || 1}/5`,
+
           arrived:
             batch.stageSummary?.arrived || 0,
         });
@@ -97,30 +99,38 @@ export const useShearography = () => {
   const [rejectionReasons, setRejectionReasons] =
     useState<any[]>([]);
 
+  // Error states must be inside the hook.
+  const [loadingError, setLoadingError] = useState("");
+  const [rejectionReasonsError, setRejectionReasonsError] =
+    useState("");
+
   const loadOrders = async () => {
+    setLoadingError("");
+
     try {
       setLoading(true);
 
       const result =
-        await indexPageApiService.getBatchProgress(
-          6,
-          1
-        );
+        await indexPageApiService.getBatchProgress(6, 1);
 
-      console.log(
-        "Shearography Orders",
-        result.data
-      );
+      console.log("Shearography Orders", result.data);
 
       const transformed = transformApiData(
         result?.data?.data || []
       );
 
       setInspections(transformed);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "Failed to load shearography orders",
         error
+      );
+
+      setLoadingError(
+        getShearographyErrorMessage(
+          error,
+          "Failed to load Shearography orders."
+        )
       );
     } finally {
       setLoading(false);
@@ -128,6 +138,8 @@ export const useShearography = () => {
   };
 
   const loadRejectionReasons = async () => {
+    setRejectionReasonsError("");
+
     try {
       const result =
         await shearographyService.getRejectionReason();
@@ -140,10 +152,17 @@ export const useShearography = () => {
       setRejectionReasons(
         result?.data?.data || []
       );
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(
         "Failed to load rejection reasons",
         error
+      );
+
+      setRejectionReasonsError(
+        getShearographyErrorMessage(
+          error,
+          "Failed to load rejection reasons."
+        )
       );
     }
   };
@@ -155,11 +174,11 @@ export const useShearography = () => {
 
   return {
     loading,
-
     inspections,
-
     rejectionReasons,
-
     loadOrders,
+    loadRejectionReasons,
+    loadingError,
+    rejectionReasonsError,
   };
 };

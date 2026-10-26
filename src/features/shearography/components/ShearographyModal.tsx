@@ -7,6 +7,7 @@ import { SHEAROGRAPHY_CHECKLIST } from "../constants/shearographyChecklist";
 
 import shearographyService from "../service/shearographyService";
 import { useAuthStore } from "../../auth/store/authStore";
+import { getShearographyErrorMessage } from "../utils/getShearographyErrorMessage";
 
 type Props = {
   item: any;
@@ -36,6 +37,9 @@ const ShearographyModal = ({
 
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   // const [showHoldOptions, setShowHoldOptions] = useState(false);
+
+  const [submitError, setSubmitError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleChecklist = (id: string) => {
     setCheckedChecklist((prev) => {
@@ -135,30 +139,93 @@ const ShearographyModal = ({
   //     );
   //   }
   // };
+  // const handleApprove = async () => {
+  //   if (!checklistSaved) {
+  //     alert("Please complete checklist first");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+
+  //   formData.append("orderCasingIds", item.id);
+
+  //   formData.append("isApproved", "true");
+
+  //   pdfFiles.forEach((pdf) => {
+  //     formData.append("pdfs", pdf.file);
+  //   });
+
+  //   await shearographyService.handleApprovalRejection(formData);
+
+  //   alert("Approved Successfully");
+
+  //   onSuccess();
+
+  //   onClose();
+  // };
   const handleApprove = async () => {
     if (!checklistSaved) {
       alert("Please complete checklist first");
       return;
     }
 
+    setSubmitError("");
+
     const formData = new FormData();
 
     formData.append("orderCasingIds", item.id);
-
     formData.append("isApproved", "true");
 
     pdfFiles.forEach((pdf) => {
       formData.append("pdfs", pdf.file);
     });
 
-    await shearographyService.handleApprovalRejection(formData);
+    try {
+      setSubmitting(true);
 
-    alert("Approved Successfully");
+      await shearographyService.handleApprovalRejection(formData);
 
-    onSuccess();
+      alert("Approved Successfully");
 
-    onClose();
+      onSuccess();
+      onClose();
+    } catch (error: unknown) {
+      setSubmitError(
+        getShearographyErrorMessage(
+          error,
+          "Failed to approve Shearography.",
+        ),
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
+  // const handleReject = async () => {
+  //   if (!reason) {
+  //     alert("Please select rejection reason");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+
+  //   formData.append("orderCasingIds", item.id);
+
+  //   formData.append("isApproved", "false");
+
+  //   formData.append("rejectionReasonId", reason);
+
+  //   pdfFiles.forEach((pdf) => {
+  //     formData.append("pdfs", pdf.file);
+  //   });
+
+  //   await shearographyService.handleApprovalRejection(formData);
+
+  //   alert("Rejected Successfully");
+
+  //   onSuccess();
+
+  //   onClose();
+  // };
 
   const handleReject = async () => {
     if (!reason) {
@@ -166,27 +233,38 @@ const ShearographyModal = ({
       return;
     }
 
+    setSubmitError("");
+
     const formData = new FormData();
 
     formData.append("orderCasingIds", item.id);
-
     formData.append("isApproved", "false");
-
     formData.append("rejectionReasonId", reason);
 
     pdfFiles.forEach((pdf) => {
       formData.append("pdfs", pdf.file);
     });
 
-    await shearographyService.handleApprovalRejection(formData);
+    try {
+      setSubmitting(true);
 
-    alert("Rejected Successfully");
+      await shearographyService.handleApprovalRejection(formData);
 
-    onSuccess();
+      alert("Rejected Successfully");
 
-    onClose();
+      onSuccess();
+      onClose();
+    } catch (error: unknown) {
+      setSubmitError(
+        getShearographyErrorMessage(
+          error,
+          "Failed to reject Shearography.",
+        ),
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
-
   return (
     <>
       <div
@@ -228,6 +306,11 @@ const ShearographyModal = ({
 
             {/* Body */}
             <div className="modal-body">
+              {submitError && (
+                <div className="alert alert-danger" role="alert">
+                  {submitError}
+                </div>
+              )}
               {/* Top Information */}
               <div className="modal-info m-0 building-top row text-nowrap">
                 <div className="col">
@@ -267,30 +350,33 @@ const ShearographyModal = ({
                   handlePdfUpload={handlePdfUpload}
                   removePdf={removePdf}
                 />
-                <div className="col">
-                  <select
-                    className="form-select"
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                  >
-                    <option value="" hidden>
-                      Select Rejection Reason
-                    </option>
-
-                    {rejectionReasons.map((reasonItem: any) => (
-                      <option
-                        key={reasonItem.rejectionReasonId}
-                        value={reasonItem.rejectionReasonId}
-                      >
-                        {reasonItem.reason}
+                <div>
+                  <label className="fw-semibold">Rejection Reason</label>
+                  <div className="col-12">
+                    <select
+                      className="form-select"
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                    >
+                      <option value="" selected disabled>
+                        --- Select Reason ---
                       </option>
-                    ))}
-                  </select>
+
+                      {rejectionReasons.map((reasonItem: any) => (
+                        <option
+                          key={reasonItem.rejectionReasonId}
+                          value={reasonItem.rejectionReasonId}
+                        >
+                          {reasonItem.reason}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="row g-1 mt-2">
+              <div className="row g-3 mt-2">
                 {/* <div className="col-md-4">
                   <button
                     className="btn btn-warning HOLD w-100 d-flex align-items-center justify-content-center gap-3"
@@ -312,7 +398,7 @@ const ShearographyModal = ({
                     type="button"
                     className="open-checklist-btn btn-primary w-100 d-flex align-items-center justify-content-center gap-3"
                     style={{
-                      height: "7.25rem",
+                      height: "6.35rem",
                     }}
                     onClick={() => setShowChecklist(true)}
                   >
@@ -320,16 +406,16 @@ const ShearographyModal = ({
                   </button>
                 </div>
 
-                <div className="col-md-4">
+                <div className="col-md-4" >
                   <button
                     className="btn btn-approve w-100 d-flex align-items-center justify-content-center gap-3"
                     onClick={handleApprove}
                   >
                     <span>APPROVED</span>
 
-                    <span className="icon-box">
+                    {/* <span className="icon-box">
                       <i className="bi bi-check-lg"></i>
-                    </span>
+                    </span> */}
                   </button>
                 </div>
 
@@ -340,9 +426,9 @@ const ShearographyModal = ({
                   >
                     <span>REJECTED</span>
 
-                    <span className="icon-box">
+                    {/* <span className="icon-box">
                       <i className="bi bi-x-lg"></i>
-                    </span>
+                    </span> */}
                   </button>
                 </div>
               </div>

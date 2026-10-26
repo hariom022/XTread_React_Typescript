@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
+import { getShearographyErrorMessage } from "../utils/getShearographyErrorMessage";
+
 export const useShearographyModal = () => {
   const [showModal, setShowModal] =
     useState(false);
@@ -74,17 +76,20 @@ export const useShearographyModal = () => {
       setSelectedItem(modalData);
 
       setShowModal(true);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Failed to load Shearography casing details:", error);
 
       alert(
-        "Failed to load casing details"
+        getShearographyErrorMessage(
+          error,
+          "Failed to load casing details.",
+        ),
       );
     } finally {
       setLoadingModal(false);
     }
   };
-  
+
 
   const closeModal = () => {
     setShowModal(false);
