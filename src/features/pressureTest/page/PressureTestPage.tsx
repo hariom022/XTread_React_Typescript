@@ -9,12 +9,15 @@ import { usePressureTest } from "../hooks/usePressureTest";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 import { RingLoader } from "react-spinners";
 import IncidentReportModal from "../../../shared/components/IncidentReportModal";
+import { getPressureTestErrorMessage } from "../utils/getPressureTestErrorMessage";
 const PressureTestPage = () => {
 
   const {
     loading,
     pressureTestList,
     loadPressureTestOrders,
+    loadingError,
+    setLoadingError,
   } = usePressureTest();
 
   // const { pressureTestList, loadPressureTestOrders } = usePressureTest();
@@ -25,6 +28,8 @@ const PressureTestPage = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const [showModal, setShowModal] = useState(false);
+
+  const [detailsError, setDetailsError] = useState("");
 
   const filteredData = useMemo(() => {
     return pressureTestList.filter((item) =>
@@ -53,10 +58,12 @@ const PressureTestPage = () => {
       console.log("SETTING SHOW MODAL TRUE");
 
       setShowModal(true);
-    } catch (error) {
-      console.error(
-        "Failed to load casing details",
-        error
+    } catch (error: unknown) {
+      setDetailsError(
+        getPressureTestErrorMessage(
+          error,
+          "Failed to load casing details.",
+        ),
       );
     }
   };
@@ -70,6 +77,21 @@ const PressureTestPage = () => {
 
   return (
     <div className="container-fluid mt-3">
+      {detailsError && (
+        <div
+          className="alert alert-danger alert-dismissible fade show"
+          role="alert"
+        >
+          {detailsError}
+
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={() => setDetailsError("")}
+          />
+        </div>
+      )}
       {/* SEARCH */}
       <div className="row mb-3">
         <div className="col-md-10">

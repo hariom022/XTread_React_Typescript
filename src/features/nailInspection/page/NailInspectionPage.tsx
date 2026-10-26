@@ -13,6 +13,8 @@ import { RingLoader } from "react-spinners";
 
 import { NAIL_VISUAL_CHECKLIST } from "../constants/nailCheckList";
 
+import { getNailErrorMessage } from "../utils/getNailErrorMessage";
+
 const NailInspectionPage = () => {
   const navigate = useNavigate();
   const {
@@ -68,6 +70,8 @@ const NailInspectionPage = () => {
     setNewPatchRemoval,
 
     addRemove,
+    loadingError,
+    setLoadingError,
   } = useNailInspection();
   const { showModal, selectedItem, loadingModal, openModal, closeModal } =
     useNailInspectionModal();
@@ -157,10 +161,13 @@ const NailInspectionPage = () => {
 
       await loadOrders();
       resetAndCloseModal();
-    } catch (error: any) {
-      console.error(error);
-
-      alert(error?.response?.data || "Failed to approve nail inspection");
+    } catch (error: unknown) {
+      alert(
+        getNailErrorMessage(
+          error,
+          "Failed to approve nail inspection.",
+        ),
+      );
     } finally {
       setProcessing(false);
     }
@@ -208,10 +215,13 @@ const NailInspectionPage = () => {
 
       await loadOrders();
       resetAndCloseModal();
-    } catch (error: any) {
-      console.error(error);
-
-      alert(error?.response?.data || "Failed to reject nail inspection");
+    } catch (error: unknown) {
+      alert(
+        getNailErrorMessage(
+          error,
+          "Failed to reject nail inspection.",
+        ),
+      );
     } finally {
       setProcessing(false);
     }
@@ -267,13 +277,12 @@ const NailInspectionPage = () => {
       //     orderCasingId: selectedItem.id,
       //   },
       // });
-    } catch (error: any) {
-      console.error(error);
-
+    } catch (error: unknown) {
       alert(
-        error?.response?.data?.message ||
-        error?.response?.data ||
-        "Failed to approve with pressure test",
+        getNailErrorMessage(
+          error,
+          "Failed to approve with pressure test.",
+        ),
       );
     } finally {
       setProcessing(false);
@@ -370,6 +379,24 @@ const NailInspectionPage = () => {
   // };
   return (
     <div className="container-fluid mt-3">
+      {loadingError && (
+        <div
+          className="alert alert-danger alert-dismissible fade show"
+          role="alert"
+        >
+          <div style={{ whiteSpace: "pre-line" }}>
+            {loadingError}
+          </div>
+
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={() => setLoadingError("")}
+          />
+        </div>
+      )}
+
       {/* Search + Incident */}
       <div className="row mb-3">
         <div className="col-md-10">
@@ -437,8 +464,8 @@ const NailInspectionPage = () => {
           newPatchRemoval={newPatchRemoval}
           setNewPatchRemoval={setNewPatchRemoval}
           addRemove={addRemove}
-          // handleLPOHold={handleLPOHold}
-          // handlePaymentHold={handlePaymentHold}
+        // handleLPOHold={handleLPOHold}
+        // handlePaymentHold={handlePaymentHold}
         />
       )}
 

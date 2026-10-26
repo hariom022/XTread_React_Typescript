@@ -279,7 +279,7 @@ const NailInspectionModal = ({
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
                     >
-                      <option value="">--- Select Reason ---</option>
+                      <option value="" selected disabled>--- Select Reason ---</option>
 
                       {rejectionReasons.map((reason: any) => (
                         <option key={reason.rejectionReasonId} value={reason.rejectionReasonId}>

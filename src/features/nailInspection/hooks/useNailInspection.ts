@@ -3,8 +3,11 @@ import nailInspectionService from "../service/nailInspectionService";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 import { NAIL_VISUAL_CHECKLIST } from "../constants/nailCheckList";
 
+import { getNailErrorMessage } from "../utils/getNailErrorMessage";
+
 export const useNailInspection = () => {
   const [loading, setLoading] = useState(false);
+  const [loadingError, setLoadingError] = useState("");
   // Search
   const [search, setSearch] = useState("");
 
@@ -45,8 +48,13 @@ export const useNailInspection = () => {
     try {
       const locationRes = await nailInspectionService.getLocation();
       setLocation(locationRes.data.data);
-    } catch (e) {
-      console.log(e);
+    } catch (error: unknown) {
+      setLoadingError(
+        getNailErrorMessage(
+          error,
+          "Failed to load repair locations.",
+        ),
+      );
     }
   };
 
@@ -54,8 +62,13 @@ export const useNailInspection = () => {
     try {
       const removalRes = await nailInspectionService.getReasonForRemoval();
       setReasonForRemoval(removalRes.data.data);
-    } catch (e) {
-      console.log(e);
+    } catch (error: unknown) {
+      setLoadingError(
+        getNailErrorMessage(
+          error,
+          "Failed to load patch removal reasons.",
+        ),
+      );
     }
   };
 
@@ -63,8 +76,13 @@ export const useNailInspection = () => {
     try {
       const damaeTypeRes = await nailInspectionService.getDamageType();
       setDamageType(damaeTypeRes.data.data);
-    } catch (e) {
-      console.log(e);
+    } catch (error: unknown) {
+      setLoadingError(
+        getNailErrorMessage(
+          error,
+          "Failed to load damage types.",
+        ),
+      );
     }
   };
   // Approval / Rejection
@@ -82,12 +100,17 @@ export const useNailInspection = () => {
       const response = await nailInspectionService.getRejectionReason();
 
       setRejectionReasons(response.data.data || []);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      setLoadingError(
+        getNailErrorMessage(
+          error,
+          "Failed to load rejection reasons.",
+        ),
+      );
     }
   };
 
-  
+
   const transformApiData = (stages: any[]) => {
     const transformed: any[] = [];
 
@@ -107,13 +130,13 @@ export const useNailInspection = () => {
             dot: casing.dotNumber || "-",
 
             patternName: casing?.patternName || "-",
-            tyreMakeName:casing.tyreMakeName || "-",
+            tyreMakeName: casing.tyreMakeName || "-",
 
             tyreSize: casing.tyreSizeLabel || "-",
 
             customerName: casing.customerName || "-",
 
-           service: casing.serviceTypeName || "-",
+            service: casing.serviceTypeName || "-",
 
             batchNo: batch.batchNumber || "-",
 
@@ -186,13 +209,18 @@ export const useNailInspection = () => {
       console.log("Transformed:", transformed);
 
       setInspectionsData(transformed);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      setLoadingError(
+        getNailErrorMessage(
+          error,
+          "Failed to load Nail Inspection casings.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     loadOrders();
     loadRejectionReasons();
@@ -363,5 +391,7 @@ export const useNailInspection = () => {
     setNewPatchRemoval,
 
     addRemove,
+    loadingError,
+    setLoadingError,
   };
 };

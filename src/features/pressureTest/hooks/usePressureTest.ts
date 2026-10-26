@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
+import { getPressureTestErrorMessage } from "../utils/getPressureTestErrorMessage";
 
 export const usePressureTest = () => {
   const [loading, setLoading] = useState(false);
 
   const [pressureTestList, setPressureTestList] = useState<any[]>([]);
+
+  const [loadingError, setLoadingError] = useState("");
 
   const loadPressureTestOrders = async () => {
     try {
@@ -43,7 +46,7 @@ export const usePressureTest = () => {
 
               patternName:
                 casing.patternName || "-",
-                
+
               tyreMakeName:
                 casing.tyreMakeName || "-",
 
@@ -81,8 +84,13 @@ export const usePressureTest = () => {
       });
 
       setPressureTestList(transformed);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      setLoadingError(
+        getPressureTestErrorMessage(
+          error,
+          "Failed to load Pressure Test casings.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -96,5 +104,7 @@ export const usePressureTest = () => {
     loading,
     pressureTestList,
     loadPressureTestOrders,
+    loadingError,
+    setLoadingError,
   };
 };

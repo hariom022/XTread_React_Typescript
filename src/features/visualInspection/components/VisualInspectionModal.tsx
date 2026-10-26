@@ -209,14 +209,14 @@ const VisualInspectionModal = ({
                 item?.service === "Repair") && (
                   <div className="mt-3">
                     <div className="row align-items-center">
-                      <div className="col-md-6">
+                      {/* <div className="col-md-6">
                         <button
                           className="open-checklist-btn w-100"
                           onClick={() => setShowChecklist(true)}
                         >
                           Visual Inspection Checklist
                         </button>
-                      </div>
+                      </div> */}
 
                       <div className="col-md-6">
                         <label className="fw-semibold">Is Retreaded</label>
@@ -328,7 +328,16 @@ const VisualInspectionModal = ({
 
               {/* BUTTONS */}
               <div className="row mt-4">
-                <div className="col-md-6">
+                <div className="col-md-4">
+                  <button
+                    className="open-checklist-btn w-100 border-0"
+                    style={{ padding: "37px" }}
+                    onClick={() => setShowChecklist(true)}
+                  >
+                    <b>VISUAL INSPECTION CHECKLIST</b>
+                  </button>
+                </div>
+                <div className="col-md-4">
                   <button
                     disabled={saving}
                     className="btn-approve w-100 border-0"
@@ -338,7 +347,7 @@ const VisualInspectionModal = ({
                   </button>
                 </div>
 
-                <div className="col-md-6">
+                <div className="col-md-4">
                   <button
                     disabled={saving}
                     className="btn-reject w-100 border-0"

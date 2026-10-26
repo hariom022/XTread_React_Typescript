@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
-
+import { getPressureTestErrorMessage } from "../utils/getPressureTestErrorMessage";
 
 export const usePressureTestDetails = (
   orderCasingId?: number
@@ -10,6 +10,7 @@ export const usePressureTestDetails = (
   const [details, setDetails] = useState<any>(null);
 
   const [loading, setLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
 
   const loadDetails = async () => {
     if (!orderCasingId) return;
@@ -21,12 +22,14 @@ export const usePressureTestDetails = (
         await indexPageApiService.getOrderCasingDetails(
           orderCasingId
         );
-          console.log("Pressure Test API:", result.data);
+      console.log("Pressure Test API:", result.data);
       setDetails(result.data.data);
-    } catch (error) {
-      console.error(
-        "Failed to load casing details",
-        error
+    } catch (error: unknown) {
+      setDetailsError(
+        getPressureTestErrorMessage(
+          error,
+          "Failed to load casing details.",
+        ),
       );
     } finally {
       setLoading(false);
@@ -40,6 +43,7 @@ export const usePressureTestDetails = (
   return {
     details,
     loading,
+    detailsError,
     reload: loadDetails,
   };
 };

@@ -10,6 +10,9 @@ import { PRESSURE_TEST_CHECKLIST } from "../constants/pressureTestCheckList";
 import { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import { useAuthStore } from "../../auth/store/authStore";
+
+import { getPressureTestErrorMessage } from "../utils/getPressureTestErrorMessage";
+
 type Props = {
   selectedItem: any;
   onClose: () => void;
@@ -18,9 +21,7 @@ type Props = {
 
 const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
- const user = useAuthStore((state) => state.user);
-
-  const { details, loading } = usePressureTestDetails(selectedItem?.orderCasingId);
+  const user = useAuthStore((state) => state.user);
 
   const [reason, setReason] = useState("");
 
@@ -31,6 +32,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
   const [selectedChecks, setSelectedChecks] = useState<string[]>([]);
 
   const [rejectionReasons, setRejectionReasons] = useState<any[]>([]);
+  const [rejectionReasonsError, setRejectionReasonsError] = useState("");
 
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -43,8 +45,13 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       const result = await pressureTestServiceApi.getRejectionReason();
 
       setRejectionReasons(result?.data?.data || []);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      setRejectionReasonsError(
+        getPressureTestErrorMessage(
+          error,
+          "Failed to load rejection reasons.",
+        ),
+      );
     }
   };
 
@@ -89,8 +96,13 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       await onSuccess();
 
       onClose();
-    } catch (error: any) {
-      alert(error?.response?.data?.message || "Failed to approve");
+    } catch (error: unknown) {
+      alert(
+        getPressureTestErrorMessage(
+          error,
+          "Failed to approve Pressure Test.",
+        ),
+      );
     } finally {
       setSubmitLoading(false);
     }
@@ -123,13 +135,23 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       await onSuccess();
 
       onClose();
-    } catch (error: any) {
-      alert(error?.response?.data?.message || "Failed to reject");
+    } catch (error: unknown) {
+      alert(
+        getPressureTestErrorMessage(
+          error,
+          "Failed to reject Pressure Test.",
+        ),
+      );
     } finally {
       setSubmitLoading(false);
     }
   };
 
+  const {
+    details,
+    loading,
+    detailsError,
+  } = usePressureTestDetails(selectedItem?.orderCasingId);
   return (
     <>
       {/* Backdrop */}
@@ -155,6 +177,11 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
             </div>
 
             <div className="modal-body">
+              {detailsError && (
+                <div className="alert alert-danger" role="alert">
+                  {detailsError}
+                </div>
+              )}
               {loading ? (
                 <div
                   className="d-flex justify-content-center align-items-center"
@@ -179,7 +206,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
                     <div className="col">
                       <strong>Customer Name</strong>
-                     <div>{details?.customerName}</div>
+                      <div>{details?.customerName}</div>
                     </div>
 
                     <div className="col">
@@ -196,22 +223,16 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                   <div className="section-card mt-3">
                     <div className="section-body">
                       <div className="row">
-                        <div className="col-md-6">
-                          <button
-                            className="open-checklist-btn w-100"
-                            onClick={() => setShowChecklist(true)}
-                          >
-                            Pressure Test Checklist
-                          </button>
-                        </div>
-
-                        <div className="col-md-6">
+                        <label className="fw-semibold">Rejection Reason</label>
+                        <div className="col-md-12">
                           <select
                             className="form-select"
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
                           >
-                            <option value="">Select Rejection Reason</option>
+                            <option value="" selected disabled>
+                              --- Select Reason ---
+                            </option>
 
                             {rejectionReasons.map((item) => (
                               <option
@@ -222,13 +243,27 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                               </option>
                             ))}
                           </select>
+                          {rejectionReasonsError && (
+                            <div className="text-danger small mt-2" role="alert">
+                              {rejectionReasonsError}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="row mt-3">
-                    <div className="col-md-6">
+                    <div className="col-md-4">
+                      <button
+                        className="open-checklist-btn w-100 border-0"
+                        style={{ padding: "37px" }}
+                        onClick={() => setShowChecklist(true)}
+                      >
+                        <b>PRESSURE TEST CHECKLIST</b>
+                      </button>
+                    </div>
+                    <div className="col-md-4">
                       <button
                         className="btn btn-approve w-100"
                         onClick={handleApprove}
@@ -237,7 +272,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                       </button>
                     </div>
 
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <button
                         className="btn btn-reject w-100"
                         onClick={handleReject}

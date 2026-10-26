@@ -1,6 +1,8 @@
 import { useState } from "react";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
+import { getNailErrorMessage } from "../utils/getNailErrorMessage";
+
 export const useNailInspectionModal = () => {
   const [showModal, setShowModal] = useState(false);
 
@@ -60,10 +62,13 @@ export const useNailInspectionModal = () => {
       setSelectedItem(modalData);
 
       setShowModal(true);
-    } catch (error) {
-      console.error(error);
-
-      alert("Failed to load casing details");
+    } catch (error: unknown) {
+      alert(
+        getNailErrorMessage(
+          error,
+          "Failed to load casing details.",
+        ),
+      );
     } finally {
       setLoadingModal(false);
     }
