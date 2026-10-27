@@ -99,6 +99,8 @@ import RepairMaterialsPage from "./master-modules/repair-materials/page/RepairMa
 import TyreSizesPage from "./master-modules/tyre-sizes/page/TyreSizesPage";
 
 import CategoriesPage from "./master-modules/categories/page/CategoriesPage";
+import RegionsPage from "./master-modules/region/page/RegionsPage";
+import ZonesPage from "./master-modules/zones/page/ZonesPage";
 
 /* =========================================
    ADMIN PORTAL
@@ -114,6 +116,7 @@ import CourierServices from "./master-modules/courier-services/pages/CourierServ
 import Drivers from "./master-modules/drivers/page/Drivers";
 import MaterialConsumptionPage from "./adminPortal/materialConsumption/pages/MaterialConsumptionPage";
 import CustomerSearchPage from "./adminPortal/customerSerach/pages/CustomerSearchPage";
+
 /* =========================================================
    AUTH INITIALIZER
 ========================================================= */
@@ -449,6 +452,8 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                 />
                 <Route path="/courierService" element={<CourierServices/>}/>
                 <Route path="/drivers" element={<Drivers />} />
+                <Route path="/region" element={<RegionsPage/>}/>
+                <Route path="/zone" element={<ZonesPage/>}/>
                 {/* =====================================
                     ACCESS DENIED
                 ===================================== */}
