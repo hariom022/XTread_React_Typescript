@@ -44,9 +44,13 @@ const holdTyreServiceApi = {
   // },
 
   getNailInspectionHoldOrders: async (): Promise<any> => {
-    throw new Error("Nail Inspection Hold orders API is not implemented yet.");
+     return api.get("/nail-inspection/holds/pending-orders");
   },
-
+approveNailInspectionHoldOrder: (orderId: number) => {
+  return api.post(
+    `/nail-inspection/holds/orders/${orderId}/approve`
+  );
+},
   getNailInspectionHoldOrderDetails: async (_orderId: number): Promise<any> => {
     throw new Error(
       "Nail Inspection Hold order details API is not implemented yet.",

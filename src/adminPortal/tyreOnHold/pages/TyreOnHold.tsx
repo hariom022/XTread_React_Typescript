@@ -61,17 +61,24 @@ const TyreOnHold = () => {
     }
 
     return orders.filter((order) =>
-      [
-        order.orderNumber,
-        order.customerName,
-        order.serviceTypeName ?? "",
-        order.commercialRequirement,
-        order.holdStatus,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(searchText)
-    );
+    [
+      order.orderNumber,
+      order.customerName,
+      order.holdType,
+      order.requiresLpo ? "LPO Required" : "",
+      order.requiresPayment ? "Payment Required" : "",
+      ...(order.casings ?? []).flatMap((casing) => [
+        casing.tyreReferenceNumber,
+        casing.productionNumber,
+        casing.tyreSizeLabel,
+        casing.tyreMakeName,
+        casing.serviceTypeName,
+      ]),
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchText)
+  );
   }, [orders, nailSearch]);
 
   const handleInspectNailOrder = (
