@@ -16,8 +16,7 @@ type HoldTab = "nail" | "buffing";
 const TyreOnHold = () => {
   const [activeTab, setActiveTab] = useState<HoldTab>("nail");
 
-  const [selectedBuffingItem, setSelectedBuffingItem] =
-    useState<any>(null);
+  const [selectedBuffingItem, setSelectedBuffingItem] = useState<any>(null);
 
   const [showBuffingModal, setShowBuffingModal] = useState(false);
   const [nailSearch, setNailSearch] = useState("");
@@ -61,34 +60,32 @@ const TyreOnHold = () => {
     }
 
     return orders.filter((order) =>
-    [
-      order.orderNumber,
-      order.customerName,
-      order.holdType,
-      order.requiresLpo ? "LPO Required" : "",
-      order.requiresPayment ? "Payment Required" : "",
-      ...(order.casings ?? []).flatMap((casing) => [
-        casing.tyreReferenceNumber,
-        casing.productionNumber,
-        casing.tyreSizeLabel,
-        casing.tyreMakeName,
-        casing.serviceTypeName,
-      ]),
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(searchText)
-  );
+      [
+        order.orderNumber,
+        order.customerName,
+        order.holdType,
+        order.requiresLpo ? "LPO Required" : "",
+        order.requiresPayment ? "Payment Required" : "",
+        ...(order.casings ?? []).flatMap((casing) => [
+          casing.tyreReferenceNumber,
+          casing.productionNumber,
+          casing.tyreSizeLabel,
+          casing.tyreMakeName,
+          casing.serviceTypeName,
+        ]),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(searchText),
+    );
   }, [orders, nailSearch]);
 
-  const handleInspectNailOrder = (
-    order: NailInspectionHoldOrder
-  ) => {
+  const handleInspectNailOrder = (order: NailInspectionHoldOrder) => {
     void inspectOrder(order);
   };
 
   const handleNailAction = async (
-    action: "LPO_RECEIVED" | "PAYMENT_RECEIVED" | "REJECT_ORDER"
+    action: "LPO_RECEIVED" | "PAYMENT_RECEIVED" | "REJECT_ORDER",
   ) => {
     const message =
       action === "LPO_RECEIVED"
@@ -134,8 +131,7 @@ const TyreOnHold = () => {
         <li className="nav-item">
           <button
             type="button"
-            className={`nav-link ${activeTab === "buffing" ? "active" : ""
-              }`}
+            className={`nav-link ${activeTab === "buffing" ? "active" : ""}`}
             onClick={() => setActiveTab("buffing")}
           >
             Pre-Buffing Hold
@@ -164,7 +160,7 @@ const TyreOnHold = () => {
             </div>
           ) : (
             <>
-              {nailError && (
+              {nailError && !selectedOrder && (
                 <div className="alert alert-warning" role="alert">
                   {nailError}
                 </div>
@@ -177,9 +173,7 @@ const TyreOnHold = () => {
                     className="form-control"
                     placeholder="Search by Order No., Customer, Service or Requirement..."
                     value={nailSearch}
-                    onChange={(event) =>
-                      setNailSearch(event.target.value)
-                    }
+                    onChange={(event) => setNailSearch(event.target.value)}
                   />
                 </div>
 
@@ -208,6 +202,17 @@ const TyreOnHold = () => {
                   onInspect={handleInspectNailOrder}
                 />
               )}
+
+              {selectedOrder && (
+                <NailInspectionHoldDetails
+                  order={selectedOrder}
+                  loading={detailsLoading}
+                  actionLoading={actionLoading}
+                  error={nailError}
+                  onBack={closeDetails}
+                  onAction={handleNailAction}
+                />
+              )}
             </>
           )}
         </>
@@ -223,9 +228,7 @@ const TyreOnHold = () => {
                 className="form-control"
                 placeholder="Search by Production No, Tyre Ref No, Pattern or Batch..."
                 value={buffingSearch}
-                onChange={(event) =>
-                  setBuffingSearch(event.target.value)
-                }
+                onChange={(event) => setBuffingSearch(event.target.value)}
               />
             </div>
           </div>

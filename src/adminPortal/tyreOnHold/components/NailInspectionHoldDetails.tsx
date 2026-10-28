@@ -1,237 +1,212 @@
 import type {
-    NailInspectionHoldOrderDetails,
-    NailInspectionHoldAction,
+  NailInspectionHoldOrderDetails,
+  NailInspectionHoldAction,
 } from "../types/nailInspectionHold.types";
 
 interface Props {
-    order: NailInspectionHoldOrderDetails;
-    loading: boolean;
-    actionLoading: boolean;
-    error: string | null;
-    onBack: () => void;
-    onAction: (action: NailInspectionHoldAction) => void | Promise<void>;
+  order: NailInspectionHoldOrderDetails;
+  loading: boolean;
+  actionLoading: boolean;
+  error: string | null;
+  onBack: () => void;
+  onAction: (action: NailInspectionHoldAction) => void | Promise<void>;
 }
 
 const NailInspectionHoldDetails = ({
-    order,
-    loading,
-    actionLoading,
-    error,
-    onBack,
-    onAction,
+  order,
+  loading,
+  actionLoading,
+  error,
+  onBack,
+  onAction,
 }: Props) => {
-    const approvedCasings = order.casings.filter(
-        (casing) => casing.inspectionStatus === "APPROVED"
-    );
+  const confirmationAction: NailInspectionHoldAction = order.requiresLpo
+    ? "LPO_RECEIVED"
+    : "PAYMENT_RECEIVED";
 
-    const rejectedCasings = order.casings.filter(
-        (casing) => casing.inspectionStatus === "REJECTED"
-    );
+  const confirmationLabel = order.requiresLpo
+    ? "LPO Received"
+    : "Payment Received";
 
-    const pendingCasings = order.casings.filter(
-        (casing) => casing.inspectionStatus === "PENDING"
-    );
+  const hasCommercialRequirement =
+    order.requiresLpo || order.requiresPayment;
 
-    const canConfirm =
-        order.holdStatus === "READY" &&
-        pendingCasings.length === 0 &&
-        approvedCasings.length > 0;
+  return (
+    <>
+      <div
+        className="modal fade show"
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="nailInspectionHoldTitle"
+        style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+      >
+        <div className="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="nailInspectionHoldTitle">
+                Nail Inspection Hold Details
+              </h5>
 
-    const confirmationAction: NailInspectionHoldAction =
-        order.commercialRequirement === "LPO"
-            ? "LPO_RECEIVED"
-            : "PAYMENT_RECEIVED";
-
-    const confirmationLabel =
-        order.commercialRequirement === "LPO"
-            ? "LPO Received"
-            : "Payment Received";
-
-    return (
-        <div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="mb-0">Nail Inspection Hold Details</h4>
-
-                <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={onBack}
-                    disabled={actionLoading}
-                >
-                    Back to Orders
-                </button>
+              <button
+                type="button"
+                className="btn-close"
+                aria-label="Close"
+                onClick={onBack}
+                disabled={actionLoading}
+              />
             </div>
 
-            {error && (
+            <div className="modal-body">
+              {error && (
                 <div className="alert alert-danger" role="alert">
-                    {error}
+                  {error}
                 </div>
-            )}
+              )}
 
-            <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white">
-                    <h5 className="mb-0">Order Information</h5>
-                </div>
-
-                <div className="card-body">
-                    <div className="row g-3">
-                        <div className="col-md-3">
-                            <strong>Order Number</strong>
-                            <div>{order.orderNumber}</div>
-                        </div>
-
-                        <div className="col-md-3">
-                            <strong>Order Date</strong>
-                            <div>
-                                {order.orderDate
-                                    ? new Date(order.orderDate).toLocaleDateString("en-GB")
-                                    : "-"}
-                            </div>
-                        </div>
-
-                        <div className="col-md-3">
-                            <strong>Customer</strong>
-                            <div>{order.customerName || "-"}</div>
-                        </div>
-
-                        <div className="col-md-3">
-                            <strong>Service Type</strong>
-                            <div>{order.serviceTypeName || "-"}</div>
-                        </div>
-
-                        <div className="col-md-3">
-                            <strong>Commercial Requirement</strong>
-                            <div>{order.commercialRequirement}</div>
-                        </div>
-
-                        <div className="col-md-3">
-                            <strong>Hold Status</strong>
-                            <div>{order.holdStatus}</div>
-                        </div>
-
-                        <div className="col-md-3">
-                            <strong>Total Casings</strong>
-                            <div>{order.totalCasings}</div>
-                        </div>
-
-                        <div className="col-md-3">
-                            <strong>Approved / Rejected / Pending</strong>
-                            <div>
-                                {approvedCasings.length} / {rejectedCasings.length} /{" "}
-                                {pendingCasings.length}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="card border-0 shadow-sm mb-4">
-                <div className="card-header bg-white">
-                    <h5 className="mb-0">Order Casings</h5>
+              <div className="card border-0 bg-light mb-4">
+                <div className="card-header bg-light">
+                  <h6 className="mb-0">Order Information</h6>
                 </div>
 
                 <div className="card-body">
-                    {loading ? (
-                        <div className="text-center py-4">Loading casings...</div>
-                    ) : (
-                        <div className="table-responsive">
-                            <table className="table table-hover align-middle">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th>Production No.</th>
-                                        <th>Tyre Reference</th>
-                                        <th>Tyre Size</th>
-                                        <th>Tyre Make</th>
-                                        <th>Pattern</th>
-                                        <th>Inspection Status</th>
-                                    </tr>
-                                </thead>
+                  <div className="row g-3">
+                    <div className="col-md-4">
+                      <strong>Order Number</strong>
+                      <div>{order.orderNumber || "-"}</div>
+                    </div>
 
-                                <tbody>
-                                    {order.casings.length === 0 ? (
-                                        <tr>
-                                            <td
-                                                colSpan={6}
-                                                className="text-center text-muted py-4"
-                                            >
-                                                No casings found for this order.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        order.casings.map((casing) => (
-                                            <tr key={casing.orderCasingId}>
-                                                <td>{casing.productionNumber || "-"}</td>
-                                                <td>{casing.tyreReferenceNumber || "-"}</td>
-                                                <td>{casing.tyreSizeLabel || "-"}</td>
-                                                <td>{casing.tyreMakeName || "-"}</td>
-                                                <td>{casing.patternName || "-"}</td>
-                                                <td>
-                                                    <span
-                                                        className={`badge ${casing.inspectionStatus === "APPROVED"
-                                                                ? "bg-success"
-                                                                : casing.inspectionStatus === "REJECTED"
-                                                                    ? "bg-danger"
-                                                                    : "bg-secondary"
-                                                            }`}
-                                                    >
-                                                        {casing.inspectionStatus}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                    <div className="col-md-4">
+                      <strong>Customer</strong>
+                      <div>{order.customerName || "-"}</div>
+                    </div>
+
+                    <div className="col-md-4">
+                      <strong>Hold Type</strong>
+                      <div>{order.holdType ?? "-"}</div>
+                    </div>
+
+                    <div className="col-md-4">
+                      <strong>Total Casings</strong>
+                      <div>{order.casings?.length ?? 0}</div>
+                    </div>
+
+                    <div className="col-md-4">
+                      <strong>LPO Required</strong>
+                      <div>{order.requiresLpo ? "Yes" : "No"}</div>
+                    </div>
+
+                    <div className="col-md-4">
+                      <strong>Payment Required</strong>
+                      <div>{order.requiresPayment ? "Yes" : "No"}</div>
+                    </div>
+                  </div>
                 </div>
+              </div>
+
+              <h6 className="mb-3">Order Casings</h6>
+
+              {loading ? (
+                <div className="text-center py-4">
+                  Loading casings...
+                </div>
+              ) : (
+                <div className="table-responsive mb-4">
+                  <table className="table table-hover table-bordered align-middle">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Line No.</th>
+                        <th>Production No.</th>
+                        <th>Tyre Reference</th>
+                        <th>Tyre Size</th>
+                        <th>Tyre Make</th>
+                        <th>Service Type</th>
+                        <th>Hold Type</th>
+                        <th>Casing Stage</th>
+                        <th>Stage Status</th>
+                        <th>Created At</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {!order.casings || order.casings.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={10}
+                            className="text-center text-muted py-4"
+                          >
+                            No casings found for this order.
+                          </td>
+                        </tr>
+                      ) : (
+                        order.casings.map((casing) => (
+                          <tr key={casing.orderCasingId}>
+                            <td>{casing.lineNumber ?? "-"}</td>
+                            <td>{casing.productionNumber || "-"}</td>
+                            <td>{casing.tyreReferenceNumber || "-"}</td>
+                            <td>{casing.tyreSizeLabel || "-"}</td>
+                            <td>{casing.tyreMakeName || "-"}</td>
+                            <td>{casing.serviceTypeName || "-"}</td>
+                            <td>{casing.holdType ?? "-"}</td>
+                            <td>{casing.casingStage ?? "-"}</td>
+                            <td>{casing.casingStageStatus ?? "-"}</td>
+                            <td>
+                              {casing.createdAtUtc
+                                ? new Date(
+                                    casing.createdAtUtc
+                                  ).toLocaleString()
+                                : "-"}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <h6>Order Actions</h6>
+              <p className="text-muted">
+                Confirm the applicable LPO or payment requirement at order
+                level, or reject the order.
+              </p>
             </div>
 
-            {order.holdStatus !== "REJECTED" &&
-                order.holdStatus !== "CONFIRMED" && (
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body">
-                            <h5>Order Actions</h5>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={onBack}
+                disabled={actionLoading}
+              >
+                Close
+              </button>
 
-                            <p className="text-muted">
-                                Confirm the applicable commercial requirement after the
-                                inspection requirements are satisfied, or reject the order.
-                            </p>
+              {hasCommercialRequirement && (
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  disabled={actionLoading}
+                  onClick={() => void onAction(confirmationAction)}
+                >
+                  {actionLoading ? "Processing..." : confirmationLabel}
+                </button>
+              )}
 
-                            {!canConfirm && (
-                                <div className="alert alert-warning">
-                                    {order.holdStatus !== "READY"
-                                        ? "The order is not ready for confirmation."
-                                        : pendingCasings.length > 0
-                                            ? "All casings must finish inspection before confirmation."
-                                            : "At least one casing must be approved before confirmation."}
-                                </div>
-                            )}
-
-                            <div className="d-flex flex-wrap gap-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-success"
-                                    disabled={!canConfirm || actionLoading}
-                                    onClick={() => void onAction(confirmationAction)}
-                                >
-                                    {actionLoading ? "Processing..." : confirmationLabel}
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    disabled={actionLoading}
-                                    onClick={() => void onAction("REJECT_ORDER")}
-                                >
-                                    Reject Order
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+              <button
+                type="button"
+                className="btn btn-danger"
+                disabled={actionLoading}
+                onClick={() => void onAction("REJECT_ORDER")}
+              >
+                Reject Order
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </>
+  );
 };
 
 export default NailInspectionHoldDetails;

@@ -6,7 +6,6 @@ import type {
   NailInspectionHoldOrder,
   NailInspectionHoldOrderDetails,
   NailInspectionHoldAction,
-  NailInspectionHoldActionPayload,
 } from "../types/nailInspectionHold.types";
 
 const getErrorMessage = (error: unknown): string => {
@@ -19,6 +18,7 @@ const getErrorMessage = (error: unknown): string => {
 
 const useNailInspectionHold = () => {
   const [orders, setOrders] = useState<NailInspectionHoldOrder[]>([]);
+
   const [selectedOrder, setSelectedOrder] =
     useState<NailInspectionHoldOrderDetails | null>(null);
 
@@ -27,30 +27,25 @@ const useNailInspectionHold = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Load orders and casings from the pending-orders API.
   const loadOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await holdTyreServiceApi.getNailInspectionHoldOrders();
+      const response =
+        await holdTyreServiceApi.getNailInspectionHoldOrders();
 
-      const result = response?.data;
+      const result = response.data;
 
-      if (result?.success === false) {
+      if (result?.success !== true || !Array.isArray(result.data)) {
         throw new Error(
-          result?.error || "Unable to load Nail Inspection Hold orders.",
+          result?.error ||
+            "Invalid response received from Nail Inspection Hold API."
         );
       }
 
-      const items = result?.data;
-
-      if (!Array.isArray(items)) {
-        throw new Error(
-          "Invalid response received from Nail Inspection Hold API.",
-        );
-      }
-
-      setOrders(items as NailInspectionHoldOrder[]);
+      setOrders(result.data as NailInspectionHoldOrder[]);
     } catch (err) {
       setOrders([]);
       setError(getErrorMessage(err));
@@ -59,18 +54,25 @@ const useNailInspectionHold = () => {
     }
   }, []);
 
-  const inspectOrder = useCallback(async (order: NailInspectionHoldOrder) => {
-    setDetailsLoading(true);
-    setError(null);
+  // Casings are already included in the index API response.
+  const inspectOrder = useCallback(
+    async (order: NailInspectionHoldOrder) => {
+      setDetailsLoading(true);
+      setError(null);
 
-    try {
-      setSelectedOrder(order);
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setDetailsLoading(false);
-    }
-  }, []);
+      try {
+        setSelectedOrder({
+          ...order,
+          casings: order.casings ?? [],
+        });
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setDetailsLoading(false);
+      }
+    },
+    []
+  );
 
   const closeDetails = useCallback(() => {
     setSelectedOrder(null);
@@ -84,19 +86,16 @@ const useNailInspectionHold = () => {
         return;
       }
 
-      if (
-        action === "LPO_RECEIVED" &&
-        selectedOrder.commercialRequirement !== "LPO"
-      ) {
-        setError("LPO confirmation is not applicable to this order.");
+      if (action === "LPO_RECEIVED" && !selectedOrder.requiresLpo) {
+        setError("This order does not require an LPO.");
         return;
       }
 
       if (
         action === "PAYMENT_RECEIVED" &&
-        selectedOrder.commercialRequirement !== "PAYMENT"
+        !selectedOrder.requiresPayment
       ) {
-        setError("Payment confirmation is not applicable to this order.");
+        setError("This order does not require payment.");
         return;
       }
 
@@ -104,18 +103,15 @@ const useNailInspectionHold = () => {
       setError(null);
 
       try {
-        const payload: NailInspectionHoldActionPayload = {
-          orderId: selectedOrder.orderId,
-          action,
-        };
-
-        if (action === "LPO_RECEIVED" || action === "PAYMENT_RECEIVED") {
-          await holdTyreServiceApi.approveNailInspectionHoldOrder(
-            selectedOrder.orderId,
+        if (action === "REJECT_ORDER") {
+          throw new Error(
+            "The Reject Order API has not been provided yet."
           );
-        } else {
-          throw new Error("The Reject Order API has not been configured yet.");
         }
+
+        await holdTyreServiceApi.approveNailInspectionHoldOrder(
+          selectedOrder.orderId
+        );
 
         setSelectedOrder(null);
         await loadOrders();
@@ -125,7 +121,7 @@ const useNailInspectionHold = () => {
         setActionLoading(false);
       }
     },
-    [selectedOrder, loadOrders],
+    [selectedOrder, loadOrders]
   );
 
   return {

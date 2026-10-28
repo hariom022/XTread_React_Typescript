@@ -1,4 +1,3 @@
-
 import type { NailInspectionHoldOrder } from "../types/nailInspectionHold.types";
 
 interface Props {
@@ -31,19 +30,14 @@ const NailInspectionHoldIndex = ({ data, onInspect }: Props) => {
             <tbody>
               {data.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={7}
-                    className="text-center text-muted py-4"
-                  >
+                  <td colSpan={7} className="text-center text-muted py-4">
                     No Nail Inspection Hold orders found.
                   </td>
                 </tr>
               ) : (
                 data.map((order) => (
                   <tr key={order.orderId}>
-                    <td className="fw-semibold">
-                      {order.orderNumber}
-                    </td>
+                    <td className="fw-semibold">{order.orderNumber}</td>
 
                     <td>{order.customerName || "-"}</td>
 
@@ -63,7 +57,7 @@ const NailInspectionHoldIndex = ({ data, onInspect }: Props) => {
                     <td>
                       {order.casings?.length
                         ? order.casings
-                            .map((casing) => casing.tyreReferenceNumber)
+                            .map((casing) => casing.tyreReferenceNumber || "-")
                             .join(", ")
                         : "-"}
                     </td>
