@@ -199,6 +199,11 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
         alert("Please select a damage level.");
         return;
       }
+      if (circumference.trim() === "") {
+        alert("Please enter circumference before approving the casing.");
+        return;
+      }
+
       if (!postChecklistSaved) {
         alert(
           "Please complete all Post Buffing checklist items before Approval",
@@ -235,12 +240,17 @@ const usePostBuffingApproveModal = ({ selectedItem, refreshTable, onClose }: Pro
     } catch (error: unknown) {
       console.error("Post-Buffing Approve Error:", error);
 
-      alert(
-        getPostBuffingErrorMessage(
-          error,
-          "Unable to approve the casing. Please try again.",
-        ),
+      const errorMessage = getPostBuffingErrorMessage(
+        error,
+        "Unable to approve the casing. Please try again.",
       );
+
+      const formattedErrorMessage = errorMessage.replace(
+        /Order casing \d+ circumference/i,
+        `for this production number casing, circumference`,
+      );
+
+      alert(formattedErrorMessage);
     } finally {
       setLoading(false);
     }

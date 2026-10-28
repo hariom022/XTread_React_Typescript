@@ -105,6 +105,7 @@ const BarcodeTable = ({
                             <th>Make</th>
                             <th>Pattern</th>
                             <th>Service Type</th>
+                            <th>Delivery Zone</th>
                             <th>Barcode</th>
                           </tr>
                         </thead>
@@ -146,9 +147,8 @@ const BarcodeTable = ({
                                 {item.treadPattern}
                               </td>
 
-                              <td>
-                                {item.serviceType}
-                              </td>
+                              <td>{item.serviceType}</td>
+                              <td>{item.deliveryZone || "-"}</td>
 
                               <td>
                                 <b>

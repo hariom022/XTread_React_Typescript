@@ -29,10 +29,10 @@ const BatchTable = ({
                 type="checkbox"
                 onChange={toggleAllCasing}
                 checked={
-  Object.values(groupedData).flat().length > 0 &&
-  selectedCasingRows.length ===
-    Object.values(groupedData).flat().length
-}
+                  Object.values(groupedData).flat().length > 0 &&
+                  selectedCasingRows.length ===
+                  Object.values(groupedData).flat().length
+                }
               />
             </th>
 
@@ -46,82 +46,83 @@ const BatchTable = ({
             <th>Make</th>
             <th>Pattern</th>
             <th>Service Type</th>
+            <th>Delivery Zone</th>
             <th>Comment</th>
           </tr>
         </thead>
 
         <tbody>
-  {Object.keys(groupedData).length === 0 ? (
-    <tr>
-      <td colSpan={12} className="text-center">
-        No Records Found
-      </td>
-    </tr>
-  ) : (
-    Object.entries(groupedData).map(
-      ([customerName, rows]) => (
-        <>
-          {/* Customer Header */}
-          <tr key={`group-${customerName}`}>
-            <td
-              colSpan={12}
-              className="text-center fw-bold"
-              style={{
-                backgroundColor: "#d9e7f7",
-                fontSize: "13px",
-              }}
-            >
-              {customerName}
-            </td>
-          </tr>
-
-          {/* Customer Rows */}
-          {rows.map((item) => (
-            <tr key={item.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedCasingRows.includes(
-                    String(item.id)
-                  )}
-                  onChange={() =>
-                    toggleCasingRow(item.id)
-                  }
-                />
+          {Object.keys(groupedData).length === 0 ? (
+            <tr>
+              <td colSpan={13} className="text-center">
+                No Records Found
               </td>
-
-              <td>{item.date}</td>
-
-              <td>{item.productionNo}</td>
-
-              <td>{item.tyreReferenceNumber}</td>
-
-              <td>{item.otherNumber}</td>
-
-              <td>{item.dotNo}</td>
-
-              <td>
-                {Number(item.numberOfRetreads) > 0
-                  ? "Yes"
-                  : "No"}
-              </td>
-
-              <td>{item.casingSize}</td>
-
-              <td>{item.make}</td>
-
-              <td>{item.treadPattern}</td>
-
-              <td>{item.serviceType}</td>
-
-              <td>{item.comments || "-"}</td>
             </tr>
-          ))}
-        </>
-      )
-    )
-  )}
-</tbody>
+          ) : (
+            Object.entries(groupedData).map(
+              ([customerName, rows]) => (
+                <>
+                  {/* Customer Header */}
+                  <tr key={`group-${customerName}`}>
+                    <td
+                      colSpan={13}
+                      className="text-center fw-bold"
+                      style={{
+                        backgroundColor: "#d9e7f7",
+                        fontSize: "13px",
+                      }}
+                    >
+                      {customerName}
+                    </td>
+                  </tr>
+
+                  {/* Customer Rows */}
+                  {rows.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedCasingRows.includes(
+                            String(item.id)
+                          )}
+                          onChange={() =>
+                            toggleCasingRow(item.id)
+                          }
+                        />
+                      </td>
+
+                      <td>{item.date}</td>
+
+                      <td>{item.productionNo}</td>
+
+                      <td>{item.tyreReferenceNumber}</td>
+
+                      <td>{item.otherNumber}</td>
+
+                      <td>{item.dotNo}</td>
+
+                      <td>
+                        {Number(item.numberOfRetreads) > 0
+                          ? "Yes"
+                          : "No"}
+                      </td>
+
+                      <td>{item.casingSize}</td>
+
+                      <td>{item.make}</td>
+
+                      <td>{item.treadPattern}</td>
+
+                      <td>{item.serviceType}</td>
+                      <td>{item.deliveryZone || "-"}</td>
+                      <td>{item.comments || "-"}</td>
+                    </tr>
+                  ))}
+                </>
+              )
+            )
+          )}
+        </tbody>
       </table>
 
       <div className="d-flex justify-content-end">

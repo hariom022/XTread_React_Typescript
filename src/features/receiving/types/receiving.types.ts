@@ -41,7 +41,7 @@ export interface RepairDetail {
 
 export interface Casing {
   orderCasingId: number;
-  orderNumber:string;
+  orderNumber: string;
   tyreReferenceNumber: string;
   otherNumber: string;
   dotNumber: string;
@@ -89,6 +89,7 @@ export interface Order {
   customer: Customer;
 
   casings: Casing[];
+  deliveryZone?: string;
 }
 
 export interface ReceivingRow {
@@ -121,6 +122,8 @@ export interface ReceivingRow {
   model: string;
 
   serviceType: string;
+
+  deliveryZone: string;
 
   rimSize: string;
 

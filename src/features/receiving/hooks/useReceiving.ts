@@ -78,6 +78,8 @@ export const useReceiving = () => {
 
           serviceType: casing.serviceType?.name || "-",
 
+          deliveryZone: order.deliveryZone || "-",
+
           rimSize: casing.rimSize || "-",
 
           tyreClassification: casing.tyreClassification?.name || "-",
