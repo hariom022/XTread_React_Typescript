@@ -7,6 +7,7 @@ import type {
   ServiceType,
   CourierService,
   CourierDriver,
+  CourierVehicle
 } from "../type/dispatch.types";
 
 import dispatchServiceApi from "../service/dispatchServiceApi";
@@ -36,7 +37,8 @@ const useCustomerDeliveryOrderModal = (
       ? Number(dispatchTeam.courierServiceId)
       : null,
   );
-
+const [vehicles, setVehicles] = useState<CourierVehicle[]>([]);
+const [loadingVehicles, setLoadingVehicles] = useState(false);
   // ==========================================
   // GET COURIER SERVICES
   // ==========================================
@@ -201,6 +203,40 @@ const useCustomerDeliveryOrderModal = (
     }
   };
 
+  // GET vehicles
+    const getVehicles = async (courierServiceId: number) => {
+  try {
+    setLoadingVehicles(true);
+
+    const response =
+      await dispatchServiceApi.getVehicleByCourierServiceId(
+        courierServiceId
+      );
+
+    if (response.data?.success) {
+      setVehicles(
+        Array.isArray(response.data.data)
+          ? response.data.data
+          : []
+      );
+    } else {
+      setVehicles([]);
+    }
+  } catch (error) {
+    console.error("Error fetching vehicles:", error);
+    setVehicles([]);
+  } finally {
+    setLoadingVehicles(false);
+  }
+};
+useEffect(() => {
+  if (!isInternal || !selectedCourierServiceId) {
+    setVehicles([]);
+    return;
+  }
+
+  getVehicles(selectedCourierServiceId);
+}, [isInternal, selectedCourierServiceId]);
   // ==========================================
   // LOAD DRIVERS WHEN:
   //
@@ -1147,6 +1183,8 @@ const useCustomerDeliveryOrderModal = (
     reset,
 
     dispatchTeam,
+    vehicles,
+    loadingVehicles,
   };
 };
 

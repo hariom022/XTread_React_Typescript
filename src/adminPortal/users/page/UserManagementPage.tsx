@@ -1,12 +1,21 @@
+import { useState } from "react";
 import UserListTable from "../components/UserListTable";
 import UserRegistrationForm from "../components/UserRegistrationForm";
 
 const UserRegistrationPage = () => {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleUserCreated = () => {
+    setRefreshKey((previous) => previous + 1);
+  };
+
   return (
     <>
-      <UserRegistrationForm />
+      <UserRegistrationForm
+        onUserCreated={handleUserCreated}
+      />
 
-      <UserListTable />
+      <UserListTable refreshKey={refreshKey} />
     </>
   );
 };

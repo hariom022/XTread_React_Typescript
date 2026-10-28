@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
 
 import userService from "../service/userService";
+interface UserRegistrationFormProps {
+  onUserCreated: () => void;
+}
 
 import type {
   UserRegistration,
   Role,
+  Region,
 } from "../types/userRegistration.type";
 
 import useUserRegistration from "../hooks/useUserRegistration";
 
-const UserRegistrationForm = () => {
+const UserRegistrationForm = ({
+  onUserCreated,
+}: UserRegistrationFormProps) =>  {
   const [roles, setRoles] = useState<Role[]>([]);
   const [rolesLoading, setRolesLoading] = useState(false);
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [regionsLoading, setRegionsLoading] = useState(false);
+  const [regionError, setRegionError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<UserRegistration>({
     fullname: "",
@@ -21,43 +30,51 @@ const UserRegistrationForm = () => {
     phoneNumber: "",
     password: "",
     emailConfirmed: false,
+    regionIds: [],
   });
 
-  const {
-    registerUser,
-    loading,
-    error,
-    successMessage,
-  } = useUserRegistration();
+  const { registerUser, loading, error, successMessage } =
+    useUserRegistration();
 
   // Load roles when component loads
   useEffect(() => {
     loadRoles();
+    loadRegions();
   }, []);
 
   // Get roles from API
- const loadRoles = async () => {
-  try {
-    setRolesLoading(true);
+  const loadRoles = async () => {
+    try {
+      setRolesLoading(true);
 
-    const response =
-      await userService.getRoles();
+      const response = await userService.getRoles();
 
-    console.log(
-      "Roles response:",
-      response
-    );
+      console.log("Roles response:", response);
 
-    setRoles(response.data);
-  } catch (err) {
-    console.error(
-      "Failed to load roles:",
-      err
-    );
-  } finally {
-    setRolesLoading(false);
-  }
-};
+      setRoles(response.data);
+    } catch (err) {
+      console.error("Failed to load roles:", err);
+    } finally {
+      setRolesLoading(false);
+    }
+  };
+  // Get regions from API
+  const loadRegions = async () => {
+    try {
+      setRegionsLoading(true);
+      setRegionError(null);
+
+      const response = await userService.getRegions();
+
+      setRegions(response.data ?? []);
+    } catch (err) {
+      setRegionError(
+        err instanceof Error ? err.message : "Failed to load regions.",
+      );
+    } finally {
+      setRegionsLoading(false);
+    }
+  };
 
   // Handle input changes
   const handleChange = (
@@ -78,10 +95,19 @@ const UserRegistrationForm = () => {
     }));
   };
 
+  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedRegionIds = Array.from(e.target.selectedOptions, (option) =>
+      Number(option.value),
+    );
+
+    setFormData((previous) => ({
+      ...previous,
+      regionIds: selectedRegionIds,
+    }));
+  };
+
   // Submit registration form
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate role
@@ -95,6 +121,8 @@ const UserRegistrationForm = () => {
 
       // Reset form after successful registration
       resetForm();
+      // Refresh the user list after successful registration
+    onUserCreated();
     } catch (err) {
       console.error("Registration failed:", err);
     }
@@ -110,13 +138,13 @@ const UserRegistrationForm = () => {
       phoneNumber: "",
       password: "",
       emailConfirmed: false,
+      regionIds: [],
     });
   };
 
   return (
     <div className="container mt-4">
       <div className="card shadow-sm">
-
         {/* Header */}
         <div className="card-header">
           <h4 className="mb-0">User Registration</h4>
@@ -124,31 +152,19 @@ const UserRegistrationForm = () => {
 
         {/* Body */}
         <div className="card-body">
-
           {/* Success Message */}
           {successMessage && (
-            <div className="alert alert-success">
-              {successMessage}
-            </div>
+            <div className="alert alert-success">{successMessage}</div>
           )}
 
           {/* Error Message */}
-          {error && (
-            <div className="alert alert-danger">
-              {error}
-            </div>
-          )}
+          {error && <div className="alert alert-danger">{error}</div>}
 
           <form onSubmit={handleSubmit}>
-
             <div className="row">
-
               {/* Full Name */}
               <div className="col-md-4 mb-3">
-                <label
-                  htmlFor="fullname"
-                  className="form-label"
-                >
+                <label htmlFor="fullname" className="form-label">
                   Full Name
                 </label>
 
@@ -166,10 +182,7 @@ const UserRegistrationForm = () => {
 
               {/* Username */}
               <div className="col-md-4 mb-3">
-                <label
-                  htmlFor="username"
-                  className="form-label"
-                >
+                <label htmlFor="username" className="form-label">
                   Username
                 </label>
 
@@ -187,10 +200,7 @@ const UserRegistrationForm = () => {
 
               {/* Email */}
               <div className="col-md-4 mb-3">
-                <label
-                  htmlFor="email"
-                  className="form-label"
-                >
+                <label htmlFor="email" className="form-label">
                   Email
                 </label>
 
@@ -208,10 +218,7 @@ const UserRegistrationForm = () => {
 
               {/* Phone Number */}
               <div className="col-md-4 mb-3">
-                <label
-                  htmlFor="phoneNumber"
-                  className="form-label"
-                >
+                <label htmlFor="phoneNumber" className="form-label">
                   Phone Number
                 </label>
 
@@ -229,10 +236,7 @@ const UserRegistrationForm = () => {
 
               {/* Role */}
               <div className="col-md-4 mb-3">
-                <label
-                  htmlFor="roleId"
-                  className="form-label"
-                >
+                <label htmlFor="roleId" className="form-label">
                   Role
                 </label>
 
@@ -246,16 +250,11 @@ const UserRegistrationForm = () => {
                   disabled={rolesLoading}
                 >
                   <option value={0}>
-                    {rolesLoading
-                      ? "Loading roles..."
-                      : "Select Role"}
+                    {rolesLoading ? "Loading roles..." : "Select Role"}
                   </option>
 
                   {roles.map((role) => (
-                    <option
-                      key={role.id}
-                      value={role.id}
-                    >
+                    <option key={role.id} value={role.id}>
                       {role.roleName}
                     </option>
                   ))}
@@ -264,10 +263,7 @@ const UserRegistrationForm = () => {
 
               {/* Password */}
               <div className="col-md-4 mb-3">
-                <label
-                  htmlFor="password"
-                  className="form-label"
-                >
+                <label htmlFor="password" className="form-label">
                   Password
                 </label>
 
@@ -283,10 +279,47 @@ const UserRegistrationForm = () => {
                 />
               </div>
 
+              {/* REGION */}
+              <div className="col-md-4 mb-3">
+                <label htmlFor="regionId" className="form-label">
+                  Region
+                </label>
+
+                <select
+                  id="regionId"
+                  name="regionId"
+                  className="form-select"
+                  value={formData.regionIds[0] ?? ""}
+                  onChange={(e) => {
+                    const regionId = Number(e.target.value);
+
+                    setFormData((previous) => ({
+                      ...previous,
+                      regionIds: regionId ? [regionId] : [],
+                    }));
+                  }}
+                  disabled={regionsLoading}
+                  required
+                >
+                  <option value="">
+                    {regionsLoading ? "Loading regions..." : "Select Region"}
+                  </option>
+
+                  {regions.map((region) => (
+                    <option key={region.id} value={region.id}>
+                      {region.regionName}
+                    </option>
+                  ))}
+                </select>
+
+                {regionError && (
+                  <div className="text-danger small mt-1">{regionError}</div>
+                )}
+              </div>
+
               {/* Email Confirmed */}
               <div className="col-md-4 mb-3 mt-4">
                 <div className="form-check">
-
                   <input
                     type="checkbox"
                     id="emailConfirmed"
@@ -296,21 +329,15 @@ const UserRegistrationForm = () => {
                     onChange={handleChange}
                   />
 
-                  <label
-                    htmlFor="emailConfirmed"
-                    className="form-check-label"
-                  >
+                  <label htmlFor="emailConfirmed" className="form-check-label">
                     Email Confirmed
                   </label>
-
                 </div>
               </div>
-
             </div>
 
             {/* Buttons */}
             <div className="d-flex justify-content-end gap-2 mt-3">
-
               {/* Reset */}
               <button
                 type="button"
@@ -327,13 +354,9 @@ const UserRegistrationForm = () => {
                 className="btn btn-primary"
                 disabled={loading}
               >
-                {loading
-                  ? "Registering..."
-                  : "Register User"}
+                {loading ? "Registering..." : "Register User"}
               </button>
-
             </div>
-
           </form>
         </div>
       </div>

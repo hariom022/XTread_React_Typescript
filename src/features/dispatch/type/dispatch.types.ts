@@ -41,6 +41,8 @@ export interface DispatchTeam {
     driverIdNo: string;
 
     courierServiceId: number;
+    // courierVehicleId: number;
+    courierVehicleId?: number | null;
 }
 
 
@@ -168,15 +170,28 @@ export interface CustomerCasing {
     service: string;
 }
 
+// export interface DeliverySheetPayload {
+//     orderCasingIds: number[];
+//     // courierType: number;
+//     courierServiceId: number | string;
+//     // courierName: string;
+//     vehicleRegNo: string;
+//     driverName: string;
+//     driverIdNo: string;
+//     remarks: string;
+// }
 export interface DeliverySheetPayload {
-    orderCasingIds: number[];
-    courierType: number;
-    courierServiceId: number | string;
-    courierName: string;
-    vehicleRegNo: string;
-    driverName: string;
-    driverIdNo: string;
-    remarks: string;
+  orderCasingIds: number[];
+  courierServiceId: number | string;
+
+  courierVehicleId: number | null;
+  driverId: number | null;
+
+  vehicleRegNo: string | null;
+  driverName: string | null;
+  driverIdNo: string | null;
+
+  remarks: string;
 }
 export interface CourierDriver {
   driverId: number;

@@ -89,6 +89,7 @@ const DispatchStage = () => {
       driverId: 0,
       driverIdNo: "",
       courierServiceId: 0,
+      courierVehicleId :0
     });
 
   const [isInternal, setIsInternal] =
@@ -282,6 +283,7 @@ const DispatchStage = () => {
 
         courierServiceId:
           Number(sheet.courierServiceId ?? 0),
+        courierVehicleId:Number(sheet.courierVehicleId ?? 0),
       });
 
       setIsInternal(
@@ -493,6 +495,7 @@ const DispatchStage = () => {
             driverId: 0,
             driverIdNo: "",
             courierServiceId: 0,
+            courierVehicleId:0,
           });
 
           setShowCustomerDeliveryModal(
@@ -588,6 +591,7 @@ const DispatchStage = () => {
               driverId: 0,
               driverIdNo: "",
               courierServiceId: 0,
+              courierVehicleId: 0,
             });
           }}
         />

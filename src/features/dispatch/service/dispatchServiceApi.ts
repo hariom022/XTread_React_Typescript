@@ -63,29 +63,28 @@ getCourierServices: (courierType: number) =>
      UPDATE DELIVERY SHEET
      ========================================== */
 
-  updateDeliverySheet: (
-    deliverySheetId: number,
-    payload: {
-      courierType: number;
+ updateDeliverySheet: (
+  deliverySheetId: number,
+  payload: {
+    courierServiceId: string | number;
 
-      courierServiceId: string;
+    courierVehicleId: number | null;
 
-      courierName: string | null;
+    driverId: number | null;
 
-      vehicleRegNo: string | null;
+    vehicleRegNo: string | null;
 
-      driverName: string | null;
+    driverName: string | null;
 
-      driverIdNo: string | null;
+    driverIdNo: string | null;
 
-      remarks: string;
+    remarks: string;
 
-      addOrderCasingIds: number[];
+    addOrderCasingIds: number[];
 
-      removeOrderCasingIds: number[];
-    },
-  ) => api.put(`/delivery-sheets/${deliverySheetId}`, payload),
-
+    removeOrderCasingIds: number[];
+  },
+) => api.put(`/delivery-sheets/${deliverySheetId}`, payload),
   /** GET Drivers by Courier Service */
 getDriversByCourierServiceId: (courierServiceId: number) =>
   api.get(`/drivers?courierServiceId=${courierServiceId}`),

@@ -3,6 +3,7 @@ import type {
   UserResponse,
   UserUpdate,
   RolesResponse,
+  RegionsResponse,
 } from "../types/userRegistration.type";
 
 import { apiRequest } from "../../../shared/services/apiClient";
@@ -56,6 +57,10 @@ const userService = {
   deleteUser: (userId: string) =>
     apiRequest(`/users/${userId}`, {
       method: "DELETE",
+    }),
+    getRegions: () =>
+    apiRequest<RegionsResponse>("/regions", {
+      method: "GET",
     }),
 };
 

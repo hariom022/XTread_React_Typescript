@@ -37,6 +37,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     patchSizeId: 0,
     patchSizeName: "",
   });
+  const [overridePatchValidation, setOverridePatchValidation] = useState(false);
 
   const [locations, setLocations] = useState<any[]>([]);
 
@@ -87,7 +88,6 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       setRepairMaterials([]);
     }
   };
-
 
   // const loadRepairMaterials = async (serviceTypeId?: number) => {
   //   try {
@@ -187,6 +187,61 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
     setPatchDetails((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // const handleSubmit = async (isApproved: boolean) => {
+  //   try {
+  //     if (!isApproved && !rejectionReason) {
+  //       alert("Please select rejection reason");
+  //       return;
+  //     }
+
+  //     setLoading(true);
+  //     if (isApproved) {
+  //       const inspectionRows = selectedItem?.repairDetail?.length || 0;
+
+  //       const patchRows = patchDetails.length;
+
+  //       if (isApproved && inspectionRows !== patchRows) {
+  //         alert(
+  //           `Patch Details count (${patchRows}) must be equal to Inspection/Skiving records (${inspectionRows}).`,
+  //         );
+
+  //         return;
+  //       }
+  //     }
+
+  //     const payload = {
+  //       orderCasingIds: [Number(selectedItem.orderCasingId ?? selectedItem.id)],
+
+  //       isApproved,
+
+  //       rejectionReasonCode: isApproved ? null : rejectionReason,
+
+  //       patchDetails: patchDetails.map((item) => ({
+  //         repairLocationId: item.repairLocationId,
+  //         damageTypeId: item.damageTypeId,
+  //         repairMaterialId: item.repairMaterialId,
+  //         patchSizeId: item.patchSizeId,
+  //       })),
+  //     };
+
+  //     console.log("payload Repair", payload);
+
+  //     await repairService.approveReject(payload);
+
+  //     alert(isApproved ? "Approved Successfully" : "Rejected Successfully");
+
+  //     await onSuccess();
+
+  //     onClose();
+  //   } catch (error) {
+  //     console.error(error);
+
+  //     alert("The Number of Expected Patch Details is not provided.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (isApproved: boolean) => {
     try {
       if (!isApproved && !rejectionReason) {
@@ -196,31 +251,33 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
       setLoading(true);
 
-      const inspectionRows = selectedItem?.repairDetail?.length || 0;
+      if (isApproved && !overridePatchValidation) {
+        const inspectionRows = selectedItem?.repairDetail?.length || 0;
+        const patchRows = patchDetails.length;
 
-      const patchRows = patchDetails.length;
-
-      if (isApproved && inspectionRows !== patchRows) {
-        alert(
-          `Patch Details count (${patchRows}) must be equal to Inspection/Skiving records (${inspectionRows}).`,
-        );
-
-        return;
+        if (inspectionRows !== patchRows) {
+          alert(
+            `Patch Details count (${patchRows}) must be equal to Inspection/Skiving records (${inspectionRows}).`,
+          );
+          return;
+        }
       }
 
       const payload = {
-        orderCasingIds: [Number(selectedItem.orderCasingId ?? selectedItem.id)],
-
+        orderCasingIds: [
+          Number(selectedItem.orderCasingId ?? selectedItem.id),
+        ],
         isApproved,
-
-        rejectionReasonCode: isApproved ? null : rejectionReason,
-
+        rejectionReasonId: isApproved ? null : rejectionReason,
         patchDetails: patchDetails.map((item) => ({
           repairLocationId: item.repairLocationId,
           damageTypeId: item.damageTypeId,
           repairMaterialId: item.repairMaterialId,
           patchSizeId: item.patchSizeId,
         })),
+          allowPartialPatchDetails: isApproved
+    ? overridePatchValidation
+    : false,
       };
 
       console.log("payload Repair", payload);
@@ -230,11 +287,9 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
       alert(isApproved ? "Approved Successfully" : "Rejected Successfully");
 
       await onSuccess();
-
       onClose();
     } catch (error) {
       console.error(error);
-
       alert("The Number of Expected Patch Details is not provided.");
     } finally {
       setLoading(false);
@@ -390,6 +445,24 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
                       <div className="col-md-8">
                         <div className="form-panel">
+                          {/* OVERRIDE PATCH VALIDATION */}
+                          <div className="form-check mb-3">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="overridePatchValidation"
+                              checked={overridePatchValidation}
+                              onChange={(e) =>
+                                setOverridePatchValidation(e.target.checked)
+                              }
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="overridePatchValidation"
+                            >
+                              Override Patch Details
+                            </label>
+                          </div>
                           <div className="row g-3">
                             {/* LOCATION */}
 
@@ -612,7 +685,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                               {rejectionReasons.map((item) => (
                                 <option
                                   key={item.rejectionReasonId}
-                                  value={item.code}
+                                  value={item.rejectionReasonId}
                                 >
                                   {item.reason}
                                 </option>

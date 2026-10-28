@@ -1,3 +1,16 @@
+
+export interface Region {
+  id: number;
+  regionName: string;
+  regionInitial: string;
+}
+
+export interface RegionsResponse {
+  success: boolean;
+  data: Region[];
+  error?: unknown;
+}
+
 export interface User {
   userId: string;
   fullName: string;
@@ -6,6 +19,8 @@ export interface User {
   email: string;
   phoneNumber: string;
   emailConfirmed: boolean;
+  regionIds?: number[];
+   regions: Region[];
 }
 
 export interface UserRegistration {
@@ -16,6 +31,7 @@ export interface UserRegistration {
   phoneNumber: string;
   password: string;
   emailConfirmed: boolean;
+  regionIds: number[];
 }
 
 export interface UserUpdate {
@@ -25,7 +41,9 @@ export interface UserUpdate {
   email: string;
   phoneNumber: string;
   emailConfirmed: boolean;
+  regionIds: number[];
 }
+
 
 export interface Role {
   id: number;

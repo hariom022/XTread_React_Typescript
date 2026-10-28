@@ -2,11 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 
 import useUserRegistration from "../hooks/useUserRegistration";
 
-import type { User, UserUpdate, Role } from "../types/userRegistration.type";
+import type {
+  User,
+  UserUpdate,
+  Role,
+  Region,
+} from "../types/userRegistration.type";
 
 import userService from "../service/userService";
 
-const UserListTable = () => {
+interface UserListTableProps {
+  refreshKey: number;
+}
+
+const UserListTable = ({
+  refreshKey,
+}: UserListTableProps) => {
   const { loading, error, userList, getUserList, updateUser, deleteUser } =
     useUserRegistration();
 
@@ -21,6 +32,8 @@ const UserListTable = () => {
   const [roles, setRoles] = useState<Role[]>([]);
 
   const [rolesLoading, setRolesLoading] = useState(false);
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [regionsLoading, setRegionsLoading] = useState(false);
 
   const [editFormData, setEditFormData] = useState<UserUpdate>({
     fullname: "",
@@ -29,6 +42,7 @@ const UserListTable = () => {
     email: "",
     phoneNumber: "",
     emailConfirmed: false,
+    regionIds: [],
   });
 
   const recordsPerPage = 10;
@@ -39,7 +53,7 @@ const UserListTable = () => {
 
   useEffect(() => {
     getUserList();
-  }, []);
+  }, [refreshKey]);
 
   // ============================================
   // SEARCH
@@ -123,6 +137,21 @@ const UserListTable = () => {
       setRolesLoading(false);
     }
   };
+  const loadRegions = async () => {
+    try {
+      setRegionsLoading(true);
+
+      const response = await userService.getRegions();
+
+      setRegions(response.data ?? []);
+      return response.data ?? [];
+    } catch (err) {
+      console.error("Failed to load regions:", err);
+      return [];
+    } finally {
+      setRegionsLoading(false);
+    }
+  };
 
   // ============================================
   // OPEN EDIT MODAL
@@ -142,6 +171,9 @@ const UserListTable = () => {
 
         setRoles(availableRoles);
       }
+      if (regions.length === 0) {
+        await loadRegions();
+      }
 
       console.log("Selected user:", user);
 
@@ -160,6 +192,7 @@ const UserListTable = () => {
         email: user.email ?? "",
         phoneNumber: user.phoneNumber ?? "",
         emailConfirmed: user.emailConfirmed ?? false,
+        regionIds: user.regions?.map((region) => region.id) ?? [],
       });
 
       setShowEditModal(true);
@@ -240,7 +273,16 @@ const UserListTable = () => {
       console.error("Failed to delete user:", err);
     }
   };
+  const handleEditRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedRegionIds = Array.from(e.target.selectedOptions, (option) =>
+      Number(option.value),
+    );
 
+    setEditFormData((previous) => ({
+      ...previous,
+      regionIds: selectedRegionIds,
+    }));
+  };
   // ============================================
   // LOADING
   // ============================================
@@ -323,7 +365,9 @@ const UserListTable = () => {
 
                   <th>Phone Number</th>
 
-                  <th>Email Confirmed</th>
+                  <th>Region</th>
+
+                  {/* <th>Email Confirmed</th> */}
 
                   <th>Action</th>
                 </tr>
@@ -350,6 +394,14 @@ const UserListTable = () => {
                       <td>{user.phoneNumber}</td>
 
                       <td>
+                        {user.regions?.length
+                          ? user.regions
+                              .map((region) => region.regionName)
+                              .join(", ")
+                          : "—"}
+                      </td>
+
+                      {/* <td>
                         {user.emailConfirmed ? (
                           <span className="badge bg-success">Confirmed</span>
                         ) : (
@@ -357,7 +409,7 @@ const UserListTable = () => {
                             Not Confirmed
                           </span>
                         )}
-                      </td>
+                      </td> */}
 
                       {/* ACTION */}
 
@@ -587,6 +639,42 @@ const UserListTable = () => {
                         {roles.map((role) => (
                           <option key={role.id} value={role.id}>
                             {role.roleName}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* REGION */}
+                    <div className="col-md-6 mb-3">
+                      <label htmlFor="editRegionId" className="form-label">
+                        Region
+                      </label>
+
+                      <select
+                        id="editRegionId"
+                        name="regionId"
+                        className="form-select"
+                        value={editFormData.regionIds[0] ?? ""}
+                        onChange={(e) => {
+                          const regionId = Number(e.target.value);
+
+                          setEditFormData((previous) => ({
+                            ...previous,
+                            regionIds: regionId ? [regionId] : [],
+                          }));
+                        }}
+                        disabled={regionsLoading}
+                        required
+                      >
+                        <option value="">
+                          {regionsLoading
+                            ? "Loading regions..."
+                            : "Select Region"}
+                        </option>
+
+                        {regions.map((region) => (
+                          <option key={region.id} value={region.id}>
+                            {region.regionName}
                           </option>
                         ))}
                       </select>
