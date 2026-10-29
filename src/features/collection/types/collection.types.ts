@@ -83,3 +83,23 @@ export interface OrderItem {
 
   
 }
+
+
+export interface Region {
+  id: number;
+  regionName: string;
+  regionInitial: string;
+}
+
+export interface Zone {
+  id: number;
+  zoneName: string;
+  zoneInitial: string;
+}
+
+export interface AccessibleZonesResponse {
+  regionId: number;
+  regionName: string;
+  regionInitial: string;
+  zones: Zone[];
+}

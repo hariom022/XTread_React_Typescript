@@ -51,17 +51,12 @@ approveNailInspectionHoldOrder: (orderId: number) => {
     `/nail-inspection/holds/orders/${orderId}/approve`
   );
 },
-  getNailInspectionHoldOrderDetails: async (_orderId: number): Promise<any> => {
-    throw new Error(
-      "Nail Inspection Hold order details API is not implemented yet.",
-    );
-  },
 
-  submitNailInspectionHoldAction: async (
-    _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload,
-  ): Promise<any> => {
-    throw new Error("Nail Inspection Hold action API is not implemented yet.");
-  },
+  // submitNailInspectionHoldAction: async (
+  //   _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload,
+  // ): Promise<any> => {
+  //   throw new Error("Nail Inspection Hold action API is not implemented yet.");
+  // },
 
   // =========================================================
   // GET PRE-BUFFING HOLD TYRES
