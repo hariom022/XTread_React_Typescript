@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../../auth/store/authStore";
+import getCementingErrorMessage from "../utils/getCementingErrorMessage";
 interface CementingModalProps {
   selectedItem: {
     id: number;
@@ -19,6 +20,8 @@ interface CementingModalProps {
 
     skipRepair: boolean;
     casingDry: boolean;
+    cementTypeSavedAtUtc?: string | null;
+    isCementTypeSaved?: boolean;
 
   } | null;
 
@@ -58,6 +61,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
   const [processing, setProcessing] = useState(false);
 
   const [cementTypeSaved, setCementTypeSaved] = useState(false);
+
   useEffect(() => {
     if (!selectedItem) return;
 
@@ -70,16 +74,18 @@ const CementingModal: React.FC<CementingModalProps> = ({
         ? String(selectedItem.cementTypeId)
         : "");
 
-    if (savedType) {
-      setCementType(savedType);
-      setCementTypeSaved(true);
-    } else {
-      setCementType("");
-      setCementTypeSaved(false);
-    }
+    const isSaved =
+      Boolean(savedType) ||
+      Boolean(selectedItem.cementTypeSavedAtUtc) ||
+      Boolean(selectedItem.isCementTypeSaved);
+
+    setCementType(savedType);
+    setCementTypeSaved(isSaved);
   }, [selectedItem, savedCementTypes, setCementType]);
 
+
   if (!selectedItem) return null;
+
 
   const onSave = async () => {
     if (cementTypeSaved) {
@@ -93,42 +99,68 @@ const CementingModal: React.FC<CementingModalProps> = ({
     }
 
     try {
+      setProcessing(true);
+
       const payload = {
-        orderCasingIds: [selectedItem.id.toString()],
-        cementTypeId: cementType,
+        orderCasingIds: [selectedItem.id],
+        cementTypeId: Number(cementType),
       };
 
-      await handleSave(payload);
+      const response = await handleSave(payload);
 
+      // Read the confirmed saved value from the API response.
+      const savedCasing = response?.data?.casings?.find(
+        (casing: any) => casing.orderCasingId === selectedItem.id,
+      );
+
+      const savedTypeId = String(
+        savedCasing?.cementTypeId ?? cementType,
+      );
+
+      // Persist in parent state so closing and reopening the modal
+      // does not reset the saved cement type.
       setSavedCementTypes((previous) => ({
         ...previous,
-        [selectedItem.id]: cementType,
+        [selectedItem.id]: savedTypeId,
       }));
 
+      setCementType(savedTypeId);
       setCementTypeSaved(true);
 
-      alert("Cement type saved successfully.");
-    } catch (err) {
-      console.error("Error saving cement type:", err);
-      alert("Save Failed");
+      alert("Cement type saved successfully. It cannot be changed.");
+    } catch (error) {
+      alert(getCementingErrorMessage(error, "save"));
+    } finally {
+      setProcessing(false);
     }
   };
-  const onApprove = async () => {
-    const payload = {
-      orderCasingIds: [selectedItem.id.toString()],
-    };
 
-    console.log("APPROVE PAYLOAD", payload);
+
+  const onApprove = async () => {
+    if (!casingDry) {
+      alert("Please confirm that the casing is dry before approving.");
+      return;
+    }
+
+    if (!cementTypeSaved && !selectedItem.cementTypeId) {
+      alert("Please save a cement type before approving this casing.");
+      return;
+    }
+
+    const payload = {
+      orderCasingIds: [selectedItem.id],
+    };
 
     try {
       setProcessing(true);
+
       await handleApprove(payload);
 
-      alert("Approved Successfully");
+      alert("Casing approved successfully.");
 
       onClose();
     } catch (error) {
-      console.error(error);
+      alert(getCementingErrorMessage(error, "approve"));
     } finally {
       setProcessing(false);
     }
