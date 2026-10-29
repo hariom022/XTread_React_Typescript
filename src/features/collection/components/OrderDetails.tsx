@@ -80,6 +80,27 @@ const OrderDetails = ({
           </div>
         </div>
 
+        <div className="row mt-3">
+          {/* BOOK NUMBER */}
+          <div className="col-md-6">
+            <label className="form-label">Delivery Region</label>
+
+            <input
+              className="form-control modern-input"
+              placeholder="Select Delivery Region"
+             
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label">Delivery Zone</label>
+
+            <input
+              className="form-control modern-input"
+              placeholder="Select Delivery Zone"
+              
+            />
+          </div>
+        </div>
         {/* SECOND ROW */}
         <div className="row g-3 mt-1">
           {/* SERVICE TYPE */}
@@ -92,7 +113,7 @@ const OrderDetails = ({
               onChange={handleServiceTypeChange}
               // disabled={orderItemsLength > 0}
               disabled={isServiceLocked}
-            // disabled={isServiceLocked}
+              // disabled={isServiceLocked}
             >
               <option value="">-- Select Service Type --</option>
 
