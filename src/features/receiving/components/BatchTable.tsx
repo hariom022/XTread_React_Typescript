@@ -46,7 +46,7 @@ const BatchTable = ({
             <th>Make</th>
             <th>Pattern</th>
             <th>Service Type</th>
-            <th>Delivery Zone</th>
+            {/* <th>Delivery Zone</th> */}
             <th>Comment</th>
           </tr>
         </thead>
@@ -54,7 +54,7 @@ const BatchTable = ({
         <tbody>
           {Object.keys(groupedData).length === 0 ? (
             <tr>
-              <td colSpan={13} className="text-center">
+              <td colSpan={12} className="text-center">
                 No Records Found
               </td>
             </tr>
@@ -65,7 +65,7 @@ const BatchTable = ({
                   {/* Customer Header */}
                   <tr key={`group-${customerName}`}>
                     <td
-                      colSpan={13}
+                      colSpan={12}
                       className="text-center fw-bold"
                       style={{
                         backgroundColor: "#d9e7f7",
@@ -114,7 +114,7 @@ const BatchTable = ({
                       <td>{item.treadPattern}</td>
 
                       <td>{item.serviceType}</td>
-                      <td>{item.deliveryZone || "-"}</td>
+                      {/* <td>{item.deliveryZone || "-"}</td> */}
                       <td>{item.comments || "-"}</td>
                     </tr>
                   ))}

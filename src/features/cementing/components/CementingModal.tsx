@@ -2,23 +2,25 @@ import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../../auth/store/authStore";
 interface CementingModalProps {
   selectedItem: {
-  id: number;
-  casing: string;
-  serial: string;
+    id: number;
+    casing: string;
+    serial: string;
+    cementTypeId?: number | string | null;
 
-  customerName?: string;
+    customerName?: string;
 
-  requestedPattern?: string;
+    requestedPattern?: string;
 
-  reApprovedPattern?: string;
+    reApprovedPattern?: string;
 
-  pattern: string;
-  tyreSize: string;
-  service: string;
+    pattern: string;
+    tyreSize: string;
+    service: string;
 
-  skipRepair: boolean;
-  casingDry: boolean;
-} | null;
+    skipRepair: boolean;
+    casingDry: boolean;
+
+  } | null;
 
   staffName: string;
 
@@ -29,7 +31,11 @@ interface CementingModalProps {
 
   handleSave: (payload: any) => Promise<any>;
   handleApprove: (payload: any) => Promise<any>;
+  savedCementTypes: Record<number, string>;
 
+  setSavedCementTypes: React.Dispatch<
+    React.SetStateAction<Record<number, string>>
+  >;
   onClose: () => void;
 }
 
@@ -41,39 +47,72 @@ const CementingModal: React.FC<CementingModalProps> = ({
   cementTypes,
   handleSave,
   handleApprove,
+  savedCementTypes,
+  setSavedCementTypes,
   onClose,
 }) => {
-   const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   const [skipRepair, setSkipRepair] = useState(false);
 
   const [casingDry, setCasingDry] = useState(false);
   const [processing, setProcessing] = useState(false);
-  useEffect(() => {
-    if (selectedItem) {
-      setSkipRepair(Boolean(selectedItem.skipRepair));
 
-      setCasingDry(Boolean(selectedItem.casingDry));
+  const [cementTypeSaved, setCementTypeSaved] = useState(false);
+  useEffect(() => {
+    if (!selectedItem) return;
+
+    setSkipRepair(Boolean(selectedItem.skipRepair));
+    setCasingDry(Boolean(selectedItem.casingDry));
+
+    const savedType =
+      savedCementTypes[selectedItem.id] ??
+      (selectedItem.cementTypeId != null
+        ? String(selectedItem.cementTypeId)
+        : "");
+
+    if (savedType) {
+      setCementType(savedType);
+      setCementTypeSaved(true);
+    } else {
+      setCementType("");
+      setCementTypeSaved(false);
     }
-  }, [selectedItem]);
+  }, [selectedItem, savedCementTypes, setCementType]);
 
   if (!selectedItem) return null;
 
   const onSave = async () => {
+    if (cementTypeSaved) {
+      alert("Cement type has already been saved and cannot be changed.");
+      return;
+    }
+
+    if (!cementType) {
+      alert("Please select a cement type.");
+      return;
+    }
+
     try {
       const payload = {
         orderCasingIds: [selectedItem.id.toString()],
         cementTypeId: cementType,
       };
 
-      console.log("SAVE PAYLOAD", payload);
       await handleSave(payload);
-      alert("Saved Successfully");
+
+      setSavedCementTypes((previous) => ({
+        ...previous,
+        [selectedItem.id]: cementType,
+      }));
+
+      setCementTypeSaved(true);
+
+      alert("Cement type saved successfully.");
     } catch (err) {
-      console.error(err);
+      console.error("Error saving cement type:", err);
       alert("Save Failed");
     }
   };
-
   const onApprove = async () => {
     const payload = {
       orderCasingIds: [selectedItem.id.toString()],
@@ -90,7 +129,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
       onClose();
     } catch (error) {
       console.error(error);
-    }finally{
+    } finally {
       setProcessing(false);
     }
   };
@@ -212,6 +251,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
                     <select
                       className="form-select"
                       value={cementType}
+                      disabled={cementTypeSaved || processing}
                       onChange={(e) =>
                         setCementType(e.target.value)
                       }
@@ -235,6 +275,7 @@ const CementingModal: React.FC<CementingModalProps> = ({
                   <button
                     className="btn btn-primary"
                     onClick={onSave}
+                    disabled={cementTypeSaved || processing}
                     style={{
                       minWidth: "140px",
                       height: "38px",
@@ -244,6 +285,15 @@ const CementingModal: React.FC<CementingModalProps> = ({
                   </button>
 
                 </div>
+                {cementTypeSaved && (
+                  <div
+                    className="alert alert-info text-center mt-3"
+                    role="alert"
+                  >
+                    Cement type has already been saved and cannot be changed.
+                    You can continue with Casing Dry and approval.
+                  </div>
+                )}
 
                 {/* APPROVE BUTTON */}
                 <div
