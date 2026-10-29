@@ -84,21 +84,32 @@ const TyreOnHold = () => {
     void inspectOrder(order);
   };
 
-  const handleNailAction = async (
-    action: "LPO_RECEIVED" | "PAYMENT_RECEIVED" | "REJECT_ORDER",
+  // Handler for LPO Received / Payment Received at nail inspection level
+  const handleCommercialConfirmation = async (
+    action: "LPO_RECEIVED" | "PAYMENT_RECEIVED",
+    referenceNumber: string,
   ) => {
     const message =
       action === "LPO_RECEIVED"
         ? "Confirm that the LPO has been received for this order?"
-        : action === "PAYMENT_RECEIVED"
-          ? "Confirm that payment has been received for this order?"
-          : "Are you sure you want to reject this order?";
+        : "Confirm that payment has been received for this order?";
 
     if (!window.confirm(message)) {
       return;
     }
 
-    await submitAction(action);
+    await submitAction(action, referenceNumber);
+  };
+
+  // Handler for Reject Order at nail inspection level
+  const handleRejectOrder = async (
+    rejectionReasonId: number,
+  ) => {
+    if (!window.confirm("Are you sure you want to reject this order?")) {
+      return;
+    }
+
+    await submitAction("REJECT_ORDER", rejectionReasonId);
   };
 
   const handleBuffingInspect = (item: any) => {
@@ -149,7 +160,21 @@ const TyreOnHold = () => {
               actionLoading={actionLoading}
               error={nailError}
               onBack={closeDetails}
-              onAction={handleNailAction}
+              onAction={(action, value) => {
+                if (action === "REJECT_ORDER") {
+                  if (typeof value === "number") {
+                    void handleRejectOrder(value);
+                  }
+                  return;
+                }
+
+                if (
+                  (action === "LPO_RECEIVED" || action === "PAYMENT_RECEIVED") &&
+                  typeof value === "string"
+                ) {
+                  void handleCommercialConfirmation(action, value);
+                }
+              }}
             />
           ) : detailsLoading ? (
             <div
@@ -210,7 +235,21 @@ const TyreOnHold = () => {
                   actionLoading={actionLoading}
                   error={nailError}
                   onBack={closeDetails}
-                  onAction={handleNailAction}
+                  onAction={(action, value) => {
+                    if (action === "REJECT_ORDER") {
+                      if (typeof value === "number") {
+                        void handleRejectOrder(value);
+                      }
+                      return;
+                    }
+
+                    if (
+                      (action === "LPO_RECEIVED" || action === "PAYMENT_RECEIVED") &&
+                      typeof value === "string"
+                    ) {
+                      void handleCommercialConfirmation(action, value);
+                    }
+                  }}
                 />
               )}
             </>

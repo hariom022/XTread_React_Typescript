@@ -41,7 +41,7 @@ const useNailInspectionHold = () => {
       if (result?.success !== true || !Array.isArray(result.data)) {
         throw new Error(
           result?.error ||
-            "Invalid response received from Nail Inspection Hold API."
+          "Invalid response received from Nail Inspection Hold API."
         );
       }
 
@@ -80,7 +80,10 @@ const useNailInspectionHold = () => {
   }, []);
 
   const submitAction = useCallback(
-    async (action: NailInspectionHoldAction) => {
+    async (
+      action: NailInspectionHoldAction,
+      value?: number | string,
+    ) => {
       if (!selectedOrder) {
         setError("Please select an order first.");
         return;
@@ -104,14 +107,40 @@ const useNailInspectionHold = () => {
 
       try {
         if (action === "REJECT_ORDER") {
-          throw new Error(
-            "The Reject Order API has not been provided yet."
-          );
-        }
+          // REJECT ORDER: use only the rejection API.
+          if (typeof value !== "number" || !value) {
+            throw new Error("Please select a rejection reason.");
+          }
 
-        await holdTyreServiceApi.approveNailInspectionHoldOrder(
-          selectedOrder.orderId
-        );
+          const response =
+            await holdTyreServiceApi.rejectNailInspectionHoldOrder(
+              selectedOrder.orderId,
+              value,
+            );
+
+          if (response.data?.success !== true) {
+            throw new Error(
+              response.data?.error || "Failed to reject the order.",
+            );
+          }
+        } else {
+          // LPO/PAYMENT: use only the approval API.
+          if (typeof value !== "string" || !value.trim()) {
+            throw new Error("Please enter a reference number.");
+          }
+
+          const response =
+            await holdTyreServiceApi.approveNailInspectionHoldOrder(
+              selectedOrder.orderId,
+              value.trim(),
+            );
+
+          if (response.data?.success !== true) {
+            throw new Error(
+              response.data?.error || "Failed to approve the order.",
+            );
+          }
+        }
 
         setSelectedOrder(null);
         await loadOrders();
@@ -121,7 +150,7 @@ const useNailInspectionHold = () => {
         setActionLoading(false);
       }
     },
-    [selectedOrder, loadOrders]
+    [selectedOrder, loadOrders],
   );
 
   return {
