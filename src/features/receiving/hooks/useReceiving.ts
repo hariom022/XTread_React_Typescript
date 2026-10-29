@@ -78,7 +78,7 @@ export const useReceiving = () => {
 
           serviceType: casing.serviceType?.name || "-",
 
-          deliveryZone: order.deliveryZone || "-",
+          deliveryZone: order.deliveryZoneName || "-",
 
           rimSize: casing.rimSize || "-",
 
