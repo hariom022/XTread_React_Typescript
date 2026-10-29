@@ -1,8 +1,13 @@
 import api from "../../../shared/services/api";
 
 const customerService = {
-  getAllCustomers: () =>
-    api.get("/customers/accessible"),
+  // getAllCustomers: () =>
+  //   api.get("/customers/accessible"),
+
+    getCustomersByRegion: (regionId: number) =>
+    api.get("/customers", {
+      params: { regionId },
+    }),
 
   getCustomerById: (
     customerNumber: string

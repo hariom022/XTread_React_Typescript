@@ -1,63 +1,87 @@
-// src/features/collection/hooks/useCustomers.ts
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import customerService from "../services/customerService";
+import type { Customer } from "../types/collection.types";
 
-import type {
-  Customer,
-} from "../types/collection.types";
+const useCustomers = (selectedRegionId: string) => {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-const useCustomers = () => {
-  const [customers, setCustomers] =
-    useState<Customer[]>([]);
+  const loadCustomers = useCallback(async () => {
+    if (!selectedRegionId) {
+      setCustomers([]);
+      setError("");
+      setLoading(false);
+      return;
+    }
 
-  const [loading, setLoading] =
-    useState<boolean>(false);
-
-  const [error, setError] =
-    useState<string>("");
-
-  useEffect(() => {
-    loadCustomers();
-  }, []);
-
-  const loadCustomers = async () => {
     try {
       setLoading(true);
+      setError("");
 
-      const res =
-        await customerService.getAllCustomers();
-
-      console.log(
-        "CUSTOMER RESPONSE",
-        res.data,
+      const res = await customerService.getCustomersByRegion(
+        Number(selectedRegionId),
       );
 
-      // ✅ HANDLE BOTH STRUCTURES
-      setCustomers(
-        res.data.data || res.data || [],
-      );
+      setCustomers(res.data?.data ?? []);
     } catch (err) {
-      console.error(err);
-
-      setError(
-        "Failed to load customers",
-      );
+      console.error("Failed to load customers by region:", err);
+      setCustomers([]);
+      setError("Failed to load customers.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedRegionId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCustomers = async () => {
+      if (!selectedRegionId) {
+        setCustomers([]);
+        setError("");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+
+        const res = await customerService.getCustomersByRegion(
+          Number(selectedRegionId),
+        );
+
+        if (!cancelled) {
+          setCustomers(res.data?.data ?? []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Failed to load customers by region:", err);
+          setCustomers([]);
+          setError("Failed to load customers.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void fetchCustomers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRegionId]);
 
   return {
     customers,
-
     loading,
-
     error,
-
-    reloadCustomers:
-      loadCustomers,
+    reloadCustomers: loadCustomers,
   };
 };
 
