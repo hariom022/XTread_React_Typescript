@@ -89,7 +89,8 @@ export interface Order {
   customer: Customer;
 
   casings: Casing[];
-  deliveryZone?: string;
+   deliveryZoneId?: number | null;
+  deliveryZoneName?: string | null;
 }
 
 export interface ReceivingRow {
