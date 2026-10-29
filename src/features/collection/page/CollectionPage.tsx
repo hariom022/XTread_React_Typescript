@@ -72,7 +72,6 @@ const CollectionPage = ({
   const [factoryCode, setFactoryCode] = useState("");
   const [manufacturingWeek, setManufacturingWeek] = useState("");
   const [manufacturingYear, setManufacturingYear] = useState("");
-  const { customers, loading, error } = useCustomers();
 
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
@@ -205,6 +204,13 @@ const CollectionPage = ({
 
   // TYRE HISTORY
   const [showTyreHistory, setShowTyreHistory] = useState<boolean>(false);
+
+  const {
+    customers,
+    loading,
+    error: customersError,
+    reloadCustomers,
+  } = useCustomers(selectedRegionId);
 
   const {
     rimSizes,
@@ -1341,7 +1347,7 @@ const CollectionPage = ({
   //========================================================================
   return (
     <>
-      {loading ? (
+      {/* {loading ? (
         <div
           className="d-flex justify-content-center align-items-center"
           style={{
@@ -1350,7 +1356,7 @@ const CollectionPage = ({
         >
           <RingLoader color="#b30815" size={80} loading={loading} />
         </div>
-      ) : (
+      ) : ( */}
         <div className="container-fluid modern-form p-3">
           {/* Rest of your page */}
 
@@ -1369,6 +1375,10 @@ const CollectionPage = ({
                     setSelectedRegionId={setSelectedRegionId}
                     selectedZoneId={selectedZoneId}
                     setSelectedZoneId={setSelectedZoneId}
+                    setDeliveryRegionId={setDeliveryRegionId}
+                    setDeliveryZoneId={setDeliveryZoneId}
+                    loading={loading}
+                    customersError={customersError}
                   />
                 </div>
               )}
@@ -1387,6 +1397,11 @@ const CollectionPage = ({
                   setBookNumber={setBookNumber}
                   isServiceLocked={addToExistingOrder || orderItems.length > 0}
                   isOrderLocked={addToExistingOrder}
+                  // selectedRegionId={selectedRegionId}
+                  // setSelectedRegionId={setSelectedRegionId}
+                  // selectedZoneId={selectedZoneId}
+                  // setSelectedZoneId={setSelectedZoneId}
+
                   // Delivery Region & Zone
                   deliveryRegionId={deliveryRegionId}
                   setDeliveryRegionId={setDeliveryRegionId}
@@ -1690,7 +1705,7 @@ const CollectionPage = ({
             </div>
           )}
         </div>
-      )}
+       {/* )} */}
     </>
   );
 };
