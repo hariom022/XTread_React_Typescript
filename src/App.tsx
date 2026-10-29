@@ -117,6 +117,7 @@ import Drivers from "./master-modules/drivers/page/Drivers";
 import MaterialConsumptionPage from "./adminPortal/materialConsumption/pages/MaterialConsumptionPage";
 import CustomerSearchPage from "./adminPortal/customerSerach/pages/CustomerSearchPage";
 import CustomerRegionMappingPage from "./master-modules/customer-region-mapping/page/CustomerRegionMapping";
+import PatternsPage from "./master-modules/pattern/page/PatternsPage";
 
 /* =========================================================
    AUTH INITIALIZER
@@ -458,6 +459,7 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                 <Route
                   path="/customer-region-mapping"
                   element={<CustomerRegionMappingPage />}/>
+                <Route path="/pattern" element = {<PatternsPage/>}/>
                 {/* =====================================
                     ACCESS DENIED
                 ===================================== */}

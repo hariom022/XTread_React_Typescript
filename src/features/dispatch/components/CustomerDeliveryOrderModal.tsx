@@ -266,7 +266,7 @@ const CustomerDeliveryOrderModal = ({
         courierVehicleId: isInternal
           ? Number(dispatchTeam.courierVehicleId)
           : null,
-        courierName: isInternal ? null : dispatchTeam.courierName ||null,
+        courierName: isInternal ? null : dispatchTeam.courierName || null,
         driverId: isInternal ? Number(dispatchTeam.driverId) : null,
 
         vehicleRegNo: isInternal ? null : dispatchTeam.regNo || null,
@@ -373,7 +373,7 @@ const CustomerDeliveryOrderModal = ({
       courierVehicleId: isInternal
         ? Number(dispatchTeam.courierVehicleId)
         : null,
-       courierName: isInternal ? null : dispatchTeam.courierName || null,
+      courierName: isInternal ? null : dispatchTeam.courierName || null,
       driverId: isInternal ? Number(dispatchTeam.driverId) : null,
 
       // vehicleRegNo: isInternal ? null : dispatchTeam.regNo,
@@ -768,8 +768,8 @@ const CustomerDeliveryOrderModal = ({
 
                     {/* ID NO */}
 
-                    <div className="col-md-6">
-                      <label>ID No#</label>
+                    {/* <div className="col-md-6"> */}
+                      {/* <label>ID No#</label>
 
                       <input
                         type="text"
@@ -792,8 +792,28 @@ const CustomerDeliveryOrderModal = ({
                             driverIdNo: e.target.value,
                           }));
                         }}
-                      />
-                    </div>
+                      /> */}
+
+                      {/* ID NO - EXTERNAL ONLY */}
+                      {!isInternal && (
+                        <div className="col-md-6">
+                          <label>ID No#</label>
+
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={dispatchTeam.driverIdNo ?? ""}
+                            placeholder="Enter Driver ID"
+                            onChange={(e) =>
+                              setDispatchTeam((prev) => ({
+                                ...prev,
+                                driverIdNo: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                      )}
+                    {/* </div> */}
                   </div>
                 </div>
               </div>

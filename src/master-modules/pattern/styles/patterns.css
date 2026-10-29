@@ -1,0 +1,233 @@
+
+.pattern-page {
+  padding: 8px;
+  color: #111827;
+}
+
+.pattern-page-header {
+  margin-bottom: 20px;
+}
+
+.pattern-page-title {
+  margin: 0 0 5px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #172033;
+}
+
+.pattern-page-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.pattern-filter-card,
+.pattern-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.pattern-filter-card {
+  padding: 20px;
+}
+
+.pattern-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.pattern-filter-field .form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.pattern-filter-field .form-select {
+  min-height: 44px;
+  border-color: #d7dee8;
+  border-radius: 6px;
+}
+
+.pattern-filter-field .form-select:focus {
+  border-color: #ff2938;
+  box-shadow: 0 0 0 0.2rem rgb(255 41 56 / 12%);
+}
+
+.pattern-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pattern-results-header h5 {
+  font-weight: 600;
+  color: #172033;
+}
+
+.pattern-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.pattern-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pattern-table thead th {
+  background: #ff2938;
+  color: #fff;
+  font-weight: 600;
+  padding: 13px 16px;
+  white-space: nowrap;
+  border: none;
+}
+
+.pattern-table tbody td {
+  padding: 14px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e7ebf0;
+}
+
+.pattern-brand {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.pattern-name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.pattern-classification {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background: #eef4ff;
+  color: #2454a6;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pattern-variants summary {
+  cursor: pointer;
+  color: #d71929;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pattern-variants summary:hover {
+  text-decoration: underline;
+}
+
+.pattern-variants .table {
+  min-width: 600px;
+  font-size: 13px;
+}
+
+.pattern-variants .table th {
+  background: #f3f5f8;
+  color: #374151;
+}
+
+.pattern-empty-state {
+  padding: 30px !important;
+  text-align: center;
+  color: #64748b;
+}
+
+.pattern-variants-button {
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: #dc1728;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.pattern-variants-button:hover {
+  text-decoration: underline;
+}
+
+.pattern-variants-button:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.pattern-modal-backdrop {
+  background: rgb(0 0 0 / 50%);
+  z-index: 1055;
+}
+
+.pattern-modal-backdrop .modal-content {
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.pattern-modal-backdrop .modal-header {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 18px 22px;
+}
+
+.pattern-modal-backdrop .modal-title {
+  font-weight: 600;
+  color: #172033;
+}
+
+.pattern-modal-backdrop .modal-body {
+  padding: 20px;
+}
+
+.pattern-variant-modal-table {
+  min-width: 750px;
+}
+
+.pattern-variant-modal-table thead th {
+  background: #ff2938;
+  color: #fff;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.pattern-variant-modal-table tbody td {
+  vertical-align: middle;
+}
+
+.pattern-variant-modal-table th,
+.pattern-variant-modal-table td {
+  padding: 12px;
+}
+
+@media (max-width: 768px) {
+  .pattern-modal-backdrop .modal-body {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pattern-filters {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .pattern-page-title {
+    font-size: 22px;
+  }
+
+  .pattern-results-header {
+    padding: 14px;
+  }
+
+  .pattern-table thead th,
+  .pattern-table tbody td {
+    padding: 10px;
+  }
+}
