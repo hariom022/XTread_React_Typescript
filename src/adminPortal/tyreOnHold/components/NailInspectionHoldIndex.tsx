@@ -5,6 +5,21 @@ interface Props {
   onInspect: (order: NailInspectionHoldOrder) => void;
 }
 
+
+const getHoldTypeName = (
+  holdType: number | null | undefined,
+): string => {
+  switch (holdType) {
+    case 1:
+      return "Customer LPO";
+    case 2:
+      return "Payment";
+    default:
+      return "-";
+  }
+};
+
+
 const NailInspectionHoldIndex = ({ data, onInspect }: Props) => {
   return (
     <div className="card border-0 shadow-sm">
@@ -41,7 +56,7 @@ const NailInspectionHoldIndex = ({ data, onInspect }: Props) => {
 
                     <td>{order.customerName || "-"}</td>
 
-                    <td>{order.holdType}</td>
+                    <td>{getHoldTypeName(order.holdType)}</td>
 
                     <td>{order.casings?.length ?? 0}</td>
 

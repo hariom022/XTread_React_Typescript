@@ -1,62 +1,43 @@
 import api from "../../../shared/services/api";
 
 const holdTyreServiceApi = {
-  // // =========================================================
-  // // GET HOLD TYRES
-  // // =========================================================
-  // getHoldTyres: (
-  //   casingStage: number,
-  //   // casingSubstage?: number,
-  //   includeApproved: boolean = false,
-  //   // holdType: number = 1
-  // ) => {
-  //   return api.get("/holds", {
-  //     params: {
-  //       casingStage,
-
-  //       // ...(casingSubstage !== undefined && {
-  //       //   casingSubstage,
-  //       // }),
-
-  //       includeApproved,
-
-  //       // holdType,
-  //     },
-  //   });
-  // },
-
-  // // =========================================================
-  // // APPROVE HOLD TYRE
-  // // =========================================================
-  // approveHold: (
-  //   holdId: number,
-  //   payload: {
-  //     lpoNumber: string;
-  //     date: string;
-  //     amount: number;
-  //     remarks: string;
-  //   }
-  // ) => {
-  //   return api.post(
-  //     `/holds/${holdId}/approve`,
-  //     payload
-  //   );
-  // },
 
   getNailInspectionHoldOrders: async (): Promise<any> => {
-     return api.get("/nail-inspection/holds/pending-orders");
+    return api.get("/nail-inspection/holds/pending-orders");
   },
-approveNailInspectionHoldOrder: (orderId: number) => {
-  return api.post(
-    `/nail-inspection/holds/orders/${orderId}/approve`
-  );
-},
+  //Release/approve Hold from nail inspection hold order
+  approveNailInspectionHoldOrder: (
+    orderId: number,
+    referenceNumber: string,
+  ) => {
+    return api.post(
+      `/nail-inspection/holds/orders/${orderId}/approve`,
+      { referenceNumber },
+    );
+  },
 
-  // submitNailInspectionHoldAction: async (
-  //   _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload,
-  // ): Promise<any> => {
-  //   throw new Error("Nail Inspection Hold action API is not implemented yet.");
-  // },
+
+  //rejection reason api:
+
+  getNailInspectionHoldRejectionReasons: () => {
+    return api.get("/rejection-reasons", {
+      params: {
+        currentStage: 4,
+        category: "Hold Reason",
+      },
+    });
+  },
+
+  //REJECT NAIL INSPECTION HOLD ORDER
+  rejectNailInspectionHoldOrder: (
+    orderId: number,
+    rejectionReasonId: number,
+  ) => {
+    return api.post(
+      `/nail-inspection/holds/orders/${orderId}/reject`,
+      { rejectionReasonId },
+    );
+  },
 
   // =========================================================
   // GET PRE-BUFFING HOLD TYRES
@@ -114,30 +95,30 @@ approveNailInspectionHoldOrder: (orderId: number) => {
   getSuggestedPattern: (orderCasingId: number) =>
     api.get(`/pre-buffing/${orderCasingId}/suggested-pattern`),
 
-  
-approvePreBuffingHold: (
-  orderCasingId: number,
-  payload: {
-    treadPatternId: number;
-    treadPatternVariantId: number;
-    remarks: null;
-  },
-) =>
-  api.post(
-    `/pre-buffing/holds/${orderCasingId}/approve`,
-    payload,
-  ),
 
-rejectPreBuffingHold: (
-  orderCasingId: number,
-  payload: {
-    remarks: string;
-  },
-) =>
-  api.post(
-    `/pre-buffing/holds/${orderCasingId}/reject`,
-    payload,
-  ),
+  approvePreBuffingHold: (
+    orderCasingId: number,
+    payload: {
+      treadPatternId: number;
+      treadPatternVariantId: number;
+      remarks: null;
+    },
+  ) =>
+    api.post(
+      `/pre-buffing/holds/${orderCasingId}/approve`,
+      payload,
+    ),
+
+  rejectPreBuffingHold: (
+    orderCasingId: number,
+    payload: {
+      remarks: string;
+    },
+  ) =>
+    api.post(
+      `/pre-buffing/holds/${orderCasingId}/reject`,
+      payload,
+    ),
 
 };
 
