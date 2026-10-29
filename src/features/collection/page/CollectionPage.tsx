@@ -80,6 +80,9 @@ const CollectionPage = ({
   const [selectedRegionId, setSelectedRegionId] = useState<string>("");
 
   const [selectedZoneId, setSelectedZoneId] = useState<string>("");
+
+  const [deliveryRegionId, setDeliveryRegionId] = useState<string>("");
+  const [deliveryZoneId, setDeliveryZoneId] = useState<string>("");
   // =========================================================
   // SERVICE
   // =========================================================
@@ -1013,8 +1016,9 @@ const CollectionPage = ({
       // These are separate delivery fields.
       // Populate them from separate delivery selections
       // if your API requires different delivery locations.
-      deliveryRegionId: null,
-      deliveryZoneId: null,
+      deliveryRegionId: deliveryRegionId ? Number(deliveryRegionId) : null,
+
+      deliveryZoneId: deliveryZoneId ? Number(deliveryZoneId) : null,
 
       casings: orderItems.map((item) => ({
         serviceTypeId: item.serviceTypeId?.toString(),
@@ -1383,6 +1387,11 @@ const CollectionPage = ({
                   setBookNumber={setBookNumber}
                   isServiceLocked={addToExistingOrder || orderItems.length > 0}
                   isOrderLocked={addToExistingOrder}
+                  // Delivery Region & Zone
+                  deliveryRegionId={deliveryRegionId}
+                  setDeliveryRegionId={setDeliveryRegionId}
+                  deliveryZoneId={deliveryZoneId}
+                  setDeliveryZoneId={setDeliveryZoneId}
                 />
               </div>
             </div>

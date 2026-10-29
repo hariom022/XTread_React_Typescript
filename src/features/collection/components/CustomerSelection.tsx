@@ -6,10 +6,15 @@ import customerService from "../services/customerService";
 
 import type {
   Customer,
-  Region,
   Zone,
-  AccessibleZonesResponse,
 } from "../types/collection.types";
+
+type AccessibleRegion = {
+  regionId: number;
+  regionName: string;
+  regionInitial: string;
+  zones: Zone[];
+};
 
 type Props = {
   customers: Customer[];
@@ -35,61 +40,39 @@ const CustomerSelection = ({
   selectedZoneId,
   setSelectedZoneId,
 }: Props) => {
-  const [regions, setRegions] = useState<Region[]>([]);
+  const [regions, setRegions] = useState<AccessibleRegion[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
 
-  // const [selectedRegionId, setSelectedRegionId] =
-  //   useState("");
+  const [regionsLoading, setRegionsLoading] = useState(false);
+  const [zonesLoading, setZonesLoading] = useState(false);
 
-  // const [selectedZoneId, setSelectedZoneId] =
-  //   useState("");
+  const [regionError, setRegionError] = useState("");
+  const [zoneError, setZoneError] = useState("");
 
-  const [regionsLoading, setRegionsLoading] =
-    useState(false);
-
-  const [zonesLoading, setZonesLoading] =
-    useState(false);
-
-  const [regionError, setRegionError] =
-    useState("");
-
-  const [zoneError, setZoneError] =
-    useState("");
-
-  // Load regions whenever the selected customer changes.
+  // Load accessible regions when the component mounts.
   useEffect(() => {
     let cancelled = false;
 
     const loadRegions = async () => {
-      // Clear the previous customer's Region and Zone.
       setRegions([]);
-      setZones([]);
-      setSelectedRegionId("");
-      setSelectedZoneId("");
       setRegionError("");
-      setZoneError("");
-
-      if (!selectedCustomer?.customerNumber) {
-        setRegionsLoading(false);
-        return;
-      }
 
       try {
         setRegionsLoading(true);
 
-        const res = await customerService.getCustomerRegions(
-          selectedCustomer.customerNumber
-        );
+        const response =
+          await customerService.getAccessibleRegions();
 
         if (cancelled) return;
 
-        const data: Region[] = res.data?.data ?? [];
+        const data: AccessibleRegion[] =
+          response.data?.data ?? [];
 
         setRegions(data);
       } catch (error) {
         if (cancelled) return;
 
-        console.error("Failed to load regions:", error);
+        console.error("Failed to load accessible regions:", error);
         setRegionError("Failed to load regions.");
       } finally {
         if (!cancelled) {
@@ -98,14 +81,14 @@ const CustomerSelection = ({
       }
     };
 
-    loadRegions();
+    void loadRegions();
 
     return () => {
       cancelled = true;
     };
-  }, [selectedCustomer?.customerNumber]);
+  }, []);
 
-  // Load zones whenever the selected Region changes.
+  // Load zones whenever the selected region changes.
   useEffect(() => {
     let cancelled = false;
 
@@ -122,26 +105,27 @@ const CustomerSelection = ({
       try {
         setZonesLoading(true);
 
-        const res = await customerService.getAccessibleZones(
-          Number(selectedRegionId)
-        );
+        const response =
+          await customerService.getAccessibleZones(
+            Number(selectedRegionId)
+          );
 
         if (cancelled) return;
 
-        const data: AccessibleZonesResponse[] =
-          res.data?.data ?? [];
+        const data: AccessibleRegion[] =
+          response.data?.data ?? [];
 
-        // The API returns zones inside each region object.
-        const regionData = data.find(
+        // Find the selected region in the API response.
+        const selectedRegion = data.find(
           (region) =>
-            region.regionId === Number(selectedRegionId)
+            Number(region.regionId) === Number(selectedRegionId)
         );
 
-        setZones(regionData?.zones ?? []);
+        setZones(selectedRegion?.zones ?? []);
       } catch (error) {
         if (cancelled) return;
 
-        console.error("Failed to load zones:", error);
+        console.error("Failed to load accessible zones:", error);
         setZoneError("Failed to load zones.");
       } finally {
         if (!cancelled) {
@@ -150,12 +134,25 @@ const CustomerSelection = ({
       }
     };
 
-    loadZones();
+    void loadZones();
 
     return () => {
       cancelled = true;
     };
-  }, [selectedRegionId]);
+  }, [selectedRegionId, setSelectedZoneId]);
+
+  const handleRegionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const regionId = event.target.value;
+
+    setSelectedRegionId(regionId);
+
+    // Clear the previously selected zone when the region changes.
+    setSelectedZoneId("");
+    setZones([]);
+    setZoneError("");
+  };
 
   return (
     <div className="card modern-card">
@@ -164,15 +161,94 @@ const CustomerSelection = ({
       </div>
 
       <div className="card-body">
+        {/* REGION AND ZONE */}
+        <div className="row mt-1 mb-2">
+          {/* REGION DROPDOWN */}
+          <div className="col-md-6">
+            <label className="form-label">Region</label>
+
+            <select
+              className="form-select modern-input"
+              value={selectedRegionId}
+              onChange={handleRegionChange}
+              disabled={
+                regionsLoading ||
+                regions.length === 0
+              }
+            >
+              <option value="">
+                {regionsLoading
+                  ? "Loading regions..."
+                  : "Select Region"}
+              </option>
+
+              {regions.map((region) => (
+                <option
+                  key={region.regionId}
+                  value={region.regionId}
+                >
+                  {region.regionName}
+                </option>
+              ))}
+            </select>
+
+            {regionError && (
+              <small className="text-danger">
+                {regionError}
+              </small>
+            )}
+          </div>
+
+          {/* ZONE DROPDOWN */}
+          <div className="col-md-6">
+            <label className="form-label">Zone</label>
+
+            <select
+              className="form-select modern-input"
+              value={selectedZoneId}
+              onChange={(event) =>
+                setSelectedZoneId(event.target.value)
+              }
+              disabled={
+                !selectedRegionId ||
+                zonesLoading ||
+                zones.length === 0
+              }
+            >
+              <option value="">
+                {zonesLoading
+                  ? "Loading zones..."
+                  : "Select Zone"}
+              </option>
+
+              {zones.map((zone) => (
+                <option
+                  key={zone.id}
+                  value={zone.id}
+                >
+                  {zone.zoneName}
+                </option>
+              ))}
+            </select>
+
+            {zoneError && (
+              <small className="text-danger">
+                {zoneError}
+              </small>
+            )}
+          </div>
+        </div>
+
         {/* CUSTOMER NAME */}
         <label className="form-label">Customer Name</label>
 
         <select
           className="form-select modern-input mb-3"
           value={selectedCustomer?.customerNumber || ""}
-          onChange={(e) => {
+          onChange={(event) => {
             const customer = customers.find(
-              (c) => c.customerNumber === e.target.value
+              (item) =>
+                item.customerNumber === event.target.value
             );
 
             setSelectedCustomer(customer || null);
@@ -226,87 +302,6 @@ const CustomerSelection = ({
               }
               readOnly
             />
-          </div>
-        </div>
-
-        {/* REGION AND ZONE */}
-        <div className="row mt-3">
-          {/* REGION DROPDOWN */}
-          <div className="col-md-6">
-            <label className="form-label">Region</label>
-
-            <select
-              className="form-select modern-input"
-              value={selectedRegionId}
-              onChange={(e) =>
-                setSelectedRegionId(e.target.value)
-              }
-              disabled={
-                !selectedCustomer ||
-                regionsLoading ||
-                regions.length === 0
-              }
-            >
-              <option value="">
-                {regionsLoading
-                  ? "Loading regions..."
-                  : "Select Region"}
-              </option>
-
-              {regions.map((region) => (
-                <option
-                  key={region.id}
-                  value={region.id}
-                >
-                  {region.regionName}
-                </option>
-              ))}
-            </select>
-
-            {regionError && (
-              <small className="text-danger">
-                {regionError}
-              </small>
-            )}
-          </div>
-
-          {/* ZONE DROPDOWN */}
-          <div className="col-md-6">
-            <label className="form-label">Zone</label>
-
-            <select
-              className="form-select modern-input"
-              value={selectedZoneId}
-              onChange={(e) =>
-                setSelectedZoneId(e.target.value)
-              }
-              disabled={
-                !selectedRegionId ||
-                zonesLoading ||
-                zones.length === 0
-              }
-            >
-              <option value="">
-                {zonesLoading
-                  ? "Loading zones..."
-                  : "Select Zone"}
-              </option>
-
-              {zones.map((zone) => (
-                <option
-                  key={zone.id}
-                  value={zone.id}
-                >
-                  {zone.zoneName}
-                </option>
-              ))}
-            </select>
-
-            {zoneError && (
-              <small className="text-danger">
-                {zoneError}
-              </small>
-            )}
           </div>
         </div>
       </div>

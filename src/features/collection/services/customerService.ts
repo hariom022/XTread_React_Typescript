@@ -16,11 +16,11 @@ const customerService = {
       `/customers?search=${searchTerm}`
     ),
 
-    // Fetch regions for the selected customer
-  getCustomerRegions: (customerNumber: string) =>
-    api.get(`/customers/${encodeURIComponent(customerNumber)}/regions`),
+   // Fetch all accessible regions and their zones.
+  getAccessibleRegions: () =>
+    api.get("/zones/accessible"),
 
-  // Fetch zones for the selected region
+  // Fetch accessible regions/zones filtered by region ID.
   getAccessibleZones: (regionId: number) =>
     api.get("/zones/accessible", {
       params: { regionId },
