@@ -81,7 +81,7 @@ const CollectionTable = ({
               <th>Pattern</th>
 
               <th>Service Type</th>
-
+              <th>Delivery Zone</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -121,7 +121,7 @@ const CollectionTable = ({
                     <td>{item.treadPattern}</td>
 
                     <td>{item.serviceType}</td>
-
+                    <td>{item.deliveryZone || "-"}</td>
                     <td>
                       <div className="d-flex gap-1">
                         <button
@@ -152,7 +152,7 @@ const CollectionTable = ({
         </button>
 
         <button className="btn btn-danger" onClick={onReject}>
-         <b> Not Received Casing</b>
+          <b> Not Received Casing</b>
         </button>
       </div>
     </>

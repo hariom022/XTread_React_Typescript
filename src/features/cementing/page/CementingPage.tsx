@@ -41,6 +41,8 @@ export const CementingPage = () => {
 
   const [showStockModal, setShowStockModal] = useState(false);
 
+  const [savedCementTypes, setSavedCementTypes] = useState<Record<number, string>>({});
+
   useEffect(() => {
     loadCementTypes();
     loadCementing();
@@ -124,6 +126,8 @@ export const CementingPage = () => {
           cementTypes={cementTypes}
           handleSave={handleSave}
           handleApprove={handleApprove}
+          savedCementTypes={savedCementTypes}
+          setSavedCementTypes={setSavedCementTypes}
           onClose={closeModal}
         />
       )}

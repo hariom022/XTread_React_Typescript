@@ -44,20 +44,19 @@ const holdTyreServiceApi = {
   // },
 
   getNailInspectionHoldOrders: async (): Promise<any> => {
-    throw new Error("Nail Inspection Hold orders API is not implemented yet.");
+     return api.get("/nail-inspection/holds/pending-orders");
   },
+approveNailInspectionHoldOrder: (orderId: number) => {
+  return api.post(
+    `/nail-inspection/holds/orders/${orderId}/approve`
+  );
+},
 
-  getNailInspectionHoldOrderDetails: async (_orderId: number): Promise<any> => {
-    throw new Error(
-      "Nail Inspection Hold order details API is not implemented yet.",
-    );
-  },
-
-  submitNailInspectionHoldAction: async (
-    _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload,
-  ): Promise<any> => {
-    throw new Error("Nail Inspection Hold action API is not implemented yet.");
-  },
+  // submitNailInspectionHoldAction: async (
+  //   _payload: import("../types/nailInspectionHold.types").NailInspectionHoldActionPayload,
+  // ): Promise<any> => {
+  //   throw new Error("Nail Inspection Hold action API is not implemented yet.");
+  // },
 
   // =========================================================
   // GET PRE-BUFFING HOLD TYRES

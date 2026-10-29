@@ -7,7 +7,7 @@ export const useCementingInspectionModal = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const [loadingModal, setLoadingModal] = useState(false);
-  
+
 
   const openModal = async (item: any) => {
     try {
@@ -29,6 +29,8 @@ export const useCementingInspectionModal = () => {
 
         customerName:
           casing.customerName || "-",
+
+        cementTypeId: casing.cementTypeId ?? null,
 
         requestedPattern:
           casing.retreadDetail?.patternName || "-",

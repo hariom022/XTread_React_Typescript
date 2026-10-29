@@ -355,6 +355,7 @@ const user = useAuthStore((state) => state.user);
                         className="form-control"
                         value={circumference}
                         onChange={(e) => setCircumference(e.target.value)}
+                        required
                       />
                     </div>
 

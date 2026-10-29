@@ -77,7 +77,12 @@ const CollectionPage = ({
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
+  const [selectedRegionId, setSelectedRegionId] = useState<string>("");
 
+  const [selectedZoneId, setSelectedZoneId] = useState<string>("");
+
+  const [deliveryRegionId, setDeliveryRegionId] = useState<string>("");
+  const [deliveryZoneId, setDeliveryZoneId] = useState<string>("");
   // =========================================================
   // SERVICE
   // =========================================================
@@ -739,27 +744,26 @@ const CollectionPage = ({
   // =========================
 
   const handleAddCasing = () => {
-
     if (selectedService === "Retread") {
-    if (!selectedTyreName.trim() || !selectedPattern.trim()) {
-      alert("Please select both Tyre Size and Pattern.");
-      return;
+      if (!selectedTyreName.trim() || !selectedPattern.trim()) {
+        alert("Please select both Tyre Size and Pattern.");
+        return;
+      }
+
+      if (isValidatingMaterial) {
+        alert("Please wait while the finished material is being validated.");
+        return;
+      }
+
+      if (isFinishedMaterialValid !== true) {
+        alert(
+          materialValidationMessage ||
+            "Please select a valid tyre size and pattern.",
+        );
+        return;
+      }
     }
 
-    if (isValidatingMaterial) {
-      alert("Please wait while the finished material is being validated.");
-      return;
-    }
-
-    if (isFinishedMaterialValid !== true) {
-      alert(
-        materialValidationMessage ||
-          "Please select a valid tyre size and pattern.",
-      );
-      return;
-    }
-  }
-  
     if (!validateDot()) return;
 
     const dotNumber = `${factoryCode}${manufacturingWeek}${manufacturingYear}`;
@@ -865,7 +869,6 @@ const CollectionPage = ({
     resetFormFields();
   };
 
-  
   const handleAddRepair = () => {
     if (!repairType || !repairLocation || !repairQty) {
       alert("Please fill all repair fields");
@@ -1006,6 +1009,16 @@ const CollectionPage = ({
     return {
       customerNumber: selectedCustomer?.customerNumber,
       bookNumber: bookNumber.trim() || null,
+      regionId: selectedRegionId ? Number(selectedRegionId) : null,
+
+      zoneId: selectedZoneId ? Number(selectedZoneId) : null,
+
+      // These are separate delivery fields.
+      // Populate them from separate delivery selections
+      // if your API requires different delivery locations.
+      deliveryRegionId: deliveryRegionId ? Number(deliveryRegionId) : null,
+
+      deliveryZoneId: deliveryZoneId ? Number(deliveryZoneId) : null,
 
       casings: orderItems.map((item) => ({
         serviceTypeId: item.serviceTypeId?.toString(),
@@ -1084,7 +1097,16 @@ const CollectionPage = ({
         alert("Please add casing first.");
         return;
       }
+      // Validate Region and Zone
+      if (!selectedRegionId) {
+        alert("Please select a Region.");
+        return;
+      }
 
+      if (!selectedZoneId) {
+        alert("Please select a Zone.");
+        return;
+      }
       // if (addToExistingOrder && !orderNumber.trim()) {
       //   alert("Existing order number is missing.");
       //   return;
@@ -1182,13 +1204,12 @@ const CollectionPage = ({
       alert(
         getApiErrorMessage(
           error,
-          "Unable to save the order. Please check the required fields."
-        )
+          "Unable to save the order. Please check the required fields.",
+        ),
       );
     } finally {
       setSaveOrderLoading(false);
     }
-
   };
 
   //===================SAVE EDIT FORM =======================================
@@ -1260,13 +1281,12 @@ const CollectionPage = ({
       alert("Casing updated successfully");
 
       onSuccess?.();
-
     } catch (error: unknown) {
       console.error("UPDATE CASING ERROR", error);
 
       const message = getApiErrorMessage(
         error,
-        "Failed to update the casing. Please try again."
+        "Failed to update the casing. Please try again.",
       );
 
       alert(message);
@@ -1305,18 +1325,16 @@ const CollectionPage = ({
 
       // Close Edit Casing modal
       onClose?.();
-
     } catch (error: unknown) {
       console.error("DELETE CASING ERROR:", error);
 
       const message = getApiErrorMessage(
         error,
-        "Failed to delete the casing. Please try again."
+        "Failed to delete the casing. Please try again.",
       );
 
       alert(message);
     } finally {
-
       setSaveEditLoading?.(false);
     }
   };
@@ -1347,6 +1365,10 @@ const CollectionPage = ({
                     setSelectedCustomer={setSelectedCustomer}
                     orderItemsLength={orderItems.length}
                     disabled={addToExistingOrder}
+                    selectedRegionId={selectedRegionId}
+                    setSelectedRegionId={setSelectedRegionId}
+                    selectedZoneId={selectedZoneId}
+                    setSelectedZoneId={setSelectedZoneId}
                   />
                 </div>
               )}
@@ -1365,6 +1387,11 @@ const CollectionPage = ({
                   setBookNumber={setBookNumber}
                   isServiceLocked={addToExistingOrder || orderItems.length > 0}
                   isOrderLocked={addToExistingOrder}
+                  // Delivery Region & Zone
+                  deliveryRegionId={deliveryRegionId}
+                  setDeliveryRegionId={setDeliveryRegionId}
+                  deliveryZoneId={deliveryZoneId}
+                  setDeliveryZoneId={setDeliveryZoneId}
                 />
               </div>
             </div>
@@ -1454,8 +1481,7 @@ const CollectionPage = ({
                   onSave={handleUpdateCasing}
                   onClose={onClose}
                   onDelete={handleDeleteCasing}
-
-                    isValidatingMaterial={isValidatingMaterial}
+                  isValidatingMaterial={isValidatingMaterial}
                   isFinishedMaterialValid={isFinishedMaterialValid}
                   materialValidationMessage={materialValidationMessage}
                 />
@@ -1529,7 +1555,6 @@ const CollectionPage = ({
                   remarks={remarks}
                   setRemarks={setRemarks}
                   category={category}
-
                   handleAddCasing={handleAddCasing}
                   showTyreHistory={showTyreHistory}
                   setShowTyreHistory={setShowTyreHistory}

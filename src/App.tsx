@@ -116,6 +116,7 @@ import CourierServices from "./master-modules/courier-services/pages/CourierServ
 import Drivers from "./master-modules/drivers/page/Drivers";
 import MaterialConsumptionPage from "./adminPortal/materialConsumption/pages/MaterialConsumptionPage";
 import CustomerSearchPage from "./adminPortal/customerSerach/pages/CustomerSearchPage";
+import CustomerRegionMappingPage from "./master-modules/customer-region-mapping/page/CustomerRegionMapping";
 
 /* =========================================================
    AUTH INITIALIZER
@@ -454,6 +455,9 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                 <Route path="/drivers" element={<Drivers />} />
                 <Route path="/region" element={<RegionsPage/>}/>
                 <Route path="/zone" element={<ZonesPage/>}/>
+                <Route
+                  path="/customer-region-mapping"
+                  element={<CustomerRegionMappingPage />}/>
                 {/* =====================================
                     ACCESS DENIED
                 ===================================== */}

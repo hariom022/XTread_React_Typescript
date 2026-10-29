@@ -25,7 +25,7 @@ const NotReceivedTable = ({
             <th>Pattern</th>
 
             <th>Service</th>
-
+            <th>Delivery Zone</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -33,7 +33,7 @@ const NotReceivedTable = ({
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan={7} className="text-center">
+              <td colSpan={8} className="text-center">
                 No Records Found
               </td>
             </tr>
@@ -51,6 +51,7 @@ const NotReceivedTable = ({
                 <td>{row.treadPattern}</td>
 
                 <td>{row.serviceType}</td>
+                <td>{row.deliveryZone || "-"}</td>
 
                 <td>
                   <button
