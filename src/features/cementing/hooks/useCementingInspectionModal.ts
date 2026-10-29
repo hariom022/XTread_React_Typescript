@@ -43,12 +43,14 @@ export const useCementingInspectionModal = () => {
           null,
 
         isCementTypeSaved:
+          Boolean(casing.isCementTypeSaved) ||
           casing.cementing?.cementTypeId != null ||
           casing.cementTypeId != null ||
           item.cementTypeId != null ||
           Boolean(casing.cementing?.cementTypeSavedAtUtc) ||
           Boolean(casing.cementTypeSavedAtUtc) ||
-          Boolean(item.cementTypeSavedAtUtc),
+          Boolean(item.cementTypeSavedAtUtc) ||
+          Boolean(item.isCementTypeSaved),
 
         requestedPattern:
           casing.retreadDetail?.patternName || "-",
