@@ -1,6 +1,4 @@
-
-import { useEffect, useMemo, useState } from "react";
-import { RingLoader } from "react-spinners";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import customerRegionMappingService from "../service/customerRegionMappingService";
 import type {
@@ -12,15 +10,19 @@ import type {
 import "../styles/CustomerRegionMapping.css";
 
 const CustomerRegionMappingPage = () => {
+  const customerDropdownRef = useRef<HTMLDivElement>(null);
+
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [mappings, setMappings] = useState<CustomerRegionMapping[]>([]);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
+  const [selectedCustomerNumber, setSelectedCustomerNumber] = useState("");
 
-  const [selectedCustomerNumber, setSelectedCustomerNumber] =
-    useState("");
+  const [selectedRegionIds, setSelectedRegionIds] = useState<number[]>([]);
 
-  const [selectedRegionIds, setSelectedRegionIds] =
-    useState<number[]>([]);
+  // Tracks whether the selected customer already has a region mapping.
+  const [isExistingMapping, setIsExistingMapping] = useState(false);
 
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,40 +30,41 @@ const CustomerRegionMappingPage = () => {
   const [error, setError] = useState("");
 
   const selectedCustomer = customers.find(
-    (customer) =>
-      customer.customerNumber === selectedCustomerNumber
+    (customer) => customer.customerNumber === selectedCustomerNumber,
   );
 
+  // Load customers and regions.
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const [customerResponse, regionResponse] =
-          await Promise.all([
-            customerRegionMappingService.getCustomers(),
-            customerRegionMappingService.getRegions(),
-          ]);
+        const [customerResponse, regionResponse] = await Promise.all([
+          customerRegionMappingService.getCustomers(),
+          customerRegionMappingService.getRegions(),
+        ]);
 
         setCustomers(customerResponse.data?.data ?? []);
         setRegions(regionResponse.data?.data ?? []);
       } catch (err) {
         console.error("Failed to load customer region mapping data:", err);
+
         setError("Failed to load customers and regions.");
       } finally {
         setLoading(false);
       }
     };
 
-    loadInitialData();
+    void loadInitialData();
   }, []);
 
-  // GET the selected customer's existing region mapping.
+  // Load the selected customer's existing region mapping.
   const loadCustomerMapping = async (customerNumber: string) => {
     if (!customerNumber) {
       setMappings([]);
       setSelectedRegionIds([]);
+      setIsExistingMapping(false);
       return;
     }
 
@@ -70,14 +73,12 @@ const CustomerRegionMappingPage = () => {
       setError("");
 
       const response =
-        await customerRegionMappingService.getCustomerRegions(
-          customerNumber
-        );
+        await customerRegionMappingService.getCustomerRegions(customerNumber);
 
       const data = response.data?.data;
 
-      // Supports either an array of regions or an object
-      // containing regions / regionIds.
+      // Supports an array of regions or an object containing
+      // regions / regionIds.
       const mappedRegions: Region[] = Array.isArray(data)
         ? data
         : Array.isArray(data?.regions)
@@ -88,50 +89,62 @@ const CustomerRegionMappingPage = () => {
         ? data.regionIds.map(Number)
         : mappedRegions.map((region) => Number(region.id));
 
+      // A non-empty existing mapping means future saves should use PUT.
       setSelectedRegionIds(regionIds);
+      setIsExistingMapping(regionIds.length > 0);
 
       const customer = customers.find(
-        (item) => item.customerNumber === customerNumber
+        (item) => item.customerNumber === customerNumber,
       );
 
-      setMappings(
-        regionIds.map((id) => {
-          const region = regions.find((item) => item.id === id);
+      const mappingRows: CustomerRegionMapping[] = regionIds
+        .map((id) => {
+          const region = regions.find((item) => Number(item.id) === id);
+
+          const mappedRegion =
+            region ?? mappedRegions.find((item) => Number(item.id) === id);
 
           return {
             customerNumber,
             customerName: customer?.customerName ?? customerNumber,
-            regions: region
-              ? [region]
-              : mappedRegions.filter((item) => item.id === id),
+            regions: mappedRegion ? [mappedRegion] : [],
           };
-        }).filter((item) => item.regions.length > 0)
-      );
+        })
+        .filter((item) => item.regions.length > 0);
+
+      setMappings(mappingRows);
     } catch (err) {
       console.error("Failed to load customer region mapping:", err);
+
       setError("Failed to load this customer's region mapping.");
       setMappings([]);
       setSelectedRegionIds([]);
+      setIsExistingMapping(false);
     } finally {
       setLoading(false);
     }
   };
 
-  // Rebuild the displayed mapping after customers and regions load.
+  // Reload mapping when the customer selection changes and
+  // the customer/region lists have loaded.
   useEffect(() => {
-    if (selectedCustomerNumber && customers.length && regions.length) {
+    if (selectedCustomerNumber && customers.length > 0 && regions.length > 0) {
       void loadCustomerMapping(selectedCustomerNumber);
+    } else if (!selectedCustomerNumber) {
+      setMappings([]);
+      setSelectedRegionIds([]);
+      setIsExistingMapping(false);
     }
-    // Intentionally load when the customer selection changes.
+
+    // loadCustomerMapping uses the latest customer and region lists.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCustomerNumber, customers, regions]);
 
-  const handleCustomerChange = (
-    customerNumber: string
-  ) => {
+  const handleCustomerChange = (customerNumber: string) => {
     setSelectedCustomerNumber(customerNumber);
     setSelectedRegionIds([]);
     setMappings([]);
+    setIsExistingMapping(false);
     setError("");
   };
 
@@ -139,7 +152,7 @@ const CustomerRegionMappingPage = () => {
     setSelectedRegionIds((previous) =>
       previous.includes(regionId)
         ? previous.filter((id) => id !== regionId)
-        : [...previous, regionId]
+        : [...previous, regionId],
     );
   };
 
@@ -147,10 +160,12 @@ const CustomerRegionMappingPage = () => {
     setSelectedCustomerNumber("");
     setSelectedRegionIds([]);
     setMappings([]);
+    setIsExistingMapping(false);
     setSearch("");
     setError("");
   };
 
+  // POST for a new mapping; PUT for an existing mapping.
   const handleSave = async () => {
     if (!selectedCustomerNumber) {
       setError("Please select a customer.");
@@ -166,13 +181,23 @@ const CustomerRegionMappingPage = () => {
       setSaving(true);
       setError("");
 
-      await customerRegionMappingService.saveCustomerRegions(
-        selectedCustomerNumber,
-        selectedRegionIds
-      );
+      if (isExistingMapping) {
+        await customerRegionMappingService.updateCustomerRegions(
+          selectedCustomerNumber,
+          selectedRegionIds,
+        );
 
-      alert("Customer region mapping saved successfully.");
+        alert("Customer region mapping updated successfully.");
+      } else {
+        await customerRegionMappingService.saveCustomerRegions(
+          selectedCustomerNumber,
+          selectedRegionIds,
+        );
 
+        alert("Customer region mapping saved successfully.");
+      }
+
+      // Reload the saved mapping and update the existing-mapping state.
       await loadCustomerMapping(selectedCustomerNumber);
     } catch (err: any) {
       console.error("Failed to save customer region mapping:", err);
@@ -180,7 +205,7 @@ const CustomerRegionMappingPage = () => {
       setError(
         err?.response?.data?.error?.message ||
           err?.response?.data?.message ||
-          "Failed to save customer region mapping."
+          "Failed to save customer region mapping.",
       );
     } finally {
       setSaving(false);
@@ -190,17 +215,66 @@ const CustomerRegionMappingPage = () => {
   const filteredMappings = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    if (!query) return mappings;
+    if (!query) {
+      return mappings;
+    }
 
     return mappings.filter(
       (mapping) =>
         mapping.customerName.toLowerCase().includes(query) ||
         mapping.customerNumber.toLowerCase().includes(query) ||
         mapping.regions.some((region) =>
-          region.regionName.toLowerCase().includes(query)
-        )
+          region.regionName.toLowerCase().includes(query),
+        ),
     );
   }, [mappings, search]);
+
+  const filteredCustomers = useMemo(() => {
+    const query = customerSearch.trim().toLowerCase();
+
+    if (!query) return customers;
+
+    return customers.filter(
+      (customer) =>
+        customer.customerName.toLowerCase().includes(query) ||
+        customer.customerNumber.toLowerCase().includes(query),
+    );
+  }, [customers, customerSearch]);
+
+  const handleCustomerSelect = async (customer: Customer) => {
+    const customerNumber = customer.customerNumber;
+    const isSameCustomer = customerNumber === selectedCustomerNumber;
+
+    setCustomerSearch(`${customer.customerName} (${customer.customerNumber})`);
+
+    setIsCustomerDropdownOpen(false);
+    setError("");
+
+    if (isSameCustomer) {
+      // Reload the existing mapping when the same customer is selected again.
+      await loadCustomerMapping(customerNumber);
+      return;
+    }
+
+    handleCustomerChange(customerNumber);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        customerDropdownRef.current &&
+        !customerDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCustomerDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="customer-region-page">
@@ -211,37 +285,81 @@ const CustomerRegionMappingPage = () => {
         </div>
 
         <div className="card-body">
-          {error && (
-            <div className="alert alert-danger py-2">
-              {error}
-            </div>
-          )}
+          {error && <div className="alert alert-danger py-2">{error}</div>}
 
           <div className="row g-4">
             {/* CUSTOMER */}
+
+            {/* CUSTOMER SEARCHABLE DROPDOWN */}
             <div className="col-md-6 col-lg-4">
               <label className="form-label">Customer</label>
 
-              <select
-                className="form-select mapping-input"
-                value={selectedCustomerNumber}
-                onChange={(e) =>
-                  handleCustomerChange(e.target.value)
-                }
-                disabled={loading || saving}
+              <div
+                className="customer-search-dropdown"
+                ref={customerDropdownRef}
               >
-                <option value="">Select Customer</option>
+                <input
+                  type="text"
+                  className="form-control mapping-input"
+                  placeholder="Search customer name or number..."
+                  value={
+                    isCustomerDropdownOpen
+                      ? customerSearch
+                      : selectedCustomer
+                        ? `${selectedCustomer.customerName} (${selectedCustomer.customerNumber})`
+                        : customerSearch
+                  }
+                  onFocus={() => {
+                    setCustomerSearch("");
+                    setIsCustomerDropdownOpen(true);
+                  }}
+                  onChange={(e) => {
+                    setCustomerSearch(e.target.value);
+                    setIsCustomerDropdownOpen(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setIsCustomerDropdownOpen(false);
+                      setCustomerSearch("");
+                    }
 
-                {customers.map((customer) => (
-                  <option
-                    key={customer.customerNumber}
-                    value={customer.customerNumber}
-                  >
-                    {customer.customerName} (
-                    {customer.customerNumber})
-                  </option>
-                ))}
-              </select>
+                    if (e.key === "Enter" && filteredCustomers.length > 0) {
+                      e.preventDefault();
+                      handleCustomerSelect(filteredCustomers[0]);
+                    }
+                  }}
+                  disabled={loading || saving}
+                  autoComplete="off"
+                />
+
+                {isCustomerDropdownOpen && !loading && !saving && (
+                  <div className="customer-dropdown-options">
+                    {filteredCustomers.length > 0 ? (
+                      filteredCustomers.map((customer) => (
+                        <button
+                          type="button"
+                          className="customer-dropdown-option"
+                          key={customer.customerNumber}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handleCustomerSelect(customer)}
+                        >
+                          <span className="customer-dropdown-name">
+                            {customer.customerName}
+                          </span>
+
+                          <small className="customer-dropdown-number">
+                            {customer.customerNumber}
+                          </small>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="customer-dropdown-empty">
+                        No customers found.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* CUSTOMER NUMBER */}
@@ -279,25 +397,20 @@ const CustomerRegionMappingPage = () => {
                   Select a customer to manage its regions.
                 </span>
               ) : regions.length === 0 ? (
-                <span className="text-muted">
-                  No regions available.
-                </span>
+                <span className="text-muted">No regions available.</span>
               ) : (
                 <div className="row g-3">
                   {regions.map((region) => (
-                    <div
-                      className="col-sm-6 col-md-4 col-lg-3"
-                      key={region.id}
-                    >
+                    <div className="col-sm-6 col-md-4 col-lg-3" key={region.id}>
                       <label className="form-check region-option">
                         <input
                           className="form-check-input"
                           type="checkbox"
-                          checked={selectedRegionIds.includes(region.id)}
-                          onChange={() =>
-                            handleRegionToggle(region.id)
-                          }
-                          disabled={saving}
+                          checked={selectedRegionIds.includes(
+                            Number(region.id),
+                          )}
+                          onChange={() => handleRegionToggle(Number(region.id))}
+                          disabled={saving || loading}
                         />
 
                         <span className="form-check-label">
@@ -340,7 +453,11 @@ const CustomerRegionMappingPage = () => {
                 selectedRegionIds.length === 0
               }
             >
-              {saving ? "Saving..." : "Save Mapping"}
+              {saving
+                ? "Saving..."
+                : isExistingMapping
+                  ? "Update Mapping"
+                  : "Save Mapping"}
             </button>
           </div>
         </div>
@@ -412,7 +529,7 @@ const CustomerRegionMappingPage = () => {
                           >
                             {region.regionName}
                           </span>
-                        ))
+                        )),
                       )}
                     </div>
                   </td>
