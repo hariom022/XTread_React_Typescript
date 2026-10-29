@@ -168,6 +168,7 @@ export interface CustomerCasing {
     tyreMake: string;
 
     service: string;
+    tyreReferenceNumber:string;
 }
 
 // export interface DeliverySheetPayload {

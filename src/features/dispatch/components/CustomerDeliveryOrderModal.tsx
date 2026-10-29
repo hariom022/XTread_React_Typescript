@@ -818,6 +818,7 @@ const CustomerDeliveryOrderModal = ({
                         <th>Production No</th>
 
                         <th>Tyre Size</th>
+                        <th>Tyre Ref</th>
 
                         <th>+</th>
                       </tr>
@@ -832,6 +833,7 @@ const CustomerDeliveryOrderModal = ({
                             <td>{item.productionNo}</td>
 
                             <td>{item.tyreSize}</td>
+                            <td>{item.tyreReferenceNumber}</td>
 
                             <td>
                               <button
@@ -878,6 +880,7 @@ const CustomerDeliveryOrderModal = ({
                           <th>Production No</th>
 
                           <th>Tyre Size</th>
+                          <th>Tyre Ref</th>
 
                           <th>Tyre Make</th>
 
@@ -896,6 +899,7 @@ const CustomerDeliveryOrderModal = ({
                               <td>{item.productionNo}</td>
 
                               <td>{item.tyreSize}</td>
+                              <td>{item.tyreReferenceNumber}</td>
 
                               <td>{item.tyreMake}</td>
 

@@ -724,6 +724,8 @@ useEffect(() => {
                         casing.serviceType ??
                         casing.serviceTypeName ??
                         "",
+                      tyreReferenceNumber:
+                       casing.tyreReferenceNumber ?? "",
                     }),
                   );
                 },
@@ -974,6 +976,9 @@ useEffect(() => {
 
           tyreMake:
             casing.tyreMakeName ??
+            "",
+          tyreReferenceNumber:
+            casing.tyreReferenceNumber ??
             "",
         }),
       );
