@@ -44,7 +44,7 @@ export const useCementing = () => {
               requestedPattern: "-",
 
               date: casing.orderDate || "-",
-              tyreMakeName:casing.tyreMakeName || "-",
+              tyreMakeName: casing.tyreMakeName || "-",
 
               customerName: casing.customerName || "-",
 
@@ -74,6 +74,13 @@ export const useCementing = () => {
 
               originalBatch: batch,
               originalCasing: casing,
+
+              //cement type 
+              cementTypeId: casing.cementTypeId ?? null,
+              cementTypeSavedAtUtc: casing.cementTypeSavedAtUtc ?? null,
+              isCementTypeSaved:
+                casing.isCementTypeSaved ??
+                casing.cementTypeId != null,
             });
           });
         });
@@ -132,9 +139,9 @@ export const useCementing = () => {
   };
 
   const resetStockManagement = () => {
-  setOpeningStockKg(undefined);
-  setClosingStockKg(undefined);
-};
+    setOpeningStockKg(undefined);
+    setClosingStockKg(undefined);
+  };
   return {
     inspections,
     loading,

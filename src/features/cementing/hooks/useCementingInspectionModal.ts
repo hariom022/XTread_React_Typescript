@@ -30,7 +30,27 @@ export const useCementingInspectionModal = () => {
         customerName:
           casing.customerName || "-",
 
-        cementTypeId: casing.cementTypeId ?? null,
+        cementTypeId:
+          casing.cementing?.cementTypeId ??
+          casing.cementTypeId ??
+          item.cementTypeId ??
+          null,
+
+        cementTypeSavedAtUtc:
+          casing.cementing?.cementTypeSavedAtUtc ??
+          casing.cementTypeSavedAtUtc ??
+          item.cementTypeSavedAtUtc ??
+          null,
+
+        isCementTypeSaved:
+          Boolean(casing.isCementTypeSaved) ||
+          casing.cementing?.cementTypeId != null ||
+          casing.cementTypeId != null ||
+          item.cementTypeId != null ||
+          Boolean(casing.cementing?.cementTypeSavedAtUtc) ||
+          Boolean(casing.cementTypeSavedAtUtc) ||
+          Boolean(item.cementTypeSavedAtUtc) ||
+          Boolean(item.isCementTypeSaved),
 
         requestedPattern:
           casing.retreadDetail?.patternName || "-",
