@@ -15,6 +15,9 @@ const CustomerRegionMappingPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [mappings, setMappings] = useState<CustomerRegionMapping[]>([]);
+  const [allCustomerMappings, setAllCustomerMappings] = useState<
+    CustomerRegionMapping[]
+  >([]);
   const [customerSearch, setCustomerSearch] = useState("");
   const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
   const [selectedCustomerNumber, setSelectedCustomerNumber] = useState("");
@@ -25,6 +28,9 @@ const CustomerRegionMappingPage = () => {
   const [isExistingMapping, setIsExistingMapping] = useState(false);
 
   const [search, setSearch] = useState("");
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -34,22 +40,26 @@ const CustomerRegionMappingPage = () => {
   );
 
   // Load customers and regions.
+
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const [customerResponse, regionResponse] = await Promise.all([
-          customerRegionMappingService.getCustomers(),
-          customerRegionMappingService.getRegions(),
-        ]);
+        const [customerResponse, regionResponse, mappingResponse] =
+          await Promise.all([
+            customerRegionMappingService.getCustomers(),
+            customerRegionMappingService.getRegions(),
+            customerRegionMappingService.getAllCustomerRegions(),
+          ]);
 
         setCustomers(customerResponse.data?.data ?? []);
         setRegions(regionResponse.data?.data ?? []);
+
+        setAllCustomerMappings(mappingResponse.data?.data ?? []);
       } catch (err) {
         console.error("Failed to load customer region mapping data:", err);
-
         setError("Failed to load customers and regions.");
       } finally {
         setLoading(false);
@@ -60,7 +70,8 @@ const CustomerRegionMappingPage = () => {
   }, []);
 
   // Load the selected customer's existing region mapping.
-  const loadCustomerMapping = async (customerNumber: string) => {
+
+  const loadCustomerMapping = (customerNumber: string) => {
     if (!customerNumber) {
       setMappings([]);
       setSelectedRegionIds([]);
@@ -68,77 +79,46 @@ const CustomerRegionMappingPage = () => {
       return;
     }
 
-    try {
-      setLoading(true);
-      setError("");
+    const customerMapping = allCustomerMappings.find(
+      (item) => item.customerNumber === customerNumber,
+    );
 
-      const response =
-        await customerRegionMappingService.getCustomerRegions(customerNumber);
-
-      const data = response.data?.data;
-
-      // Supports an array of regions or an object containing
-      // regions / regionIds.
-      const mappedRegions: Region[] = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.regions)
-          ? data.regions
-          : [];
-
-      const regionIds: number[] = Array.isArray(data?.regionIds)
-        ? data.regionIds.map(Number)
-        : mappedRegions.map((region) => Number(region.id));
-
-      // A non-empty existing mapping means future saves should use PUT.
-      setSelectedRegionIds(regionIds);
-      setIsExistingMapping(regionIds.length > 0);
-
-      const customer = customers.find(
-        (item) => item.customerNumber === customerNumber,
-      );
-
-      const mappingRows: CustomerRegionMapping[] = regionIds
-        .map((id) => {
-          const region = regions.find((item) => Number(item.id) === id);
-
-          const mappedRegion =
-            region ?? mappedRegions.find((item) => Number(item.id) === id);
-
-          return {
-            customerNumber,
-            customerName: customer?.customerName ?? customerNumber,
-            regions: mappedRegion ? [mappedRegion] : [],
-          };
-        })
-        .filter((item) => item.regions.length > 0);
-
-      setMappings(mappingRows);
-    } catch (err) {
-      console.error("Failed to load customer region mapping:", err);
-
-      setError("Failed to load this customer's region mapping.");
+    if (!customerMapping) {
       setMappings([]);
       setSelectedRegionIds([]);
       setIsExistingMapping(false);
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    const mappedRegions = customerMapping.regions ?? [];
+
+    const regionIds = mappedRegions.map((region) => Number(region.id));
+
+    setSelectedRegionIds(regionIds);
+    setIsExistingMapping(regionIds.length > 0);
+
+    setMappings([customerMapping]);
   };
 
   // Reload mapping when the customer selection changes and
   // the customer/region lists have loaded.
+
   useEffect(() => {
-    if (selectedCustomerNumber && customers.length > 0 && regions.length > 0) {
-      void loadCustomerMapping(selectedCustomerNumber);
+    if (
+      selectedCustomerNumber &&
+      allCustomerMappings.length >= 0 &&
+      customers.length > 0 &&
+      regions.length > 0
+    ) {
+      loadCustomerMapping(selectedCustomerNumber);
     } else if (!selectedCustomerNumber) {
       setMappings([]);
       setSelectedRegionIds([]);
       setIsExistingMapping(false);
     }
 
-    // loadCustomerMapping uses the latest customer and region lists.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCustomerNumber, customers, regions]);
+  }, [selectedCustomerNumber, allCustomerMappings, customers, regions]);
 
   const handleCustomerChange = (customerNumber: string) => {
     setSelectedCustomerNumber(customerNumber);
@@ -198,7 +178,11 @@ const CustomerRegionMappingPage = () => {
       }
 
       // Reload the saved mapping and update the existing-mapping state.
-      await loadCustomerMapping(selectedCustomerNumber);
+
+      const response =
+        await customerRegionMappingService.getAllCustomerRegions();
+
+      setAllCustomerMappings(response.data?.data ?? []);
     } catch (err: any) {
       console.error("Failed to save customer region mapping:", err);
 
@@ -216,10 +200,10 @@ const CustomerRegionMappingPage = () => {
     const query = search.trim().toLowerCase();
 
     if (!query) {
-      return mappings;
+      return allCustomerMappings;
     }
 
-    return mappings.filter(
+    return allCustomerMappings.filter(
       (mapping) =>
         mapping.customerName.toLowerCase().includes(query) ||
         mapping.customerNumber.toLowerCase().includes(query) ||
@@ -227,7 +211,24 @@ const CustomerRegionMappingPage = () => {
           region.regionName.toLowerCase().includes(query),
         ),
     );
-  }, [mappings, search]);
+  }, [allCustomerMappings, search]);
+
+  const totalRecords = filteredMappings.length;
+
+  const totalPages = Math.ceil(totalRecords / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  const paginatedMappings = filteredMappings.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
+
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const filteredCustomers = useMemo(() => {
     const query = customerSearch.trim().toLowerCase();
@@ -252,7 +253,7 @@ const CustomerRegionMappingPage = () => {
 
     if (isSameCustomer) {
       // Reload the existing mapping when the same customer is selected again.
-      await loadCustomerMapping(customerNumber);
+      loadCustomerMapping(customerNumber);
       return;
     }
 
@@ -478,7 +479,10 @@ const CustomerRegionMappingPage = () => {
               className="form-control"
               placeholder="Search mappings..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
         </div>
@@ -496,48 +500,114 @@ const CustomerRegionMappingPage = () => {
             </thead>
 
             <tbody>
-              {!selectedCustomerNumber ? (
+              {loading ? (
                 <tr>
                   <td colSpan={5} className="text-center py-4">
-                    Select a customer above to view its region mappings.
-                  </td>
-                </tr>
-              ) : loading ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-4">
-                    Loading mappings...
+                    Loading customer mappings...
                   </td>
                 </tr>
               ) : filteredMappings.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-4">
-                    No region mappings found for this customer.
+                    No customer region mappings found.
                   </td>
                 </tr>
               ) : (
-                <tr>
-                  <td>1</td>
-                  <td>{selectedCustomer?.customerName}</td>
-                  <td>{selectedCustomerNumber}</td>
-                  <td>
-                    <div className="d-flex flex-wrap gap-2">
-                      {filteredMappings.flatMap((mapping) =>
-                        mapping.regions.map((region) => (
+                paginatedMappings.map((mapping, index) => (
+                  <tr key={mapping.customerNumber}>
+                    <td>{startIndex + index + 1}</td>
+
+                    <td>{mapping.customerName}</td>
+
+                    <td>{mapping.customerNumber}</td>
+
+                    <td>
+                      <div className="d-flex flex-wrap gap-2">
+                        {mapping.regions.map((region) => (
                           <span
                             className="region-badge"
                             key={`${mapping.customerNumber}-${region.id}`}
                           >
                             {region.regionName}
                           </span>
-                        )),
-                      )}
-                    </div>
-                  </td>
-                  <td>{selectedRegionIds.length}</td>
-                </tr>
+                        ))}
+                      </div>
+                    </td>
+
+                    <td>{mapping.regions.length}</td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* PAGINATION */}
+        <div className="mapping-pagination">
+          <div className="d-flex align-items-center gap-2">
+            <span>Rows per page:</span>
+
+            <select
+              className="form-select form-select-sm"
+              style={{ width: "75px" }}
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+
+            <span className="text-muted">
+              {totalRecords === 0
+                ? "Showing 0 records"
+                : `Showing ${startIndex + 1} to ${Math.min(
+                    startIndex + itemsPerPage,
+                    totalRecords,
+                  )} of ${totalRecords} records`}
+            </span>
+          </div>
+
+          <div className="d-flex align-items-center gap-1">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              disabled={currentPage === 1 || totalPages === 0}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
+                <button
+                  key={page}
+                  type="button"
+                  className={`btn btn-sm ${
+                    currentPage === page
+                      ? "btn-danger"
+                      : "btn-outline-secondary"
+                  }`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ),
+            )}
+
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

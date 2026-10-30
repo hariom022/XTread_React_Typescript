@@ -6,6 +6,9 @@ const customerRegionMappingService = {
 
   getRegions: () => api.get("/regions"),
 
+   // Get all customer-region mappings
+  getAllCustomerRegions: () => api.get("/customers/regions"),
+
   getCustomerRegions: (customerNumber: string) =>
     api.get(
       `/customers/${encodeURIComponent(customerNumber)}/regions`
