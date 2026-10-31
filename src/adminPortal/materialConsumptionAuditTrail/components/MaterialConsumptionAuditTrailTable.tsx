@@ -1,7 +1,11 @@
+// import { useState } from "react";
+import { Fragment, useState } from "react";
 import type {
   MaterialConsumptionAuditTrailItem,
   MaterialConsumptionAuditTrailResponse,
 } from "../types/materialConsumptionAuditTrail.types";
+
+import MaterialConsumptionAuditTrailAttemptRow from "./MaterialConsumptionAuditTrailAttemptRow";
 
 type Props = {
   items: MaterialConsumptionAuditTrailItem[];
@@ -29,13 +33,10 @@ const getStatusClass = (status: string) => {
   switch (status?.toLowerCase()) {
     case "succeeded":
       return "audit-status-success";
-
     case "failed":
       return "audit-status-failed";
-
     case "pending":
       return "audit-status-pending";
-
     default:
       return "audit-status-default";
   }
@@ -52,14 +53,25 @@ const MaterialConsumptionAuditTrailTable = ({
   onView,
   onRequest,
 }: Props) => {
+  const [expandedRequestId, setExpandedRequestId] = useState<number | null>(
+    null,
+  );
+
   const totalPages = pagination.totalPages;
   const totalCount = pagination.totalCount;
 
-  const startRecord = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const startRecord =
+    totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
 
   const endRecord = Math.min(currentPage * pageSize, totalCount);
 
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+
+  const toggleExpandedRow = (requestId: number) => {
+    setExpandedRequestId((previous) =>
+      previous === requestId ? null : requestId,
+    );
+  };
 
   return (
     <div className="card material-audit-list-card">
@@ -103,65 +115,99 @@ const MaterialConsumptionAuditTrailTable = ({
                 </td>
               </tr>
             ) : (
-              items.map((item, index) => (
-                <tr key={item.requestId}>
-                  <td>{startRecord + index}</td>
+              items.map((item, index) => {
+                const isExpanded = expandedRequestId === item.requestId;
 
-                  <td>{item.requestId}</td>
-
-                  <td>{item.orderNumber || "-"}</td>
-
-                  <td>{item.customerName || "-"}</td>
-
-                  <td>{item.productionNumber || "-"}</td>
-
-                  <td>{item.barcodeNumber || "-"}</td>
-
-                  <td>{item.batchNumber || "-"}</td>
-
-                  <td>{item.finishedMaterial || "-"}</td>
-
-                  <td>
-                    <span
-                      className={`audit-status-badge ${getStatusClass(
-                        item.statusName,
-                      )}`}
+                return (
+                  <Fragment key={item.requestId}>
+                    <tr
+                      key={item.requestId}
+                      className={`audit-expandable-row ${
+                        isExpanded ? "audit-row-expanded" : ""
+                      }`}
+                      onClick={() => toggleExpandedRow(item.requestId)}
+                      aria-expanded={isExpanded}
+                      title="Click to view SAP attempt history"
                     >
-                      {item.statusName || "-"}
-                    </span>
-                  </td>
+                      <td>
+                        <i
+                          className={`bi ${
+                            isExpanded
+                              ? "bi-chevron-down"
+                              : "bi-chevron-right"
+                          } me-2`}
+                        ></i>
+                        {startRecord + index}
+                      </td>
 
-                  <td>
-                    {item.attemptCount} / {item.maxAutomaticAttempts}
-                  </td>
+                      <td>{item.requestId}</td>
+                      <td>{item.orderNumber || "-"}</td>
+                      <td>{item.customerName || "-"}</td>
+                      <td>{item.productionNumber || "-"}</td>
+                      <td>{item.barcodeNumber || "-"}</td>
+                      <td>{item.batchNumber || "-"}</td>
+                      <td>{item.finishedMaterial || "-"}</td>
 
-                  <td>{formatDate(item.lastAttemptAtUtc)}</td>
+                      <td>
+                        <span
+                          className={`audit-status-badge ${getStatusClass(
+                            item.statusName,
+                          )}`}
+                        >
+                          {item.statusName || "-"}
+                        </span>
+                      </td>
 
-                  <td>
-                    <div className="d-flex align-items-center gap-2">
-                      {/* VIEW BUTTON */}
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => onView(item)}
+                      <td>
+                        {item.attemptCount} / {item.maxAutomaticAttempts}
+                      </td>
+
+                      <td>{formatDate(item.lastAttemptAtUtc)}</td>
+
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onView(item);
+                            }}
+                          >
+                            <i className="bi bi-eye me-1"></i>
+                            View
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              onRequest(item.requestId);
+                            }}
+                          >
+                            <i className="bi bi-list-ul me-1"></i>
+                            Requests
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {isExpanded && (
+                      <tr
+                        key={`${item.requestId}-attempt-history`}
+                        className="audit-expanded-content-row"
                       >
-                        <i className="bi bi-eye me-1"></i>
-                        View
-                      </button>
-
-                      {/* REQUESTS BUTTON */}
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => onRequest(item.requestId)}
-                      >
-                        <i className="bi bi-list-ul me-1"></i>
-                        Requests
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        <td colSpan={12}>
+                          <MaterialConsumptionAuditTrailAttemptRow
+                            requestId={item.requestId}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })
             )}
           </tbody>
         </table>

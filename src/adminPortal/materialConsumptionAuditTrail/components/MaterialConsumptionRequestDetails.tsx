@@ -3,7 +3,7 @@ import type {
   OriginalRequestPayload,
   MaterialConsumptionAttemptPayload,
 } from "../types/materialConsumptionAuditTrail.types";
-
+import SAPAttemptHistoryTable from "./SAPAttemptHistoryTable";
 type Attempt = RequestDetails["attempts"][number];
 
 type Props = {
@@ -355,174 +355,21 @@ const MaterialConsumptionRequestDetails = ({
 
             {/* ================= SAP ATTEMPT HISTORY ================= */}
 
-            {/* ================= SAP ATTEMPT HISTORY ================= */}
+            <SAPAttemptHistoryTable
+              requestId={item.requestId}
+              attempts={attempts}
+              loading={attemptsLoading}
+              error={attemptsError}
+              attemptPayload={attemptPayload}
+              attemptPayloadLoading={attemptPayloadLoading}
+              attemptPayloadError={attemptPayloadError}
+              onLoadAttemptPayload={onLoadAttemptPayload}
+              onClearAttemptPayload={onClearAttemptPayload}
+            />
 
-            <h6 className="audit-section-title mt-4">SAP Attempt History</h6>
+        
 
-            <div className="table-responsive">
-              <table className="table table-bordered material-request-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Attempt ID</th>
-                    <th>Attempt Number</th>
-                    <th>Request Sent At</th>
-                    <th>Response Code</th>
-                    <th>Duration (ms)</th>
-                    <th>Status</th>
-                    <th>Success</th>
-                    <th>Payload</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {attemptsLoading ? (
-                    <tr>
-                      <td colSpan={9} className="text-center py-4">
-                        Loading SAP attempt history...
-                      </td>
-                    </tr>
-                  ) : attemptsError ? (
-                    <tr>
-                      <td colSpan={9} className="text-center text-danger py-4">
-                        {attemptsError}
-                      </td>
-                    </tr>
-                  ) : attempts.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="text-center py-4">
-                        No attempt history found.
-                      </td>
-                    </tr>
-                  ) : (
-                    attempts.map((attempt, index) => (
-                      <tr key={attempt.attemptId}>
-                        <td>{index + 1}</td>
-
-                        <td>{attempt.attemptId}</td>
-
-                        <td>{attempt.attemptNumber}</td>
-
-                        <td>{formatDate(attempt.requestSentAtUtc)}</td>
-
-                        <td>{attempt.responseStatusCode ?? "-"}</td>
-
-                        <td>{attempt.durationMs ?? "-"}</td>
-
-                        <td>{attempt.status}</td>
-
-                        <td>
-                          <span
-                            className={`audit-status-badge ${
-                              attempt.isSuccess
-                                ? "audit-status-success"
-                                : "audit-status-failed"
-                            }`}
-                          >
-                            {attempt.isSuccess ? "Yes" : "No"}
-                          </span>
-                        </td>
-
-                        <td>
-                          {attempt.hasRequestPayload ||
-                          attempt.hasResponsePayload ? (
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() =>
-                                onLoadAttemptPayload(attempt.attemptId)
-                              }
-                              disabled={attemptPayloadLoading}
-                            >
-                              <i className="bi bi-eye me-1"></i>
-                              View Payload
-                            </button>
-                          ) : (
-                            <span className="text-muted">No payload</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* ================= INDIVIDUAL ATTEMPT PAYLOAD ================= */}
-
-            {attemptPayloadLoading && (
-              <div className="text-center py-4">
-                <div className="spinner-border text-danger" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-
-                <p className="text-muted mt-2">Loading attempt payload...</p>
-              </div>
-            )}
-
-            {attemptPayloadError && (
-              <div className="alert alert-danger mt-3">
-                {attemptPayloadError}
-              </div>
-            )}
-
-            {attemptPayload && (
-              <div className="mt-4">
-                <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                  <h6 className="audit-section-title mb-0">
-                    Attempt Payload Details
-                  </h6>
-
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={onClearAttemptPayload}
-                  >
-                    <i className="bi bi-x-circle me-1"></i>
-                    Close Payload
-                  </button>
-                </div>
-
-                <div className="row g-3 mb-3">
-                  <div className="col-md-4">
-                    <div className="audit-detail-field">
-                      <label>Request ID</label>
-                      <div>{attemptPayload.requestId}</div>
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="audit-detail-field">
-                      <label>Attempt ID</label>
-                      <div>{attemptPayload.attemptId}</div>
-                    </div>
-                  </div>
-
-                  <div className="col-md-4">
-                    <div className="audit-detail-field">
-                      <label>Attempt Number</label>
-                      <div>{attemptPayload.attemptNumber}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* REQUEST PAYLOAD */}
-
-                <h6 className="mt-4 mb-2">Request Payload</h6>
-
-                <pre className="material-request-payload">
-                  {formatPayload1(attemptPayload.requestPayload)}
-                </pre>
-
-                {/* RESPONSE PAYLOAD */}
-
-                <h6 className="mt-4 mb-2">Response Payload</h6>
-
-                <pre className="material-request-payload">
-                  {formatPayload1(attemptPayload.responsePayload)}
-                </pre>
-              </div>
-            )}
+            
 
             {/* ================= LAST ERROR MESSAGE ================= */}
 

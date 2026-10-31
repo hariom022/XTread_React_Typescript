@@ -266,3 +266,31 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.audit-expandable-row {
+  cursor: pointer;
+}
+
+.audit-expandable-row:hover {
+  background-color: #fff5f5;
+}
+
+.audit-row-expanded {
+  background-color: #fff5f5;
+}
+
+.audit-expanded-content-row > td {
+  padding: 16px !important;
+  background-color: #fafafa;
+}
+
+.audit-expanded-content-row .sap-attempt-history {
+  padding: 10px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+.audit-expanded-content-row .audit-section-title {
+  margin-top: 0 !important;
+}
