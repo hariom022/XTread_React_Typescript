@@ -118,6 +118,8 @@ import MaterialConsumptionPage from "./adminPortal/materialConsumption/pages/Mat
 import CustomerSearchPage from "./adminPortal/customerSerach/pages/CustomerSearchPage";
 import CustomerRegionMappingPage from "./master-modules/customer-region-mapping/page/CustomerRegionMapping";
 import PatternsPage from "./master-modules/pattern/page/PatternsPage";
+import MaterialConsumptionAuditTrailIndex from "./adminPortal/materialConsumptionAuditTrail/pages/MaterialConsumptionAuditTrailIndex";
+import MaterialConsumptionRequestDetailsPage from "./adminPortal/materialConsumptionAuditTrail/pages/MaterialConsumptionRequestDetailsPage";
 
 /* =========================================================
    AUTH INITIALIZER
@@ -161,7 +163,7 @@ function AuthInitializer() {
 
 function AppContent() {
   const location = useLocation();
-const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const logout = useAuthStore((state) => state.logout); // <-- 2. GET LOGOUT ACTION
 
   // 3. ATTACH THE 5-MINUTE IDLE LISTENER
@@ -346,26 +348,38 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                 <Route path="/repairs" element={<RepairPage />} />
                 <Route path="/treadBench" element={<TreadBenchPage />} />
                 <Route path="/enveloping" element={<EnvelopingStage />} />
-                 <Route path="/mounting" element={<MountingStage />} />
+                <Route path="/mounting" element={<MountingStage />} />
                 <Route path="/curing" element={<CuringStage />} />
                 <Route path="/qualityControl" element={<QualityControl />} />
                 <Route path="/dispatch" element={<DispatchStage />} />
-                <Route path="/adminPortal/rejectedTyres" element={<RejectedTyres />} /> 
-                <Route path="/adminPortal/byPassTyres" element={<ByPassTyres />} />
+                <Route
+                  path="/adminPortal/rejectedTyres"
+                  element={<RejectedTyres />}
+                />
+                <Route
+                  path="/adminPortal/byPassTyres"
+                  element={<ByPassTyres />}
+                />
                 {/* MASTER MODULES */}
                 <Route path="/customer" element={<CustomersPage />} />
                 <Route path="/serviceType" element={<ServiceTypesPage />} />
                 <Route path="/tyreMake" element={<TyreMakesPage />} />
                 <Route path="/machine" element={<MachinesPage />} />
-                <Route path="/rejectionReason" element={<RejectionReasonsPage />} />
-                <Route path="/Autoclave" element={<AutoclavesPage/>} />
-                <Route path="/damageLevel" element={<DamageLevelsPage/>} />
-                <Route path="/damageType" element={<DamageTypesPage/>} />
-                <Route path="/repairMaterial" element={<RepairMaterialsPage/>} />
-                <Route path="/tyreSize" element={<TyreSizesPage/>} />
-                <Route path="/category" element={<CategoriesPage/>} />
-                <Route path="/roles" element={<RolesPage/>} />
-                
+                <Route
+                  path="/rejectionReason"
+                  element={<RejectionReasonsPage />}
+                />
+                <Route path="/Autoclave" element={<AutoclavesPage />} />
+                <Route path="/damageLevel" element={<DamageLevelsPage />} />
+                <Route path="/damageType" element={<DamageTypesPage />} />
+                <Route
+                  path="/repairMaterial"
+                  element={<RepairMaterialsPage />}
+                />
+                <Route path="/tyreSize" element={<TyreSizesPage />} />
+                <Route path="/category" element={<CategoriesPage />} />
+                <Route path="/roles" element={<RolesPage />} />
+
                 <Route path="/pressuretest" element={<PressureTestPage />} />
 
                 <Route path="/shearography" element={<ShearographyPage />} />
@@ -402,7 +416,10 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                 {/* =====================================
                     ADMIN PORTAL
                 ===================================== */}
-                <Route path="/customerSearch" element={<CustomerSearchPage/>} />
+                <Route
+                  path="/customerSearch"
+                  element={<CustomerSearchPage />}
+                />
 
                 <Route path="/tyreOnHold" element={<TyreOnHold />} />
                 <Route
@@ -414,9 +431,19 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                   path="/adminPortal/byPassTyres"
                   element={<ByPassTyres />}
                 />
-                    <Route path="/materialConsumption" element={<MaterialConsumptionPage />} />
+                <Route
+                  path="/materialConsumption"
+                  element={<MaterialConsumptionPage />}
+                />
                 <Route path="/users" element={<UserRegistrationPage />} />
-            
+                <Route
+                  path="/material-consumption-audit-trail"
+                  element={<MaterialConsumptionAuditTrailIndex />}
+                />
+                <Route
+                  path="/material-consumption-audit-trail/requests/:requestId"
+                  element={<MaterialConsumptionRequestDetailsPage />}
+                />
                 {/* =====================================
                     MASTER MODULES
                 ===================================== */}
@@ -452,14 +479,15 @@ const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
                   path="/roleModuleMapping"
                   element={<RoleModuleMapping />}
                 />
-                <Route path="/courierService" element={<CourierServices/>}/>
+                <Route path="/courierService" element={<CourierServices />} />
                 <Route path="/drivers" element={<Drivers />} />
-                <Route path="/region" element={<RegionsPage/>}/>
-                <Route path="/zone" element={<ZonesPage/>}/>
+                <Route path="/region" element={<RegionsPage />} />
+                <Route path="/zone" element={<ZonesPage />} />
                 <Route
                   path="/customer-region-mapping"
-                  element={<CustomerRegionMappingPage />}/>
-                <Route path="/pattern" element = {<PatternsPage/>}/>
+                  element={<CustomerRegionMappingPage />}
+                />
+                <Route path="/pattern" element={<PatternsPage />} />
                 {/* =====================================
                     ACCESS DENIED
                 ===================================== */}

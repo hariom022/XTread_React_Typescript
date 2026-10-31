@@ -1,0 +1,268 @@
+
+.material-consumption-audit-page {
+  padding: 20px;
+}
+
+.material-audit-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.material-audit-page-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.material-audit-page-header p {
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.material-audit-list-card {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.material-audit-list-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+}
+
+.material-audit-list-toolbar h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.material-audit-list-toolbar p {
+  color: #6c757d;
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.material-audit-table {
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.material-audit-table thead th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 13px 12px;
+}
+
+.material-audit-table tbody td {
+  padding: 12px;
+  white-space: nowrap;
+}
+
+.audit-status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.audit-status-success {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.audit-status-failed {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.audit-status-pending {
+  background: #fff3cd;
+  color: #664d03;
+}
+
+.audit-status-default {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.material-audit-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e9ecef;
+  font-size: 13px;
+}
+
+.material-audit-pagination .btn {
+  min-width: 34px;
+}
+
+.material-audit-pagination .form-select {
+  font-size: 13px;
+}
+
+/* Details Modal */
+
+.material-audit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1055;
+}
+
+.material-audit-details-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 850px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+}
+
+.material-audit-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.material-audit-details-header h5 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.material-audit-details-header p {
+  color: #6c757d;
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.material-audit-details-body {
+  padding: 22px;
+  overflow-y: auto;
+}
+
+.audit-detail-field label,
+.audit-error-section label {
+  display: block;
+  color: #6c757d;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.audit-detail-field div {
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.audit-error-message {
+  background: #fff5f5;
+  border: 1px solid #f5c2c7;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 13px;
+  color: #842029;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.material-audit-details-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 22px;
+  border-top: 1px solid #e9ecef;
+}
+
+@media (max-width: 768px) {
+  .material-consumption-audit-page {
+    padding: 12px;
+  }
+
+  .material-audit-page-header {
+    align-items: flex-start;
+  }
+
+  .material-audit-pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .material-audit-details-modal {
+    max-height: 95vh;
+  }
+}
+
+/* Full page request details */
+
+.material-request-page-card {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.material-request-page-card .material-audit-details-body {
+  padding: 22px;
+  max-height: none;
+  overflow: visible;
+}
+
+.material-request-page-card .material-audit-details-header {
+  padding: 18px 22px;
+  background: #fff;
+}
+
+.material-request-page-card .material-audit-details-header h5 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.material-request-payload {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 20px;
+  border-radius: 8px;
+  max-height: 500px;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-top: 10px;
+}
+
+.material-request-payload {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 20px;
+  border-radius: 8px;
+  max-height: 500px;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
