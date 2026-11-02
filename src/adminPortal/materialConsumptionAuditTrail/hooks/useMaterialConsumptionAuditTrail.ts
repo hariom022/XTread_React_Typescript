@@ -8,10 +8,22 @@ import type {
   MaterialConsumptionAuditTrailResponse,
 } from "../types/materialConsumptionAuditTrail.types";
 
+import type {
+  MaterialConsumptionAuditTrailFilters,
+} from "../types/materialConsumptionAuditTrailFilter.types";
+
+const initialFilters: MaterialConsumptionAuditTrailFilters = {
+  Search: "",
+  Statuses: [],
+  Status: "",
+  CustomerNumber: "",
+  OrderNumber: "",
+  CustomerName: "",
+  ProductionNumber: "",
+};
+
 const useMaterialConsumptionAuditTrail = () => {
-  const [items, setItems] = useState<
-    MaterialConsumptionAuditTrailItem[]
-  >([]);
+  const [items, setItems] = useState<MaterialConsumptionAuditTrailItem[]>([]);
 
   const [pagination, setPagination] =
     useState<MaterialConsumptionAuditTrailResponse>({
@@ -25,6 +37,9 @@ const useMaterialConsumptionAuditTrail = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
+  const [filters, setFilters] =
+    useState<MaterialConsumptionAuditTrailFilters>(initialFilters);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,7 +51,16 @@ const useMaterialConsumptionAuditTrail = () => {
       const response =
         await materialConsumptionAuditTrailService.getRequests(
           currentPage,
-          pageSize
+          pageSize,
+          {
+            Search: filters.Search,
+            Statuses: filters.Statuses,
+            Status: filters.Status ? Number(filters.Status) : undefined,
+            CustomerNumber: filters.CustomerNumber,
+            OrderNumber: filters.OrderNumber,
+            CustomerName: filters.CustomerName,
+            ProductionNumber: filters.ProductionNumber,
+          }
         );
 
       const result = response.data?.data;
@@ -57,7 +81,8 @@ const useMaterialConsumptionAuditTrail = () => {
       );
 
       setError(
-        err?.response?.data?.message ||
+        err?.response?.data?.error?.message ||
+          err?.response?.data?.message ||
           "Failed to load material consumption requests."
       );
 
@@ -65,11 +90,30 @@ const useMaterialConsumptionAuditTrail = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, filters]);
 
   useEffect(() => {
     void fetchRequests();
   }, [fetchRequests]);
+
+  // Update individual filter
+  const handleFilterChange = (
+    field: keyof MaterialConsumptionAuditTrailFilters,
+    value: string | number[]
+  ) => {
+    setFilters((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+
+    setCurrentPage(1);
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters(initialFilters);
+    setCurrentPage(1);
+  };
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > pagination.totalPages) return;
@@ -87,8 +131,11 @@ const useMaterialConsumptionAuditTrail = () => {
     pagination,
     currentPage,
     pageSize,
+    filters,
     loading,
     error,
+    handleFilterChange,
+    clearFilters,
     handlePageChange,
     handlePageSizeChange,
     refresh: fetchRequests,

@@ -155,3 +155,4 @@ export interface MaterialConsumptionAttemptPayloadResponse {
     details?: unknown;
   } | null;
 }
+
