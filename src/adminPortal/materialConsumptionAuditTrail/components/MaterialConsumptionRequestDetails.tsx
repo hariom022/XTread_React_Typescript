@@ -152,8 +152,8 @@ const MaterialConsumptionRequestDetails = ({
 
             <div className="row g-3">
               {[
-                ["Request ID", item.requestId],
-                ["Order Casing ID", item.orderCasingId],
+                // ["Request ID", item.requestId],
+                // ["Order Casing ID", item.orderCasingId],
                 ["Finished Material", item.finishedMaterial],
                 ["Status", getStatusName(item.status)],
                 [
@@ -284,8 +284,8 @@ const MaterialConsumptionRequestDetails = ({
                 ["Barcode Number", item.casing.barcodeNumber],
                 ["Tyre Reference Number", item.casing.tyreReferenceNumber],
                 ["Batch Number", item.casing.batchNumber],
-                ["Current Stage", item.casing.currentStage],
-                ["Current Stage Status", item.casing.currentStageStatus],
+                // ["Current Stage", item.casing.currentStage],
+                // ["Current Stage Status", item.casing.currentStageStatus],
               ].map(([label, value]) => (
                 <div className="col-md-6" key={label}>
                   <div className="audit-detail-field">
