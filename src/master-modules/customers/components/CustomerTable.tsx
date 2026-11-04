@@ -2,195 +2,91 @@ import type { Customer } from "../types/customer.types";
 
 interface CustomerTableProps {
   customers: Customer[];
-
-  selectedCustomerRows: string[];
-
-  toggleCustomerRow: (
-    customerNumber: string
-  ) => void;
-
-  toggleAllCustomers: () => void;
+  selectedCustomers: string[];
+  isAllSelected: boolean;
+  onSelectCustomer: (customerNumber: string) => void;
+  onSelectAll: (checked: boolean) => void;
+  loading: boolean;
 }
 
 const CustomerTable = ({
   customers,
-  selectedCustomerRows,
-  toggleCustomerRow,
-  toggleAllCustomers,
+  selectedCustomers,
+  isAllSelected,
+  onSelectCustomer,
+  onSelectAll,
+  loading,
 }: CustomerTableProps) => {
-  const isAllSelected =
-    customers.length > 0 &&
-    selectedCustomerRows.length === customers.length;
+  if (loading) {
+    return <div className="text-center p-4">Loading customers...</div>;
+  }
+
+  if (customers.length === 0) {
+    return <div className="text-center p-4">No customers found.</div>;
+  }
 
   return (
-    <div className="customer-table-wrapper">
-      <table className="table customer-table mb-0">
+    <div className="table-responsive">
+      <table className="table table-bordered table-hover align-middle">
         <thead>
           <tr>
-            {/* Checkbox
-            <th style={{ width: "45px" }}>
+            {/* <th>
               <input
                 type="checkbox"
-                className="customer-checkbox"
-                onChange={toggleAllCustomers}
                 checked={isAllSelected}
+                onChange={(e) => onSelectAll(e.target.checked)}
               />
             </th> */}
-
-            <th>Customer No</th>
-
+            <th>Customer Number</th>
             <th>Customer Name</th>
-
             <th>Search Term</th>
-
             <th>Company Code</th>
-
             <th>Sales Group</th>
-
+            <th>Sales Group Description</th>
             <th>Customer Group</th>
-
+            <th>Customer Group Description</th>
             <th>Mobile Number</th>
-
             <th>Email</th>
-
             <th>Price List</th>
-
+            <th>Price List Description</th>
             <th>City</th>
-
             <th>Country</th>
-
             <th>Source System</th>
           </tr>
         </thead>
 
         <tbody>
-          {/* =========================
-              NO RECORDS
-          ========================= */}
+          {customers.map((customer) => (
+            <tr key={customer.customerNumber}>
+              {/* <td>
+                <input
+                  type="checkbox"
+                  checked={selectedCustomers.includes(
+                    customer.customerNumber
+                  )}
+                  onChange={() =>
+                    onSelectCustomer(customer.customerNumber)
+                  }
+                />
+              </td> */}
 
-          {customers.length === 0 ? (
-            <tr>
-              <td
-                colSpan={13}
-                className="customer-empty-state"
-              >
-                No Records Found
-              </td>
+              <td>{customer.customerNumber}</td>
+              <td>{customer.customerName}</td>
+              <td>{customer.searchTerm || "-"}</td>
+              <td>{customer.companyCode || "-"}</td>
+              <td>{customer.salesGroup || "-"}</td>
+              <td>{customer.salesGroupDescription || "-"}</td>
+              <td>{customer.customerGroup || "-"}</td>
+              <td>{customer.customerGroupDescription || "-"}</td>
+              <td>{customer.mobileNumber || "-"}</td>
+              <td>{customer.email || "-"}</td>
+              <td>{customer.priceList || "-"}</td>
+              <td>{customer.priceListDescription || "-"}</td>
+              <td>{customer.city || "-"}</td>
+              <td>{customer.country || "-"}</td>
+              <td>{customer.sourceSystem || "-"}</td>
             </tr>
-          ) : (
-            customers.map((item) => (
-              <tr key={item.customerNumber}>
-                {/* Checkbox */}
-                {/* <td>
-                  <input
-                    type="checkbox"
-                    className="customer-checkbox"
-                    checked={selectedCustomerRows.includes(
-                      item.customerNumbers
-                    )}
-                    onChange={() =>
-                      toggleCustomerRow(
-                        item.customerNumber
-                      )
-                    }
-                  />
-                </td> */}
-
-                {/* Customer Number */}
-                <td>
-                  <span className="customer-number">
-                    {item.customerNumber}
-                  </span>
-                </td>
-
-                {/* Customer Name */}
-                <td>
-                  <span className="customer-name">
-                    {item.customerName}
-                  </span>
-                </td>
-
-                {/* Search Term */}
-                <td>
-                  {item.searchTerm || "-"}
-                </td>
-
-                {/* Company Code */}
-                <td>
-                  {item.companyCode || "-"}
-                </td>
-
-                {/* Sales Group */}
-                <td>
-                  <div className="customer-group-cell">
-                    <span className="customer-code">
-                      {item.salesGroup || "-"}
-                    </span>
-
-                    <span className="customer-description">
-                      {item.salesGroupDescription ||
-                        "-"}
-                    </span>
-                  </div>
-                </td>
-
-                {/* Customer Group */}
-                <td>
-                  <div className="customer-group-cell">
-                    <span className="customer-code">
-                      {item.customerGroup || "-"}
-                    </span>
-
-                    <span className="customer-description">
-                      {item.customerGroupDescription ||
-                        "-"}
-                    </span>
-                  </div>
-                </td>
-
-                {/* Mobile */}
-                <td>
-                  {item.mobileNumber || "-"}
-                </td>
-
-                {/* Email */}
-                <td>
-                  {item.email || "-"}
-                </td>
-
-                {/* Price List */}
-                <td>
-                  <div className="customer-group-cell">
-                    <span className="customer-code">
-                      {item.priceList || "-"}
-                    </span>
-
-                    <span className="customer-description">
-                      {item.priceListDescription ||
-                        "-"}
-                    </span>
-                  </div>
-                </td>
-
-                {/* City */}
-                <td>
-                  {item.city || "-"}
-                </td>
-
-                {/* Country */}
-                <td>
-                  <span className="country-badge">
-                    {item.country || "-"}
-                  </span>
-                </td>
-
-                {/* Source System */}
-                <td>
-                  {item.sourceSystem || "-"}
-                </td>
-              </tr>
-            ))
-          )}
+          ))}
         </tbody>
       </table>
     </div>
