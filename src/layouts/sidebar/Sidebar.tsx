@@ -1,54 +1,46 @@
 import React, { useState } from "react";
 
-import {
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import "../sidebar/Sidebar.css";
 
 import { useAuthStore } from "../../features/auth/store/authStore";
 
-import type {
-  ModuleItem,
-} from "../../features/modules/types/moduleTypes";
+import type { ModuleItem } from "../../features/modules/types/moduleTypes";
 
 interface SidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+
+  // New tablet/mobile props
+  isMobileMenuOpen: boolean;
+  onCloseMobileMenu: () => void;
 }
 
 const Sidebar = ({
   isCollapsed,
   onToggleCollapse,
+  isMobileMenuOpen,
+  onCloseMobileMenu,
 }: SidebarProps) => {
-
   const navigate = useNavigate();
 
   const location = useLocation();
 
-  const hasModule = useAuthStore(
-    (state) => state.hasModule
-  );
+  const hasModule = useAuthStore((state) => state.hasModule);
 
-  const moduleTree = useAuthStore(
-    (state) => state.moduleTree
-  );
+  const moduleTree = useAuthStore((state) => state.moduleTree);
 
-  const [openModules, setOpenModules] =
-    useState<Record<string, boolean>>({});
+  const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
 
   /* =========================================================
      TOGGLE PARENT MODULE
   ========================================================= */
 
-  const toggleModule = (
-    moduleCode: string
-  ) => {
+  const toggleModule = (moduleCode: string) => {
     setOpenModules((prev) => ({
       ...prev,
-      [moduleCode]:
-        !prev[moduleCode],
+      [moduleCode]: !prev[moduleCode],
     }));
   };
 
@@ -56,13 +48,9 @@ const Sidebar = ({
      CHECK USER PERMISSION
   ========================================================= */
 
-  const hasVisibleChildren = (
-    module: ModuleItem
-  ) => {
+  const hasVisibleChildren = (module: ModuleItem) => {
     return module.children?.some(
-      (child) =>
-        child.isActive &&
-        hasModule(child.moduleCode)
+      (child) => child.isActive && hasModule(child.moduleCode),
     );
   };
 
@@ -70,10 +58,7 @@ const Sidebar = ({
      RENDER CHILD MODULE
   ========================================================= */
 
-  const renderChildModule = (
-    module: ModuleItem
-  ) => {
-
+  const renderChildModule = (module: ModuleItem) => {
     if (!module.isActive) {
       return null;
     }
@@ -86,21 +71,13 @@ const Sidebar = ({
       return null;
     }
 
-    const isActive =
-      location.pathname === module.route;
+    const isActive = location.pathname === module.route;
 
     return (
       <li key={module.id}>
-
         <button
-          onClick={() =>
-            navigate(module.route!)
-          }
-          className={`nav-link-custom ${
-            isActive
-              ? "active-link"
-              : ""
-          }`}
+          onClick={() => navigate(module.route!)}
+          className={`nav-link-custom ${isActive ? "active-link" : ""}`}
           style={{
             cursor: "pointer",
             width: "100%",
@@ -108,36 +85,21 @@ const Sidebar = ({
             background: "transparent",
             textAlign: "left",
 
-            paddingLeft:
-              isCollapsed
-                ? "16px"
-                : "38px",
+            paddingLeft: isCollapsed ? "16px" : "38px",
           }}
-
-          title={
-            isCollapsed
-              ? module.moduleName
-              : undefined
-          }
+          title={isCollapsed ? module.moduleName : undefined}
         >
-
           <span className="me-3 d-inline-flex align-items-center">
-
             <i
-              className={
-                module.icon ||
-                "bi bi-circle"
-              }
+              className={module.icon || "bi bi-circle"}
               style={{
                 fontSize: "18px",
 
-                color:
-                  isActive
-                    ? "var(--color-primary)"
-                    : "var(--color-outline)",
+                color: isActive
+                  ? "var(--color-primary)"
+                  : "var(--color-outline)",
               }}
             />
-
           </span>
 
           {!isCollapsed && (
@@ -151,9 +113,7 @@ const Sidebar = ({
               {module.moduleName}
             </span>
           )}
-
         </button>
-
       </li>
     );
   };
@@ -162,20 +122,14 @@ const Sidebar = ({
      RENDER PARENT MODULE
   ========================================================= */
 
-  const renderParentModule = (
-    module: ModuleItem
-  ) => {
-
+  const renderParentModule = (module: ModuleItem) => {
     if (!module.isActive) {
       return null;
     }
 
     const visibleChildren =
       module.children?.filter(
-        (child) =>
-          child.isActive &&
-          hasModule(child.moduleCode) &&
-          child.route
+        (child) => child.isActive && hasModule(child.moduleCode) && child.route,
       ) ?? [];
 
     /*
@@ -186,23 +140,15 @@ const Sidebar = ({
       return null;
     }
 
-    const isOpen =
-      openModules[module.moduleCode] ??
-      false;
+    const isOpen = openModules[module.moduleCode] ?? false;
 
     return (
       <React.Fragment key={module.id}>
-
         {/* PARENT */}
 
         <li>
-
           <button
-            onClick={() =>
-              toggleModule(
-                module.moduleCode
-              )
-            }
+            onClick={() => toggleModule(module.moduleCode)}
             className="nav-link-custom"
             style={{
               width: "100%",
@@ -210,24 +156,17 @@ const Sidebar = ({
               background: "transparent",
             }}
           >
-
             <span className="me-3">
-
               <i
-                className={
-                  module.icon ||
-                  "bi bi-folder"
-                }
+                className={module.icon || "bi bi-folder"}
                 style={{
                   fontSize: 18,
                 }}
               />
-
             </span>
 
             {!isCollapsed && (
               <>
-
                 <span
                   className="flex-grow-1 font-mono text-uppercase"
                   style={{
@@ -240,81 +179,52 @@ const Sidebar = ({
 
                 <i
                   className={`bi ${
-                    isOpen
-                      ? "bi-chevron-down"
-                      : "bi-chevron-right"
+                    isOpen ? "bi-chevron-down" : "bi-chevron-right"
                   }`}
                 />
-
               </>
             )}
-
           </button>
-
         </li>
 
         {/* CHILDREN */}
 
-        {isOpen &&
-          visibleChildren.map(
-            renderChildModule
-          )}
-
+        {isOpen && visibleChildren.map(renderChildModule)}
       </React.Fragment>
     );
   };
 
   return (
-
     <aside
       id="sidebar-navigation"
-      className="sidebar-nav"
+      className={`sidebar-nav ${
+        isMobileMenuOpen ? "mobile-open" : "mobile-closed"
+      }`}
       style={{
-        width:
-          isCollapsed
-            ? "80px"
-            : "260px",
+        width: isCollapsed ? "80px" : "260px",
       }}
     >
-
       {/* =====================================================
           BRANDING
       ===================================================== */}
 
-      <div
-        className={`p-4 ${
-          isCollapsed
-            ? "text-center"
-            : "px-4 mb-3"
-        }`}
-      >
-
+      <div className={`p-4 ${isCollapsed ? "text-center" : "px-4 mb-3"}`}>
         {isCollapsed ? (
-
           <div
             className="mx-auto rounded d-flex align-items-center justify-content-center"
             style={{
               width: 40,
               height: 40,
 
-              backgroundColor:
-                "rgba(234,195,43,0.1)",
+              backgroundColor: "rgba(234,195,43,0.1)",
 
-              border:
-                "1px solid rgba(234,195,43,0.3)",
+              border: "1px solid rgba(234,195,43,0.3)",
             }}
           >
-
-            <span className="fw-black text-secondary fs-5">
-              XT
-            </span>
-
+            <span className="fw-black text-secondary fs-5">XT</span>
           </div>
-
         ) : (
-
           <>
-
             <h1
               className="fw-bold m-0"
               style={{
@@ -335,11 +245,8 @@ const Sidebar = ({
             >
               Retreading Management
             </p>
-
           </>
-
         )}
-
       </div>
 
       {/* =====================================================
@@ -347,27 +254,17 @@ const Sidebar = ({
       ===================================================== */}
 
       <nav className="flex-grow-1 overflow-y-auto custom-scrollbar px-2">
-
         <ul className="list-unstyled m-0 p-0 d-flex flex-column gap-1">
-
           {/* =================================================
               DASHBOARD
           ================================================= */}
 
           <li>
-
             <button
-              onClick={() =>
-                navigate("/dashboard")
-              }
-
+              onClick={() => navigate("/dashboard")}
               className={`nav-link-custom ${
-                location.pathname ===
-                "/dashboard"
-                  ? "active-link"
-                  : ""
+                location.pathname === "/dashboard" ? "active-link" : ""
               }`}
-
               style={{
                 cursor: "pointer",
                 width: "100%",
@@ -377,26 +274,21 @@ const Sidebar = ({
                 paddingLeft: "16px",
               }}
             >
-
               <span className="me-3 d-inline-flex align-items-center">
-
                 <i
                   className="bi bi-bar-chart-line-fill"
                   style={{
                     fontSize: 18,
 
                     color:
-                      location.pathname ===
-                      "/dashboard"
+                      location.pathname === "/dashboard"
                         ? "var(--color-primary)"
                         : "var(--color-outline)",
                   }}
                 />
-
               </span>
 
               {!isCollapsed && (
-
                 <span
                   className="font-mono text-uppercase text-truncate"
                   style={{
@@ -406,11 +298,8 @@ const Sidebar = ({
                 >
                   Dashboard
                 </span>
-
               )}
-
             </button>
-
           </li>
 
           {/* =================================================
@@ -418,35 +307,23 @@ const Sidebar = ({
           ================================================= */}
 
           {moduleTree
-            .filter(
-              (module) =>
-                module.isActive
-            )
-            .sort(
-              (a, b) =>
-                a.displayOrder -
-                b.displayOrder
-            )
-            .map(
-              renderParentModule
-            )}
-
+            .filter((module) => module.isActive)
+            .sort((a, b) => a.displayOrder - b.displayOrder)
+            .map(renderParentModule)}
         </ul>
-
       </nav>
 
       {/* =====================================================
           COLLAPSE BUTTON
       ===================================================== */}
 
+      {/* Desktop Collapse Button */}
       <div
-        className="p-2 border-top"
+        className="p-2 border-top desktop-collapse-button"
         style={{
-          borderColor:
-            "rgba(255,255,255,.08)",
+          borderColor: "rgba(255,255,255,.08)",
         }}
       >
-
         <button
           onClick={onToggleCollapse}
           className="nav-link-custom"
@@ -456,21 +333,15 @@ const Sidebar = ({
             background: "transparent",
           }}
         >
-
           <span className="me-3">
-
             <i
               className={`bi ${
-                isCollapsed
-                  ? "bi-chevron-right"
-                  : "bi-chevron-left"
+                isCollapsed ? "bi-chevron-right" : "bi-chevron-left"
               }`}
             />
-
           </span>
 
           {!isCollapsed && (
-
             <span
               className="font-mono text-uppercase"
               style={{
@@ -480,13 +351,9 @@ const Sidebar = ({
             >
               Collapse View
             </span>
-
           )}
-
         </button>
-
       </div>
-
     </aside>
   );
 };

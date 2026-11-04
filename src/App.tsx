@@ -180,12 +180,36 @@ function AppContent() {
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const [isTabletOrMobile, setIsTabletOrMobile] = useState(
+    window.innerWidth < 992,
+  );
+
   const [searchText, setSearchText] = useState("");
 
   const [energyLoad, setEnergyLoad] = useState(1.2);
 
   const [unitTemp, setUnitTemp] = useState(182);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const isTablet = window.innerWidth < 992;
+
+      setIsTabletOrMobile(isTablet);
+
+      // Close mobile/tablet sidebar when switching to desktop
+      if (!isTablet) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   /* =========================================
      ENVIRONMENT TIMER
   ========================================= */
@@ -246,21 +270,40 @@ function AppContent() {
 
       {/* Sidebar */}
 
+      {/* Sidebar */}
+
       <Sidebar
         isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
       />
+
+      {/* Tablet / Mobile Sidebar Overlay */}
+
+      {isTabletOrMobile && isMobileMenuOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
       {/* Main Content */}
 
       <main
-        className="d-flex flex-column"
+        className="d-flex flex-column main-content"
         style={{
-          marginLeft: isSidebarCollapsed ? "80px" : "260px",
+          marginLeft: isTabletOrMobile
+            ? "0px"
+            : isSidebarCollapsed
+              ? "80px"
+              : "260px",
 
-          width: isSidebarCollapsed
-            ? "calc(100% - 80px)"
-            : "calc(100% - 260px)",
+          width: isTabletOrMobile
+            ? "100%"
+            : isSidebarCollapsed
+              ? "calc(100% - 80px)"
+              : "calc(100% - 260px)",
 
           height: "100vh",
 
@@ -271,7 +314,11 @@ function AppContent() {
       >
         {/* Header */}
 
-        <Header searchText={searchText} onSearchChange={setSearchText} />
+        <Header
+          searchText={searchText}
+          onSearchChange={setSearchText}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+        />
 
         {/* Content */}
 
