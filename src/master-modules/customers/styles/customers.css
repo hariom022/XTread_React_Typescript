@@ -1,351 +1,201 @@
-/* =========================================================
-   CUSTOMER MASTER PAGE
-   ========================================================= */
+/* Customer Master Page */
 
 .customer-page {
-  padding: 20px;
-  background: #f6f8fb;
-  min-height: 100%;
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+  color: #1e293b;
+  font-family: inherit;
 }
 
-/* =========================
-   PAGE HEADER
-   ========================= */
-
-.customer-page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 18px;
-}
-
-.customer-page-title {
-  margin: 0;
-
+.customer-page h4 {
   font-size: 22px;
   font-weight: 700;
-
-  color: #1f2937;
+  color: #172554;
+  margin: 0;
 }
 
-.customer-page-subtitle {
-  margin-top: 4px;
+.customer-page .customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
 
+.customer-page .selected-count {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-size: 13px;
-  color: #6b7280;
+  font-weight: 600;
 }
 
-/* =========================
-   MAIN CARD
-   ========================= */
+/* Filters */
 
-.customer-card {
+.customer-page .customer-filters {
   background: #ffffff;
-
-  border: 1px solid #e5e9f2;
-
-  border-radius: 10px;
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
-  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
-/* =========================
-   FILTER SECTION
-   ========================= */
-
-.customer-filter-section {
-  padding: 16px 18px;
-
-  border-bottom: 1px solid #e5e9f2;
-
-  background: #ffffff;
+.customer-page .form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
 }
 
-.customer-search-wrapper {
-  position: relative;
-
-  width: 320px;
+.customer-page .form-control,
+.customer-page .form-select {
+  height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 13px;
+  color: #334155;
+  background-color: #ffffff;
+  box-shadow: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.customer-search-icon {
-  position: absolute;
-
-  left: 12px;
-  top: 50%;
-
-  transform: translateY(-50%);
-
-  color: #7b8494;
-
-  font-size: 14px;
-
-  pointer-events: none;
-}
-
-.customer-search {
-  width: 100%;
-
-  height: 38px;
-
-  padding: 0 12px 0 36px;
-
-  border: 1px solid #dce2eb;
-
-  border-radius: 6px;
-
+.customer-page .form-control:focus,
+.customer-page .form-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   outline: none;
-
-  font-size: 13px;
-
-  transition: all 0.2s ease;
 }
 
-.customer-search:focus {
-  border-color: #1b4f9c;
+/* Table */
 
-  box-shadow: 0 0 0 3px rgba(27, 79, 156, 0.08);
+.customer-page .customer-table-wrapper {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
-/* =========================
-   TABLE
-   ========================= */
-
-.customer-table-wrapper {
+.customer-page .table-responsive {
   width: 100%;
-
   overflow-x: auto;
 }
 
-.customer-table {
-  width: 100%;
-
-  min-width: 1450px;
-
+.customer-page .table {
+  margin-bottom: 0;
   border-collapse: separate;
-
   border-spacing: 0;
+  min-width: 1400px;
 }
 
-/* HEADER */
-
-.customer-table thead th {
-  background: #edf4ff;
-
-  color: #344054;
-
-  font-size: 12px;
-
-  font-weight: 700;
-
-  text-transform: none;
-
-  white-space: nowrap;
-
-  padding: 12px 10px;
-
-  border-bottom: 1px solid #dbe4f0;
-
-  vertical-align: middle;
-}
-
-/* BODY */
-
-.customer-table tbody td {
-  padding: 11px 10px;
-
-  font-size: 12px;
-
-  color: #475467;
-
-  border-bottom: 1px solid #edf0f5;
-
-  white-space: nowrap;
-
-  vertical-align: middle;
-}
-
-/* ROW */
-
-.customer-table tbody tr {
-  transition: background-color 0.15s ease;
-}
-
-.customer-table tbody tr:hover {
-  background: #f8fbff;
-}
-
-/* =========================
-   CHECKBOX
-   ========================= */
-
-.customer-checkbox {
-  width: 15px;
-  height: 15px;
-
-  cursor: pointer;
-
-  accent-color: #1b4f9c;
-}
-
-/* =========================
-   CUSTOMER NUMBER
-   ========================= */
-
-.customer-number {
-  color: #1b4f9c;
-
-  font-weight: 600;
-}
-
-/* =========================
-   CUSTOMER NAME
-   ========================= */
-
-.customer-name {
-  color: #1f2937;
-
-  font-weight: 600;
-}
-
-/* =========================
-   CODE + DESCRIPTION
-   ========================= */
-
-.customer-group-cell {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 2px;
-}
-
-.customer-code {
-  color: #344054;
-
-  font-weight: 600;
-
-  font-size: 12px;
-}
-
-.customer-description {
-  color: #98a2b3;
-
-  font-size: 10px;
-}
-
-/* =========================
-   EMAIL
-   ========================= */
-
-.customer-email {
-  max-width: 180px;
-
-  display: inline-block;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-}
-
-/* =========================
-   COUNTRY
-   ========================= */
-
-.country-badge {
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  min-width: 32px;
-
-  padding: 3px 7px;
-
-  border-radius: 4px;
-
+.customer-page .table thead th {
   background: #f1f5f9;
-
-  color: #475467;
-
-  font-size: 10px;
-
-  font-weight: 600;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 14px 12px;
+  white-space: nowrap;
+  border-bottom: 1px solid #cbd5e1;
+  border-top: none;
 }
 
-/* =========================
-   EMPTY STATE
-   ========================= */
-
-.customer-empty-state {
-  height: 180px;
-
-  text-align: center;
-
-  vertical-align: middle !important;
-
-  color: #98a2b3 !important;
-
-  font-size: 14px !important;
-
-  font-weight: 500;
+.customer-page .table tbody td {
+  color: #475569;
+  font-size: 13px;
+  padding: 13px 12px;
+  white-space: nowrap;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
 }
 
-/* =========================
-   LOADER
-   ========================= */
+.customer-page .table tbody tr:hover {
+  background: #f8fafc;
+}
 
-.customer-loader {
-  min-height: 220px;
+.customer-page .table tbody tr:last-child td {
+  border-bottom: none;
+}
 
+.customer-page .table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2563eb;
+}
+
+/* Pagination */
+
+.customer-page .customer-pagination {
   display: flex;
-
+  justify-content: space-between;
   align-items: center;
-
-  justify-content: center;
-}
-
-/* =========================
-   ERROR
-   ========================= */
-
-.customer-error {
-  margin: 16px;
-
-  padding: 12px 15px;
-
-  border-radius: 6px;
-
-  background: #fff1f2;
-
-  border: 1px solid #fecdd3;
-
-  color: #be123c;
-
+  gap: 12px;
+  padding: 16px 0;
+  color: #64748b;
   font-size: 13px;
 }
 
-/* =========================
-   RESPONSIVE
-   ========================= */
+.customer-page .pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.customer-page .pagination-actions button {
+  min-width: 85px;
+  padding: 8px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.customer-page .pagination-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Error and loading */
+
+.customer-page .alert {
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.customer-page .customer-loading,
+.customer-page .customer-empty {
+  padding: 35px 15px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Responsive */
 
 @media (max-width: 768px) {
   .customer-page {
-    padding: 12px;
+    padding: 14px;
   }
 
-  .customer-page-header {
+  .customer-page .customer-header {
     align-items: flex-start;
-
     flex-direction: column;
-
-    gap: 10px;
   }
 
-  .customer-search-wrapper {
+  .customer-page .customer-filters {
+    padding: 15px;
+  }
+
+  .customer-page .customer-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .customer-page .pagination-actions {
     width: 100%;
+    justify-content: space-between;
   }
 }
