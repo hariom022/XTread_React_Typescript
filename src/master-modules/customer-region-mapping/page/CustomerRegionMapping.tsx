@@ -54,7 +54,7 @@ const CustomerRegionMappingPage = () => {
             customerRegionMappingService.getAllCustomerRegions(),
           ]);
 
-        setCustomers(customerResponse.data?.data ?? []);
+        setCustomers(customerResponse.data?.data?.items ?? []);
         setRegions(regionResponse.data?.data ?? []);
 
         setAllCustomerMappings(mappingResponse.data?.data ?? []);
