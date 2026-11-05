@@ -7,12 +7,16 @@ import type {
   RepairOperation,
 } from "../types/skivingApproval.types";
 
+import { getSkivingApprovalErrorMessage } from "../utils/getSkivingApprovalErrorMessage";
+
 const SKIVING_STAGE = 8;
 const SKIVING_APPROVAL_SUBSTAGE = 82;
 const ACTIVE_STATUS = 1;
 
 const useSkivingApprovalTable = () => {
   const [search, setSearch] = useState("");
+
+  const [loadingError, setLoadingError] = useState("");
 
   const [skivingApprovalData, setSkivingApprovalData] = useState<
     SkivingApprovalRow[]
@@ -43,7 +47,7 @@ const useSkivingApprovalTable = () => {
               requestedPattern: casing.patternName || "-",
 
               tyreSize: casing.tyreSizeLabel || "-",
-              tyreMakeName:casing.tyreMakeName || "-",
+              tyreMakeName: casing.tyreMakeName || "-",
 
               tyreMake: "-",
 
@@ -123,8 +127,15 @@ const useSkivingApprovalTable = () => {
       const transformed = transformData(response.data.data || []);
 
       setSkivingApprovalData(transformed);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Skiving Approval Error", error);
+
+      setLoadingError(
+        getSkivingApprovalErrorMessage(
+          error,
+          "Failed to load Skiving Approval orders.",
+        ),
+      );
     }
   };
 
@@ -151,6 +162,7 @@ const useSkivingApprovalTable = () => {
     filteredData,
 
     fetchSkivingApprovalOrders,
+    loadingError,
   };
 };
 

@@ -8,6 +8,7 @@ import type {
   InspectionRepair,
   SkivingRepair,
 } from "../types/skivingStage1.types";
+import { getSkivingStage1ErrorMessage } from "../utils/getSkivingStage1ErrorMessage";
 
 interface Machine {
   machineId: number;
@@ -32,7 +33,7 @@ const useSkivingStage1Modal = ({
   const [damageTypes, setDamageTypes] =
     useState<DamageType[]>([]);
 
-const [repairLocations, setRepairLocations] =
+  const [repairLocations, setRepairLocations] =
     useState<RepairLocation[]>([]);
 
   const [skivingStation,
@@ -97,9 +98,9 @@ const [repairLocations, setRepairLocations] =
       }
     };
 
-    /*=======================
-  FETCH REPAIR LOCATIONS
-  ========================*/
+  /*=======================
+FETCH REPAIR LOCATIONS
+========================*/
   const fetchRepairLocations =
     async () => {
       try {
@@ -114,7 +115,7 @@ const [repairLocations, setRepairLocations] =
       }
     };
 
-    
+
   /* ======================
       INSPECTION DATA
   ======================= */
@@ -277,22 +278,14 @@ const [repairLocations, setRepairLocations] =
         }
 
         resetModal();
-      } catch (error: any) {
-
-        console.log(
-          "API ERROR:",
-          error?.response?.data,
-        );
-
-        console.log(
-          "STATUS:",
-          error?.response?.status,
-        );
-
-        console.error(error);
+      } catch (error: unknown) {
+        console.error("Skiving Stage 1 Save Error:", error);
 
         alert(
-          "Failed To Save",
+          getSkivingStage1ErrorMessage(
+            error,
+            "Failed to save Skiving Stage 1.",
+          ),
         );
       }
     };

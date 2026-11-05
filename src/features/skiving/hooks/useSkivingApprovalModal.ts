@@ -3,6 +3,7 @@ import { Modal } from "bootstrap";
 
 import skivingStageServiceApi from "../service/skivingStageServiceApi";
 import type { SkivingApprovalRow } from "../types/skivingApproval.types";
+import { getSkivingApprovalErrorMessage } from "../utils/getSkivingApprovalErrorMessage";
 
 interface RejectionReason {
   rejectionReasonId: number;
@@ -31,7 +32,7 @@ const useSkivingApprovalModal = ({
   ] =
     useState(false);
 
-  const [rejectionReason,setRejectionReason,] =useState<number | null>(null);
+  const [rejectionReason, setRejectionReason,] = useState<number | null>(null);
 
   const [
     rejectionReasons,
@@ -146,16 +147,17 @@ const useSkivingApprovalModal = ({
         }
 
         resetModal();
-      } catch (error) {
-        console.error(
-          error,
-        );
+      } catch (error: unknown) {
+        console.error("Skiving Approval Error:", error);
 
         alert(
-          "Approval Failed",
+          getSkivingApprovalErrorMessage(
+            error,
+            "Failed to approve Skiving Approval.",
+          ),
         );
       }
-    };
+    }
 
   /* =====================
       REJECT
@@ -218,13 +220,14 @@ const useSkivingApprovalModal = ({
         }
 
         resetModal();
-      } catch (error) {
-        console.error(
-          error,
-        );
+      } catch (error: unknown) {
+        console.error("Skiving Rejection Error:", error);
 
         alert(
-          "Reject Failed",
+          getSkivingApprovalErrorMessage(
+            error,
+            "Failed to reject Skiving Approval.",
+          ),
         );
       }
     };

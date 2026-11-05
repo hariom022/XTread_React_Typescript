@@ -21,6 +21,10 @@ import "../style/skivingStage.css";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 import { RingLoader } from "react-spinners";
 
+import { getSkivingStage1ErrorMessage } from "../utils/getSkivingStage1ErrorMessage";
+
+import { getSkivingApprovalErrorMessage } from "../utils/getSkivingApprovalErrorMessage";
+
 const SkivingStage = () => {
   const [activeTab, setActiveTab] = useState<"stage1" | "approval">("stage1");
   const [search, setSearch] = useState("");
@@ -53,12 +57,14 @@ const SkivingStage = () => {
     filteredData: skivingStage1Rows,
 
     fetchSkivingStage1Orders,
+    loadingError: stage1LoadingError,
   } = useSkivingStage1Table();
 
   const {
     filteredData: skivingApprovalRows,
 
     fetchSkivingApprovalOrders,
+    loadingError: approvalLoadingError,
   } = useSkivingApprovalTable();
 
   /* =====================================
@@ -83,24 +89,24 @@ const SkivingStage = () => {
 
     refreshTable: fetchSkivingApprovalOrders,
   });
-useEffect(() => {
-  const loadData = async () => {
-    try {
-      setLoading(true);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
 
-      await Promise.all([
-        fetchSkivingStage1Orders(),
-        fetchSkivingApprovalOrders(),
-      ]);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        await Promise.all([
+          fetchSkivingStage1Orders(),
+          fetchSkivingApprovalOrders(),
+        ]);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  loadData();
-}, []);
+    loadData();
+  }, []);
   /* =====================================
       OPEN STAGE1 MODAL
   ====================================== */
@@ -159,10 +165,15 @@ useEffect(() => {
       //     new Modal(stage1ModalRef.current).show();
       //   }
       // }, 0);
-    } catch (error) {
-      console.error("Failed to fetch casing details", error);
+    } catch (error: unknown) {
+      console.error("Failed to fetch Skiving Stage 1 casing details", error);
 
-      alert("Unable to load casing details");
+      alert(
+        getSkivingStage1ErrorMessage(
+          error,
+          "Unable to load Skiving Stage 1 casing details.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -215,10 +226,15 @@ useEffect(() => {
       //     new Modal(approvalModalRef.current).show();
       //   }
       // }, 0);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("Failed to fetch Skiving Approval casing details", error);
 
-      alert("Unable to load casing details");
+      alert(
+        getSkivingApprovalErrorMessage(
+          error,
+          "Unable to load Skiving Approval casing details.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -308,9 +324,8 @@ useEffect(() => {
           SKIVING STAGE 1
         </button> */}
         <button
-          className={`btn ${
-            activeTab === "stage1" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn ${activeTab === "stage1" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={async () => {
             try {
               setLoading(true);
@@ -335,9 +350,8 @@ useEffect(() => {
           SKIVING APPROVAL
         </button> */}
         <button
-          className={`btn ${
-            activeTab === "approval" ? "btn-primary" : "btn-outline-primary"
-          }`}
+          className={`btn ${activeTab === "approval" ? "btn-primary" : "btn-outline-primary"
+            }`}
           onClick={async () => {
             try {
               setLoading(true);
@@ -357,7 +371,11 @@ useEffect(() => {
       {/* =====================================
           STAGE 1 TABLE
       ====================================== */}
-
+      {activeTab === "stage1" && stage1LoadingError && (
+        <div className="alert alert-danger" role="alert">
+          {stage1LoadingError}
+        </div>
+      )}
       {activeTab === "stage1" && (
         <SkivingStage1Table
           data={filteredStage1Rows}
@@ -368,6 +386,12 @@ useEffect(() => {
       {/* =====================================
           APPROVAL TABLE
       ====================================== */}
+
+      {activeTab === "approval" && approvalLoadingError && (
+        <div className="alert alert-danger" role="alert">
+          {approvalLoadingError}
+        </div>
+      )}
 
       {activeTab === "approval" && (
         <SkivingApprovalTable

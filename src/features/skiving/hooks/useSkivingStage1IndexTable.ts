@@ -6,6 +6,7 @@ import type {
   SkivingStage1Row,
   InspectionRepair,
 } from "../types/skivingStage1.types";
+import { getSkivingStage1ErrorMessage } from "../utils/getSkivingStage1ErrorMessage";
 
 const SKIVING_STAGE = 8;
 const SKIVING_STAGE1_SUBSTAGE = 81;
@@ -13,7 +14,7 @@ const ACTIVE_STATUS = 1;
 
 const useSkivingStage1Table = () => {
   const [search, setSearch] = useState("");
-
+  const [loadingError, setLoadingError] = useState("");
   const [skivingStage1Data, setSkivingStage1Data] = useState<
     SkivingStage1Row[]
   >([]);
@@ -45,7 +46,7 @@ const useSkivingStage1Table = () => {
               requestedPattern: casing?.patternName || "-",
 
               tyreSize: casing.tyreSizeLabel || "-",
-              tyreMakeName:casing.tyreMakeName || "-",
+              tyreMakeName: casing.tyreMakeName || "-",
 
               tyreMake: "-",
 
@@ -125,8 +126,15 @@ const useSkivingStage1Table = () => {
       const transformed = transformData(response.data.data || []);
       console.log("TRANSFORMED", transformed);
       setSkivingStage1Data(transformed);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Skiving Stage 1 Error", error);
+
+      setLoadingError(
+        getSkivingStage1ErrorMessage(
+          error,
+          "Failed to load Skiving Stage 1 orders.",
+        ),
+      );
     }
   };
 
@@ -153,6 +161,7 @@ const useSkivingStage1Table = () => {
     filteredData,
 
     fetchSkivingStage1Orders,
+    loadingError
   };
 };
 
