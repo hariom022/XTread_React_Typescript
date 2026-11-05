@@ -580,9 +580,9 @@ useEffect(() => {
       if (response.data?.success) {
         setCustomers(
           Array.isArray(
-            response.data.data,
+            response.data.data.items,
           )
-            ? response.data.data
+            ? response.data.data.items
             : [],
         );
       } else {

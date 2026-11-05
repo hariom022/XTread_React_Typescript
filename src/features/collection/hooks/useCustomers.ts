@@ -25,7 +25,7 @@ const useCustomers = (selectedRegionId: string) => {
         Number(selectedRegionId),
       );
 
-      setCustomers(res.data?.data ?? []);
+      setCustomers(res.data?.data?.items ?? []);
     } catch (err) {
       console.error("Failed to load customers by region:", err);
       setCustomers([]);
@@ -55,7 +55,7 @@ const useCustomers = (selectedRegionId: string) => {
         );
 
         if (!cancelled) {
-          setCustomers(res.data?.data ?? []);
+          setCustomers(res.data?.data.items ?? []);
         }
       } catch (err) {
         if (!cancelled) {
