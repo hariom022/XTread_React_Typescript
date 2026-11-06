@@ -118,13 +118,13 @@ const QualityControlRetreadModal = ({
   return (
     <>
       {/* Header Info */}
-      <div className="modal-info m-0 p-2 building-top row text-nowrap">
-        <div className="col-2">
+      <div className="modal-info m-0 p-1 building-top row text-nowrap">
+        <div className="col">
           <strong>Production No</strong>
           <div>{selectedItem.productionNumber}</div>
         </div>
 
-        <div className="col-2">
+        <div className="col">
           <strong>Type Ref No</strong>
           <div>{selectedItem.serial}</div>
         </div>
@@ -134,14 +134,18 @@ const QualityControlRetreadModal = ({
           <div>{selectedItem.customerName}</div>
         </div>
 
-        <div className="col-2">
+        <div className="col">
           <strong>Tyre Size</strong>
           <div>{selectedItem.tyreSize}</div>
         </div>
 
-        <div className="col-2">
+        <div className="col">
           <strong>Requested Pattern</strong>
           <div>{selectedItem.requestedPattern}</div>
+        </div>
+        <div className="col">
+          <strong>ReApproved Pattern</strong>
+          <div>{selectedItem.reApprovedPattern || "-"}</div>
         </div>
       </div>
 

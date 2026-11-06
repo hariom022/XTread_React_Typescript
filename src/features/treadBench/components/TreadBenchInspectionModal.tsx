@@ -54,7 +54,7 @@ const TreadBenchInspectionModal = ({
                 TREAD BENCH – INSPECTION
               </h5>
               <div className="me-3 text-white text-end">
-                <div> <b> {user?.userName || "User"}</b></div>
+                <div>{user?.fullName || user?.userName || "User"}</div>
               </div>
               <button
                 type="button"
@@ -155,7 +155,7 @@ const TreadBenchInspectionModal = ({
                             </div> */}
 
                             {/* Cement Type */}
-                            <div className="col-6">
+                            <div className="col-12">
                               <label className="form-label fw-semibold">
                                 Cement Type
                               </label>
@@ -165,7 +165,6 @@ const TreadBenchInspectionModal = ({
                                 onChange={(e) => setCementType(e.target.value)}
                               >
                                 <option value="" selected disabled>Select Cement Type</option>
-                                <option value="null">Select None</option>
                                 {cementTypes?.map((item) => (
                                   <option
                                     key={item.cementTypeId}
@@ -174,6 +173,7 @@ const TreadBenchInspectionModal = ({
                                     {item.displayName}
                                   </option>
                                 ))}
+                                <option value="null">None</option>
                                 
                               </select>
                             </div>

@@ -171,7 +171,7 @@ const PressureTestModal = ({ selectedItem, onClose, onSuccess }: Props) => {
                 PRESSURE TEST – APPROVAL
               </h5>
               <div className="me-3 text-white text-end">
-                <div>{user?.userName || "User"}</div>
+                <div>{user?.fullName || user?.userName || "User"}</div>
               </div>
               <button className="btn-close btn-close-white" onClick={onClose} />
             </div>

@@ -87,15 +87,34 @@ const CustomerApprovalPage = () => {
     }
   };
   const handleOpenEdit = async (casing: any) => {
-    setEditLoading(true);
+    try {
+      setEditLoading(true);
 
-    setSelectedCasing(casing);
-    setShowEditModal(true);
+      const response =
+        await customerApprovalService.getOrderCasingDetails(
+          casing.orderCasingId,
+        );
 
-    // Optional: only for testing loader visibility
-    setTimeout(() => {
+      const casingDetails = response.data.data;
+
+      setSelectedCasing({
+        ...casingDetails,
+        orderNumber: casing.orderNumber,
+      });
+
+      setShowEditModal(true);
+    } catch (error: unknown) {
+      console.error("LOAD EDIT CASING ERROR:", error);
+
+      alert(
+        getApiErrorMessage(
+          error,
+          "Unable to load casing details. Please try again.",
+        ),
+      );
+    } finally {
       setEditLoading(false);
-    }, 1000);
+    }
   };
 
   const handleCloseEdit = () => {

@@ -108,12 +108,12 @@ const QualityControlRepairModal = ({
     <>
       {/* Header */}
       <div className="modal-info m-0 p-2 building-top row text-nowrap">
-        <div className="col-2">
+        <div className="col">
           <strong>Production No</strong>
           <div>{selectedItem.productionNumber}</div>
         </div>
 
-        <div className="col-2">
+        <div className="col">
           <strong>Tyre Ref No</strong>
           <div>{selectedItem.serial}</div>
         </div>
@@ -123,12 +123,12 @@ const QualityControlRepairModal = ({
           <div>{selectedItem.customerName}</div>
         </div>
 
-        <div className="col-2">
+        <div className="col">
           <strong>Tyre Size</strong>
           <div>{selectedItem.tyreSize}</div>
         </div>
 
-        <div className="col-2">
+        <div className="col">
           <strong>Repair Inspection</strong>
         </div>
       </div>

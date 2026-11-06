@@ -168,8 +168,7 @@ const PreBuffingApprovalModal = ({
               <h5 className="modal-title">PRE BUFFING - APPROVAL</h5>
 
               <div className="d-flex align-items-center gap-3 ms-auto">
-                <span className="text-white">{user?.userName || "User"}</span>
-
+                <div>{user?.fullName || user?.userName || "User"}</div>
                 <button
                   type="button"
                   className="btn-close btn-close-white"

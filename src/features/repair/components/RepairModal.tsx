@@ -327,7 +327,7 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
               <div className="d-flex align-items-center gap-3">
                 <div className="text-end">
-                  <div>{user?.userName || "User"}</div>
+                  <div>{user?.fullName || user?.userName || "User"}</div>
                 </div>
 
                 <button

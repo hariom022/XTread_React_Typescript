@@ -87,7 +87,7 @@ const SkivingStage1Modal = ({
   handleSave,
   resetModal,
 }: Props) => {
-   const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   return (
     <div
       className="modal fade"
@@ -102,8 +102,7 @@ const SkivingStage1Modal = ({
               SKIVING STAGE 1 - APPROVAL
             </h5>
             <div className="me-3 text-white text-end">
-             <div>{user?.userName || "User"}</div>
-            </div>
+              <div>{user?.fullName || user?.userName || "User"}</div>            </div>
             <button
               type="button"
               className="btn-close btn-close-white"

@@ -129,7 +129,7 @@ const NailInspectionModal = ({
               // style={{ marginLeft: "50rem" }}
               >
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
-                <div>{user?.userName || "User"}</div>
+               <div>{user?.fullName || user?.userName || "User"}</div>
               </div>
               {/* CLOSE (X) BUTTON */}
               <button

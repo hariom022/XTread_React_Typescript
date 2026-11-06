@@ -76,7 +76,7 @@ const SkivingApprovalModal = ({
             </h5>
 
             <div className="me-3 text-white text-end">
-             <div>{user?.userName || "User"}</div>
+             <div>{user?.fullName || user?.userName || "User"}</div>
             </div>
 
             <button

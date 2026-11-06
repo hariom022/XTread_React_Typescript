@@ -10,6 +10,8 @@ const customerApprovalService = {
       },
     }),
 
+  getOrderCasingDetails: (orderCasingId: number) =>
+    api.get(`/orders/casings/${orderCasingId}`),
   confirmCustomerOrder: (data: CustomerApprovalPayload) =>
     api.post("/orders/customer-approval", data),
 

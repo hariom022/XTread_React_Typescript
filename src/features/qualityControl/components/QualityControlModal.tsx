@@ -1,22 +1,23 @@
+import { useAuthStore } from "../../auth/store/authStore";
 import type { QualityControlDetails, } from "../type/qualityControl.type";
 
 interface Props {
-  show: boolean;
-  selectedItem: any;
+    show: boolean;
+    selectedItem: any;
 
-  rejectReason: string;
-  setRejectReason: React.Dispatch<
-    React.SetStateAction<string>
-  >;
+    rejectReason: string;
+    setRejectReason: React.Dispatch<
+        React.SetStateAction<string>
+    >;
 
-  rejectComment: string;
-  setRejectComment: React.Dispatch<
-    React.SetStateAction<string>
-  >;
+    rejectComment: string;
+    setRejectComment: React.Dispatch<
+        React.SetStateAction<string>
+    >;
 
-  onApprove: () => void;
-  onReject: () => void;
-  onClose: () => void;
+    onApprove: () => void;
+    onReject: () => void;
+    onClose: () => void;
 }
 
 const QualityControlModal =
@@ -29,11 +30,12 @@ const QualityControlModal =
 
         rejectComment,
         setRejectComment,
-    
+
         onApprove,
         onReject,
         onClose,
     }: Props) => {
+        const user = useAuthStore((state) => state.user);
 
         if (!show || !selectedItem) return null;
 
@@ -51,10 +53,16 @@ const QualityControlModal =
                                     Quality Control Stage
                                 </h4>
 
-                                <button
-                                    className="btn-close btn-close-white"
-                                    onClick={onClose}
-                                />
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="text-end">
+                                        <div>{user?.fullName || user?.userName || "User"}</div>
+                                    </div>
+
+                                    <button
+                                        className="btn-close btn-close-white"
+                                        onClick={onClose}
+                                    />
+                                </div>
 
                             </div>
 
