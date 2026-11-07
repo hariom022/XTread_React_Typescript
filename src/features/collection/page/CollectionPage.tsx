@@ -556,8 +556,7 @@ const CollectionPage = ({
       // DOT NUMBER BINDING
       const dotNumber = casing.dotNumber || "";
 
-      const [factory = "", week = "", year = ""] =
-        dotNumber.split("-");
+      const [factory = "", week = "", year = ""] = dotNumber.split("-");
 
       setFactoryCode(factory);
       setManufacturingWeek(week);
@@ -781,7 +780,7 @@ const CollectionPage = ({
       if (isFinishedMaterialValid !== true) {
         alert(
           materialValidationMessage ||
-          "Please select a valid tyre size and pattern.",
+            "Please select a valid tyre size and pattern.",
         );
         return;
       }
@@ -1081,29 +1080,29 @@ const CollectionPage = ({
         retreadDetail:
           item.serviceType === "Retread"
             ? {
-              treadPatternVariantId: item.treadPatternVariantId?.toString(),
+                treadPatternVariantId: item.treadPatternVariantId?.toString(),
 
-              isPatternOverride: !!item.override,
-            }
+                isPatternOverride: !!item.override,
+              }
             : null,
 
         // REPAIR DETAIL
         repairDetail:
           item.serviceType === "Repair"
             ? {
-              percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
+                percentageRemainingTreadDepth: item.remainingTreadDepth || "0",
 
-              remarks: item.remarks || "",
+                remarks: item.remarks || "",
 
-              operations:
-                item.repairs?.map((r: any) => ({
-                  repairType: r.repairType,
+                operations:
+                  item.repairs?.map((r: any) => ({
+                    repairType: r.repairType,
 
-                  repairLocation: r.repairLocation,
+                    repairLocation: r.repairLocation,
 
-                  quantity: r.repairQty,
-                })) || [],
-            }
+                    quantity: r.repairQty,
+                  })) || [],
+              }
             : null,
       })),
     };
@@ -1121,14 +1120,17 @@ const CollectionPage = ({
         return;
       }
       // Validate Region and Zone
-      if (!selectedRegionId) {
-        alert("Please select a Region.");
-        return;
-      }
+      // Region and Zone are mandatory only when creating a new origin order.
+      if (!addToExistingOrder) {
+        if (!selectedRegionId) {
+          alert("Please select a Region.");
+          return;
+        }
 
-      if (!selectedZoneId) {
-        alert("Please select a Zone.");
-        return;
+        if (!selectedZoneId) {
+          alert("Please select a Zone.");
+          return;
+        }
       }
       // if (addToExistingOrder && !orderNumber.trim()) {
       //   alert("Existing order number is missing.");
@@ -1175,24 +1177,24 @@ const CollectionPage = ({
             retreadDetail:
               item.serviceType === "Retread"
                 ? {
-                  treadPatternVariantId: String(item.treadPatternVariantId),
-                  isPatternOverride: Boolean(item.override),
-                }
+                    treadPatternVariantId: String(item.treadPatternVariantId),
+                    isPatternOverride: Boolean(item.override),
+                  }
                 : null,
 
             repairDetail:
               item.serviceType === "Repair"
                 ? {
-                  percentageRemainingTreadDepth: String(
-                    item.remainingTreadDepth || "0",
-                  ),
-                  remarks: item.remarks || "",
-                  operations: (item.repairs || []).map((repair: any) => ({
-                    repairType: repair.repairType,
-                    repairLocation: repair.repairLocation,
-                    quantity: String(repair.repairQty || "0"),
-                  })),
-                }
+                    percentageRemainingTreadDepth: String(
+                      item.remainingTreadDepth || "0",
+                    ),
+                    remarks: item.remarks || "",
+                    operations: (item.repairs || []).map((repair: any) => ({
+                      repairType: repair.repairType,
+                      repairLocation: repair.repairLocation,
+                      quantity: String(repair.repairQty || "0"),
+                    })),
+                  }
                 : null,
           };
 
@@ -1226,7 +1228,7 @@ const CollectionPage = ({
 
       alert(
         getApiErrorMessage(error) ||
-        "Unable to save the order. Please check the required fields.",
+          "Unable to save the order. Please check the required fields.",
       );
     } finally {
       setSaveOrderLoading(false);
@@ -1272,28 +1274,29 @@ const CollectionPage = ({
         retreadDetail:
           selectedService === "Retread"
             ? {
-              treadPatternVariantId: selectedVariantId,
-              isPatternOverride: override,
-            }
+                treadPatternVariantId: selectedVariantId,
+                isPatternOverride: override,
+              }
             : null,
 
         repairDetail:
           selectedService === "Repair"
             ? {
-              percentageRemainingTreadDepth: remainingTreadDepth,
+                percentageRemainingTreadDepth: remainingTreadDepth,
 
-              remarks,
+                remarks,
 
-              operations: repairs.map((r) => ({
-                repairType: r.repairType,
-                repairLocation: r.repairLocation,
-                quantity: Number(r.repairQty),
-              })),
-            }
+                operations: repairs.map((r) => ({
+                  repairType: r.repairType,
+                  repairLocation: r.repairLocation,
+                  quantity: Number(r.repairQty),
+                })),
+              }
             : null,
       };
-      console.log("UPDATED DOT NUMBER:",
-        `${factoryCode.trim()}-${manufacturingWeek.trim()}-${manufacturingYear.trim()}`
+      console.log(
+        "UPDATED DOT NUMBER:",
+        `${factoryCode.trim()}-${manufacturingWeek.trim()}-${manufacturingYear.trim()}`,
       );
 
       console.log("UPDATE CASING PAYLOAD:", payload);
@@ -1426,6 +1429,7 @@ const CollectionPage = ({
                 setDeliveryRegionId={setDeliveryRegionId}
                 deliveryZoneId={deliveryZoneId}
                 setDeliveryZoneId={setDeliveryZoneId}
+                showDeliveryRegionZone={!addToExistingOrder}
               />
             </div>
           </div>
