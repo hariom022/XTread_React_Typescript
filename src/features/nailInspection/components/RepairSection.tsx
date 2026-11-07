@@ -24,7 +24,7 @@ const RepairSection = ({
   return (
     <div className="row g-1 mt-1 mb-0">
       <div className="text-start">
-        <label><b>Patches Found</b></label>
+        <label><b>Damages Found</b></label>
       </div>
       {/* Damage Type */}
       <div className="col-md-4">
@@ -88,7 +88,7 @@ const RepairSection = ({
           style={{ minHeight: "20px" }}
           onClick={addRepair}
         >
-          + Add Repair
+          + Add Damage
         </button>
       </div>
     </div>

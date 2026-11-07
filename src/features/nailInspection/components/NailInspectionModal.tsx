@@ -129,7 +129,7 @@ const NailInspectionModal = ({
               // style={{ marginLeft: "50rem" }}
               >
                 {/* <strong className="fw-semibold d-block">Staff Name</strong> */}
-               <div>{user?.fullName || user?.userName || "User"}</div>
+                <div>{user?.fullName || user?.userName || "User"}</div>
               </div>
               {/* CLOSE (X) BUTTON */}
               <button
@@ -271,7 +271,15 @@ const NailInspectionModal = ({
 
                 {/* RIGHT SIDE */}
                 <div className="col-md-4">
-                  <div className="mb-6" style={{ marginBottom: "9.3rem" }}>
+                  <div className=" mt-2" style={{ marginBottom: "6.1rem" }}>
+                    <div className="panel-box">
+                      <div className="panel-body p-2">
+                        <strong>Existing Repairs at Collection = {selectedItem?.noOfExistingRepairs ?? 0}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-1 mt-5">
                     <label className="fw-semibold">Rejection Reason</label>
 
                     <select
@@ -325,7 +333,7 @@ const NailInspectionModal = ({
               </div>
 
               {/* HOLD */}
-             {/* <div className="row mt-1">
+              {/* <div className="row mt-1">
                 <div className="col">
                   <button
                     className="btn btn-warning w-100 fw-bold"

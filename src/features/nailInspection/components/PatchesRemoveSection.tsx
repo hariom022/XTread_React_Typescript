@@ -30,7 +30,8 @@ const PatchesRemoveSection = ({
     <div className="row g-1 mt-1 mb-0 h-33">
 
       <div className="text-start">
-        <label> <b>Patches Removed</b></label>
+        {/* <label> <b>Patches Removed</b></label> */}
+        <b>Existing Repairs to be removed</b>
       </div>
 
       <div className="col-md-4">
