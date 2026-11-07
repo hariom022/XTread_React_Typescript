@@ -46,6 +46,7 @@ type Props = {
   setDeliveryRegionId: (id: string) => void;
   deliveryZoneId: string;
   setDeliveryZoneId: (id: string) => void;
+  showDeliveryRegionZone?: boolean;
 };
 
 const OrderDetails = ({
@@ -75,6 +76,7 @@ const OrderDetails = ({
   setDeliveryRegionId,
   deliveryZoneId,
   setDeliveryZoneId,
+  showDeliveryRegionZone = true,
 }: Props) => {
   const [deliveryRegions, setDeliveryRegions] = useState<AccessibleRegion[]>(
     [],
@@ -222,6 +224,7 @@ const OrderDetails = ({
           </div>
         </div>
       </div>
+      {showDeliveryRegionZone && (
       <div className="card modern-card mt-3">
         <div className="card-header modern-header">Delivery Region & Zone</div>
 
@@ -275,6 +278,7 @@ const OrderDetails = ({
           </div>
         </div>
       </div>
+      )}
     </>
   );
 };
