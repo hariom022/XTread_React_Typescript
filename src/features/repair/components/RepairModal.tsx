@@ -288,10 +288,19 @@ const RepairModal = ({ selectedItem, onClose, onSuccess }: Props) => {
 
       await onSuccess();
       onClose();
-    } catch (error) {
-      console.error(error);
-      alert("The Number of Expected Patch Details is not provided.");
-    } finally {
+    } 
+   catch (error: any) {
+  console.error("Repair Approval Error:", error);
+
+  const backendMessage =
+    error?.response?.data?.error?.message ||
+    error?.response?.data?.message ||
+    error?.message ||
+    "Something went wrong. Please try again.";
+
+  alert(backendMessage);
+}
+finally {
       setLoading(false);
     }
   };
