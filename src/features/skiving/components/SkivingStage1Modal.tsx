@@ -242,7 +242,8 @@ const SkivingStage1Modal = ({
               <div className="col-md-6">
                 <div className="box h-100">
                   <h5>
-                    Inspection Stage - Patches
+                    Repair Works
+                    {/* Inspection Stage - Patches */}
                   </h5>
                   <div className="px-2">
 
