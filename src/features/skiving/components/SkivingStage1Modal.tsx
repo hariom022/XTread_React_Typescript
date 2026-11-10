@@ -5,6 +5,7 @@ import type {
   InspectionRepair,
   SkivingRepair,
   SkivingStage1Row,
+  RemovedPatch
 } from "../types/skivingStage1.types";
 import { useAuthStore } from "../../auth/store/authStore";
 
@@ -42,6 +43,8 @@ interface Props {
 
   inspectionData: InspectionRepair[];
 
+  removedPatches?: RemovedPatch[];
+
   skivingRepairs: Repair[];
 
   newRepair: Repair;
@@ -59,6 +62,7 @@ interface Props {
   handleSave: () => void;
 
   resetModal: () => void;
+
 }
 
 const SkivingStage1Modal = ({
@@ -75,6 +79,8 @@ const SkivingStage1Modal = ({
   setRemarks,
 
   inspectionData,
+
+  removedPatches,
 
   skivingRepairs,
 
@@ -254,38 +260,61 @@ const SkivingStage1Modal = ({
                           <tr>
                             <th>Type</th>
                             <th>Location</th>
-                            <th>FoundAtLocation</th>
+                            <th>Found At</th>
+                            {/* <th>Repair Source</th> */}
                           </tr>
                         </thead>
 
                         <tbody>
-                          {inspectionData.map(
-                            (
-                              item,
-                              index,
-                            ) => (
+                          {inspectionData.map((item, index) => (
+                            <tr key={index}>
+                              <td>{item.type}</td>
+                              <td>{item.location}</td>
+                              <td>{item.foundAt}</td>
+                              {/* <td>{item.repairSource}</td> */}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Patches Removed at Nail Inspection */}
+                  <h5>Patches Removed at Nail Inspection</h5>
+                  <div className="px-2">
+                    <div className="table-responsive">
+                      <table className="table table-bordered align-middle">
+                        <thead>
+                          <tr>
+                            <th>Reason for Removal</th>
+                            <th>Location</th>
+                            <th>Removed At</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {(removedPatches ?? []).length > 0 ? (
+                            (removedPatches ?? []).map((item, index) => (
                               <tr key={index}>
-                                <td>
-                                  {
-                                    item.type
-                                  }
-                                </td>
-                                <td>
-                                  {item.location}
-                                </td>
-                                <td>
-                                  {item.foundAt}
-                                </td>
+                                <td>{item.reason}</td>
+                                <td>{item.location}</td>
+                                <td>{item.removedAt}</td>
                               </tr>
-                            ),
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={3} className="text-center">
+                                No patches removed at Nail Inspection
+                              </td>
+                            </tr>
                           )}
                         </tbody>
-
                       </table>
                     </div>
                   </div>
                 </div>
               </div>
+
 
               {/* Skiving */}
 
@@ -376,6 +405,7 @@ const SkivingStage1Modal = ({
                       <tr>
                         <th>Type</th>
                         <th>Location</th>
+                        {/* <th>Repair Source</th> */}
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -388,29 +418,19 @@ const SkivingStage1Modal = ({
                           index,
                         ) => (
                           <tr key={index}>
-                            <td>
-                              {item.type}
-                            </td>
+                            <td>{item.type}</td>
+
+                            <td>{item.location}</td>
+
+                            {/* <td>{item.repairSource}</td> */}
 
                             <td>
-                              {
-                                item.location
-                              }
-                            </td>
-
-                            <td>
-
                               <button
                                 className="btn btn-danger btn-sm"
-                                onClick={() =>
-                                  removeRepair(
-                                    index,
-                                  )
-                                }
+                                onClick={() => removeRepair(index)}
                               >
                                 Delete
                               </button>
-
                             </td>
                           </tr>
                         ),

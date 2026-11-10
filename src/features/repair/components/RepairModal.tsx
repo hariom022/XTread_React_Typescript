@@ -473,31 +473,6 @@ finally {
                             </label>
                           </div>
                           <div className="row g-3">
-                            {/* LOCATION */}
-
-                            <div className="col-md-6">
-                              <label>Location</label>
-
-                              <select
-                                className="form-select"
-                                value={newPatch.repairLocationId}
-                                onChange={(e) =>
-                                  setNewPatch({
-                                    ...newPatch,
-                                    repairLocationId: Number(e.target.value),
-                                  })
-                                }
-                              >
-                                <option value={0}>--- Location ---</option>
-
-                                {locations.map((item) => (
-                                  <option key={item.id} value={item.id}>
-                                    {item.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
                             {/* DAMAGE TYPE */}
 
                             <div className="col-md-6">
@@ -516,6 +491,31 @@ finally {
                                 <option value={0}>--- Damage Type ---</option>
 
                                 {damageTypes.map((item) => (
+                                  <option key={item.id} value={item.id}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* LOCATION */}
+
+                            <div className="col-md-6">
+                              <label>Location</label>
+
+                              <select
+                                className="form-select"
+                                value={newPatch.repairLocationId}
+                                onChange={(e) =>
+                                  setNewPatch({
+                                    ...newPatch,
+                                    repairLocationId: Number(e.target.value),
+                                  })
+                                }
+                              >
+                                <option value={0}>--- Location ---</option>
+
+                                {locations.map((item) => (
                                   <option key={item.id} value={item.id}>
                                     {item.name}
                                   </option>

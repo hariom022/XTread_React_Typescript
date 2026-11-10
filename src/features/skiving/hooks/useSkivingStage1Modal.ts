@@ -7,6 +7,7 @@ import type { DamageType, RepairLocation } from "../service/skivingStageServiceA
 import type {
   InspectionRepair,
   SkivingRepair,
+  RemovedPatch
 } from "../types/skivingStage1.types";
 import { getSkivingStage1ErrorMessage } from "../utils/getSkivingStage1ErrorMessage";
 
@@ -50,12 +51,23 @@ const useSkivingStage1Modal = ({
     setSkivingRepairs] =
     useState<Repair[]>([]);
 
-  const [newRepair,
-    setNewRepair] =
-    useState<Repair>({
-      location: "",
-      type: "",
-    });
+  const [newRepair, setNewRepair] = useState<Repair>({
+    location: "",
+    type: "",
+    // repairSource: "New Damage",
+  });
+
+  const [removedPatches, setRemovedPatches] =
+    useState<RemovedPatch[]>([]);
+  /* ======================
+   REMOVED PATCHES DATA
+======================= */
+
+  const loadRemovedPatches = (
+    patches: RemovedPatch[],
+  ) => {
+    setRemovedPatches(patches || []);
+  };
 
   /* ======================
       FETCH MACHINES
@@ -133,32 +145,25 @@ FETCH REPAIR LOCATIONS
   ======================= */
 
   const addRepair = () => {
-    if (
-      !newRepair.location ||
-      !newRepair.type
-    ) {
-      alert(
-        "Please select all repair fields",
-      );
-
+    if (!newRepair.location || !newRepair.type) {
+      alert("Please select all repair fields");
       return;
     }
 
-    setSkivingRepairs(
-      (
-        prev,
-      ) => [
-          ...prev,
-          newRepair,
-        ],
-    );
+    setSkivingRepairs((prev) => [
+      ...prev,
+      {
+        ...newRepair,
+        // repairSource: "New Damage",
+      },
+    ]);
 
     setNewRepair({
       location: "",
       type: "",
+      // repairSource: "New Damage",
     });
   };
-
   /* ======================
       DELETE REPAIR
   ======================= */
@@ -195,7 +200,9 @@ FETCH REPAIR LOCATIONS
     setNewRepair({
       location: "",
       type: "",
+      // repairSource: "New Damage",
     });
+    setRemovedPatches([]);
   };
 
   /* ======================
@@ -317,6 +324,8 @@ FETCH REPAIR LOCATIONS
     handleSave,
 
     resetModal,
+    removedPatches,
+    loadRemovedPatches,
   };
 };
 

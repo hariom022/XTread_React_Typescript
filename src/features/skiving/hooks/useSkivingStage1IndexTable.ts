@@ -70,6 +70,8 @@ const useSkivingStage1Table = () => {
 
               inspectionRepairs: [],
 
+              removedPatches: [],
+
               currentStage: casing.currentStage,
 
               currentSubstage: casing.currentSubstage,

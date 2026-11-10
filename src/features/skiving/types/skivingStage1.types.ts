@@ -1,14 +1,28 @@
+// export interface InspectionRepair {
+//   location: string;
+//   type: string;
+//   foundAt: string;
+// }
+
+// export interface SkivingRepair {
+//   location: string;
+//   type: string;
+// }
+
+// export type RepairSource = "Existing Repair" | "New Damage";
+
 export interface InspectionRepair {
   location: string;
   type: string;
   foundAt: string;
+  // repairSource: RepairSource;
 }
 
 export interface SkivingRepair {
   location: string;
   type: string;
+  // repairSource: RepairSource;
 }
-
 export interface SkivingStage1Row {
   id: number;
 
@@ -64,5 +78,11 @@ export interface SkivingStage1Row {
 
   originalBatch?: any;
   originalCasing?: any;
+  removedPatches: RemovedPatch[];
 
+}
+export interface RemovedPatch {
+  location: string;
+  reason: string;
+  removedAt: string;
 }

@@ -13,7 +13,7 @@ import useSkivingApprovalTable from "../hooks/useSkivingApprovalIndexTable";
 import useSkivingStage1Modal from "../hooks/useSkivingStage1Modal";
 import useSkivingApprovalModal from "../hooks/useSkivingApprovalModal";
 
-import type { SkivingStage1Row } from "../types/skivingStage1.types";
+import type { RemovedPatch, SkivingStage1Row } from "../types/skivingStage1.types";
 import type { SkivingApprovalRow } from "../types/skivingApproval.types";
 import IncidentReportModal from "../../../shared/components/IncidentReportModal";
 
@@ -120,6 +120,22 @@ const SkivingStage = () => {
       console.log("CASING DETAILS", response.data.data);
 
       const casing = response.data.data;
+      const removedPatches: RemovedPatch[] =
+        (casing.removalOperations ?? [])
+          .filter((op: any) => Number(op.casingStageId) === 4)
+          .map((op: any) => ({
+            location: op.repairLocation || "-",
+            reason: op.reasonForRemoval || "-",
+            removedAt: "Nail Inspection",
+          }));
+
+      console.log("MAPPED REMOVED PATCHES:", removedPatches);
+      console.log(
+        "NAIL INSPECTION REMOVALS:",
+        casing.removalOperations?.filter(
+          (op: any) => Number(op.casingStageId) === 4
+        )
+      );
 
       const updatedItem: SkivingStage1Row = {
         ...item,
@@ -146,19 +162,41 @@ const SkivingStage = () => {
               ? "Heavy"
               : "-",
 
+        // inspectionRepairs:
+        //   casing.repairDetail?.operations?.map((op: any) => ({
+        //     location: op.repairLocation,
+
+        //     type: op.repairType,
+
+        //     foundAt: "Nail Inspection",
+        //   })) || [],
+
         inspectionRepairs:
           casing.repairDetail?.operations?.map((op: any) => ({
             location: op.repairLocation,
-
             type: op.repairType,
-
             foundAt: "Nail Inspection",
+            // repairSource: "Existing Repair",
           })) || [],
+
       };
 
-      setSelectedStage1Item(updatedItem);
+      removedPatches:
+      (casing.removalOperations ?? [])
+        .filter(
+          (op: any) => Number(op.casingStageId) === 4
+        )
+        .map((op: any) => ({
+          location: op.repairLocation || "-",
+          reason: op.reasonForRemoval || "-",
+          removedAt: "Nail Inspection",
+        })),
+
+        setSelectedStage1Item(updatedItem);
 
       stage1Modal.loadInspectionData(updatedItem.inspectionRepairs);
+      stage1Modal.loadRemovedPatches(removedPatches);
+      // stage1Modal.loadRemovedPatches(updatedItem.removedPatches);
 
       // setTimeout(() => {
       //   if (stage1ModalRef.current) {
@@ -416,6 +454,8 @@ const SkivingStage = () => {
           remarks={stage1Modal.remarks}
           setRemarks={stage1Modal.setRemarks}
           inspectionData={stage1Modal.inspectionData}
+          removedPatches={stage1Modal.removedPatches}
+          // removedPatches={stage1Modal.removedPatches}
           skivingRepairs={stage1Modal.skivingRepairs}
           setSkivingRepairs={stage1Modal.setSkivingRepairs}
           newRepair={stage1Modal.newRepair}
