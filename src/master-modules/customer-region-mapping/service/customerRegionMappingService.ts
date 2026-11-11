@@ -2,7 +2,39 @@
 import api from "../../../shared/services/api";
 
 const customerRegionMappingService = {
-  getCustomers: () => api.get("/customers"),
+  // Fetch all customers across paginated API responses
+  getCustomers: async () => {
+    const pageSize = 100;
+    let pageNumber = 1;
+    let allCustomers: any[] = [];
+    let totalPages = 1;
+
+    do {
+      const response = await api.get("/customers", {
+        params: {
+          pageNumber,
+          pageSize,
+        },
+      });
+
+      const data = response.data?.data;
+
+      const items = data?.items ?? [];
+      allCustomers = [...allCustomers, ...items];
+
+      totalPages = data?.totalPages ?? 1;
+      pageNumber++;
+    } while (pageNumber <= totalPages);
+
+    return {
+      data: {
+        data: {
+          items: allCustomers,
+        },
+      },
+    };
+  },
+
 
   getRegions: () => api.get("/regions"),
 
