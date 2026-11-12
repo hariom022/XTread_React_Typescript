@@ -46,3 +46,19 @@ export interface RejectionReason {
   category: string | null;
   sortOrder: number;
 };
+
+export interface QCRepairOperation {
+  lineNumber: number;
+  repairType: string;
+  repairLocation: string;
+  quantity: number;
+  casingStageId: number;
+}
+
+export interface QCRepairDetail {
+  stationIdentified: string;
+  location: string;
+  damageType: string;
+  patchSize: string;
+  quantity: number;
+}

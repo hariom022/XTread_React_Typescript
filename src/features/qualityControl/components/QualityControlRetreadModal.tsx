@@ -157,9 +157,7 @@ const QualityControlRetreadModal = ({
               {/* Repair Details */}
               {selectedItem.repairOperations?.length > 0 && (
                 <>
-                  <h5 className="mb-3">Repair Details</h5>
-
-                  <table className="table table-bordered text-center">
+                  {/* <table className="table table-bordered text-center">
                     <thead>
                       <tr>
                         <th>#Patch</th>
@@ -178,6 +176,59 @@ const QualityControlRetreadModal = ({
                           <td>{repair.quantity}</td>
                         </tr>
                       ))}
+                    </tbody>
+                  </table> */}
+                  <h5 className="mb-3">Repair Details</h5>
+
+                  <table className="table table-bordered text-center">
+                    <thead>
+                      <tr>
+                        <th>Station Identified</th>
+                        <th>Location</th>
+                        <th>Damage Type</th>
+                        <th>Patch Size</th>
+                        <th>Quantity</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {[
+                        ...(selectedItem.nailHoleRepairs || []).map((repair: any) => ({
+                          ...repair,
+                          stationIdentified: "Nail Hole",
+                          patchSize: "-",
+                        })),
+
+                        ...(selectedItem.skivingRepairs || []).map((repair: any) => ({
+                          ...repair,
+                          stationIdentified: "Skiving",
+                          patchSize: "-",
+                        })),
+
+                        ...(selectedItem.repairStationRepairs || []).map((repair: any) => ({
+                          ...repair,
+                          stationIdentified: "Repairs Station",
+                          patchSize: repair.patchSize || "-",
+                        })),
+                      ].map((repair: any, index: number) => (
+                        <tr key={`${repair.stationIdentified}-${index}`}>
+                          <td>{repair.stationIdentified}</td>
+                          <td>{repair.repairLocation}</td>
+                          <td>{repair.repairType}</td>
+                          <td>{repair.patchSize}</td>
+                          <td>{repair.quantity}</td>
+                        </tr>
+                      ))}
+
+                      {[
+                        ...(selectedItem.nailHoleRepairs || []),
+                        ...(selectedItem.skivingRepairs || []),
+                        ...(selectedItem.repairStationRepairs || []),
+                      ].length === 0 && (
+                          <tr>
+                            <td colSpan={5}>No Repair Records</td>
+                          </tr>
+                        )}
                     </tbody>
                   </table>
                 </>
@@ -220,8 +271,8 @@ const QualityControlRetreadModal = ({
                     <td>
                       {selectedItem.receivedDate
                         ? new Date(
-                            selectedItem.receivedDate,
-                          ).toLocaleDateString("en-GB")
+                          selectedItem.receivedDate,
+                        ).toLocaleDateString("en-GB")
                         : "-"}
                     </td>
                   </tr>
@@ -321,19 +372,19 @@ const QualityControlRetreadModal = ({
                   {/* Show only when there are NO repair details */}
                   {(!selectedItem.repairOperations ||
                     selectedItem.repairOperations.length === 0) && (
-                    <div className="form-check mb-2">
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        name="destinationStage"
-                        checked={destinationStage === 8}
-                        onChange={() => setDestinationStage(8)}
-                      />
-                      <label className="form-check-label">
-                        Send To Skiving
-                      </label>
-                    </div>
-                  )}
+                      <div className="form-check mb-2">
+                        <input
+                          type="radio"
+                          className="form-check-input"
+                          name="destinationStage"
+                          checked={destinationStage === 8}
+                          onChange={() => setDestinationStage(8)}
+                        />
+                        <label className="form-check-label">
+                          Send To Skiving
+                        </label>
+                      </div>
+                    )}
 
                   {/* Show only when repair details exist */}
                   {selectedItem.repairOperations &&

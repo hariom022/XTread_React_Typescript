@@ -1,8 +1,8 @@
-import {useState,useEffect} from "react";
+import { useState, useEffect } from "react";
 
 import qualityControlServiceApi from "../service/qualityControlServiceApi";
 
-import type {QualityControlDetails,} from "../type/qualityControl.type";
+import type { QualityControlDetails, } from "../type/qualityControl.type";
 import indexPageApiService from "../../../shared/services/indexPageApiService";
 
 const useQualityControlModal = () => {
@@ -64,6 +64,22 @@ const useQualityControlModal = () => {
 
         repairOperations:
           casing.repairDetail?.operations || [],
+          //Repair details:
+          
+        nailHoleRepairs:
+          casing.repairDetail?.operations?.filter(
+            (operation: any) => operation.casingStageId === 4,
+          ) || [],
+
+        skivingRepairs:
+          casing.repairDetail?.operations?.filter(
+            (operation: any) => operation.casingStageId === 8,
+          ) || [],
+
+        repairStationRepairs:
+          casing.repairDetail?.operations?.filter(
+            (operation: any) => operation.casingStageId === 10,
+          ) || [],
 
         serviceType:
           casing.serviceType?.name || "-",
@@ -98,7 +114,7 @@ const useQualityControlModal = () => {
     rejectReason,
     setRejectReason,
     rejectionReasons,
-loadRejectionReasons,
+    loadRejectionReasons,
 
     rejectComment,
     setRejectComment,

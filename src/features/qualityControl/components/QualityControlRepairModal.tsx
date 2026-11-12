@@ -143,6 +143,58 @@ const QualityControlRepairModal = ({
               <table className="table table-bordered text-center">
                 <thead>
                   <tr>
+                    <th>Station Identified</th>
+                    <th>Location</th>
+                    <th>Damage Type</th>
+                    <th>Patch Size</th>
+                    <th>Quantity</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {[
+                    ...(selectedItem.nailHoleRepairs || []).map((repair: any) => ({
+                      ...repair,
+                      stationIdentified: "Nail Hole",
+                      patchSize: "-",
+                    })),
+
+                    ...(selectedItem.skivingRepairs || []).map((repair: any) => ({
+                      ...repair,
+                      stationIdentified: "Skiving",
+                      patchSize: "-",
+                    })),
+
+                    ...(selectedItem.repairStationRepairs || []).map((repair: any) => ({
+                      ...repair,
+                      stationIdentified: "Repairs Station",
+                      patchSize: repair.patchSize || "-",
+                    })),
+                  ].map((repair: any, index: number) => (
+                    <tr key={`${repair.stationIdentified}-${index}`}>
+                      <td>{repair.stationIdentified}</td>
+                      <td>{repair.repairLocation}</td>
+                      <td>{repair.repairType}</td>
+                      <td>{repair.patchSize}</td>
+                      <td>{repair.quantity}</td>
+                    </tr>
+                  ))}
+
+                  {[
+                    ...(selectedItem.nailHoleRepairs || []),
+                    ...(selectedItem.skivingRepairs || []),
+                    ...(selectedItem.repairStationRepairs || []),
+                  ].length === 0 && (
+                      <tr>
+                        <td colSpan={5}>No Repair Records</td>
+                      </tr>
+                    )}
+                </tbody>
+              </table>
+
+              {/* <table className="table table-bordered text-center">
+                <thead>
+                  <tr>
                     <th># Patch</th>
                     <th>Location</th>
                     <th>Damage Type</th>
@@ -168,7 +220,7 @@ const QualityControlRepairModal = ({
                     </tr>
                   )}
                 </tbody>
-              </table>
+              </table> */}
 
               {/* <table className="table table-bordered mt-3">
                 <tbody>
