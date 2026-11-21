@@ -17,6 +17,8 @@ type Props = {
   onPageSizeChange: (size: number) => void;
   onView: (item: MaterialConsumptionAuditTrailItem) => void;
   onRequest: (requestId: number) => void;
+  onRetry: (orderCasingId: number) => void;
+ retryingOrderCasingId: number | null;
 };
 
 const formatDate = (date: string | null) => {
@@ -52,6 +54,8 @@ const MaterialConsumptionAuditTrailTable = ({
   onPageSizeChange,
   onView,
   onRequest,
+    onRetry,
+  retryingOrderCasingId,
 }: Props) => {
   const [expandedRequestId, setExpandedRequestId] = useState<number | null>(
     null,
@@ -164,33 +168,61 @@ const MaterialConsumptionAuditTrailTable = ({
 
                       <td>{formatDate(item.lastAttemptAtUtc)}</td>
 
-                      <td>
-                        <div className="d-flex align-items-center gap-2">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              onView(item);
-                            }}
-                          >
-                            <i className="bi bi-eye me-1"></i>
-                            View
-                          </button>
+                     <td>
+  <div className="d-flex align-items-center gap-2">
+    {/* View */}
+    <button
+      type="button"
+      className="btn btn-sm btn-outline-primary"
+      onClick={(event) => {
+        event.stopPropagation();
+        onView(item);
+      }}
+    >
+      <i className="bi bi-eye me-1"></i>
+      View
+    </button>
 
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              onRequest(item.requestId);
-                            }}
-                          >
-                            <i className="bi bi-list-ul me-1"></i>
-                            Requests
-                          </button>
-                        </div>
-                      </td>
+    {/* Requests */}
+    <button
+      type="button"
+      className="btn btn-sm btn-outline-danger"
+      onClick={(event) => {
+        event.stopPropagation();
+        onRequest(item.requestId);
+      }}
+    >
+      <i className="bi bi-list-ul me-1"></i>
+      Requests
+    </button>
+
+    {/* Retry - Only for failed and manually retryable requests */}
+    {item.statusName?.toLowerCase() === "failed" &&
+      item.canManualRetry && (
+        <button
+          type="button"
+          className="btn btn-sm btn-warning"
+          disabled={retryingOrderCasingId === item.orderCasingId}
+          onClick={(event) => {
+            event.stopPropagation();
+            onRetry(item.orderCasingId);
+          }}
+        >
+          <i
+            className={`bi ${
+              retryingOrderCasingId === item.orderCasingId
+                ? "bi-arrow-repeat"
+                : "bi-arrow-clockwise"
+            } me-1`}
+          ></i>
+
+          {retryingOrderCasingId === item.orderCasingId
+            ? "Retrying..."
+            : "Retry"}
+        </button>
+      )}
+  </div>
+</td>
                     </tr>
 
                     {isExpanded && (

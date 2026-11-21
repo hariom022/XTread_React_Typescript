@@ -56,6 +56,10 @@ const materialConsumptionAuditTrailService = {
     api.get(
       `/sap/material-consumption/requests/${requestId}/attempts/${attemptId}/payload`
     ),
+
+    // Manual retry
+  retryRequest: (orderCasingId: number) =>
+    api.post(`/sap/material-consumption/${orderCasingId}/retry`),
 };
 
 export default materialConsumptionAuditTrailService;

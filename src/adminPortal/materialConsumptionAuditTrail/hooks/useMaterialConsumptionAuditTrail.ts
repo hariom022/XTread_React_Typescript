@@ -43,6 +43,9 @@ const useMaterialConsumptionAuditTrail = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [retryingOrderCasingId, setRetryingOrderCasingId] =
+  useState<number | null>(null);
+
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
@@ -126,6 +129,29 @@ const useMaterialConsumptionAuditTrail = () => {
     setCurrentPage(1);
   };
 
+  const handleRetry = async (orderCasingId: number) => {
+  try {
+    setRetryingOrderCasingId(orderCasingId);
+    setError("");
+
+    await materialConsumptionAuditTrailService.retryRequest(orderCasingId);
+
+    // Refresh audit trail after successful retry request
+    await fetchRequests();
+
+  } catch (err: any) {
+    console.error("Failed to retry material consumption:", err);
+
+    setError(
+      err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        "Failed to retry material consumption request."
+    );
+  } finally {
+    setRetryingOrderCasingId(null);
+  }
+};
+
   return {
     items,
     pagination,
@@ -138,7 +164,10 @@ const useMaterialConsumptionAuditTrail = () => {
     clearFilters,
     handlePageChange,
     handlePageSizeChange,
+    retryingOrderCasingId,
+    handleRetry,
     refresh: fetchRequests,
+    
   };
 };
 

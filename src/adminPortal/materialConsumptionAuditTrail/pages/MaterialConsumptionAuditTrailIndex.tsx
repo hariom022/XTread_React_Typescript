@@ -24,6 +24,8 @@ const MaterialConsumptionAuditTrailIndex = () => {
     filters,
     loading,
     error,
+      retryingOrderCasingId,
+  handleRetry,
     handleFilterChange,
     clearFilters,
     handlePageChange,
@@ -205,6 +207,8 @@ const MaterialConsumptionAuditTrailIndex = () => {
         onPageSizeChange={handlePageSizeChange}
         onView={setSelectedItem}
         onRequest={handleViewRequest}
+        onRetry={handleRetry}
+       retryingOrderCasingId={retryingOrderCasingId}
       />
 
       <MaterialConsumptionAuditTrailDetails
