@@ -25,7 +25,7 @@ const useFillUpIndexTable = () => {
           FILLUP_STAGE,
           ACTIVE_STATUS
         );
-console.log("BATCH ORDER FILLUP", result.data.data)
+      console.log("BATCH ORDER FILLUP", result.data.data)
       const stages =
         result.data.data || [];
 
@@ -86,16 +86,17 @@ console.log("BATCH ORDER FILLUP", result.data.data)
                     batch.stageSummary
                       .pending,
 
+                  // expectedTotal:
+                  //   batch.stageSummary.expectedTotal,
                   expectedTotal:
-                    batch.stageSummary
-                      .expectedTotal,
+                    batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
                   originalBatch:
                     batch,
 
                   originalCasing:
                     casing,
-                    requestedPattern:casing.patternName ||
+                  requestedPattern: casing.patternName ||
                     "-",
                 });
               }

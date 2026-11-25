@@ -70,8 +70,10 @@ export const usePressureTest = () => {
               pending:
                 batch.stageSummary.pending,
 
+              // expectedTotal:
+              //   batch.stageSummary.expectedTotal,
               expectedTotal:
-                batch.stageSummary.expectedTotal,
+                batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
               originalBatch:
                 batch,

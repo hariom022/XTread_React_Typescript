@@ -56,7 +56,8 @@ const usePostBuffingIndexTable = () => {
 
               previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
 
-              expectedTotal: batch.stageSummary?.expectedTotal || 0,
+              // expectedTotal: batch.stageSummary?.expectedTotal || 0,
+              expectedTotal: batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
               arrived: batch.stageSummary?.arrived || 0,
               // ADD THESE PROPERTIES

@@ -70,7 +70,7 @@ const useBuildingIndexTable = () => {
                                         casing.patternName ||
                                         "-",
                                     tyreMakeName:
-                                        casing.tyreMakeName || 
+                                        casing.tyreMakeName ||
                                         "-",
 
                                     tyreSize:
@@ -100,15 +100,16 @@ const useBuildingIndexTable = () => {
                                         batch.stageSummary
                                             ?.pending || 0,
 
+                                    // expectedTotal:
+                                    //     batch.stageSummary?.expectedTotal || 0,
                                     expectedTotal:
-                                        batch.stageSummary
-                                            ?.expectedTotal || 0,
+                                        batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
                                     originalBatch:
                                         batch,
 
                                     originalCasing:
-                                        casing,                                    
+                                        casing,
                                 });
                             },
                         );
@@ -126,7 +127,7 @@ const useBuildingIndexTable = () => {
         }
     };
 
-    
+
     useEffect(() => {
         loadBuildingOrders();
     }, []);
