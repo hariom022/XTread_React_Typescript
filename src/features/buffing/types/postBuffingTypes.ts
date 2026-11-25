@@ -54,4 +54,16 @@ export interface PostBuffingRow {
 
   originalBatch?: any;
   originalCasing?: any;
+  // Batch Arrival Status
+  isBatchFullyArrived: boolean;
+
+  stageSummary?: {
+    approved?: number;
+    rejected?: number;
+    pending?: number;
+    arrived?: number;
+    expectedTotal?: number;
+    stillAtPreviousStage?: number;
+    isBatchFullyArrived?: boolean;
+  };
 }

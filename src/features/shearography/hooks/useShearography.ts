@@ -13,75 +13,49 @@ const transformApiData = (stages: any[]) => {
         list.push({
           id: casing.orderCasingId,
 
-          casing:
-            casing.productionNumber ||
-            casing.barcodeNumber ||
-            "-",
+          casing: casing.productionNumber || casing.barcodeNumber || "-",
 
-          date:
-            casing.orderDate ||
-            batch.createdAtUtc ||
-            null,
+          date: casing.orderDate || batch.createdAtUtc || null,
 
-          serial:
-            casing.tyreReferenceNumber ||
-            "-",
+          serial: casing.tyreReferenceNumber || "-",
 
-          patternName:
-            casing.patternName ||
-            "-",
+          patternName: casing.patternName || "-",
 
-          requestedPattern:
-            casing.patternName ||
-            "-",
+          requestedPattern: casing.patternName || "-",
 
-          tyreSize:
-            casing.tyreSizeLabel ||
-            "-",
+          tyreSize: casing.tyreSizeLabel || "-",
 
-          tyreMakeName:
-            casing.tyreMakeName || "-",
+          tyreMakeName: casing.tyreMakeName || "-",
 
-          customerName:
-            casing.customerName ||
-            "-",
+          customerName: casing.customerName || "-",
 
-          service:
-            batch.batchNumber?.startsWith("RT")
-              ? "Retread"
-              : "Repair",
+          service: batch.batchNumber?.startsWith("RT") ? "Retread" : "Repair",
 
-          batchNo:
-            batch.batchNumber ||
-            "-",
+          batchNo: batch.batchNumber || "-",
 
-          currentStage:
-            casing.currentStage,
+          currentStage: casing.currentStage,
 
-          currentStageStatus:
-            casing.currentStageStatus,
+          currentStageStatus: casing.currentStageStatus,
 
-          approved:
-            batch.stageSummary?.approved || 0,
+          approved: batch.stageSummary?.approved || 0,
 
-          rejected:
-            batch.stageSummary?.rejected || 0,
+          rejected: batch.stageSummary?.rejected || 0,
 
-          pending:
-            batch.stageSummary?.pending || 0,
+          pending: batch.stageSummary?.pending || 0,
 
-          previousStage:
-            batch.stageSummary?.stillAtPreviousStage || 0,
+          previousStage: batch.stageSummary?.stillAtPreviousStage || 0,
 
           expectedTotal:
-            batch.stageSummary?.expectedTotal ||
-            batch.originalBatchSize,
+            batch.stageSummary?.expectedTotal || batch.originalBatchSize,
 
-          casingLife:
-            `${casing.noOfRetread || 1}/5`,
+          casingLife: `${casing.noOfRetread || 1}/5`,
 
-          arrived:
-            batch.stageSummary?.arrived || 0,
+          arrived: batch.stageSummary?.arrived || 0,
+
+          // ADD THESE PROPERTIES
+          isBatchFullyArrived: batch.stageSummary?.isBatchFullyArrived ?? false,
+
+          stageSummary: batch.stageSummary,
         });
       });
     });
@@ -93,16 +67,13 @@ const transformApiData = (stages: any[]) => {
 export const useShearography = () => {
   const [loading, setLoading] = useState(false);
 
-  const [inspections, setInspections] =
-    useState<any[]>([]);
+  const [inspections, setInspections] = useState<any[]>([]);
 
-  const [rejectionReasons, setRejectionReasons] =
-    useState<any[]>([]);
+  const [rejectionReasons, setRejectionReasons] = useState<any[]>([]);
 
   // Error states must be inside the hook.
   const [loadingError, setLoadingError] = useState("");
-  const [rejectionReasonsError, setRejectionReasonsError] =
-    useState("");
+  const [rejectionReasonsError, setRejectionReasonsError] = useState("");
 
   const loadOrders = async () => {
     setLoadingError("");
@@ -110,27 +81,21 @@ export const useShearography = () => {
     try {
       setLoading(true);
 
-      const result =
-        await indexPageApiService.getBatchProgress(6, 1);
+      const result = await indexPageApiService.getBatchProgress(6, 1);
 
       console.log("Shearography Orders", result.data);
 
-      const transformed = transformApiData(
-        result?.data?.data || []
-      );
+      const transformed = transformApiData(result?.data?.data || []);
 
       setInspections(transformed);
     } catch (error: unknown) {
-      console.error(
-        "Failed to load shearography orders",
-        error
-      );
+      console.error("Failed to load shearography orders", error);
 
       setLoadingError(
         getShearographyErrorMessage(
           error,
-          "Failed to load Shearography orders."
-        )
+          "Failed to load Shearography orders.",
+        ),
       );
     } finally {
       setLoading(false);
@@ -141,28 +106,16 @@ export const useShearography = () => {
     setRejectionReasonsError("");
 
     try {
-      const result =
-        await shearographyService.getRejectionReason();
+      const result = await shearographyService.getRejectionReason();
 
-      console.log(
-        "Shearography Rejection Reasons",
-        result.data
-      );
+      console.log("Shearography Rejection Reasons", result.data);
 
-      setRejectionReasons(
-        result?.data?.data || []
-      );
+      setRejectionReasons(result?.data?.data || []);
     } catch (error: unknown) {
-      console.error(
-        "Failed to load rejection reasons",
-        error
-      );
+      console.error("Failed to load rejection reasons", error);
 
       setRejectionReasonsError(
-        getShearographyErrorMessage(
-          error,
-          "Failed to load rejection reasons."
-        )
+        getShearographyErrorMessage(error, "Failed to load rejection reasons."),
       );
     }
   };

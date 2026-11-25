@@ -108,6 +108,14 @@ const CommonTable = <T extends Record<string, any>>({
               firstRow.stageSummary ||
               {};
 
+              console.log("BATCH ARRIVAL CHECK:", {
+  batchNumber: groupName,
+  firstRow: firstRow,
+  originalBatch: firstRow.originalBatch,
+  stageSummary: firstRow.stageSummary,
+  originalBatchSummary: firstRow.originalBatch?.stageSummary,
+});
+
             const approved = firstRow.approved ?? summary.approved ?? 0;
 
             const rejected = firstRow.rejected ?? summary.rejected ?? 0;
@@ -127,7 +135,10 @@ const CommonTable = <T extends Record<string, any>>({
               summary.rejectedAtPreviousStages ??
               0;
 
-            const isBatchFullyArrived = summary.isBatchFullyArrived ?? false;
+            const isBatchFullyArrived =
+              summary.isBatchFullyArrived ??
+              firstRow.isBatchFullyArrived ??
+              false;
 
             const isCompleteAtPreviousStage =
               summary.isCompleteAtPreviousStage ?? false;

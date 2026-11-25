@@ -40,7 +40,7 @@ const usePostBuffingIndexTable = () => {
               patternName: casing.patternName || "-",
 
               requestedPattern: casing.patternName || "-",
-              tyreMakeName:casing.tyreMakeName || "-",
+              tyreMakeName: casing.tyreMakeName || "-",
 
               date: casing.orderDate || "",
 
@@ -59,6 +59,11 @@ const usePostBuffingIndexTable = () => {
               expectedTotal: batch.stageSummary?.expectedTotal || 0,
 
               arrived: batch.stageSummary?.arrived || 0,
+              // ADD THESE PROPERTIES
+              isBatchFullyArrived:
+                batch.stageSummary?.isBatchFullyArrived ?? false,
+
+              stageSummary: batch.stageSummary,
 
               currentStage: casing.currentStage,
 
