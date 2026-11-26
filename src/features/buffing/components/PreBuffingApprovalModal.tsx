@@ -376,7 +376,7 @@ const PreBuffingApprovalModal = ({
                         {!isValidatingMaterial &&
                           isFinishedMaterialValid === true && (
                             <small className="text-success d-block mt-1">
-                              Finished material validated successfully.
+                              Finished material available.
                             </small>
                           )}
 
