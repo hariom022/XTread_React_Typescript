@@ -223,7 +223,7 @@ const DispatchDetailsModal = ({ show, deliverySheetId, onClose }: Props) => {
 
                           <th>Tyre Make</th>
 
-                          <th>Vehicle Reg No</th>
+                          {/* <th>Vehicle Reg No</th> */}
 
                           {/* <th>Stage</th>
 
@@ -245,7 +245,7 @@ const DispatchDetailsModal = ({ show, deliverySheetId, onClose }: Props) => {
 
                               <td>{casing.tyreMakeName}</td>
 
-                              <td>{casing.vehicleRegistrationNumber}</td>
+                              {/* <td>{casing.vehicleRegistrationNumber}</td> */}
 
                               {/* <td>{casing.currentStage}</td>
 

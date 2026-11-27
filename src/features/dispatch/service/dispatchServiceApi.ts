@@ -9,14 +9,12 @@ const dispatchServiceApi = {
   /* casing comes from QC */
   getApprovedFromQC: () => indexPageApiService.getBatchProgress(16, 1),
 
-
-/** GET Courier Services by Courier Type
- *  Internal = 2
- *  External = 1
- */
-getCourierServices: (courierType: number) =>
-  api.get(`/courier-services?courierType=${courierType}`),
-
+  /** GET Courier Services by Courier Type
+   *  Internal = 2
+   *  External = 1
+   */
+  getCourierServices: (courierType: number) =>
+    api.get(`/courier-services?courierType=${courierType}`),
 
   /**Get Courier Services By ID */
   getCourierServiceById: (courierServiceId: number) =>
@@ -30,7 +28,49 @@ getCourierServices: (courierType: number) =>
     api.post(`/courier-services/${courierServiceId}/vehicles`, payload),
 
   /**Get Customers */
-  getCustomerName: () => api.get(`/customers`),
+  // getCustomerName: () => api.get(`/customers`),
+  /** Get All Customers */
+  /** Get All Customers with Pagination */
+  getCustomerName: async () => {
+    const pageSize = 100;
+    let pageNumber = 1;
+    let allCustomers: any[] = [];
+    let totalPages = 1;
+
+    do {
+      const response = await api.get("/customers", {
+        params: {
+          pageNumber,
+          pageSize,
+        },
+      });
+
+      const data = response.data?.data;
+
+      if (response.data?.success === false) {
+        throw new Error("Failed to fetch customers");
+      }
+
+      const items = Array.isArray(data?.items) ? data.items : [];
+
+      allCustomers = [...allCustomers, ...items];
+
+      totalPages = Number(data?.totalPages ?? 1);
+      pageNumber++;
+    } while (pageNumber <= totalPages);
+
+    console.log("All Customers Loaded:", allCustomers);
+
+    // Return structure expected by the existing hook
+    return {
+      data: {
+        success: true,
+        data: {
+          items: allCustomers,
+        },
+      },
+    };
+  },
 
   /**Get Service Type */
   getServiceTypeName: () => api.get(`/service-types`),
@@ -63,30 +103,30 @@ getCourierServices: (courierType: number) =>
      UPDATE DELIVERY SHEET
      ========================================== */
 
- updateDeliverySheet: (
-  deliverySheetId: number,
-  payload: {
-    courierServiceId: string | number;
+  updateDeliverySheet: (
+    deliverySheetId: number,
+    payload: {
+      courierServiceId: string | number;
 
-    courierVehicleId: number | null;
+      courierVehicleId: number | null;
 
-    driverId: number | null;
+      driverId: number | null;
 
-    vehicleRegNo: string | null;
+      vehicleRegNo: string | null;
 
-    driverName: string | null;
+      driverName: string | null;
 
-    driverIdNo: string | null;
+      driverIdNo: string | null;
 
-    remarks: string;
+      remarks: string;
 
-    addOrderCasingIds: number[];
+      addOrderCasingIds: number[];
 
-    removeOrderCasingIds: number[];
-  },
-) => api.put(`/delivery-sheets/${deliverySheetId}`, payload),
+      removeOrderCasingIds: number[];
+    },
+  ) => api.put(`/delivery-sheets/${deliverySheetId}`, payload),
   /** GET Drivers by Courier Service */
-getDriversByCourierServiceId: (courierServiceId: number) =>
-  api.get(`/drivers?courierServiceId=${courierServiceId}`),
+  getDriversByCourierServiceId: (courierServiceId: number) =>
+    api.get(`/drivers?courierServiceId=${courierServiceId}`),
 };
 export default dispatchServiceApi;

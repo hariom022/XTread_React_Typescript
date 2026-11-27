@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import useCustomerDeliveryOrderModal from "../hooks/useCustomerDeliveryOrderModal";
 
@@ -36,7 +36,19 @@ const CustomerDeliveryOrderModal = ({
     isInternal,
     setDispatchTeam,
   );
+  // Customer Search
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
 
+  // Filter customers by name or customer number
+  const filteredCustomers = modal.customers.filter((customer) => {
+    const search = customerSearch.trim().toLowerCase();
+
+    return (
+      customer.customerName?.toLowerCase().includes(search) ||
+      customer.customerNumber?.toLowerCase().includes(search)
+    );
+  });
   // ==========================================
   // LOAD EDIT DATA
   // ==========================================
@@ -477,32 +489,93 @@ const CustomerDeliveryOrderModal = ({
 
                   {/* CUSTOMER */}
 
+                  {/* CUSTOMER SEARCHABLE DROPDOWN */}
+
                   <div className="mt-2">
                     <label>Customer Name</label>
 
-                    <select
-                      className="form-select"
-                      value={modal.selectedCustomerId}
-                      onChange={(e) =>
-                        modal.setSelectedCustomerId(e.target.value)
-                      }
-                      disabled={modal.loadingCustomers || !!editDeliverySheet}
-                    >
-                      <option value="">
-                        {modal.loadingCustomers
-                          ? "Loading Customers..."
-                          : "-- Select Customer --"}
-                      </option>
+                    <div className="position-relative">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={
+                          modal.loadingCustomers
+                            ? "Loading Customers..."
+                            : "Search customer name or number..."
+                        }
+                        value={
+                          customerSearch ||
+                          modal.selectedCustomer?.customerName ||
+                          ""
+                        }
+                        disabled={modal.loadingCustomers || !!editDeliverySheet}
+                        onFocus={() => setShowCustomerDropdown(true)}
+                        onChange={(e) => {
+                          setCustomerSearch(e.target.value);
 
-                      {modal.customers.map((customer) => (
-                        <option
-                          key={customer.customerNumber}
-                          value={customer.customerNumber}
-                        >
-                          {customer.customerName}
-                        </option>
-                      ))}
-                    </select>
+                          // Clear previous selection when searching again
+                          modal.setSelectedCustomerId("");
+
+                          setShowCustomerDropdown(true);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") {
+                            setShowCustomerDropdown(false);
+                          }
+                        }}
+                      />
+
+                      {showCustomerDropdown &&
+                        !modal.loadingCustomers &&
+                        !editDeliverySheet && (
+                          <div
+                            className="position-absolute w-100 bg-white border rounded shadow"
+                            style={{
+                              zIndex: 1055,
+                              maxHeight: "250px",
+                              overflowY: "auto",
+                              top: "100%",
+                            }}
+                          >
+                            {filteredCustomers.length > 0 ? (
+                              filteredCustomers.map((customer) => (
+                                <button
+                                  key={customer.customerNumber}
+                                  type="button"
+                                  className="dropdown-item py-2 border-bottom text-start"
+                                  onClick={() => {
+                                    modal.setSelectedCustomerId(
+                                      customer.customerNumber,
+                                    );
+
+                                    setCustomerSearch(customer.customerName);
+
+                                    setShowCustomerDropdown(false);
+                                  }}
+                                >
+                                  <div className="fw-semibold px-2">
+                                    {customer.customerName}
+                                  </div>
+
+                                  <small className="text-muted px-2">
+                                    {customer.customerNumber}
+                                  </small>
+                                </button>
+                              ))
+                            ) : (
+                              <div className="text-center text-muted py-3">
+                                No customers found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                    </div>
+
+                    {modal.loadingCustomers && (
+                      <small className="text-muted">
+                        Loading all customers...
+                      </small>
+                    )}
                   </div>
 
                   {/* SERVICE TYPE */}
@@ -769,7 +842,7 @@ const CustomerDeliveryOrderModal = ({
                     {/* ID NO */}
 
                     {/* <div className="col-md-6"> */}
-                      {/* <label>ID No#</label>
+                    {/* <label>ID No#</label>
 
                       <input
                         type="text"
@@ -794,25 +867,25 @@ const CustomerDeliveryOrderModal = ({
                         }}
                       /> */}
 
-                      {/* ID NO - EXTERNAL ONLY */}
-                      {!isInternal && (
-                        <div className="col-md-6">
-                          <label>ID No#</label>
+                    {/* ID NO - EXTERNAL ONLY */}
+                    {!isInternal && (
+                      <div className="col-md-6">
+                        <label>ID No#</label>
 
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={dispatchTeam.driverIdNo ?? ""}
-                            placeholder="Enter Driver ID"
-                            onChange={(e) =>
-                              setDispatchTeam((prev) => ({
-                                ...prev,
-                                driverIdNo: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                      )}
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={dispatchTeam.driverIdNo ?? ""}
+                          placeholder="Enter Driver ID"
+                          onChange={(e) =>
+                            setDispatchTeam((prev) => ({
+                              ...prev,
+                              driverIdNo: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    )}
                     {/* </div> */}
                   </div>
                 </div>
